@@ -29,5 +29,4 @@ dist-ssr
 
 .env
 .vite
-base44/.app.jsonc
 node_modules

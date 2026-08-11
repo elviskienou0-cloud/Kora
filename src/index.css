@@ -1,0 +1,154 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --background: 40 30% 98%;
+    --foreground: 25 20% 12%;
+
+    --card: 0 0% 100%;
+    --card-foreground: 25 20% 12%;
+
+    --popover: 0 0% 100%;
+    --popover-foreground: 25 20% 12%;
+
+    --primary: 42 80% 52%;
+    --primary-foreground: 25 20% 12%;
+
+    --secondary: 30 15% 94%;
+    --secondary-foreground: 25 20% 12%;
+
+    --muted: 30 10% 94%;
+    --muted-foreground: 25 10% 45%;
+
+    --accent: 42 70% 92%;
+    --accent-foreground: 25 20% 12%;
+
+    --destructive: 0 72% 51%;
+    --destructive-foreground: 0 0% 98%;
+
+    --border: 30 15% 88%;
+    --input: 30 15% 88%;
+    --ring: 42 80% 52%;
+
+    --gold: 42 80% 52%;
+    --gold-light: 42 85% 72%;
+    --gold-dark: 42 75% 38%;
+
+    --radius: 0.75rem;
+
+    --font-heading: 'Inter', system-ui, sans-serif;
+    --font-body: 'Inter', system-ui, sans-serif;
+    --font-display: 'Inter', system-ui, sans-serif;
+    --font-mono: 'JetBrains Mono', monospace;
+
+    --sidebar-background: 0 0% 99%;
+    --sidebar-foreground: 25 20% 12%;
+    --sidebar-primary: 42 80% 52%;
+    --sidebar-primary-foreground: 25 20% 12%;
+    --sidebar-accent: 42 60% 94%;
+    --sidebar-accent-foreground: 25 20% 12%;
+    --sidebar-border: 30 15% 88%;
+    --sidebar-ring: 42 80% 52%;
+  }
+
+  .dark {
+    --background: 25 15% 8%;
+    --foreground: 40 20% 96%;
+
+    --card: 25 15% 11%;
+    --card-foreground: 40 20% 96%;
+
+    --popover: 25 15% 11%;
+    --popover-foreground: 40 20% 96%;
+
+    --primary: 42 80% 52%;
+    --primary-foreground: 25 20% 12%;
+
+    --secondary: 25 15% 16%;
+    --secondary-foreground: 40 20% 96%;
+
+    --muted: 25 15% 16%;
+    --muted-foreground: 30 10% 65%;
+
+    --accent: 42 40% 20%;
+    --accent-foreground: 40 20% 96%;
+
+    --destructive: 0 62% 40%;
+    --destructive-foreground: 0 0% 98%;
+
+    --border: 25 15% 20%;
+    --input: 25 15% 20%;
+    --ring: 42 80% 52%;
+
+    --sidebar-background: 25 15% 10%;
+    --sidebar-foreground: 40 20% 96%;
+    --sidebar-primary: 42 80% 52%;
+    --sidebar-primary-foreground: 25 20% 12%;
+    --sidebar-accent: 42 40% 18%;
+    --sidebar-accent-foreground: 40 20% 96%;
+    --sidebar-border: 25 15% 20%;
+    --sidebar-ring: 42 80% 52%;
+  }
+
+  * {
+    @apply border-border;
+  }
+
+  html {
+    scroll-behavior: smooth;
+  }
+
+  body {
+    @apply bg-background text-foreground font-body antialiased;
+    font-feature-settings: "rlig" 1, "calt" 1;
+  }
+
+  #root {
+    @apply min-h-screen flex flex-col;
+  }
+}
+
+@layer utilities {
+  .gold-gradient {
+    background: linear-gradient(
+      135deg,
+      hsl(var(--gold-light)) 0%,
+      hsl(var(--gold)) 50%,
+      hsl(var(--gold-dark)) 100%
+    );
+  }
+
+  .gold-text-gradient {
+    background: linear-gradient(
+      135deg,
+      hsl(var(--gold-light)) 0%,
+      hsl(var(--gold)) 50%,
+      hsl(var(--gold-dark)) 100%
+    );
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    color: transparent;
+  }
+
+  .shimmer-bg {
+    background: linear-gradient(
+      90deg,
+      hsl(var(--gold-light) / 0.3) 0%,
+      hsl(var(--gold) / 0.6) 50%,
+      hsl(var(--gold-light) / 0.3) 100%
+    );
+    background-size: 200% 100%;
+    animation: gold-shimmer 3s linear infinite;
+  }
+
+  .glass {
+    @apply bg-white/70 backdrop-blur-xl border border-white/40;
+  }
+
+  .dark .glass {
+    @apply bg-black/40 border-white/10;
+  }
+}
