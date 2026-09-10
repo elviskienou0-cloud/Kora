@@ -221,8 +221,8 @@ APP_PARAMS = {
   ],
   plans: {
     free:     { name: "Découverte",   price: 0 },
-    pro:      { name: "Talent Pro",   price: 9_900 },
-    business: { name: "Business",     price: 49_000 },
+    pro:      { name: "Talent Pro",   price: 5_000 },
+    business: { name: "Business",     price: 20_000 },
   }
 }
 ```

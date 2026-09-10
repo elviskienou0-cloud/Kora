@@ -36,8 +36,8 @@ export const APP_PARAMS = {
   ],
   plans: {
     free: { name: "Découverte", price: 0, period: "/mois" },
-    pro: { name: "Talent Pro", price: 9900, period: "/mois" },
-    business: { name: "Business", price: 49000, period: "/mois" },
+    pro: { name: "Talent Pro", price: 5000, period: "/mois" },
+    business: { name: "Business", price: 20000, period: "/mois" },
     enterprise: { name: "Entreprise", price: null, period: "" },
   },
 }

@@ -71,11 +71,11 @@ export default function LandingFooter() {
               </div>
               <div className="flex items-start gap-3 text-muted-foreground">
                 <Phone className="h-4 w-4 mt-0.5 text-gold shrink-0" />
-                <span>+225 07 00 00 00 00</span>
+                <span>+226 70 27 18 10</span>
               </div>
               <div className="flex items-start gap-3 text-muted-foreground">
                 <MapPin className="h-4 w-4 mt-0.5 text-gold shrink-0" />
-                <span>Abidjan, Côte d&apos;Ivoire</span>
+                <span>Ouagadougou, Burkina Faso</span>
               </div>
             </div>
 

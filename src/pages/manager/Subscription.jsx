@@ -16,13 +16,12 @@ const PLANS = [
   {
     id: "starter",
     name: "Starter",
-    price: "25 000",
+    price: "5 000",
     period: "/ mois",
     tagline: "Idéal pour lancer",
     highlight: false,
     features: [
-      { label: "Jusqu'à 5 talents managés", ok: true },
-      { label: "3 projets simultanés", ok: true },
+      { label: "Jusqu'à 10 talents managés", ok: true },
       { label: "Support par email", ok: true },
       { label: "Paiements sécurisés", ok: true },
       { label: "Analytics avancés", ok: false },
@@ -34,13 +33,12 @@ const PLANS = [
   {
     id: "pro",
     name: "Pro",
-    price: "75 000",
+    price: "20 000",
     period: "/ mois",
     tagline: "Le plus populaire",
     highlight: true,
     features: [
-      { label: "Jusqu'à 25 talents managés", ok: true },
-      { label: "15 projets simultanés", ok: true },
+      { label: "Tout le plan starter", ok: true },
       { label: "Support prioritaire 24h", ok: true },
       { label: "Paiements sécurisés", ok: true },
       { label: "Analytics avancés", ok: true },
@@ -108,7 +106,7 @@ export default function ManagerSubscription() {
             <Sparkles className="h-7 w-7 text-primary-foreground" strokeWidth={2.2} />
           </div>
           <div className="flex-1 min-w-0">
-            <h3 className="font-black text-lg mb-1">Passez à l'annuel · -20% offerts 🎁</h3>
+            <h3 className="font-black text-lg mb-1">Passez à l'annuel · -10% offerts 🎁</h3>
             <p className="text-sm text-muted-foreground">Bénéficiez de 2 mois gratuits et de perks exclusifs en payant annuellement.</p>
           </div>
           <div className="flex items-center gap-3 shrink-0 w-full sm:w-auto justify-between sm:justify-end">
@@ -123,7 +121,7 @@ export default function ManagerSubscription() {
                 onClick={() => setYearly(true)}
                 className={cn("px-3.5 py-1.5 rounded-lg text-xs font-bold transition-all", yearly ? "bg-background shadow" : "text-muted-foreground")}
               >
-                Annuel <Badge className="ml-1 text-[9px] bg-emerald-500/10 text-emerald-600 border-emerald-500/30">-20%</Badge>
+                Annuel <Badge className="ml-1 text-[9px] bg-emerald-500/10 text-emerald-600 border-emerald-500/30">-10%</Badge>
               </button>
             </div>
           </div>
