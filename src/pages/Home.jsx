@@ -1,4 +1,4 @@
-import { useEffect } from "react"
+import { useEffect, useState } from "react"
 import { Link, useNavigate } from "react-router-dom"
 import { motion } from "framer-motion"
 import { toast } from "sonner"
@@ -25,6 +25,7 @@ import { Badge } from "@/components/ui/badge"
 import { Avatar, AvatarFallback } from "@/components/ui/avatar"
 import { Separator } from "@/components/ui/separator"
 import { useAuth } from "@/lib/AuthContext"
+import { supabase } from "@/lib/supabase"
 import { APP_PARAMS } from "@/lib/app-params"
 import { getCategoryIcon } from "@/lib/categoryIcons"
 import { cn, formatCurrency, truncate } from "@/lib/utils"
@@ -35,44 +36,64 @@ const fadeInUp = {
 }
 const stagger = { hidden: {}, visible: { transition: { staggerChildren: 0.08 } } }
 
-const RECOMMENDED_TALENTS = [
-  {
-    id: "t1", name: "Awa Sow", role: "Développeuse Fullstack Senior", country: "🇸🇳 Sénégal", avatar: "AS",
-    price: 45000, rating: 4.9, reviews: 128, completed: 42, verified: true,
-    skills: ["React", "Node.js", "TypeScript", "PostgreSQL"],
-    bio: "Développeuse avec 7 ans d'expérience, spécialisée dans les applications web scalables.",
-    category: "tech",
-  },
-  {
-    id: "t2", name: "Chidi Okoro", role: "Designer UI/UX", country: "🇳🇬 Nigéria", avatar: "CO",
-    price: 35000, rating: 5, reviews: 89, completed: 31, verified: true,
-    skills: ["Figma", "Design System", "Branding", "Prototyping"],
-    bio: "Créatif passionné, je transforme les idées en expériences utilisateur mémorables.",
-    category: "creative",
-  },
-  {
-    id: "t3", name: "Léa Koffi", role: "Experte Marketing Digital", country: "🇨🇮 Côte d'Ivoire", avatar: "LK",
-    price: 30000, rating: 4.8, reviews: 76, completed: 58, verified: true,
-    skills: ["SEO", "Meta Ads", "Content Marketing", "Analytics"],
-    bio: "J'aide les marques à rayonner sur le digital avec des stratégies data-driven.",
-    category: "marketing",
-  },
-  {
-    id: "t4", name: "Moussa Diallo", role: "Consultant Stratégie Business", country: "🇲🇱 Mali", avatar: "MD",
-    price: 60000, rating: 4.9, reviews: 45, completed: 23, verified: true,
-    skills: ["Business Plan", "Levée de fonds", "Stratégie", "Finance"],
-    bio: "Ancien banquier d'affaires, j'accompagne startups et PME dans leur croissance.",
-    category: "business",
-  },
-]
+function initialsOf(firstName, lastName) {
+  return `${firstName?.[0] || ""}${lastName?.[0] || ""}`.toUpperCase() || "T"
+}
 
 export default function Home() {
   const navigate = useNavigate()
   const { user, isAuthenticated, isLoading, logout } = useAuth()
+  const [recommended, setRecommended] = useState([])
+  const [loadingRecommended, setLoadingRecommended] = useState(true)
 
   useEffect(() => {
     if (!isLoading && !isAuthenticated) navigate("/login", { replace: true })
   }, [isLoading, isAuthenticated, navigate])
+
+  useEffect(() => {
+    async function loadRecommended() {
+      setLoadingRecommended(true)
+      const { data, error } = await supabase
+        .from("talent_profiles")
+        .select(`
+          id, first_name, last_name, title, bio, daily_rate,
+          rating, reviews_count, completed_projects, verified,
+          categories ( slug, name ),
+          countries ( name ),
+          talent_profile_skills ( skills ( name ) )
+        `)
+        .eq("status", "published")
+        .eq("is_visible", true)
+        .order("rating", { ascending: false })
+        .limit(4)
+
+      if (error) {
+        console.error("Erreur chargement talents recommandés :", error.message)
+        setRecommended([])
+      } else {
+        setRecommended(
+          (data || []).map((t) => ({
+            id: t.id,
+            name: `${t.first_name} ${t.last_name}`.trim(),
+            role: t.title || "",
+            country: t.countries?.name || "",
+            avatar: initialsOf(t.first_name, t.last_name),
+            price: t.daily_rate,
+            rating: Number(t.rating || 0),
+            reviews: t.reviews_count || 0,
+            completed: t.completed_projects || 0,
+            verified: !!t.verified,
+            skills: (t.talent_profile_skills || []).map((row) => row.skills?.name).filter(Boolean),
+            bio: t.bio || "",
+            category: t.categories?.slug || "",
+          }))
+        )
+      }
+      setLoadingRecommended(false)
+    }
+
+    if (isAuthenticated) loadRecommended()
+  }, [isAuthenticated])
 
   if (isLoading || !user) return null
 
@@ -83,7 +104,7 @@ export default function Home() {
     { label: "Croissance KORA", value: "+24%", icon: TrendingUp, trend: "Ce trimestre", color: "from-violet-400/20 text-violet-600" },
   ]
 
-  const roleLabel = { admin: "Administrateur", manager: "Manager", client: "Client", talent: "Talent" }[user.role] || "Utilisateur"
+  const roleLabel = { admin: "Administrateur", manager: "Manager", client: "Client" }[user.role] || "Utilisateur"
 
   const firstName = user.name?.split(" ")[0] || user.name
 
@@ -137,9 +158,7 @@ export default function Home() {
                     Bienvenue, <span className="underline decoration-white/40 decoration-4 underline-offset-4">{firstName}</span> 👋
                   </h1>
                   <p className="text-base font-medium opacity-90 max-w-xl">
-                    {user.role === "talent"
-                      ? "Des opportunités exceptionnelles vous attendent aujourd'hui. Découvrez les nouveaux projets correspondant à vos compétences."
-                      : user.role === "client"
+                    {user.role === "client"
                       ? "Trouvez les meilleurs talents africains pour faire grandir votre projet. Laissez-vous guider !"
                       : user.role === "manager"
                       ? "Tableau de bord manager : gérez vos talents, suivez vos projets et optimisez vos collaborations."
@@ -154,10 +173,7 @@ export default function Home() {
               </div>
               <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mt-8">
                 {[
-                  { label: "Nouveaux talents", value: "142", icon: Users },
-                  { label: "Projets urgents", value: "38", icon: Clock },
-                  { label: "Pays actifs", value: "54", icon: MapPin },
-                  { label: "Taux de match", value: "94%", icon: Award },
+            
                 ].map((s) => {
                   const Icon = s.icon
                   return (
@@ -219,7 +235,12 @@ export default function Home() {
             </Button>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-5">
-            {RECOMMENDED_TALENTS.map((t, i) => {
+            {loadingRecommended ? (
+              <p className="col-span-full text-sm text-muted-foreground">Chargement des talents recommandés...</p>
+            ) : recommended.length === 0 ? (
+              <p className="col-span-full text-sm text-muted-foreground">Aucun talent publié pour le moment.</p>
+            ) : (
+              recommended.map((t, i) => {
               const CatIcon = getCategoryIcon(t.category)
               return (
                 <motion.div key={t.id} variants={fadeInUp} custom={i} whileHover={{ y: -5 }} transition={{ type: "spring", stiffness: 300 }}>
@@ -269,7 +290,8 @@ export default function Home() {
                   </Card>
                 </motion.div>
               )
-            })}
+              })
+            )}
           </div>
         </motion.section>
 
@@ -317,11 +339,7 @@ export default function Home() {
                 </CardHeader>
                 <CardContent className="space-y-4">
                   {[
-                    { text: "Nana K. a postulé à votre projet", time: "il y a 2h", type: "success" },
-                    { text: "Message de Fatim T. reçu", time: "il y a 5h", type: "message" },
-                    { text: "Paiement 250 000 FCFA validé", time: "hier", type: "payment" },
-                    { text: "Projet Design System terminé ⭐", time: "il y a 2j", type: "star" },
-                    { text: "Nouveau talent vérifié : Chidi O.", time: "il y a 3j", type: "user" },
+
                   ].map((a, i) => (
                     <div key={i} className="flex items-start gap-3">
                       <div className={cn(

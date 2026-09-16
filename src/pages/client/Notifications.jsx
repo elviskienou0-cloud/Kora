@@ -1,22 +1,17 @@
-import { useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
+import { useNavigate } from "react-router-dom";
 import {
   Card,
   CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
 } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
-import { Separator } from "@/components/ui/separator";
 import { Input } from "@/components/ui/input";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { cn, formatDate } from "@/lib/utils";
 import {
   Bell,
-  BellRing,
   CheckCheck,
   Trash2,
   Check,
@@ -29,158 +24,29 @@ import {
   Sparkles,
   Search,
   X,
-  Settings,
-  Archive,
   MailOpen,
   ChevronRight,
   FileText,
+  RefreshCw,
+  AlertTriangle,
 } from "lucide-react";
+import { supabase } from "@/lib/supabase";
+import { useAuth } from "@/lib/AuthContext";
 
-const notifications = [
-  {
-    id: "n1",
-    type: "request_accepted",
-    title: "Demande acceptée !",
-    message: "Aïcha Diallo a accepté votre demande de collaboration « Refonte de l'application mobile ».",
-    read: false,
-    createdAt: "2026-08-09T09:15:00",
-    actor: { name: "Aïcha Diallo", initials: "AD" },
-    link: "#",
-  },
-  {
-    id: "n2",
-    type: "new_message",
-    title: "Nouveau message",
-    message: "Kwame Asante vous a envoyé un message concernant la demande « Développement plateforme SaaS ».",
-    read: false,
-    createdAt: "2026-08-09T07:42:00",
-    actor: { name: "Kwame Asante", initials: "KA" },
-    link: "#",
-  },
-  {
-    id: "n3",
-    type: "new_favorite",
-    title: "Nouveau dans vos favoris suggérés",
-    message: "Nous avons trouvé 3 nouveaux talents correspondant à vos recherches récentes.",
-    read: false,
-    createdAt: "2026-08-08T18:20:00",
-    actor: { name: "Kora", initials: "KO" },
-    link: "#",
-    system: true,
-  },
-  {
-    id: "n4",
-    type: "review",
-    title: "Laissez un avis",
-    message: "Comment s'est passée votre collaboration avec Amina Kone ? Votre avis aide la communauté.",
-    read: true,
-    createdAt: "2026-08-07T14:05:00",
-    actor: { name: "Amina Kone", initials: "AK" },
-    link: "#",
-  },
-  {
-    id: "n5",
-    type: "request_status",
-    title: "Statut de la demande mis à jour",
-    message: "Votre demande « Modèle prédictif churn » est maintenant à 75% d'avancement.",
-    read: true,
-    createdAt: "2026-08-06T16:30:00",
-    actor: { name: "Chinedu Okafor", initials: "CO" },
-    link: "#",
-  },
-  {
-    id: "n6",
-    type: "system_promo",
-    title: "Offre Premium limitée",
-    message: "Profitez de -30% sur l'abonnement Premium pendant 48h seulement !",
-    read: true,
-    createdAt: "2026-08-05T10:00:00",
-    actor: { name: "Kora", initials: "KO" },
-    link: "#",
-    system: true,
-    promo: true,
-  },
-  {
-    id: "n7",
-    type: "request_declined",
-    title: "Demande refusée",
-    message: "Nairobi Kamau n'est malheureusement pas disponible pour votre demande.",
-    read: true,
-    createdAt: "2026-08-03T11:40:00",
-    actor: { name: "Nairobi Kamau", initials: "NK" },
-    link: "#",
-  },
-  {
-    id: "n8",
-    type: "payment_success",
-    title: "Paiement effectué",
-    message: "Votre paiement de 2 050 000 XOF pour la demande « Application livraison repas » a bien été validé.",
-    read: true,
-    createdAt: "2026-07-28T09:20:00",
-    actor: { name: "Kora", initials: "KO" },
-    link: "#",
-    system: true,
-  },
-];
-
+// Icônes/couleurs par type de notification. Repli générique (Bell) pour
+// tout type non prévu ici, pour ne jamais casser l'affichage.
 const typeConfig = {
-  request_accepted: {
-    icon: Briefcase,
-    label: "Demandes",
-    dotColor: "bg-emerald-500",
-    iconBg: "bg-emerald-500/15",
-    iconColor: "text-emerald-600",
-  },
-  new_message: {
-    icon: MessageSquare,
-    label: "Messages",
-    dotColor: "bg-blue-500",
-    iconBg: "bg-blue-500/15",
-    iconColor: "text-blue-600",
-  },
-  new_favorite: {
-    icon: Heart,
-    label: "Favoris",
-    dotColor: "bg-rose-500",
-    iconBg: "bg-rose-500/15",
-    iconColor: "text-rose-500",
-  },
-  review: {
-    icon: Star,
-    label: "Avis",
-    dotColor: "bg-gold",
-    iconBg: "bg-gold/15",
-    iconColor: "text-gold-dark",
-  },
-  request_status: {
-    icon: FileText,
-    label: "Statut",
-    dotColor: "bg-blue-500",
-    iconBg: "bg-blue-500/15",
-    iconColor: "text-blue-600",
-  },
-  system_promo: {
-    icon: Gift,
-    label: "Promotions",
-    dotColor: "bg-purple-500",
-    iconBg: "bg-purple-500/15",
-    iconColor: "text-purple-600",
-  },
-  request_declined: {
-    icon: AlertCircle,
-    label: "Demandes",
-    dotColor: "bg-red-500",
-    iconBg: "bg-red-500/15",
-    iconColor: "text-red-600",
-  },
-  payment_success: {
-    icon: CheckCheck,
-    label: "Paiements",
-    dotColor: "bg-emerald-500",
-    iconBg: "bg-emerald-500/15",
-    iconColor: "text-emerald-600",
-  },
+  request_accepted: { icon: Briefcase, dotColor: "bg-emerald-500", iconBg: "bg-emerald-500/15", iconColor: "text-emerald-600" },
+  request_status: { icon: FileText, dotColor: "bg-blue-500", iconBg: "bg-blue-500/15", iconColor: "text-blue-600" },
+  request_declined: { icon: AlertCircle, dotColor: "bg-red-500", iconBg: "bg-red-500/15", iconColor: "text-red-600" },
+  new_message: { icon: MessageSquare, dotColor: "bg-blue-500", iconBg: "bg-blue-500/15", iconColor: "text-blue-600" },
+  new_favorite: { icon: Heart, dotColor: "bg-rose-500", iconBg: "bg-rose-500/15", iconColor: "text-rose-500" },
+  review: { icon: Star, dotColor: "bg-gold", iconBg: "bg-gold/15", iconColor: "text-gold-dark" },
+  system_promo: { icon: Gift, dotColor: "bg-purple-500", iconBg: "bg-purple-500/15", iconColor: "text-purple-600" },
+  payment_success: { icon: CheckCheck, dotColor: "bg-emerald-500", iconBg: "bg-emerald-500/15", iconColor: "text-emerald-600" },
 };
+
+const defaultTypeConfig = { icon: Bell, dotColor: "bg-muted-foreground", iconBg: "bg-muted", iconColor: "text-muted-foreground" };
 
 const filterTabs = [
   { id: "all", label: "Toutes" },
@@ -204,6 +70,7 @@ const itemVariants = {
 };
 
 function formatRelative(dateISO) {
+  if (!dateISO) return "";
   const now = new Date();
   const d = new Date(dateISO);
   const diffSec = Math.floor((now - d) / 1000);
@@ -218,42 +85,154 @@ function formatRelative(dateISO) {
 }
 
 export default function ClientNotifications() {
+  const { user, isLoading: authLoading } = useAuth();
+  const navigate = useNavigate();
+
+  const [items, setItems] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
   const [filter, setFilter] = useState("all");
   const [search, setSearch] = useState("");
-  const [items, setItems] = useState(notifications);
 
-  const markAllAsRead = () => {
-    setItems((prev) => prev.map((n) => ({ ...n, read: true })));
+  useEffect(() => {
+    if (authLoading) return;
+    if (!user?.authId) {
+      setLoading(false);
+      return;
+    }
+
+    let cancelled = false;
+
+    async function loadNotifications() {
+      setLoading(true);
+      setError("");
+
+      try {
+        const { data, error: notifError } = await supabase
+          .from("notifications")
+          .select("*")
+          .eq("user_id", user.authId)
+          .order("created_at", { ascending: false });
+
+        if (notifError) throw notifError;
+        if (!cancelled) setItems(data || []);
+      } catch (err) {
+        console.error("Erreur chargement notifications :", err);
+        if (!cancelled) {
+          setError(err?.message || "Impossible de charger vos notifications.");
+        }
+      } finally {
+        if (!cancelled) setLoading(false);
+      }
+    }
+
+    loadNotifications();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [authLoading, user?.authId]);
+
+  const markAsRead = async (id) => {
+    const previous = items;
+    setItems((prev) => prev.map((n) => (n.id === id ? { ...n, is_read: true } : n)));
+
+    const { error: updateError } = await supabase
+      .from("notifications")
+      .update({ is_read: true })
+      .eq("id", id);
+
+    if (updateError) {
+      console.error("Erreur marquage lu :", updateError);
+      setItems(previous);
+    }
   };
 
-  const markAsRead = (id) => {
-    setItems((prev) => prev.map((n) => (n.id === id ? { ...n, read: true } : n)));
+  const markAllAsRead = async () => {
+    const previous = items;
+    const unreadIds = items.filter((n) => !n.is_read).map((n) => n.id);
+    if (unreadIds.length === 0) return;
+
+    setItems((prev) => prev.map((n) => ({ ...n, is_read: true })));
+
+    const { error: updateError } = await supabase
+      .from("notifications")
+      .update({ is_read: true })
+      .in("id", unreadIds);
+
+    if (updateError) {
+      console.error("Erreur marquage global lu :", updateError);
+      setItems(previous);
+    }
   };
 
-  const clearAll = () => {
-    setItems([]);
-  };
-
-  const deleteOne = (id) => {
+  const deleteOne = async (id) => {
+    const previous = items;
     setItems((prev) => prev.filter((n) => n.id !== id));
+
+    const { error: deleteError } = await supabase
+      .from("notifications")
+      .delete()
+      .eq("id", id);
+
+    if (deleteError) {
+      console.error("Erreur suppression notification :", deleteError);
+      setItems(previous);
+    }
   };
 
-  const filtered = items.filter((n) => {
+  const clearAll = async () => {
+    const previous = items;
+    const ids = items.map((n) => n.id);
+    if (ids.length === 0) return;
+
+    setItems([]);
+
+    const { error: deleteError } = await supabase
+      .from("notifications")
+      .delete()
+      .in("id", ids);
+
+    if (deleteError) {
+      console.error("Erreur suppression globale :", deleteError);
+      setItems(previous);
+    }
+  };
+
+  const handleOpen = (n) => {
+    if (!n.is_read) markAsRead(n.id);
+    if (n.link) navigate(n.link);
+  };
+
+  const filtered = useMemo(() => {
     const q = search.toLowerCase();
-    const matchSearch =
-      !search ||
-      n.title.toLowerCase().includes(q) ||
-      n.message.toLowerCase().includes(q);
+    return items.filter((n) => {
+      const matchSearch =
+        !search ||
+        (n.title || "").toLowerCase().includes(q) ||
+        (n.message || "").toLowerCase().includes(q);
 
-    if (filter === "unread" && n.read) return false;
-    if (filter === "requests" && !["request_accepted", "request_status", "request_declined"].includes(n.type)) return false;
-    if (filter === "messages" && n.type !== "new_message") return false;
-    if (filter === "system" && !n.system && n.type !== "system_promo" && n.type !== "payment_success") return false;
+      if (filter === "unread" && n.is_read) return false;
+      if (filter === "requests" && !(n.type || "").startsWith("request")) return false;
+      if (filter === "messages" && n.type !== "new_message") return false;
+      if (filter === "system" && ((n.type || "").startsWith("request") || n.type === "new_message")) return false;
 
-    return matchSearch;
-  });
+      return matchSearch;
+    });
+  }, [items, filter, search]);
 
-  const unreadCount = items.filter((n) => !n.read).length;
+  const unreadCount = items.filter((n) => !n.is_read).length;
+
+  if (authLoading || loading) {
+    return (
+      <div className="flex min-h-[60vh] items-center justify-center">
+        <div className="flex items-center gap-3 text-muted-foreground">
+          <RefreshCw className="h-5 w-5 animate-spin" />
+          <span>Chargement des notifications...</span>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-accent/40 via-background to-background p-4 md:p-8">
@@ -310,12 +289,23 @@ export default function ClientNotifications() {
                 <Trash2 className="mr-1.5 h-4 w-4" />
                 Tout effacer
               </Button>
-              <Button variant="ghost" size="icon" className="text-gold-dark hover:bg-gold/10">
-                <Settings className="h-4 w-4" />
-              </Button>
             </div>
           </div>
         </motion.div>
+
+        {error && (
+          <motion.div variants={itemVariants}>
+            <Card className="border-destructive">
+              <CardContent className="p-4 flex items-center gap-3">
+                <AlertTriangle className="h-5 w-5 text-destructive shrink-0" />
+                <p className="text-sm text-destructive flex-1">{error}</p>
+                <Button variant="outline" size="sm" onClick={() => window.location.reload()}>
+                  Réessayer
+                </Button>
+              </CardContent>
+            </Card>
+          </motion.div>
+        )}
 
         <motion.div variants={itemVariants} className="space-y-4">
           <Card className="border-gold/20 shadow-sm">
@@ -406,7 +396,7 @@ export default function ClientNotifications() {
               <div className="divide-y divide-gold/10">
                 <AnimatePresence initial={false}>
                   {filtered.map((n) => {
-                    const cfg = typeConfig[n.type] || typeConfig.review;
+                    const cfg = typeConfig[n.type] || defaultTypeConfig;
                     const Ico = cfg.icon;
                     return (
                       <motion.div
@@ -418,60 +408,45 @@ export default function ClientNotifications() {
                         layout
                         className={cn(
                           "group relative px-4 md:px-6 py-4 md:py-5 transition-colors cursor-pointer",
-                          n.read ? "bg-background/40" : "bg-gold/[0.06]"
+                          n.is_read ? "bg-background/40" : "bg-gold/[0.06]"
                         )}
-                        onClick={() => markAsRead(n.id)}
+                        onClick={() => handleOpen(n)}
                       >
-                        {!n.read && (
+                        {!n.is_read && (
                           <div className={cn("absolute left-0 top-0 bottom-0 w-1 gold-gradient")} />
                         )}
                         <div className="flex items-start gap-3 md:gap-4 pl-0">
                           <div className="shrink-0 relative">
-                            {n.system ? (
-                              <div className={cn("flex h-11 w-11 items-center justify-center rounded-2xl", cfg.iconBg)}>
-                                {n.promo ? (
-                                  <div className="absolute inset-0 rounded-2xl animate-pulse-gold" />
-                                ) : null}
-                                <Ico className={cn("h-5 w-5 relative", cfg.iconColor)} />
-                              </div>
-                            ) : (
-                              <Avatar className="h-11 w-11 ring-2 ring-gold/20 ring-offset-2 ring-offset-card">
-                                <AvatarFallback className={cn("gold-gradient text-white text-xs font-bold")}>
-                                  {n.actor.initials}
-                                </AvatarFallback>
-                              </Avatar>
-                            )}
+                            <div className={cn("flex h-11 w-11 items-center justify-center rounded-2xl", cfg.iconBg)}>
+                              <Ico className={cn("h-5 w-5", cfg.iconColor)} />
+                            </div>
                           </div>
 
                           <div className="min-w-0 flex-1">
                             <div className="flex flex-wrap items-start justify-between gap-2">
                               <div className="min-w-0">
                                 <div className="flex items-center gap-2 flex-wrap">
-                                  {!n.read && (
+                                  {!n.is_read && (
                                     <span className={cn("h-2 w-2 shrink-0 rounded-full", cfg.dotColor)} />
                                   )}
-                                  <h4 className={cn("font-semibold leading-snug", n.read ? "text-foreground" : "text-foreground")}>
-                                    {n.title}
+                                  <h4 className="font-semibold leading-snug text-foreground">
+                                    {n.title || "Notification"}
                                   </h4>
-                                  {n.promo && (
-                                    <Badge className="gap-1 text-[10px] gold-gradient text-primary-foreground">
-                                      <Sparkles className="h-3 w-3" />
-                                      Offre
-                                    </Badge>
-                                  )}
                                 </div>
-                                <p className="mt-1 text-xs text-muted-foreground line-clamp-2 md:line-clamp-1">
-                                  {n.message}
-                                </p>
+                                {n.message && (
+                                  <p className="mt-1 text-xs text-muted-foreground line-clamp-2 md:line-clamp-1">
+                                    {n.message}
+                                  </p>
+                                )}
                               </div>
                               <p className="shrink-0 text-[11px] text-muted-foreground whitespace-nowrap">
-                                {formatRelative(n.createdAt)}
+                                {formatRelative(n.created_at)}
                               </p>
                             </div>
 
                             <div className="mt-3 flex items-center justify-between">
                               <div className="flex items-center gap-2">
-                                {!n.read ? (
+                                {!n.is_read ? (
                                   <Button
                                     variant="ghost"
                                     size="sm"
@@ -481,26 +456,19 @@ export default function ClientNotifications() {
                                     <Check className="h-3.5 w-3.5 mr-1" />
                                     Marquer lu
                                   </Button>
-                                ) : (
+                                ) : n.link ? (
                                   <Button
                                     variant="ghost"
                                     size="sm"
+                                    onClick={(e) => { e.stopPropagation(); navigate(n.link); }}
                                     className="h-7 px-2 text-xs text-muted-foreground hover:bg-gold/10"
                                   >
                                     Voir détails
                                     <ChevronRight className="h-3.5 w-3.5 ml-1" />
                                   </Button>
-                                )}
+                                ) : null}
                               </div>
                               <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                                <Button
-                                  variant="ghost"
-                                  size="icon"
-                                  onClick={(e) => { e.stopPropagation(); }}
-                                  className="h-7 w-7 text-muted-foreground hover:text-gold-dark hover:bg-gold/10"
-                                >
-                                  <Archive className="h-3.5 w-3.5" />
-                                </Button>
                                 <Button
                                   variant="ghost"
                                   size="icon"

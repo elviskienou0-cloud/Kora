@@ -137,10 +137,10 @@ export default function KoraLayout() {
   const menu = MENU_ITEMS[user?.role] || MENU_ITEMS.client
   const roleInfo = ROLE_LABELS[user?.role] || ROLE_LABELS.client
 
-  const handleLogout = () => {
-    logout()
-    navigate("/")
-  }
+  const handleLogout = async () => {
+  await logout()
+  navigate("/")
+}
 
   const SidebarContent = () => (
     <aside className="flex flex-col h-full">

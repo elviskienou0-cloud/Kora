@@ -1,189 +1,544 @@
-import { motion } from "framer-motion"
-import { toast } from "sonner"
+import { useEffect, useMemo, useState } from "react"
+import { useNavigate } from "react-router-dom"
 import {
-  Users, Briefcase, Star, Clock, TrendingUp, ChevronRight,
-  Award, Sparkles, DollarSign, Bell, Search
+Users,
+ClipboardList,
+Search,
+Bell,
+ArrowRight,
+UserPlus,
+RefreshCw,
 } from "lucide-react"
+
+import { useAuth } from "@/lib/AuthContext"
+import { supabase } from "@/lib/supabase"
+
 import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
-import { Badge } from "@/components/ui/badge"
-import { Avatar, AvatarFallback } from "@/components/ui/avatar"
+import {
+Card,
+CardContent,
+CardHeader,
+CardTitle,
+} from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
-import { Separator } from "@/components/ui/separator"
-import { cn } from "@/lib/utils"
-import WeeklyChart from "@/components/WeeklyChart"
 
-const STATS = [
-  { label: "Talents managés", value: "24", delta: "+3", icon: Users, color: "from-violet-400/20 to-violet-500/10 text-violet-600" },
-  { label: "Projets en cours", value: "7", delta: "+1", icon: Briefcase, color: "from-blue-400/20 to-blue-500/10 text-blue-600" },
-  { label: "Revenus générés", value: "4.8M", delta: "+18%", icon: DollarSign, color: "from-emerald-400/20 to-emerald-500/10 text-emerald-600" },
-  { label: "Satisfaction client", value: "4.9/5", delta: "+0.2", icon: Star, color: "from-gold/20 to-amber-500/10 text-gold-dark" },
-]
+function getTalentName(talent) {
+if (!talent) return "Talent sans nom"
 
-const TALENTS = [
-  { id: "t1", name: "Aïcha Sow", cat: "Design UI/UX", tasks: 14, rating: 4.9, status: "busy", rate: "30k/h" },
-  { id: "t2", name: "Moussa Keïta", cat: "Développement Web", tasks: 9, rating: 4.8, status: "available", rate: "42k/h" },
-  { id: "t3", name: "Nora Bennani", cat: "Rédaction & SEO", tasks: 5, rating: 5.0, status: "available", rate: "18k/h" },
-  { id: "t4", name: "Sadio Touré", cat: "Marketing Digital", tasks: 11, rating: 4.7, status: "busy", rate: "35k/h" },
-]
+if (talent.name) return talent.name
 
-const STATUS = {
-  available: { label: "Disponible", cls: "bg-emerald-500/10 text-emerald-600 border-emerald-500/30" },
-  busy: { label: "Occupé", cls: "bg-orange-500/10 text-orange-600 border-orange-500/30" },
+const fullName = `${talent.first_name || ""} ${
+    talent.last_name || ""
+  }`.trim()
+
+return fullName || "Talent sans nom"
 }
 
-const NOTIFICATIONS = [
-  { id: 1, text: "Aïcha a soumis une nouvelle livraison", time: "Il y a 1h", icon: Sparkles },
-  { id: 2, text: "Paiement reçu - Projet Branding VI", time: "Il y a 3h", icon: DollarSign },
-  { id: 3, text: "Nouveau talent à approuver (5 candidats)", time: "Il y a 5h", icon: Users },
-]
+function getInitials(talent) {
+const name = getTalentName(talent)
+
+const parts = name
+.split(" ")
+.map((part) => part.trim())
+.filter(Boolean)
+
+if (parts.length === 0) return "T"
+
+if (parts.length === 1) {
+return parts[0].slice(0, 2).toUpperCase()
+}
+
+return `${parts[0][0]}${parts[1][0]}`.toUpperCase()
+}
+
+function getNotificationText(notification) {
+if (!notification) return "Nouvelle notification"
+
+return (
+notification.message ||
+notification.title ||
+"Nouvelle notification"
+)
+}
+
+function isActiveRequest(status) {
+const value = String(status || "").toLowerCase()
+
+return [
+"pending",
+"en_attente",
+"accepted",
+"acceptee",
+"in_progress",
+"en_cours",
+].includes(value)
+}
 
 export default function ManagerDashboard() {
-  return (
-    <div className="space-y-6">
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-        <div>
-          <h1 className="text-2xl font-black tracking-tight">Manager Dashboard</h1>
-          <p className="text-sm text-muted-foreground">Pilotez votre équipe de talents efficacement</p>
-        </div>
-        <Button className="gap-2">
-          <Award className="h-4 w-4" /> Inviter un talent
-        </Button>
-      </div>
+const navigate = useNavigate()
+const { user, isLoading: authLoading } = useAuth()
 
-      <motion.div
-        initial={{ opacity: 0, y: 10 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.4 }}
-        className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4"
-      >
-        {STATS.map((s, i) => {
-          const Icon = s.icon
-          return (
-            <motion.div key={s.label} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.04 }}>
-              <Card className="h-full border-border/60 hover:border-gold/30 transition-colors">
-                <CardContent className="p-6">
-                  <div className="flex items-start justify-between mb-4">
-                    <div className={cn("w-11 h-11 rounded-xl bg-gradient-to-br flex items-center justify-center", s.color)}>
-                      <Icon className="h-5.5 w-5.5" strokeWidth={2.2} />
+const [talents, setTalents] = useState([])
+const [requests, setRequests] = useState([])
+const [notifications, setNotifications] = useState([])
+
+const [search, setSearch] = useState("")
+const [loading, setLoading] = useState(true)
+const [error, setError] = useState("")
+
+useEffect(() => {
+if (authLoading) return
+
+```
+if (!user?.authId) {
+  setLoading(false)
+  return
+}
+
+if (user.role !== "manager") {
+  setLoading(false)
+  navigate("/home", { replace: true })
+  return
+}
+
+let cancelled = false
+
+async function loadDashboard() {
+  setLoading(true)
+  setError("")
+
+  try {
+    const [
+      talentsResult,
+      requestsResult,
+      notificationsResult,
+    ] = await Promise.all([
+      supabase
+        .from("talent_profiles")
+        .select("*")
+        .eq("manager_id", user.authId)
+        .order("created_at", {
+          ascending: false,
+        }),
+
+      supabase
+        .from("requests")
+        .select("*")
+        .eq("manager_id", user.authId)
+        .order("created_at", {
+          ascending: false,
+        }),
+
+      supabase
+        .from("notifications")
+        .select("*")
+        .eq("user_id", user.authId)
+        .order("created_at", {
+          ascending: false,
+        })
+        .limit(5),
+    ])
+
+    if (talentsResult.error) {
+      throw talentsResult.error
+    }
+
+    if (requestsResult.error) {
+      throw requestsResult.error
+    }
+
+    if (notificationsResult.error) {
+      throw notificationsResult.error
+    }
+
+    if (cancelled) return
+
+    setTalents(talentsResult.data || [])
+    setRequests(requestsResult.data || [])
+    setNotifications(notificationsResult.data || [])
+  } catch (err) {
+    console.error(
+      "Erreur chargement dashboard manager :",
+      err
+    )
+
+    if (!cancelled) {
+      setError(
+        err?.message ||
+          "Impossible de charger les données du tableau de bord."
+      )
+    }
+  } finally {
+    if (!cancelled) {
+      setLoading(false)
+    }
+  }
+}
+
+loadDashboard()
+
+return () => {
+  cancelled = true
+}
+```
+
+}, [authLoading, user, navigate])
+
+const filteredTalents = useMemo(() => {
+const query = search.trim().toLowerCase()
+
+```
+if (!query) return talents
+
+return talents.filter((talent) => {
+  const name = getTalentName(talent).toLowerCase()
+
+  const category = String(
+    talent.category_name ||
+      talent.category ||
+      ""
+  ).toLowerCase()
+
+  return (
+    name.includes(query) ||
+    category.includes(query)
+  )
+})
+```
+
+}, [talents, search])
+
+const activeRequests = useMemo(() => {
+return requests.filter((request) =>
+isActiveRequest(request.status)
+).length
+}, [requests])
+
+if (authLoading || loading) {
+return ( <div className="flex min-h-[60vh] items-center justify-center"> <div className="flex items-center gap-3 text-muted-foreground"> <RefreshCw className="h-5 w-5 animate-spin" /> <span>Chargement du tableau de bord...</span> </div> </div>
+)
+}
+
+if (!user || user.role !== "manager") {
+return null
+}
+
+return ( <div className="space-y-8 p-6"> <div> <h1 className="text-3xl font-bold tracking-tight">
+Tableau de bord </h1>
+
+```
+    <p className="mt-2 text-muted-foreground">
+      Gérez vos talents et suivez vos demandes.
+    </p>
+  </div>
+
+  {error && (
+    <Card className="border-destructive">
+      <CardContent className="p-6">
+        <p className="text-sm text-destructive">
+          {error}
+        </p>
+
+        <Button
+          variant="outline"
+          className="mt-4"
+          onClick={() => window.location.reload()}
+        >
+          Réessayer
+        </Button>
+      </CardContent>
+    </Card>
+  )}
+
+  <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+    <Card>
+      <CardContent className="flex items-center justify-between p-6">
+        <div>
+          <p className="text-sm text-muted-foreground">
+            Mes talents
+          </p>
+
+          <p className="mt-2 text-3xl font-bold">
+            {talents.length}
+          </p>
+        </div>
+
+        <div className="rounded-full bg-primary/10 p-3">
+          <Users className="h-6 w-6 text-primary" />
+        </div>
+      </CardContent>
+    </Card>
+
+    <Card>
+      <CardContent className="flex items-center justify-between p-6">
+        <div>
+          <p className="text-sm text-muted-foreground">
+            Demandes actives
+          </p>
+
+          <p className="mt-2 text-3xl font-bold">
+            {activeRequests}
+          </p>
+        </div>
+
+        <div className="rounded-full bg-primary/10 p-3">
+          <ClipboardList className="h-6 w-6 text-primary" />
+        </div>
+      </CardContent>
+    </Card>
+
+    <Card>
+      <CardContent className="flex items-center justify-between p-6">
+        <div>
+          <p className="text-sm text-muted-foreground">
+            Revenus
+          </p>
+
+          <p className="mt-2 text-2xl font-bold">
+            —
+          </p>
+
+          <p className="mt-1 text-xs text-muted-foreground">
+            Données de paiement non disponibles
+          </p>
+        </div>
+
+        <div className="rounded-full bg-primary/10 p-3">
+          <ClipboardList className="h-6 w-6 text-primary" />
+        </div>
+      </CardContent>
+    </Card>
+  </div>
+
+  <div className="grid gap-6 lg:grid-cols-3">
+    <Card className="lg:col-span-2">
+      <CardHeader>
+        <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+          <div>
+            <CardTitle>Mes talents</CardTitle>
+
+            <p className="mt-1 text-sm text-muted-foreground">
+              Les talents que vous gérez actuellement.
+            </p>
+          </div>
+
+          <Button
+            onClick={() => navigate("/manager/talents")}
+          >
+            Gérer mes talents
+            <ArrowRight className="ml-2 h-4 w-4" />
+          </Button>
+        </div>
+      </CardHeader>
+
+      <CardContent>
+        <div className="relative mb-6">
+          <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+
+          <Input
+            value={search}
+            onChange={(event) =>
+              setSearch(event.target.value)
+            }
+            placeholder="Rechercher un talent..."
+            className="pl-9"
+          />
+        </div>
+
+        {filteredTalents.length === 0 ? (
+          <div className="flex flex-col items-center justify-center rounded-lg border border-dashed p-10 text-center">
+            <UserPlus className="mb-4 h-10 w-10 text-muted-foreground" />
+
+            <h3 className="font-semibold">
+              {search
+                ? "Aucun talent trouvé"
+                : "Aucun talent"}
+            </h3>
+
+            <p className="mt-2 max-w-sm text-sm text-muted-foreground">
+              {search
+                ? "Aucun talent ne correspond à votre recherche."
+                : "Commencez par ajouter un talent à votre espace manager."}
+            </p>
+
+            {!search && (
+              <Button
+                className="mt-5"
+                onClick={() =>
+                  navigate("/manager/talents")
+                }
+              >
+                Ajouter un talent
+              </Button>
+            )}
+          </div>
+        ) : (
+          <div className="grid gap-4 sm:grid-cols-2">
+            {filteredTalents.slice(0, 6).map((talent) => (
+              <Card
+                key={talent.id}
+                className="overflow-hidden"
+              >
+                <CardContent className="p-5">
+                  <div className="flex items-center gap-4">
+                    {talent.avatar_url ||
+                    talent.photo_url ? (
+                      <img
+                        src={
+                          talent.avatar_url ||
+                          talent.photo_url
+                        }
+                        alt={getTalentName(talent)}
+                        className="h-14 w-14 rounded-full object-cover"
+                      />
+                    ) : (
+                      <div className="flex h-14 w-14 items-center justify-center rounded-full bg-muted font-semibold">
+                        {getInitials(talent)}
+                      </div>
+                    )}
+
+                    <div className="min-w-0 flex-1">
+                      <h3 className="truncate font-semibold">
+                        {getTalentName(talent)}
+                      </h3>
+
+                      <p className="truncate text-sm text-muted-foreground">
+                        {talent.category_name ||
+                          talent.category ||
+                          "Talent"}
+                      </p>
                     </div>
-                    <Badge variant="secondary" className="text-[10px] font-bold">{s.delta}</Badge>
                   </div>
-                  <p className="text-2xl font-black tracking-tight mb-1">{s.value}</p>
-                  <p className="text-xs font-semibold text-muted-foreground">{s.label}</p>
+
+                  <Button
+                    variant="outline"
+                    className="mt-4 w-full"
+                    onClick={() =>
+                      navigate("/manager/talents")
+                    }
+                  >
+                    Gérer le talent
+                  </Button>
                 </CardContent>
               </Card>
-            </motion.div>
-          )
-        })}
-      </motion.div>
+            ))}
+          </div>
+        )}
+      </CardContent>
+    </Card>
 
-      <div className="grid grid-cols-1 xl:grid-cols-3 gap-6">
-        <Card className="xl:col-span-2 border-border/60">
-          <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <div>
-              <CardTitle className="font-black">Productivité de l'équipe</CardTitle>
-              <CardDescription className="text-sm">Tâches complétées / jour</CardDescription>
-            </div>
-          </CardHeader>
-          <CardContent>
-            <WeeklyChart
-              title=""
-              subtitle=""
-              data={[
-                { day: "Lun", value: 22 },
-                { day: "Mar", value: 28 },
-                { day: "Mer", value: 35 },
-                { day: "Jeu", value: 30 },
-                { day: "Ven", value: 38 },
-                { day: "Sam", value: 14 },
-                { day: "Dim", value: 9 },
-              ]}
-            />
-          </CardContent>
-        </Card>
+    <Card>
+      <CardHeader>
+        <div className="flex items-center justify-between">
+          <CardTitle>Notifications</CardTitle>
 
-        <Card className="border-border/60">
-          <CardHeader className="flex flex-row items-center justify-between">
-            <CardTitle className="font-black">Activité</CardTitle>
-            <Badge variant="outline" className="gap-1 text-xs font-bold bg-gold/10 text-gold-dark border-gold/30">
-              <Bell className="h-3 w-3" /> {NOTIFICATIONS.length}
-            </Badge>
-          </CardHeader>
-          <CardContent className="space-y-3">
-            {NOTIFICATIONS.map((n) => {
-              const Icon = n.icon
-              return (
-                <div key={n.id} className="flex gap-3 p-3 rounded-xl hover:bg-accent/40 transition-colors cursor-pointer" onClick={() => toast.success("Notification ouverte")}>
-                  <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-gold/15 to-amber-400/10 flex items-center justify-center shrink-0">
-                    <Icon className="h-4 w-4 text-gold-dark" />
-                  </div>
-                  <div className="min-w-0 flex-1">
-                    <p className="text-sm font-medium leading-tight">{n.text}</p>
-                    <p className="text-xs text-muted-foreground mt-0.5">{n.time}</p>
-                  </div>
-                </div>
-              )
-            })}
-            <Separator />
-            <Button variant="ghost" className="w-full text-xs font-bold text-muted-foreground hover:text-foreground">
-              Voir toutes les notifications →
-            </Button>
-          </CardContent>
-        </Card>
+          <Bell className="h-5 w-5 text-muted-foreground" />
+        </div>
+      </CardHeader>
+
+      <CardContent>
+        {notifications.length === 0 ? (
+          <div className="py-8 text-center">
+            <Bell className="mx-auto mb-3 h-8 w-8 text-muted-foreground" />
+
+            <p className="text-sm text-muted-foreground">
+              Aucune notification
+            </p>
+          </div>
+        ) : (
+          <div className="space-y-4">
+            {notifications.map((notification) => (
+              <div
+                key={notification.id}
+                className="rounded-lg border p-3"
+              >
+                <p className="text-sm">
+                  {getNotificationText(
+                    notification
+                  )}
+                </p>
+
+                {notification.created_at && (
+                  <p className="mt-1 text-xs text-muted-foreground">
+                    {new Date(
+                      notification.created_at
+                    ).toLocaleDateString("fr-FR")}
+                  </p>
+                )}
+              </div>
+            ))}
+          </div>
+        )}
+      </CardContent>
+    </Card>
+  </div>
+
+  <Card>
+    <CardHeader>
+      <div className="flex items-center justify-between">
+        <div>
+          <CardTitle>Demandes récentes</CardTitle>
+
+          <p className="mt-1 text-sm text-muted-foreground">
+            Les dernières demandes reçues par votre espace.
+          </p>
+        </div>
+
+        <Button
+          variant="outline"
+          onClick={() =>
+            navigate("/manager/requests")
+          }
+        >
+          Voir les demandes
+          <ArrowRight className="ml-2 h-4 w-4" />
+        </Button>
       </div>
+    </CardHeader>
 
-      <Card className="border-border/60 overflow-hidden">
-        <CardHeader className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 pb-3">
-          <div>
-            <CardTitle className="font-black">Mes talents</CardTitle>
-            <CardDescription className="text-sm">Équipe active et disponibilités</CardDescription>
-          </div>
-          <div className="relative w-full sm:w-64">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-            <Input placeholder="Chercher un talent..." className="pl-10" />
-          </div>
-        </CardHeader>
-        <CardContent className="p-0">
-          <div className="overflow-x-auto">
-            <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-4 p-6">
-              {TALENTS.map((t) => {
-                const s = STATUS[t.status] || STATUS.busy
-                const initials = t.name.split(" ").map((x) => x[0]).slice(0, 2).join("").toUpperCase()
-                return (
-                  <div key={t.id} className="group rounded-2xl border border-border/60 bg-card p-5 hover:border-gold/40 hover:shadow-xl hover:shadow-gold/5 transition-all cursor-pointer">
-                    <div className="flex items-start justify-between mb-4">
-                      <Avatar className="h-12 w-12 border-2 border-background shadow-md">
-                        <AvatarFallback className="gold-gradient text-white font-black">{initials}</AvatarFallback>
-                      </Avatar>
-                      <Badge variant="outline" className={cn("text-[10px] font-bold", s.cls)}>{s.label}</Badge>
-                    </div>
-                    <h3 className="font-black mb-0.5 group-hover:gold-text-gradient transition-colors truncate">{t.name}</h3>
-                    <p className="text-xs text-muted-foreground mb-3">{t.cat}</p>
-                    <div className="grid grid-cols-3 gap-1 py-3 border-y border-border/50 mb-3 text-center">
-                      <div>
-                        <p className="font-black text-sm">{t.tasks}</p>
-                        <p className="text-[9px] text-muted-foreground font-semibold uppercase tracking-wide">Tâches</p>
-                      </div>
-                      <div>
-                        <p className="font-black text-sm flex items-center justify-center gap-0.5"><Star className="h-3 w-3 text-gold fill-gold" />{t.rating}</p>
-                        <p className="text-[9px] text-muted-foreground font-semibold uppercase tracking-wide">Note</p>
-                      </div>
-                      <div>
-                        <p className="font-black text-sm">{t.rate}</p>
-                        <p className="text-[9px] text-muted-foreground font-semibold uppercase tracking-wide">Tarif</p>
-                      </div>
-                    </div>
-                    <Button variant="outline" className="w-full gap-1.5 text-xs font-bold">
-                      Voir profil <ChevronRight className="h-3.5 w-3.5" />
-                    </Button>
-                  </div>
-                )
-              })}
+    <CardContent>
+      {requests.length === 0 ? (
+        <div className="py-8 text-center">
+          <ClipboardList className="mx-auto mb-3 h-8 w-8 text-muted-foreground" />
+
+          <p className="text-sm text-muted-foreground">
+            Aucune demande pour le moment.
+          </p>
+        </div>
+      ) : (
+        <div className="space-y-3">
+          {requests.slice(0, 5).map((request) => (
+            <div
+              key={request.id}
+              className="flex items-center justify-between gap-4 rounded-lg border p-4"
+            >
+              <div className="min-w-0">
+                <p className="font-medium">
+                  Demande #{String(request.id).slice(0, 8)}
+                </p>
+
+                <p className="text-sm text-muted-foreground">
+                  {request.status || "Statut non défini"}
+                </p>
+              </div>
+
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() =>
+                  navigate("/manager/requests")
+                }
+              >
+                Ouvrir
+                <ArrowRight className="ml-2 h-4 w-4" />
+              </Button>
             </div>
-          </div>
-        </CardContent>
-      </Card>
-    </div>
-  )
+          ))}
+        </div>
+      )}
+    </CardContent>
+  </Card>
+</div>
+
+)
 }

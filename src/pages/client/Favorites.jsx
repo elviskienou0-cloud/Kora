@@ -1,5 +1,6 @@
-import { useState } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
+import { toast } from "sonner";
 import {
   Card,
   CardContent,
@@ -12,7 +13,9 @@ import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Separator } from "@/components/ui/separator";
 import { Input } from "@/components/ui/input";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { cn, formatCurrency } from "@/lib/utils";
+import { cn, formatCurrency, formatDate } from "@/lib/utils";
+import { useAuth } from "@/lib/AuthContext";
+import { supabase } from "@/lib/supabase";
 import {
   Heart,
   Search,
@@ -26,104 +29,9 @@ import {
   Sparkles,
   X,
   CheckCircle2,
+  Loader2,
+  AlertCircle,
 } from "lucide-react";
-
-const favoriteTalents = [
-  {
-    id: 1,
-    firstName: "Aïcha",
-    lastName: "Diallo",
-    category: "Design UI/UX",
-    country: "Sénégal",
-    city: "Dakar",
-    rating: 4.9,
-    reviews: 142,
-    completedProjects: 38,
-    rate: 50000,
-    title: "UI/UX Designer Senior",
-    skills: ["Figma", "Adobe XD", "Prototypage"],
-    verified: true,
-    available: true,
-    savedAt: "Il y a 2 jours",
-  },
-  {
-    id: 5,
-    firstName: "Zara",
-    lastName: "Abubakar",
-    category: "Design",
-    country: "Nigéria",
-    city: "Abuja",
-    rating: 4.8,
-    reviews: 127,
-    completedProjects: 31,
-    rate: 55000,
-    title: "Product Designer",
-    skills: ["Figma", "Design System", "User Testing"],
-    verified: true,
-    available: true,
-    savedAt: "Il y a 5 jours",
-  },
-  {
-    id: 4,
-    firstName: "Chinedu",
-    lastName: "Okafor",
-    category: "Data Science",
-    country: "Nigéria",
-    city: "Lagos",
-    rating: 4.9,
-    reviews: 156,
-    completedProjects: 67,
-    rate: 90000,
-    title: "Data Scientist Senior",
-    skills: ["Python", "TensorFlow", "SQL"],
-    verified: true,
-    available: true,
-    savedAt: "Il y a 1 semaine",
-  },
-  {
-    id: 7,
-    firstName: "Amina",
-    lastName: "Kone",
-    category: "Contenu",
-    country: "Mali",
-    city: "Bamako",
-    rating: 4.7,
-    reviews: 156,
-    completedProjects: 89,
-    rate: 35000,
-    title: "Rédactrice & Storyteller",
-    skills: ["Copywriting", "SEO Writing", "Brand Content"],
-    verified: true,
-    available: true,
-    savedAt: "Il y a 2 semaines",
-  },
-  {
-    id: 11,
-    firstName: "Youssef",
-    lastName: "El Amrani",
-    category: "Motion Design",
-    country: "Maroc",
-    city: "Casablanca",
-    rating: 4.7,
-    reviews: 94,
-    completedProjects: 51,
-    rate: 60000,
-    title: "Motion Designer & Illustrateur",
-    skills: ["After Effects", "Cinema 4D", "Illustrator"],
-    verified: true,
-    available: false,
-    savedAt: "Il y a 3 semaines",
-  },
-];
-
-const categories = [
-  { id: "all", label: "Tous" },
-  { id: "design", label: "Design" },
-  { id: "dev", label: "Développement" },
-  { id: "data", label: "Data" },
-  { id: "marketing", label: "Marketing" },
-  { id: "content", label: "Contenu" },
-];
 
 const containerVariants = {
   hidden: { opacity: 0 },
@@ -139,20 +47,150 @@ const itemVariants = {
 };
 
 export default function ClientFavorites() {
+  const { user } = useAuth();
+
   const [search, setSearch] = useState("");
   const [activeCategory, setActiveCategory] = useState("all");
-  const [favorites, setFavorites] = useState(favoriteTalents);
+  const [favorites, setFavorites] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [loadError, setLoadError] = useState("");
+
+  useEffect(() => {
+    if (!user?.authId) return;
+
+    let mounted = true;
+
+    async function loadFavorites() {
+      setLoading(true);
+      setLoadError("");
+
+      try {
+        const { data: favRows, error: favError } = await supabase
+          .from("favorites")
+          .select("id, talent_id, created_at")
+          .eq("client_id", user.authId)
+          .order("created_at", { ascending: false });
+
+        if (favError) throw favError;
+
+        const talentIds = (favRows || []).map((f) => f.talent_id).filter(Boolean);
+
+        if (!mounted) return;
+
+        if (talentIds.length === 0) {
+          setFavorites([]);
+          return;
+        }
+
+        const { data: talentRows, error: talentError } = await supabase
+          .from("talent_profiles")
+          .select(`
+            id,
+            first_name,
+            last_name,
+            title,
+            city,
+            daily_rate,
+            rating,
+            reviews_count,
+            completed_projects,
+            verified,
+            available,
+            categories ( id, slug, name ),
+            countries ( name ),
+            talent_profile_skills ( skills ( name ) )
+          `)
+          .in("id", talentIds);
+
+        if (talentError) throw talentError;
+
+        if (!mounted) return;
+
+        const talentById = new Map((talentRows || []).map((t) => [t.id, t]));
+
+        const merged = (favRows || [])
+          .map((f) => {
+            const t = talentById.get(f.talent_id);
+            if (!t) return null;
+            return {
+              id: t.id,
+              firstName: t.first_name || "",
+              lastName: t.last_name || "",
+              title: t.title || "",
+              city: t.city || "",
+              country: t.countries?.name || "",
+              rate: Number(t.daily_rate) || 0,
+              rating: Number(t.rating) || 0,
+              reviews: Number(t.reviews_count) || 0,
+              completedProjects: Number(t.completed_projects) || 0,
+              verified: !!t.verified,
+              available: !!t.available,
+              categoryId: t.categories?.id || null,
+              categoryLabel: t.categories?.name || null,
+              skills: (t.talent_profile_skills || []).map((s) => s.skills?.name).filter(Boolean),
+              savedAt: f.created_at,
+            };
+          })
+          .filter(Boolean);
+
+        setFavorites(merged);
+      } catch (err) {
+        console.error("Erreur chargement des favoris :", err);
+        if (mounted) setLoadError("Impossible de charger vos favoris pour le moment.");
+      } finally {
+        if (mounted) setLoading(false);
+      }
+    }
+
+    loadFavorites();
+
+    return () => {
+      mounted = false;
+    };
+  }, [user?.authId]);
+
+  const categories = useMemo(() => {
+    const seen = new Map();
+    favorites.forEach((t) => {
+      if (t.categoryId && !seen.has(t.categoryId)) {
+        seen.set(t.categoryId, t.categoryLabel || "Autre");
+      }
+    });
+    return [
+      { id: "all", label: "Tous" },
+      ...Array.from(seen.entries()).map(([id, label]) => ({ id, label })),
+    ];
+  }, [favorites]);
 
   const filtered = favorites.filter((t) => {
     const matchSearch =
       !search ||
       `${t.firstName} ${t.lastName}`.toLowerCase().includes(search.toLowerCase()) ||
       t.title.toLowerCase().includes(search.toLowerCase());
-    return matchSearch;
+
+    const matchCategory = activeCategory === "all" || t.categoryId === activeCategory;
+
+    return matchSearch && matchCategory;
   });
 
-  const removeFavorite = (id) => {
+  const removeFavorite = async (id) => {
+    if (!user?.authId) return;
+
+    const previous = favorites;
     setFavorites((prev) => prev.filter((f) => f.id !== id));
+
+    try {
+      const { error } = await supabase
+        .from("favorites")
+        .delete()
+        .eq("client_id", user.authId)
+        .eq("talent_id", id);
+      if (error) throw error;
+    } catch (err) {
+      console.error("Erreur suppression favori :", err);
+      toast.error("Impossible de retirer ce favori");
+      setFavorites(previous);
+    }
   };
 
   const isEmpty = favorites.length === 0;
@@ -225,6 +263,22 @@ export default function ClientFavorites() {
           )}
         </motion.div>
 
+        {loadError && (
+          <motion.div variants={itemVariants}>
+            <Card className="border-red-500/30 bg-red-500/5">
+              <CardContent className="flex items-center gap-3 p-4">
+                <AlertCircle className="h-5 w-5 text-red-500 shrink-0" />
+                <p className="text-sm text-red-600">{loadError}</p>
+              </CardContent>
+            </Card>
+          </motion.div>
+        )}
+
+        {loading ? (
+          <div className="flex items-center justify-center py-20">
+            <Loader2 className="h-8 w-8 text-gold animate-spin" aria-label="Chargement" />
+          </div>
+        ) : (
         <AnimatePresence mode="wait">
           {isEmpty ? (
             <motion.div
@@ -326,14 +380,14 @@ export default function ClientFavorites() {
                 <motion.div key={t.id} variants={itemVariants} layout>
                   <Card className="group h-full border-gold/15 transition-all duration-300 hover:border-gold/40 hover:shadow-xl hover:shadow-gold/10 relative overflow-hidden">
                     <div className="absolute right-0 top-0 flex items-center gap-1 rounded-bl-xl bg-rose-500/10 px-2.5 py-1 text-[10px] font-semibold text-rose-500">
-                      <Heart className="h-3 w-3 fill-rose-500" /> {t.savedAt}
+                      <Heart className="h-3 w-3 fill-rose-500" /> {formatDate(t.savedAt)}
                     </div>
                     <CardHeader className="pb-3 pt-6">
                       <div className="flex items-start justify-between">
                         <div className="flex items-start gap-3">
                           <Avatar className="h-14 w-14 ring-2 ring-gold/30 ring-offset-2 ring-offset-card">
                             <AvatarFallback className="gold-gradient text-white font-bold text-lg">
-                              {t.firstName[0]}{t.lastName[0]}
+                              {t.firstName[0] || ""}{t.lastName[0] || ""}
                             </AvatarFallback>
                           </Avatar>
                           <div className="min-w-0 pr-2">
@@ -343,28 +397,32 @@ export default function ClientFavorites() {
                                 <CheckCircle2 className="h-4 w-4 shrink-0 text-emerald-500 fill-emerald-50" />
                               )}
                             </div>
-                            <p className="text-sm font-medium text-gold-dark truncate">{t.title}</p>
-                            <div className="mt-1 flex items-center gap-1.5 text-xs text-muted-foreground">
-                              <MapPin className="h-3 w-3" />
-                              {t.city}, {t.country}
-                            </div>
+                            {t.title && <p className="text-sm font-medium text-gold-dark truncate">{t.title}</p>}
+                            {(t.city || t.country) && (
+                              <div className="mt-1 flex items-center gap-1.5 text-xs text-muted-foreground">
+                                <MapPin className="h-3 w-3" />
+                                {[t.city, t.country].filter(Boolean).join(", ")}
+                              </div>
+                            )}
                           </div>
                         </div>
                       </div>
                     </CardHeader>
                     <CardContent className="space-y-4 pb-4">
-                      <div className="flex flex-wrap gap-1.5">
-                        {t.skills.map((s) => (
-                          <Badge key={s} variant="outline" className="border-gold/25 bg-gold/5 text-gold-dark text-xs font-medium">
-                            {s}
-                          </Badge>
-                        ))}
-                      </div>
+                      {t.skills.length > 0 && (
+                        <div className="flex flex-wrap gap-1.5">
+                          {t.skills.map((s) => (
+                            <Badge key={s} variant="outline" className="border-gold/25 bg-gold/5 text-gold-dark text-xs font-medium">
+                              {s}
+                            </Badge>
+                          ))}
+                        </div>
+                      )}
                       <div className="flex items-center justify-between text-xs">
                         <div className="flex items-center gap-3">
                           <div className="flex items-center gap-0.5">
                             <Star className="h-3.5 w-3.5 fill-gold text-gold" />
-                            <span className="font-semibold text-foreground">{t.rating}</span>
+                            <span className="font-semibold text-foreground">{t.rating ? t.rating.toFixed(1) : "—"}</span>
                             <span className="text-muted-foreground">({t.reviews})</span>
                           </div>
                           <div className="flex items-center gap-1 text-muted-foreground">
@@ -417,6 +475,7 @@ export default function ClientFavorites() {
             </motion.div>
           )}
         </AnimatePresence>
+        )}
       </motion.div>
     </div>
   );

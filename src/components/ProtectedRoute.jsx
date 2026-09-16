@@ -12,17 +12,25 @@ export default function ProtectedRoute({ children }) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-background">
         <div className="flex flex-col items-center gap-3">
-          <Loader2 className={cn("h-10 w-10 text-gold animate-spin")} />
-          <p className="text-sm text-muted-foreground">Chargement...</p>
+          <Loader2
+            className={cn("h-10 w-10 text-gold animate-spin")}
+            aria-label="Chargement"
+          />
+          <p className="text-sm text-muted-foreground">
+            Chargement...
+          </p>
         </div>
       </div>
     )
   }
 
   if (!isAuthenticated) {
-    setReturnTo(location.pathname + location.search)
+    const returnTo = `${location.pathname}${location.search}${location.hash}`
+
+    setReturnTo(returnTo)
+
     return <Navigate to="/login" replace />
   }
 
-  return children ? children : <Outlet />
+  return children ?? <Outlet />
 }

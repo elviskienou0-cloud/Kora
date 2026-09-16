@@ -29,18 +29,12 @@ const CATEGORIES = [
 ]
 
 const SKILLS_PRESET = [
-  "Figma",
-  "Photoshop",
-  "React",
-  "Node.js",
-  "SEO",
-  "WordPress",
-  "Canva",
-  "Premiere Pro",
-  "Illustrator",
-  "Python",
-  "UI/UX",
-  "Copywriting",
+  "Artiste Musicien",
+  "Sport",
+  "Createur de contenues ",
+  "Humour & Divertissement",
+  "Influenceur(e)s",
+  "health",
 ]
 
 const talentSchema = z.object({
@@ -95,14 +89,21 @@ export default function TalentForm({ initialValues, onSubmit, submitLabel = "Enr
     setValue("skills", Array.from(current), { shouldValidate: true })
   }
 
-  const handleFormSubmit = async (data) => {
-    try {
-      await onSubmit?.(data)
-      toast.success("Profil talent enregistré avec succès !")
-    } catch (err) {
-      toast.error(err?.message || "Une erreur est survenue")
-    }
-  }
+  const handleFormSubmit = (data) => {
+  console.log("✅ FORMULAIRE VALIDE :", data);
+  onSubmit?.(data);
+};
+
+const handleFormError = (errors) => {
+  console.error("❌ ERREURS DE VALIDATION :", errors);
+
+  const firstError = Object.values(errors)[0];
+
+  toast.error(
+    firstError?.message ||
+      "Veuillez corriger les champs obligatoires avant de continuer."
+  );
+};
 
   const FieldWrap = ({ label, icon: Icon, error, hint, children, required }) => (
     <div className="space-y-2">
@@ -136,8 +137,8 @@ export default function TalentForm({ initialValues, onSubmit, submitLabel = "Enr
     )
 
   return (
-    <form onSubmit={handleSubmit(handleFormSubmit)} className={cn("space-y-6", className)}>
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+<form onSubmit={handleSubmit(handleFormSubmit, handleFormError)}>
+<div className="grid grid-cols-1 md:grid-cols-2 gap-5">
         <FieldWrap label="Nom d'affichage" icon={User} error={errors.displayName?.message} required>
           <input
             type="text"
@@ -182,7 +183,7 @@ export default function TalentForm({ initialValues, onSubmit, submitLabel = "Enr
         </FieldWrap>
       </div>
 
-      <FieldWrap label="Tarif horaire (XOF)" icon={DollarSign} error={errors.hourlyRate?.message} hint="Tarif minimum conseillé : 5 000 XOF" required>
+      <FieldWrap label="Tarif journalier (XOF)" icon={DollarSign} error={errors.hourlyRate?.message} hint="Tarif minimum conseillé : 5 000 XOF" required>
         <div className="relative">
           <input
             type="number"
