@@ -40,6 +40,27 @@ function initialsOf(firstName, lastName) {
   return `${firstName?.[0] || ""}${lastName?.[0] || ""}`.toUpperCase() || "T"
 }
 
+function timeAgo(dateString) {
+  const diffMs = Date.now() - new Date(dateString).getTime()
+  const minutes = Math.floor(diffMs / 60000)
+  if (minutes < 1) return "à l'instant"
+  if (minutes < 60) return `il y a ${minutes} min`
+  const hours = Math.floor(minutes / 60)
+  if (hours < 24) return `il y a ${hours}h`
+  const days = Math.floor(hours / 24)
+  if (days === 1) return "hier"
+  return `il y a ${days}j`
+}
+
+function activityIcon(action = "") {
+  const a = action.toLowerCase()
+  if (a.includes("message")) return { Icon: MessageCircle, bg: "bg-blue-500/15", color: "text-blue-600" }
+  if (a.includes("payment") || a.includes("paiement")) return { Icon: TrendingUp, bg: "bg-emerald-500/15", color: "text-emerald-600" }
+  if (a.includes("talent")) return { Icon: Users, bg: "bg-violet-500/15", color: "text-violet-600" }
+  if (a.includes("review") || a.includes("avis")) return { Icon: Star, bg: "bg-amber-500/15", color: "text-amber-600" }
+  return { Icon: CheckCircle2Icon, bg: "bg-emerald-500/15", color: "text-emerald-600" }
+}
+
 export default function Home() {
   const navigate = useNavigate()
   const { user, isAuthenticated, isLoading, logout } = useAuth()
@@ -95,14 +116,90 @@ export default function Home() {
     if (isAuthenticated) loadRecommended()
   }, [isAuthenticated])
 
-  if (isLoading || !user) return null
+  const [unreadMessages, setUnreadMessages] = useState(0)
 
-  const stats = [
-    { label: "Talents disponibles", value: "5 400+", icon: Users, trend: "+12% ce mois", color: "from-blue-400/20 text-blue-600" },
-    { label: "Projets en cours", value: "238", icon: Briefcase, trend: "+5 nouveaux", color: "from-emerald-400/20 text-emerald-600" },
-    { label: "Satisfaction moyenne", value: "4.9/5", icon: Star, trend: "Top 1%", color: "from-amber-400/20 text-amber-600" },
-    { label: "Croissance KORA", value: "+24%", icon: TrendingUp, trend: "Ce trimestre", color: "from-violet-400/20 text-violet-600" },
-  ]
+  useEffect(() => {
+    async function loadUnreadMessages() {
+      if (!user?.authId) return
+
+      const { data: participantRows } = await supabase
+        .from("conversation_participants")
+        .select("conversation_id")
+        .eq("user_id", user.authId)
+
+      const conversationIds = (participantRows || []).map((r) => r.conversation_id)
+      if (conversationIds.length === 0) {
+        setUnreadMessages(0)
+        return
+      }
+
+      const { count } = await supabase
+        .from("messages")
+        .select("id", { count: "exact", head: true })
+        .in("conversation_id", conversationIds)
+        .neq("sender_id", user.authId)
+        .is("read_at", null)
+
+      setUnreadMessages(count ?? 0)
+    }
+
+    if (isAuthenticated) loadUnreadMessages()
+  }, [isAuthenticated, user?.authId])
+
+  const [stats, setStats] = useState([
+    { label: "Talents disponibles", value: "—", icon: Users, color: "from-blue-400/20 text-blue-600" },
+    { label: "Projets", value: "—", icon: Briefcase, color: "from-emerald-400/20 text-emerald-600" },
+    { label: "Satisfaction moyenne", value: "—", icon: Star, color: "from-amber-400/20 text-amber-600" },
+  ])
+
+  useEffect(() => {
+    async function loadStats() {
+      const [{ count: talentsCount }, { count: projectsCount }, { data: ratedTalents }] = await Promise.all([
+        supabase.from("talent_profiles").select("id", { count: "exact", head: true }).eq("status", "published").eq("is_visible", true),
+        supabase.from("projects").select("id", { count: "exact", head: true }),
+        supabase.from("talent_profiles").select("rating").gt("reviews_count", 0),
+      ])
+
+      const avgRating = ratedTalents?.length
+        ? (ratedTalents.reduce((sum, t) => sum + Number(t.rating || 0), 0) / ratedTalents.length).toFixed(1)
+        : "—"
+
+      setStats([
+        { label: "Talents disponibles", value: String(talentsCount ?? 0), icon: Users, color: "from-blue-400/20 text-blue-600" },
+        { label: "Projets", value: String(projectsCount ?? 0), icon: Briefcase, color: "from-emerald-400/20 text-emerald-600" },
+        { label: "Satisfaction moyenne", value: avgRating === "—" ? "—" : `${avgRating}/5`, icon: Star, color: "from-amber-400/20 text-amber-600" },
+      ])
+    }
+
+    if (isAuthenticated) loadStats()
+  }, [isAuthenticated])
+
+  const [activity, setActivity] = useState([])
+
+  useEffect(() => {
+    async function loadActivity() {
+      if (!user?.authId) return
+
+      const { data, error } = await supabase
+        .from("activity_logs")
+        .select("id, action, entity_type, metadata, created_at")
+        .eq("user_id", user.authId)
+        .order("created_at", { ascending: false })
+        .limit(5)
+
+      if (error) {
+        console.error("Erreur chargement activité :", error.message)
+        setActivity([])
+        return
+      }
+
+      setActivity(data || [])
+    }
+
+    if (isAuthenticated) loadActivity()
+  }, [isAuthenticated, user?.authId])
+
+  if (isLoading || !user) return null
 
   const roleLabel = { admin: "Administrateur", manager: "Manager", client: "Client" }[user.role] || "Utilisateur"
 
@@ -127,7 +224,11 @@ export default function Home() {
           <div className="flex items-center gap-3">
             <Button variant="ghost" size="icon" onClick={() => navigate("/messages")} className="relative">
               <MessageCircle className="h-5 w-5" />
-              <span className="absolute -top-0.5 -right-0.5 w-4 h-4 rounded-full bg-gold text-[9px] font-black text-primary-foreground flex items-center justify-center">3</span>
+              {unreadMessages > 0 && (
+                <span className="absolute -top-0.5 -right-0.5 w-4 h-4 rounded-full bg-gold text-[9px] font-black text-primary-foreground flex items-center justify-center">
+                  {unreadMessages > 9 ? "9+" : unreadMessages}
+                </span>
+              )}
             </Button>
             <div className="flex items-center gap-2.5 pl-3 border-l border-border">
               <Avatar className="h-9 w-9">
@@ -209,9 +310,6 @@ export default function Home() {
                         <div className={cn("w-12 h-12 rounded-2xl flex items-center justify-center bg-gradient-to-br", s.color)}>
                           <Icon className="h-6 w-6" strokeWidth={2} />
                         </div>
-                        <Badge variant="secondary" className="text-[10px] font-bold">
-                          {s.trend}
-                        </Badge>
                       </div>
                       <p className="text-3xl font-black mb-1">{s.value}</p>
                       <p className="text-sm font-semibold text-muted-foreground">{s.label}</p>
@@ -338,30 +436,26 @@ export default function Home() {
                   <CardDescription>Les dernières actions</CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-4">
-                  {[
-
-                  ].map((a, i) => (
-                    <div key={i} className="flex items-start gap-3">
-                      <div className={cn(
-                        "w-8 h-8 rounded-lg flex items-center justify-center shrink-0 mt-0.5",
-                        a.type === "success" && "bg-emerald-500/15",
-                        a.type === "message" && "bg-blue-500/15",
-                        a.type === "payment" && "bg-emerald-500/15",
-                        a.type === "star" && "bg-amber-500/15",
-                        a.type === "user" && "bg-violet-500/15",
-                      )}>
-                        {a.type === "success" && <CheckCircle2Icon className="h-4 w-4 text-emerald-600" />}
-                        {a.type === "message" && <MessageCircle className="h-4 w-4 text-blue-600" />}
-                        {a.type === "payment" && <TrendingUp className="h-4 w-4 text-emerald-600" />}
-                        {a.type === "star" && <Star className="h-4 w-4 text-amber-600 fill-amber-500" />}
-                        {a.type === "user" && <Users className="h-4 w-4 text-violet-600" />}
-                      </div>
-                      <div className="flex-1 min-w-0">
-                        <p className="text-sm font-semibold truncate">{a.text}</p>
-                        <p className="text-[11px] text-muted-foreground">{a.time}</p>
-                      </div>
-                    </div>
-                  ))}
+                  {activity.length === 0 ? (
+                    <p className="text-sm text-muted-foreground">Aucune activité récente.</p>
+                  ) : (
+                    activity.map((a) => {
+                      const { Icon, bg, color } = activityIcon(a.action)
+                      return (
+                        <div key={a.id} className="flex items-start gap-3">
+                          <div className={cn("w-8 h-8 rounded-lg flex items-center justify-center shrink-0 mt-0.5", bg)}>
+                            <Icon className={cn("h-4 w-4", color)} />
+                          </div>
+                          <div className="flex-1 min-w-0">
+                            <p className="text-sm font-semibold truncate">
+                              {a.action}{a.entity_type ? ` · ${a.entity_type}` : ""}
+                            </p>
+                            <p className="text-[11px] text-muted-foreground">{timeAgo(a.created_at)}</p>
+                          </div>
+                        </div>
+                      )
+                    })
+                  )}
                 </CardContent>
               </Card>
             </motion.div>

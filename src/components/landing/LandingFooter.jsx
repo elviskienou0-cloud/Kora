@@ -22,16 +22,16 @@ const FOOTER_LINKS = {
     { label: "Tarifs", href: "#pricing" },
   ],
   Support: [
-    { label: "Centre d'aide", href: "#help" },
-    { label: "Contact", href: "#contact" },
-    { label: "FAQ", href: "#faq" },
-    { label: "Signaler un problème", href: "#report" },
+    { label: "Centre d'aide", href: "/faq" },
+    { label: "Contact", href: "/contact" },
+    { label: "FAQ", href: "/faq" },
+    { label: "Signaler un problème", href: "/signaler-un-probleme" },
   ],
   Légal: [
-    { label: "Conditions d'utilisation", href: "#terms" },
-    { label: "Politique de confidentialité", href: "#privacy" },
-    { label: "Cookies", href: "#cookies" },
-    { label: "Mentions légales", href: "#legal" },
+    { label: "Conditions d'utilisation", href: "/conditions" },
+    { label: "Politique de confidentialité", href: "/confidentialite" },
+    { label: "Cookies", href: "/cookies" },
+    { label: "Mentions légales", href: "/mentions-legales" },
   ],
 }
 
@@ -50,35 +50,51 @@ export default function LandingFooter() {
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 sm:py-16">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-10 lg:gap-8">
+
+          {/* =========================
+              KORA / CONTACT
+          ========================== */}
           <div className="lg:col-span-2">
             <Link to="/" className="inline-flex items-center gap-2 group mb-5">
               <div className="w-11 h-11 rounded-2xl gold-gradient flex items-center justify-center shadow-lg shadow-gold/25 group-hover:shadow-gold/40 transition-all">
-                <Sparkles className="h-6 w-6 text-white" strokeWidth={2.5} />
+                <Sparkles
+                  className="h-6 w-6 text-white"
+                  strokeWidth={2.5}
+                />
               </div>
+
               <span className="text-2xl font-bold tracking-tight gold-text-gradient font-display">
                 KORA
               </span>
             </Link>
+
             <p className="text-sm text-muted-foreground leading-relaxed max-w-sm mb-6">
               La plateforme africaine qui connecte les clients avec les meilleurs
               talents indépendants. Réalisez vos projets avec excellence.
             </p>
 
             <div className="space-y-3 text-sm">
+
               <div className="flex items-start gap-3 text-muted-foreground">
                 <Mail className="h-4 w-4 mt-0.5 text-gold shrink-0" />
-                <span>contact@kora.africa</span>
+                <span>elviskienou0@gmail.com</span>
               </div>
+
               <div className="flex items-start gap-3 text-muted-foreground">
                 <Phone className="h-4 w-4 mt-0.5 text-gold shrink-0" />
                 <span>+226 70 27 18 10</span>
               </div>
+
               <div className="flex items-start gap-3 text-muted-foreground">
                 <MapPin className="h-4 w-4 mt-0.5 text-gold shrink-0" />
                 <span>Ouagadougou, Burkina Faso</span>
               </div>
+
             </div>
 
+            {/* =========================
+                RÉSEAUX SOCIAUX
+            ========================== */}
             <div className="mt-6 flex items-center gap-2">
               {SOCIAL_LINKS.map((social) => (
                 <motion.a
@@ -99,19 +115,39 @@ export default function LandingFooter() {
             </div>
           </div>
 
+          {/* =========================
+              FOOTER LINKS
+          ========================== */}
           {Object.entries(FOOTER_LINKS).map(([title, links]) => (
             <div key={title}>
-              <h4 className="font-semibold text-foreground mb-4">{title}</h4>
+              <h4 className="font-semibold text-foreground mb-4">
+                {title}
+              </h4>
+
               <ul className="space-y-2.5">
                 {links.map((link) => (
                   <li key={link.label}>
-                    <Link
-                      to={link.href}
-                      className="text-sm text-muted-foreground hover:text-gold transition-colors inline-flex items-center gap-1 group"
-                    >
-                      <span className="w-0 group-hover:w-1 h-0.5 bg-gold rounded-full transition-all" />
-                      {link.label}
-                    </Link>
+
+                    {/* Les liens internes utilisent React Router.
+                        Les liens avec # restent des ancres internes. */}
+                    {link.href.startsWith("#") ? (
+                      <a
+                        href={link.href}
+                        className="text-sm text-muted-foreground hover:text-gold transition-colors inline-flex items-center gap-1 group"
+                      >
+                        <span className="w-0 group-hover:w-1 h-0.5 bg-gold rounded-full transition-all" />
+                        {link.label}
+                      </a>
+                    ) : (
+                      <Link
+                        to={link.href}
+                        className="text-sm text-muted-foreground hover:text-gold transition-colors inline-flex items-center gap-1 group"
+                      >
+                        <span className="w-0 group-hover:w-1 h-0.5 bg-gold rounded-full transition-all" />
+                        {link.label}
+                      </Link>
+                    )}
+
                   </li>
                 ))}
               </ul>
@@ -119,15 +155,23 @@ export default function LandingFooter() {
           ))}
         </div>
 
+        {/* =========================
+            COPYRIGHT
+        ========================== */}
         <div className="mt-12 pt-8 border-t border-border flex flex-col sm:flex-row items-center justify-between gap-4">
+
           <p className="text-sm text-muted-foreground flex items-center gap-1.5">
             © {new Date().getFullYear()} KORA. Fait avec
-            <Heart className="h-3.5 w-3.5 text-red-500 fill-current" />
+            <Heart
+              className="h-3.5 w-3.5 text-red-500 fill-current"
+            />
             en Afrique.
           </p>
+
           <p className="text-sm text-muted-foreground">
             Tous droits réservés.
           </p>
+
         </div>
       </div>
     </footer>

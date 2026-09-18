@@ -1,270 +1,255 @@
-// @ts-nocheck
-import { useState } from "react"
-import { motion } from "framer-motion"
+import { useEffect, useMemo, useState } from "react"
+import { CheckCircle2, Clock3, CreditCard, Crown, Loader2, ShieldCheck } from "lucide-react"
 import { toast } from "sonner"
-import {
-  Crown, Sparkles, CheckCircle2, X, Zap, Shield, Star,
-  ChevronRight, Users, Award, Lock
-} from "lucide-react"
+
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Separator } from "@/components/ui/separator"
-import { cn } from "@/lib/utils"
+import { useAuth } from "@/lib/AuthContext"
+import { supabase } from "@/lib/supabase"
 
-const PLANS = [
-  {
-    id: "starter",
-    name: "Starter",
-    price: "5 000",
-    period: "/ mois",
-    tagline: "Idéal pour lancer",
-    highlight: false,
-    features: [
-      { label: "Jusqu'à 10 talents managés", ok: true },
-      { label: "Support par email", ok: true },
-      { label: "Paiements sécurisés", ok: true },
-      { label: "Analytics avancés", ok: false },
-      { label: "Contrats & e-signatures", ok: false },
-      { label: "API & webhooks", ok: false },
-      { label: "Account manager dédié", ok: false },
-    ],
-  },
-  {
-    id: "pro",
-    name: "Pro",
-    price: "20 000",
-    period: "/ mois",
-    tagline: "Le plus populaire",
-    highlight: true,
-    features: [
-      { label: "Tout le plan starter", ok: true },
-      { label: "Support prioritaire 24h", ok: true },
-      { label: "Paiements sécurisés", ok: true },
-      { label: "Analytics avancés", ok: true },
-      { label: "Contrats & e-signatures", ok: true },
-      { label: "API & webhooks", ok: false },
-      { label: "Account manager dédié", ok: false },
-    ],
-  },
-  {
-    id: "enterprise",
-    name: "Enterprise",
-    price: "Sur mesure",
-    period: "",
-    tagline: "Pour les grandes équipes",
-    highlight: false,
-    features: [
-      { label: "Talents illimités", ok: true },
-      { label: "Projets illimités", ok: true },
-      { label: "Support SLA 24/7", ok: true },
-      { label: "Paiements sécurisés", ok: true },
-      { label: "Analytics avancés + BI", ok: true },
-      { label: "Contrats & e-signatures", ok: true },
-      { label: "API & webhooks", ok: true },
-      { label: "Account manager dédié", ok: true },
-    ],
-  },
-]
+function formatMoney(value, currency = "XOF") {
+  return new Intl.NumberFormat("fr-FR", {
+    style: "currency",
+    currency,
+    maximumFractionDigits: 0,
+  }).format(Number(value || 0))
+}
 
-const BILLING = [
-  { id: "b1", label: "Forfait Pro — Mars 2025", amount: "-75 000 XOF", date: "01/03/2025", status: "paid" },
-  { id: "b2", label: "Commission projet AgriTech", amount: "-54 000 XOF", date: "15/03/2025", status: "paid" },
-  { id: "b3", label: "Crédit fidélité", amount: "+12 000 XOF", date: "10/03/2025", status: "credit" },
-  { id: "b4", label: "Forfait Pro — Avril 2025", amount: "75 000 XOF", date: "01/04/2025", status: "pending" },
-]
-
-const CURRENT = "pro"
+function formatDate(value) {
+  if (!value) return "—"
+  const d = new Date(value)
+  return Number.isNaN(d.getTime()) ? "—" : d.toLocaleDateString("fr-FR")
+}
 
 export default function ManagerSubscription() {
-  const [yearly, setYearly] = useState(false)
-  const [loading, setLoading] = useState(null)
+  const { user } = useAuth()
+  const managerId = user?.authId || user?.id
 
-  const subscribe = async (plan) => {
-    setLoading(plan.id)
-    await new Promise((r) => setTimeout(r, 900))
-    toast.success(`Abonnement ${plan.name} activé 🎉`)
-    setLoading(null)
+  const [plans, setPlans] = useState([])
+  const [subscription, setSubscription] = useState(null)
+  const [payments, setPayments] = useState([])
+  const [cycle, setCycle] = useState("monthly")
+  const [loading, setLoading] = useState(true)
+  const [loadingPlan, setLoadingPlan] = useState(null)
+
+  const load = async () => {
+    if (!managerId) return
+    setLoading(true)
+
+    try {
+      const [{ data: planRows, error: plansError }, { data: subRows, error: subError }, { data: paymentRows, error: paymentsError }] = await Promise.all([
+        supabase.from("plans").select("id, name, price, currency, duration_months, talent_limit, features, trial_days, annual_discount_pct, is_active").eq("is_active", true).order("price"),
+        supabase.rpc("get_my_subscription"),
+        supabase.from("payments").select("id, reference, provider, amount, currency, billing_cycle, status, paid_at, created_at").eq("user_id", managerId).order("created_at", { ascending: false }).limit(20),
+      ])
+
+      if (plansError) throw plansError
+      if (subError) throw subError
+      if (paymentsError) throw paymentsError
+
+      setPlans(planRows || [])
+      setSubscription(subRows?.[0] || null)
+      setPayments(paymentRows || [])
+    } catch (error) {
+      console.error("Erreur abonnement :", error)
+      toast.error(error?.message || "Impossible de charger l'abonnement.")
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  useEffect(() => {
+    load()
+  }, [managerId])
+
+  const currentPlanId = subscription?.plan_id || "FREE"
+
+  const requestPayment = async (plan) => {
+    if (!managerId || !plan) return
+
+    if (plan.price <= 0) {
+      toast.info("Le plan Free est gratuit.")
+      return
+    }
+
+    setLoadingPlan(plan.id)
+
+    try {
+      const { data: sessionData } = await supabase.auth.getSession()
+      const token = sessionData?.session?.access_token
+      if (!token) throw new Error("Session de connexion introuvable.")
+
+      const supabaseUrl = import.meta.env.VITE_SUPABASE_URL
+      const response = await fetch(`${supabaseUrl}/functions/v1/create-payment`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({
+          plan_id: plan.id,
+          billing_cycle: cycle,
+          provider: "orange_money",
+        }),
+      })
+
+      const payload = await response.json().catch(() => ({}))
+      if (!response.ok) throw new Error(payload?.error || "Impossible d'initialiser le paiement.")
+
+      if (payload.checkout_url) {
+        window.location.href = payload.checkout_url
+        return
+      }
+
+      toast.success("Paiement créé. Attendez la confirmation du prestataire.")
+      await load()
+    } catch (error) {
+      console.error("Erreur initialisation paiement :", error)
+      toast.error(error?.message || "Impossible d'initialiser le paiement.")
+    } finally {
+      setLoadingPlan(null)
+    }
+  }
+
+  if (loading) {
+    return (
+      <div className="min-h-[60vh] flex items-center justify-center">
+        <Loader2 className="h-7 w-7 animate-spin text-gold" />
+      </div>
+    )
   }
 
   return (
     <div className="space-y-8">
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
         <div>
-          <h1 className="text-2xl font-black tracking-tight">Abonnement & Facturation</h1>
-          <p className="text-sm text-muted-foreground">Gérez votre forfait et vos paiements en toute sécurité.</p>
+          <p className="text-xs font-bold uppercase tracking-[0.18em] text-gold">Compte manager</p>
+          <h1 className="text-2xl font-black tracking-tight">Abonnement & facturation</h1>
+          <p className="text-sm text-muted-foreground">Les plans, prix et droits sont pilotés par Supabase.</p>
         </div>
-        <Badge variant="outline" className="gap-1.5 bg-gold/10 text-gold-dark border-gold/30 w-fit sm:w-auto font-bold">
-          <Crown className="h-3.5 w-3.5" /> Plan actif : {PLANS.find((p) => p.id === CURRENT)?.name || "Pro"}
+
+        <Badge variant="outline" className="w-fit gap-1.5 border-gold/30 bg-gold/10 text-gold-dark">
+          <Crown className="h-3.5 w-3.5" />
+          {subscription?.plan_name || "Free"}
         </Badge>
       </div>
 
-      <Card className="border-gold/25 overflow-hidden">
-        <div className="absolute top-0 left-0 right-0 h-1 gold-gradient" />
-        <CardContent className="p-6 flex flex-col sm:flex-row sm:items-center gap-5">
-          <div className="w-14 h-14 rounded-2xl gold-gradient flex items-center justify-center shadow-md shadow-gold/25 shrink-0">
-            <Sparkles className="h-7 w-7 text-primary-foreground" strokeWidth={2.2} />
-          </div>
-          <div className="flex-1 min-w-0">
-            <h3 className="font-black text-lg mb-1">Passez à l'annuel · -10% offerts 🎁</h3>
-            <p className="text-sm text-muted-foreground">Bénéficiez de 2 mois gratuits et de perks exclusifs en payant annuellement.</p>
-          </div>
-          <div className="flex items-center gap-3 shrink-0 w-full sm:w-auto justify-between sm:justify-end">
-            <div className="flex items-center gap-2 p-1 bg-muted/50 rounded-xl">
-              <button
-                onClick={() => setYearly(false)}
-                className={cn("px-3.5 py-1.5 rounded-lg text-xs font-bold transition-all", !yearly ? "bg-background shadow" : "text-muted-foreground")}
-              >
-                Mensuel
-              </button>
-              <button
-                onClick={() => setYearly(true)}
-                className={cn("px-3.5 py-1.5 rounded-lg text-xs font-bold transition-all", yearly ? "bg-background shadow" : "text-muted-foreground")}
-              >
-                Annuel <Badge className="ml-1 text-[9px] bg-emerald-500/10 text-emerald-600 border-emerald-500/30">-10%</Badge>
-              </button>
+      {subscription?.status === "trialing" && (
+        <Card className="border-emerald-500/30 bg-emerald-500/5">
+          <CardContent className="p-5 flex flex-col sm:flex-row gap-4 sm:items-center sm:justify-between">
+            <div>
+              <p className="font-black">Votre période d'essai est active</p>
+              <p className="text-sm text-muted-foreground">Début : {formatDate(subscription.trial_start)} · Fin : {formatDate(subscription.trial_end)}</p>
             </div>
-          </div>
-        </CardContent>
-      </Card>
+            <Badge className="bg-emerald-500/10 text-emerald-700 border border-emerald-500/30">Trial</Badge>
+          </CardContent>
+        </Card>
+      )}
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-5">
-        {PLANS.map((plan, i) => (
-          <motion.div
-            key={plan.id}
-            initial={{ opacity: 0, y: 12 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: i * 0.05 }}
-          >
-            <Card className={cn(
-              "h-full flex flex-col relative overflow-hidden transition-all",
-              plan.highlight ? "border-gold/50 shadow-2xl shadow-gold/10 scale-[1.01]" : "border-border/60 hover:border-gold/30"
-            )}>
-              {plan.highlight && (
-                <div className="absolute top-0 left-0 right-0 h-1 gold-gradient" />
-              )}
-              {plan.highlight && (
-                <div className="absolute top-4 right-4">
-                  <Badge className="gap-1 bg-gold/15 text-gold-dark border-gold/30 font-bold px-2.5">
-                    <Zap className="h-3 w-3" /> Populaire
-                  </Badge>
-                </div>
-              )}
-              <CardHeader className="pb-4 pt-6">
-                <div className={cn("w-11 h-11 rounded-xl flex items-center justify-center mb-3", plan.highlight ? "gold-gradient shadow-md shadow-gold/25" : "bg-muted")}>
-                  {plan.id === "starter" && <Users className={cn("h-5 w-5", plan.highlight ? "text-primary-foreground" : "text-foreground")} />}
-                  {plan.id === "pro" && <Award className={cn("h-5 w-5", plan.highlight ? "text-primary-foreground" : "text-foreground")} />}
-                  {plan.id === "enterprise" && <Shield className={cn("h-5 w-5", plan.highlight ? "text-primary-foreground" : "text-foreground")} />}
-                </div>
-                <CardTitle className="font-black text-xl">{plan.name}</CardTitle>
-                <CardDescription className="text-sm">{plan.tagline}</CardDescription>
-              </CardHeader>
-              <CardContent className="flex-1 flex flex-col pt-0 space-y-5">
-                <div>
-                  <div className="flex items-baseline gap-1.5 mb-1">
-                    <p className="text-4xl font-black tracking-tight gold-text-gradient">
-                      {plan.price !== "Sur mesure" && yearly ? Math.round(parseInt(plan.price.replace(/\s/g, ""), 10) * 0.8 * 12).toLocaleString("fr-FR") : plan.price}
-                    </p>
-                    <span className="text-sm font-bold text-muted-foreground">{plan.price === "Sur mesure" ? "" : yearly ? " / an" : plan.period}</span>
-                  </div>
-                  {yearly && plan.price !== "Sur mesure" && (
-                    <p className="text-[11px] text-emerald-600 font-bold">
-                      Économisez {Math.round(parseInt(plan.price.replace(/\s/g, ""), 10) * 2.4).toLocaleString("fr-FR")} XOF / an
-                    </p>
-                  )}
-                </div>
-                <Separator />
-                <ul className="space-y-2.5 text-sm flex-1">
-                  {plan.features.map((f) => (
-                    <li key={f.label} className="flex items-start gap-2.5">
-                      <div className={cn(
-                        "w-5 h-5 rounded-full flex items-center justify-center shrink-0 mt-0.5",
-                        f.ok ? "bg-emerald-500/10" : "bg-muted"
-                      )}>
-                        {f.ok ? (
-                          <CheckCircle2 className="h-3.5 w-3.5 text-emerald-600" />
-                        ) : (
-                          <Lock className="h-3 w-3 text-muted-foreground" />
-                        )}
-                      </div>
-                      <span className={cn("leading-tight", !f.ok && "text-muted-foreground line-through/60")}>{f.label}</span>
-                    </li>
-                  ))}
-                </ul>
-                <div className="pt-2">
-                  <Button
-                    className={cn(
-                      "w-full h-11 font-bold gap-2",
-                      plan.highlight ? "gold-gradient text-white" : ""
-                    )}
-                    variant={plan.highlight ? "default" : CURRENT === plan.id ? "secondary" : "outline"}
-                    disabled={CURRENT === plan.id || loading === plan.id}
-                    onClick={() => subscribe(plan)}
-                  >
-                    {CURRENT === plan.id ? (
-                      <><CheckCircle2 className="h-4 w-4" /> Forfait actif</>
-                    ) : loading === plan.id ? (
-                      <><div className="w-4 h-4 rounded-full border-2 border-current/60 border-t-current animate-spin" /> Validation...</>
-                    ) : (
-                      <>Choisir {plan.name} <ChevronRight className="h-4 w-4" /></>
-                    )}
-                  </Button>
-                  {CURRENT === plan.id && (
-                    <Button variant="ghost" className="w-full mt-2 text-xs text-muted-foreground hover:text-red-600 hover:bg-red-500/10" onClick={() => toast.info("Annulation gérée via le support")}>
-                      Annuler mon abonnement
-                    </Button>
-                  )}
-                </div>
-              </CardContent>
-            </Card>
-          </motion.div>
-        ))}
+      {subscription?.status === "expired" && (
+        <Card className="border-amber-500/30 bg-amber-500/5">
+          <CardContent className="p-5 flex items-center gap-3">
+            <Clock3 className="h-5 w-5 text-amber-600" />
+            <div>
+              <p className="font-black">Votre période d'essai est terminée</p>
+              <p className="text-sm text-muted-foreground">Choisissez un abonnement payant pour réactiver les fonctionnalités correspondantes.</p>
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
+      <div className="flex justify-end">
+        <div className="inline-flex rounded-xl bg-muted/60 p-1">
+          <button type="button" onClick={() => setCycle("monthly")} className={`rounded-lg px-4 py-2 text-xs font-bold ${cycle === "monthly" ? "bg-background shadow" : "text-muted-foreground"}`}>Mensuel</button>
+          <button type="button" onClick={() => setCycle("yearly")} className={`rounded-lg px-4 py-2 text-xs font-bold ${cycle === "yearly" ? "bg-background shadow" : "text-muted-foreground"}`}>Annuel -10%</button>
+        </div>
       </div>
 
-      <Card className="border-border/60 overflow-hidden">
-        <CardHeader className="flex flex-row items-center justify-between pb-3">
-          <div>
-            <CardTitle className="font-black">Historique de facturation</CardTitle>
-            <CardDescription className="text-sm">Toutes les transactions KORA sur les 90 derniers jours</CardDescription>
-          </div>
-          <Button variant="outline" className="gap-2" onClick={() => toast.success("Téléchargement du relevé")}>
-            <Award className="h-4 w-4" /> Télécharger .pdf
-          </Button>
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-5">
+        {plans.map((plan) => {
+          const yearlyPrice = Math.round(Number(plan.price || 0) * 12 * (1 - Number(plan.annual_discount_pct || 0) / 100))
+          const price = cycle === "yearly" ? yearlyPrice : Number(plan.price || 0)
+          const isCurrent = currentPlanId === plan.id && ["trialing", "active"].includes(subscription?.status)
+          const features = Object.entries(plan.features || {}).filter(([, enabled]) => enabled).map(([key]) => key)
+
+          return (
+            <Card key={plan.id} className={`h-full border-border/60 ${isCurrent ? "border-gold/50 shadow-xl shadow-gold/10" : ""}`}>
+              <CardHeader>
+                <div className="flex items-start justify-between gap-3">
+                  <div>
+                    <CardTitle className="font-black">{plan.name}</CardTitle>
+                    <CardDescription>{plan.trial_days > 0 ? `${plan.trial_days} jours d'essai` : "Sans période d'essai"}</CardDescription>
+                  </div>
+                  {isCurrent && <Badge className="bg-gold/10 text-gold-dark border-gold/30">Actif</Badge>}
+                </div>
+              </CardHeader>
+
+              <CardContent className="space-y-5">
+                <div>
+                  <div className="flex items-baseline gap-1.5">
+                    <span className="text-4xl font-black gold-text-gradient">{formatMoney(price, plan.currency)}</span>
+                    <span className="text-xs font-bold text-muted-foreground">{cycle === "yearly" ? "/ an" : "/ mois"}</span>
+                  </div>
+                  {cycle === "yearly" && plan.price > 0 && (
+                    <p className="mt-1 text-[11px] font-bold text-emerald-600">Économie : {formatMoney(Number(plan.price) * 12 - yearlyPrice, plan.currency)} / an</p>
+                  )}
+                </div>
+
+                <Separator />
+
+                <div className="space-y-2">
+                  <div className="text-sm font-bold">Limite talents : {plan.talent_limit == null ? "Illimitée" : plan.talent_limit}</div>
+                  {features.map((feature) => (
+                    <div key={feature} className="flex items-center gap-2 text-sm text-muted-foreground">
+                      <CheckCircle2 className="h-4 w-4 text-emerald-600" />
+                      {feature.replace(/_/g, " ")}
+                    </div>
+                  ))}
+                </div>
+
+                <Button className="w-full gap-2" disabled={isCurrent || loadingPlan === plan.id} onClick={() => requestPayment(plan)}>
+                  {loadingPlan === plan.id ? <Loader2 className="h-4 w-4 animate-spin" /> : <CreditCard className="h-4 w-4" />}
+                  {isCurrent ? "Forfait actif" : plan.price === 0 ? "Plan gratuit" : `Choisir ${plan.name}`}
+                </Button>
+              </CardContent>
+            </Card>
+          )
+        })}
+      </div>
+
+      <Card className="border-border/60">
+        <CardHeader>
+          <CardTitle className="font-black flex items-center gap-2"><ShieldCheck className="h-5 w-5 text-gold" /> Historique des paiements</CardTitle>
+          <CardDescription>Uniquement les paiements enregistrés par KORA.</CardDescription>
         </CardHeader>
         <CardContent className="p-0">
           <div className="overflow-x-auto">
             <table className="w-full text-sm">
               <thead>
-                <tr className="border-b border-border/60 bg-muted/30 text-left">
-                  <th className="px-6 py-3 font-bold text-xs uppercase tracking-wider text-muted-foreground">Désignation</th>
-                  <th className="px-6 py-3 font-bold text-xs uppercase tracking-wider text-muted-foreground hidden sm:table-cell">Date</th>
-                  <th className="px-6 py-3 font-bold text-xs uppercase tracking-wider text-muted-foreground">Montant</th>
-                  <th className="px-6 py-3 font-bold text-xs uppercase tracking-wider text-muted-foreground">Statut</th>
+                <tr className="border-b bg-muted/30 text-left">
+                  <th className="px-6 py-3 text-xs uppercase tracking-wider text-muted-foreground">Référence</th>
+                  <th className="px-6 py-3 text-xs uppercase tracking-wider text-muted-foreground">Prestataire</th>
+                  <th className="px-6 py-3 text-xs uppercase tracking-wider text-muted-foreground">Montant</th>
+                  <th className="px-6 py-3 text-xs uppercase tracking-wider text-muted-foreground">Statut</th>
+                  <th className="px-6 py-3 text-xs uppercase tracking-wider text-muted-foreground">Date</th>
                 </tr>
               </thead>
               <tbody>
-                {BILLING.map((b) => (
-                  <tr key={b.id} className="border-b border-border/40 hover:bg-accent/30 transition-colors">
-                    <td className="px-6 py-3.5 font-medium">{b.label}</td>
-                    <td className="px-6 py-3.5 text-xs text-muted-foreground hidden sm:table-cell">{b.date}</td>
-                    <td className={cn(
-                      "px-6 py-3.5 font-black tracking-tight",
-                      b.status === "credit" ? "text-emerald-600" : b.status === "pending" ? "text-amber-600" : "text-foreground"
-                    )}>
-                      {b.amount}
-                    </td>
-                    <td className="px-6 py-3.5">
-                      <Badge variant="outline" className={cn(
-                        "gap-1 text-xs font-bold",
-                        b.status === "paid" ? "bg-emerald-500/10 text-emerald-600 border-emerald-500/30" :
-                        b.status === "credit" ? "bg-emerald-500/10 text-emerald-600 border-emerald-500/30" :
-                                                   "bg-amber-500/10 text-amber-600 border-amber-500/30"
-                      )}>
-                        {b.status === "paid" ? "Payé" : b.status === "credit" ? "Crédit" : "En attente"}
-                      </Badge>
-                    </td>
-                  </tr>
-                ))}
+                {payments.length === 0 ? (
+                  <tr><td colSpan={5} className="px-6 py-10 text-center text-muted-foreground">Aucun paiement enregistré.</td></tr>
+                ) : (
+                  payments.map((payment) => (
+                    <tr key={payment.id} className="border-b border-border/40">
+                      <td className="px-6 py-3.5 font-medium">{payment.reference}</td>
+                      <td className="px-6 py-3.5">{payment.provider}</td>
+                      <td className="px-6 py-3.5 font-black">{formatMoney(payment.amount, payment.currency)}</td>
+                      <td className="px-6 py-3.5"><Badge variant="outline">{payment.status}</Badge></td>
+                      <td className="px-6 py-3.5 text-muted-foreground">{formatDate(payment.created_at)}</td>
+                    </tr>
+                  ))
+                )}
               </tbody>
             </table>
           </div>

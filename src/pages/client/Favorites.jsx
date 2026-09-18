@@ -1,4 +1,5 @@
 import { useState, useEffect, useMemo } from "react";
+import { useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import { toast } from "sonner";
 import {
@@ -16,6 +17,7 @@ import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { cn, formatCurrency, formatDate } from "@/lib/utils";
 import { useAuth } from "@/lib/AuthContext";
 import { supabase } from "@/lib/supabase";
+import { buildMessagesUrl, createDirectConversation } from "@/lib/messaging";
 import {
   Heart,
   Search,
@@ -48,6 +50,9 @@ const itemVariants = {
 
 export default function ClientFavorites() {
   const { user } = useAuth();
+  const navigate = useNavigate();
+
+  const [contactingTalentId, setContactingTalentId] = useState(null);
 
   const [search, setSearch] = useState("");
   const [activeCategory, setActiveCategory] = useState("all");
@@ -96,6 +101,7 @@ export default function ClientFavorites() {
             completed_projects,
             verified,
             available,
+            managed_by,
             categories ( id, slug, name ),
             countries ( name ),
             talent_profile_skills ( skills ( name ) )
@@ -125,6 +131,7 @@ export default function ClientFavorites() {
               completedProjects: Number(t.completed_projects) || 0,
               verified: !!t.verified,
               available: !!t.available,
+              managedBy: t.managed_by || null,
               categoryId: t.categories?.id || null,
               categoryLabel: t.categories?.name || null,
               skills: (t.talent_profile_skills || []).map((s) => s.skills?.name).filter(Boolean),
@@ -172,6 +179,35 @@ export default function ClientFavorites() {
 
     return matchSearch && matchCategory;
   });
+
+  const handleContact = async (talent) => {
+    if (!user?.authId) {
+      navigate("/login")
+      return
+    }
+
+    if (!talent?.managedBy) {
+      toast.error("Le manager de ce talent est indisponible.")
+      return
+    }
+
+    if (talent.managedBy === user.authId) {
+      toast.info("Ce talent est géré par votre propre compte.")
+      return
+    }
+
+    setContactingTalentId(talent.id)
+
+    try {
+      const conversationId = await createDirectConversation(talent.managedBy)
+      navigate(buildMessagesUrl(conversationId))
+    } catch (error) {
+      console.error("Erreur ouverture conversation favori :", error)
+      toast.error(error?.message || "Impossible d'ouvrir la conversation")
+    } finally {
+      setContactingTalentId(null)
+    }
+  }
 
   const removeFavorite = async (id) => {
     if (!user?.authId) return;
@@ -462,10 +498,16 @@ export default function ClientFavorites() {
                         </Button>
                         <Button
                           size="sm"
+                          onClick={() => handleContact(t)}
+                          disabled={contactingTalentId === t.id}
                           className="h-9 gold-gradient text-primary-foreground hover:opacity-90 shadow-sm shadow-gold/25"
                         >
-                          <Send className="h-3.5 w-3.5 mr-1.5" />
-                          Contacter
+                          {contactingTalentId === t.id ? (
+                            <Loader2 className="h-3.5 w-3.5 mr-1.5 animate-spin" />
+                          ) : (
+                            <Send className="h-3.5 w-3.5 mr-1.5" />
+                          )}
+                          {contactingTalentId === t.id ? "Ouverture…" : "Contacter"}
                         </Button>
                       </div>
                     </CardFooter>

@@ -1,5 +1,4 @@
-// @ts-nocheck
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import { Link, useNavigate } from "react-router-dom"
 import { motion } from "framer-motion"
 import { toast } from "sonner"
@@ -9,6 +8,7 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Card, CardContent, CardHeader, CardDescription } from "@/components/ui/card"
 import { APP_PARAMS } from "@/lib/app-params"
+import { supabase } from "@/lib/supabase"
 
 export default function ResetPassword() {
   const navigate = useNavigate()
@@ -16,9 +16,47 @@ export default function ResetPassword() {
   const [showPwd, setShowPwd] = useState(false)
   const [showConfirm, setShowConfirm] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
+  const [checkingSession, setCheckingSession] = useState(true)
+  const [hasRecoverySession, setHasRecoverySession] = useState(false)
   const [done, setDone] = useState(false)
 
-  const update = (k) => (e) => setForm({ ...form, [k]: e.target.value })
+  useEffect(() => {
+    let mounted = true
+
+    const checkSession = async () => {
+      try {
+        const { data, error } = await supabase.auth.getSession()
+        if (error) throw error
+        if (!mounted) return
+        setHasRecoverySession(Boolean(data?.session))
+      } catch (error) {
+        console.error("Erreur session de récupération :", error)
+        if (mounted) setHasRecoverySession(false)
+      } finally {
+        if (mounted) setCheckingSession(false)
+      }
+    }
+
+    checkSession()
+
+    const {
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange((event, session) => {
+      if (!mounted) return
+      if (event === "PASSWORD_RECOVERY" || session) {
+        setHasRecoverySession(Boolean(session))
+      }
+    })
+
+    return () => {
+      mounted = false
+      subscription.unsubscribe()
+    }
+  }, [])
+
+  const update = (key) => (event) => {
+    setForm((previous) => ({ ...previous, [key]: event.target.value }))
+  }
 
   const strength = (() => {
     const p = form.password
@@ -35,26 +73,55 @@ export default function ResetPassword() {
   const handleSubmit = async (e) => {
     e.preventDefault()
     const { password, confirm } = form
+
+    if (!hasRecoverySession) {
+      toast.error("Lien de récupération invalide ou expiré", {
+        description: "Demandez un nouveau lien de réinitialisation.",
+      })
+      return
+    }
+
     if (!password || !confirm) {
       toast.error("Veuillez remplir tous les champs")
       return
     }
-    if (password.length < 6) {
-      toast.error("6 caractères minimum requis")
+
+    if (password.length < 8) {
+      toast.error("8 caractères minimum requis")
       return
     }
+
     if (password !== confirm) {
       toast.error("Les mots de passe ne correspondent pas")
       return
     }
+
     setIsLoading(true)
-    await new Promise((r) => setTimeout(r, 800))
-    toast.success("Mot de passe mis à jour 🎉", { description: "Vous pouvez maintenant vous connecter." })
-    setDone(true)
-    setIsLoading(false)
+
+    try {
+      const { error } = await supabase.auth.updateUser({ password })
+      if (error) throw error
+
+      setDone(true)
+      toast.success("Mot de passe mis à jour 🎉")
+    } catch (error) {
+      console.error("Erreur réinitialisation mot de passe :", error)
+      toast.error("Impossible de modifier le mot de passe", {
+        description: error?.message || "Le lien peut être expiré.",
+      })
+    } finally {
+      setIsLoading(false)
+    }
   }
 
-  const strengthColors = ["bg-muted", "bg-red-500", "bg-orange-500", "bg-amber-500", "bg-emerald-500", "bg-emerald-600"]
+  const strengthClasses = [
+    "bg-muted",
+    "bg-red-500",
+    "bg-orange-500",
+    "bg-amber-500",
+    "bg-emerald-500",
+    "bg-emerald-600",
+  ]
 
   return (
     <div className="min-h-screen flex items-center justify-center relative overflow-hidden bg-gradient-to-br from-background via-accent/30 to-background py-12 px-4">
@@ -84,7 +151,11 @@ export default function ResetPassword() {
           <CardHeader className="text-center pb-2 pt-8">
             <h1 className="text-3xl font-black tracking-tight mb-2">Nouveau mot de passe</h1>
             <CardDescription className="text-base">
-              {done ? "Mot de passe réinitialisé avec succès" : "Choisissez un mot de passe sécurisé"}
+              {done
+                ? "Mot de passe réinitialisé avec succès"
+                : checkingSession
+                  ? "Vérification du lien de récupération..."
+                  : "Choisissez un mot de passe sécurisé"}
             </CardDescription>
           </CardHeader>
 
@@ -102,32 +173,28 @@ export default function ResetPassword() {
                   <p className="font-black text-xl mb-1">Parfait !</p>
                   <p className="text-sm text-muted-foreground">Votre mot de passe a bien été modifié.</p>
                 </div>
-                <Button className="w-full h-12 font-bold gap-2" onClick={() => navigate("/login")}>
-                  Se connecter <ArrowRight className="h-4.5 w-4.5" />
-                </Button>
+                <Button className="w-full h-12 font-bold gap-2" onClick={() => navigate("/login")}>Se connecter <ArrowRight className="h-4.5 w-4.5" /></Button>
               </motion.div>
+            ) : !checkingSession && !hasRecoverySession ? (
+              <div className="rounded-2xl border border-amber-500/30 bg-amber-500/10 p-6 text-center space-y-4">
+                <p className="font-black text-lg">Lien non valide</p>
+                <p className="text-sm text-muted-foreground">Demandez un nouveau lien de récupération pour continuer.</p>
+                <Button className="w-full" onClick={() => navigate("/forgot-password")}>Demander un nouveau lien</Button>
+              </div>
             ) : (
               <form onSubmit={handleSubmit} className="space-y-4">
                 <div className="space-y-2">
                   <Label htmlFor="pwd">Nouveau mot de passe</Label>
                   <div className="relative">
                     <Lock className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4.5 w-4.5 text-muted-foreground" />
-                    <Input
-                      id="pwd"
-                      type={showPwd ? "text" : "password"}
-                      placeholder="••••••••"
-                      value={form.password}
-                      onChange={update("password")}
-                      className="pl-11 pr-11"
-                      autoComplete="new-password"
-                    />
-                    <button type="button" onClick={() => setShowPwd(!showPwd)} className="absolute right-3 top-1/2 -translate-y-1/2 p-1 text-muted-foreground hover:text-gold-dark transition-colors" tabIndex={-1}>
+                    <Input id="pwd" type={showPwd ? "text" : "password"} placeholder="••••••••" value={form.password} onChange={update("password")} className="pl-11 pr-11" autoComplete="new-password" minLength={8} required />
+                    <button type="button" onClick={() => setShowPwd((value) => !value)} className="absolute right-3 top-1/2 -translate-y-1/2 p-1 text-muted-foreground hover:text-gold-dark transition-colors" aria-label={showPwd ? "Masquer le mot de passe" : "Afficher le mot de passe"}>
                       {showPwd ? <EyeOff className="h-4.5 w-4.5" /> : <Eye className="h-4.5 w-4.5" />}
                     </button>
                   </div>
                   <div className="flex gap-1 h-1.5">
                     {[1, 2, 3, 4, 5].map((i) => (
-                      <div key={i} className={`flex-1 rounded-full transition-colors ${i <= strength ? strengthColors[strength] : strengthColors[0]}`} />
+                      <div key={i} className={`flex-1 rounded-full transition-colors ${i <= strength ? strengthClasses[strength] : strengthClasses[0]}`} />
                     ))}
                   </div>
                 </div>
@@ -136,36 +203,21 @@ export default function ResetPassword() {
                   <Label htmlFor="confirm">Confirmer le mot de passe</Label>
                   <div className="relative">
                     <Lock className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4.5 w-4.5 text-muted-foreground" />
-                    <Input
-                      id="confirm"
-                      type={showConfirm ? "text" : "password"}
-                      placeholder="••••••••"
-                      value={form.confirm}
-                      onChange={update("confirm")}
-                      className="pl-11 pr-11"
-                      autoComplete="new-password"
-                    />
-                    <button type="button" onClick={() => setShowConfirm(!showConfirm)} className="absolute right-3 top-1/2 -translate-y-1/2 p-1 text-muted-foreground hover:text-gold-dark transition-colors" tabIndex={-1}>
+                    <Input id="confirm" type={showConfirm ? "text" : "password"} placeholder="••••••••" value={form.confirm} onChange={update("confirm")} className="pl-11 pr-11" autoComplete="new-password" minLength={8} required />
+                    <button type="button" onClick={() => setShowConfirm((value) => !value)} className="absolute right-3 top-1/2 -translate-y-1/2 p-1 text-muted-foreground hover:text-gold-dark transition-colors" aria-label={showConfirm ? "Masquer la confirmation" : "Afficher la confirmation"}>
                       {showConfirm ? <EyeOff className="h-4.5 w-4.5" /> : <Eye className="h-4.5 w-4.5" />}
                     </button>
                   </div>
                 </div>
 
-                <Button type="submit" className="w-full h-12 gap-2 font-bold text-base" disabled={isLoading}>
-                  {isLoading ? (
-                    <><div className="w-4 h-4 rounded-full border-2 border-white/60 border-t-white animate-spin" />Mise à jour...</>
-                  ) : (
-                    <>Réinitialiser <ArrowRight className="h-4.5 w-4.5" /></>
-                  )}
+                <Button type="submit" className="w-full h-12 gap-2 font-bold text-base" disabled={isLoading || checkingSession || !hasRecoverySession}>
+                  {isLoading ? "Mise à jour..." : "Réinitialiser"}
+                  {!isLoading && <ArrowRight className="h-4.5 w-4.5" />}
                 </Button>
               </form>
             )}
 
-            <p className="text-center text-sm font-medium">
-              <Link to="/login" className="font-bold gold-text-gradient hover:underline">
-                ← Retour à la connexion
-              </Link>
-            </p>
+            <p className="text-center text-sm font-medium"><Link to="/login" className="font-bold gold-text-gradient hover:underline">← Retour à la connexion</Link></p>
           </CardContent>
         </Card>
       </motion.div>

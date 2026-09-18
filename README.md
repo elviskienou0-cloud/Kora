@@ -210,14 +210,7 @@ APP_PARAMS = {
   name: "KORA",
   tagline: "La plateforme des talents africains",
   categories: [
-    { id: "tech",       name: "Technologie & Digital", count: 1248 },
-    { id: "creative",   name: "Créatif & Design",      count: 872  },
-    { id: "business",   name: "Business & Stratégie",  count: 534  },
-    { id: "marketing",  name: "Marketing & Comm",      count: 612  },
-    { id: "finance",    name: "Finance & Compta",      count: 298  },
-    { id: "legal",      name: "Juridique & Conseil",   count: 156  },
-    { id: "education",  name: "Formation & Éducation", count: 421  },
-    { id: "health",     name: "Santé & Bien-être",     count: 267  },
+
   ],
   plans: {
     free:     { name: "Découverte",   price: 0 },

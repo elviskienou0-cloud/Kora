@@ -1,22 +1,13 @@
-import { useState, useMemo, useEffect } from "react";
-import { motion, AnimatePresence } from "framer-motion";
-import { toast } from "sonner";
 import {
-  Card,
-  CardContent,
-  CardHeader,
-  CardFooter,
-} from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Badge } from "@/components/ui/badge";
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
-import { Separator } from "@/components/ui/separator";
-import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { cn, formatCurrency } from "@/lib/utils";
-import { useAuth } from "@/lib/AuthContext";
-import { supabase } from "@/lib/supabase";
-import { getCategoryIcon } from "@/lib/categoryIcons";
+  useEffect,
+  useMemo,
+  useState,
+} from "react"
+import {
+  motion,
+  AnimatePresence,
+} from "framer-motion"
+import { toast } from "sonner"
 import {
   Search,
   Heart,
@@ -31,242 +22,803 @@ import {
   Users,
   Loader2,
   AlertCircle,
-} from "lucide-react";
+  ChevronLeft,
+  ChevronRight,
+} from "lucide-react"
+import {
+  useNavigate,
+} from "react-router-dom"
 
-const ALL_COUNTRIES_LABEL = "Tous les pays";
-const DEFAULT_MAX_RATE = 150000;
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardFooter,
+} from "@/components/ui/card"
+import { Button } from "@/components/ui/button"
+import { Input } from "@/components/ui/input"
+import { Badge } from "@/components/ui/badge"
+import {
+  Avatar,
+  AvatarFallback,
+} from "@/components/ui/avatar"
+import { Separator } from "@/components/ui/separator"
+import {
+  Tabs,
+  TabsList,
+  TabsTrigger,
+} from "@/components/ui/tabs"
+
+import {
+  cn,
+  formatCurrency,
+} from "@/lib/utils"
+import { useAuth } from "@/lib/AuthContext"
+import { supabase } from "@/lib/supabase"
+import { getCategoryIcon } from "@/lib/categoryIcons"
+import {
+  useTalentsQuery,
+} from "@/hooks/queries/useTalentsQuery"
+
+const ALL_COUNTRIES_LABEL = "Tous les pays"
+
+/*
+ * IMPORTANT :
+ * Le talent KORA actuellement présent peut dépasser 500 000 XOF.
+ * On garde donc un plafond de secours suffisamment haut pendant
+ * que le vrai maximum est récupéré depuis Supabase.
+ */
+const DEFAULT_RATE_CEILING = 5_000_000
+const RATE_STEP = 5_000
+const PAGE_SIZE = 20
 
 const containerVariants = {
-  hidden: { opacity: 0 },
+  hidden: {
+    opacity: 0,
+  },
   visible: {
     opacity: 1,
-    transition: { staggerChildren: 0.04 },
+    transition: {
+      staggerChildren: 0.04,
+    },
   },
-};
+}
 
 const itemVariants = {
-  hidden: { opacity: 0, y: 20 },
-  visible: { opacity: 1, y: 0, transition: { duration: 0.35, ease: "easeOut" } },
-};
+  hidden: {
+    opacity: 0,
+    y: 20,
+  },
+  visible: {
+    opacity: 1,
+    y: 0,
+    transition: {
+      duration: 0.35,
+      ease: "easeOut",
+    },
+  },
+}
 
 export default function ClientBrowse() {
-  const { user } = useAuth();
+  const navigate = useNavigate()
+  const { user } = useAuth()
 
-  const [talents, setTalents] = useState([]);
-  const [categoryOptions, setCategoryOptions] = useState([]);
-  const [countryOptions, setCountryOptions] = useState([ALL_COUNTRIES_LABEL]);
-  const [favorites, setFavorites] = useState(new Set());
-  const [loading, setLoading] = useState(true);
-  const [loadError, setLoadError] = useState("");
+  const authUserId =
+    user?.authId || user?.id
 
-  const [search, setSearch] = useState("");
-  const [selectedCategory, setSelectedCategory] = useState("all");
-  const [selectedCountry, setSelectedCountry] = useState(ALL_COUNTRIES_LABEL);
-  const [minRate, setMinRate] = useState(0);
-  const [maxRate, setMaxRate] = useState(DEFAULT_MAX_RATE);
-  const [availableOnly, setAvailableOnly] = useState(false);
-  const [verifiedOnly, setVerifiedOnly] = useState(false);
-  const [showFilters, setShowFilters] = useState(false);
-  const [sortBy, setSortBy] = useState("recommended");
+  const [categoryOptions, setCategoryOptions] =
+    useState([])
 
-  useEffect(() => {
-    if (!user?.authId) return;
+  const [countryOptions, setCountryOptions] =
+    useState([
+      {
+        id: "all",
+        name: ALL_COUNTRIES_LABEL,
+      },
+    ])
 
-    let mounted = true;
+  const [favorites, setFavorites] =
+    useState(new Set())
 
-    async function loadBrowseData() {
-      setLoading(true);
-      setLoadError("");
+  const [page, setPage] =
+    useState(1)
 
-      try {
-        const [talentsResult, categoriesResult, countriesResult, favoritesResult] = await Promise.all([
-          supabase
-            .from("talent_profiles")
-            .select(`
-              id,
-              first_name,
-              last_name,
-              title,
-              bio,
-              city,
-              daily_rate,
-              rating,
-              reviews_count,
-              completed_projects,
-              verified,
-              available,
-              categories ( id, slug, name ),
-              countries ( name ),
-              talent_profile_skills ( skills ( name ) )
-            `)
-            .eq("status", "published")
-            .eq("is_visible", true)
-            .limit(500),
+  const [search, setSearch] =
+    useState("")
 
-          supabase.from("categories").select("id, slug, name").order("name"),
+  const [selectedCategory, setSelectedCategory] =
+    useState("all")
 
-          supabase.from("countries").select("name").order("name"),
+  const [selectedCountry, setSelectedCountry] =
+    useState("all")
 
-          supabase.from("favorites").select("talent_id").eq("client_id", user.authId),
-        ]);
+  const [minRate, setMinRate] =
+    useState(0)
 
-        if (!mounted) return;
+  const [rateCeiling, setRateCeiling] =
+    useState(DEFAULT_RATE_CEILING)
 
-        if (talentsResult.error) throw talentsResult.error;
-        if (categoriesResult.error) throw categoriesResult.error;
-        if (countriesResult.error) throw countriesResult.error;
-        if (favoritesResult.error) throw favoritesResult.error;
+  const [maxRate, setMaxRate] =
+    useState(DEFAULT_RATE_CEILING)
 
-        const normalized = (talentsResult.data || []).map((t) => ({
-          id: t.id,
-          firstName: t.first_name || "",
-          lastName: t.last_name || "",
-          categoryId: t.categories?.id || null,
-          categorySlug: t.categories?.slug || null,
-          country: t.countries?.name || "",
-          city: t.city || "",
-          rating: Number(t.rating) || 0,
-          reviews: Number(t.reviews_count) || 0,
-          completedProjects: Number(t.completed_projects) || 0,
-          rate: Number(t.daily_rate) || 0,
-          title: t.title || "",
-          bio: t.bio || "",
-          skills: (t.talent_profile_skills || []).map((s) => s.skills?.name).filter(Boolean),
-          verified: !!t.verified,
-          available: !!t.available,
-        }));
+  const [availableOnly, setAvailableOnly] =
+    useState(false)
 
-        setTalents(normalized);
+  const [verifiedOnly, setVerifiedOnly] =
+    useState(false)
 
-        setCategoryOptions([
-          { id: "all", label: "Toutes", icon: Users },
-          ...(categoriesResult.data || []).map((c) => ({
-            id: c.id,
-            label: c.name,
-            icon: getCategoryIcon(c.slug),
-          })),
-        ]);
+  const [showFilters, setShowFilters] =
+    useState(false)
 
-        setCountryOptions([ALL_COUNTRIES_LABEL, ...(countriesResult.data || []).map((c) => c.name)]);
+  const [sortBy, setSortBy] =
+    useState("recommended")
 
-        setFavorites(new Set((favoritesResult.data || []).map((f) => f.talent_id)));
-      } catch (err) {
-        console.error("Erreur chargement des talents :", err);
-        if (mounted) setLoadError("Impossible de charger les talents pour le moment.");
-      } finally {
-        if (mounted) setLoading(false);
-      }
-    }
+  const [loadError, setLoadError] =
+    useState("")
 
-    loadBrowseData();
+  /*
+   * ============================================================
+   * REACT QUERY — TALENTS
+   * ============================================================
+   */
+  const {
+    data: talentPage,
+    isLoading: talentsLoading,
+    isFetching: talentsFetching,
+    error: talentsError,
+  } = useTalentsQuery({
+    page,
+    pageSize: PAGE_SIZE,
+    search,
+    status: "published",
+    visibleOnly: true,
+    categoryId:
+      selectedCategory === "all"
+        ? null
+        : selectedCategory,
+    countryId:
+      selectedCountry === "all"
+        ? null
+        : selectedCountry,
+    available:
+      availableOnly
+        ? true
+        : "all",
+    verified:
+      verifiedOnly
+        ? true
+        : "all",
+    minRate:
+      minRate > 0
+        ? minRate
+        : null,
+    /*
+     * Ne jamais appliquer un plafond de 500 000 XOF
+     * par défaut : cela supprimait le talent à 992 500 XOF.
+     */
+    maxRate:
+      maxRate < rateCeiling
+        ? maxRate
+        : null,
+    enabled: true,
+  })
 
-    return () => {
-      mounted = false;
-    };
-  }, [user?.authId]);
+  const talents =
+    talentPage?.data || []
 
-  const filteredTalents = useMemo(() => {
-    let result = [...talents];
+  const totalTalents =
+    Number(talentPage?.count) || 0
 
-    if (search.trim()) {
-      const q = search.toLowerCase();
-      result = result.filter(
-        (t) =>
-          t.firstName.toLowerCase().includes(q) ||
-          t.lastName.toLowerCase().includes(q) ||
-          t.title.toLowerCase().includes(q) ||
-          t.skills.some((s) => s.toLowerCase().includes(q))
-      );
-    }
+  const totalPages =
+    talentPage?.totalPages || 1
 
-    if (selectedCategory !== "all") {
-      result = result.filter((t) => t.categoryId === selectedCategory);
-    }
+  /*
+   * ============================================================
+   * NORMALISATION
+   * ============================================================
+   */
+  const normalizedTalents = useMemo(
+    () =>
+      talents.map((talent) => ({
+        id: talent.id,
 
-    if (selectedCountry !== ALL_COUNTRIES_LABEL) {
-      result = result.filter((t) => t.country === selectedCountry);
-    }
+        firstName:
+          talent.first_name || "",
 
-    result = result.filter((t) => t.rate >= minRate && t.rate <= maxRate);
+        lastName:
+          talent.last_name || "",
 
-    if (availableOnly) result = result.filter((t) => t.available);
-    if (verifiedOnly) result = result.filter((t) => t.verified);
+        categoryId:
+          talent.category_id ||
+          talent.categories?.id ||
+          null,
+
+        categorySlug:
+          talent.categories?.slug ||
+          null,
+
+        categoryName:
+          talent.categories?.name ||
+          "",
+
+        countryId:
+          talent.country_id ||
+          talent.countries?.id ||
+          null,
+
+        country:
+          talent.countries?.name ||
+          "",
+
+        city:
+          talent.city || "",
+
+        rating:
+          Number(talent.rating) || 0,
+
+        reviews:
+          Number(talent.reviews_count) || 0,
+
+        completedProjects:
+          Number(talent.completed_projects) ||
+          0,
+
+        rate:
+          Number(talent.daily_rate) || 0,
+
+        currency:
+          talent.currency || "XOF",
+
+        title:
+          talent.title || "",
+
+        bio:
+          talent.bio || "",
+
+        skills:
+          (
+            talent.talent_profile_skills ||
+            []
+          )
+            .map(
+              (row) =>
+                row.skills?.name
+            )
+            .filter(Boolean),
+
+        verified:
+          Boolean(talent.verified),
+
+        available:
+          Boolean(talent.available),
+      })),
+    [talents]
+  )
+
+  /*
+   * ============================================================
+   * TRI LOCAL
+   * ============================================================
+   */
+  const visibleTalents = useMemo(() => {
+    const result = [
+      ...normalizedTalents,
+    ]
 
     switch (sortBy) {
       case "rating":
-        result.sort((a, b) => b.rating - a.rating);
-        break;
+        result.sort(
+          (a, b) =>
+            b.rating - a.rating
+        )
+        break
+
       case "projects":
-        result.sort((a, b) => b.completedProjects - a.completedProjects);
-        break;
+        result.sort(
+          (a, b) =>
+            b.completedProjects -
+            a.completedProjects
+        )
+        break
+
       case "rate-asc":
-        result.sort((a, b) => a.rate - b.rate);
-        break;
+        result.sort(
+          (a, b) =>
+            a.rate - b.rate
+        )
+        break
+
       case "rate-desc":
-        result.sort((a, b) => b.rate - a.rate);
-        break;
+        result.sort(
+          (a, b) =>
+            b.rate - a.rate
+        )
+        break
+
       default:
-        result.sort((a, b) => b.reviews * b.rating - a.reviews * a.rating);
+        result.sort(
+          (a, b) =>
+            b.reviews * b.rating -
+            a.reviews * a.rating
+        )
+        break
     }
 
-    return result;
-  }, [talents, search, selectedCategory, selectedCountry, minRate, maxRate, availableOnly, verifiedOnly, sortBy]);
+    return result
+  }, [
+    normalizedTalents,
+    sortBy,
+  ])
 
-  const toggleFavorite = async (talentId) => {
-    if (!user?.authId) return;
+  /*
+   * ============================================================
+   * MÉTADONNÉES + FAVORIS
+   * ============================================================
+   */
+  useEffect(() => {
+    if (!authUserId) {
+      return
+    }
 
-    const wasFavorite = favorites.has(talentId);
+    let mounted = true
 
-    setFavorites((prev) => {
-      const next = new Set(prev);
-      if (wasFavorite) next.delete(talentId);
-      else next.add(talentId);
-      return next;
-    });
+    async function loadBrowseMeta() {
+      setLoadError("")
+
+      try {
+        const [
+          categoriesResult,
+          countriesResult,
+          favoritesResult,
+        ] = await Promise.all([
+          supabase
+            .from("categories")
+            .select("id, slug, name")
+            .order("name"),
+
+          supabase
+            .from("countries")
+            .select("id, name")
+            .order("name"),
+
+          supabase
+            .from("favorites")
+            .select("talent_id")
+            .eq(
+              "client_id",
+              authUserId
+            ),
+        ])
+
+        if (categoriesResult.error) {
+          throw categoriesResult.error
+        }
+
+        if (countriesResult.error) {
+          throw countriesResult.error
+        }
+
+        if (favoritesResult.error) {
+          throw favoritesResult.error
+        }
+
+        if (!mounted) return
+
+        setCategoryOptions([
+          {
+            id: "all",
+            label: "Toutes",
+            icon: Users,
+          },
+          ...(categoriesResult.data || [])
+            .map((category) => ({
+              id: category.id,
+              label: category.name,
+              icon: getCategoryIcon(
+                category.slug
+              ),
+            })),
+        ])
+
+        setCountryOptions([
+          {
+            id: "all",
+            name: ALL_COUNTRIES_LABEL,
+          },
+          ...(countriesResult.data || []),
+        ])
+
+        setFavorites(
+          new Set(
+            (favoritesResult.data || [])
+              .map(
+                (row) =>
+                  row.talent_id
+              )
+              .filter(Boolean)
+          )
+        )
+      } catch (error) {
+        console.error(
+          "Erreur chargement catalogue KORA :",
+          error
+        )
+
+        if (mounted) {
+          setLoadError(
+            error?.message ||
+              "Impossible de charger les filtres KORA."
+          )
+        }
+      }
+    }
+
+    loadBrowseMeta()
+
+    return () => {
+      mounted = false
+    }
+  }, [authUserId])
+
+  /*
+   * ============================================================
+   * PLAFOND TARIFAIRE GLOBAL
+   * ============================================================
+   *
+   * IMPORTANT :
+   * On ne calcule PAS le plafond à partir de la page courante.
+   * Sinon un talent cher situé sur une autre page peut être exclu.
+   *
+   * On récupère uniquement le tarif maximum depuis Supabase.
+   * Cela ne charge pas tous les talents.
+   * ============================================================
+   */
+  useEffect(() => {
+    let mounted = true
+
+    async function loadRateCeiling() {
+      const {
+        data,
+        error,
+      } = await supabase
+        .from("talent_profiles")
+        .select("daily_rate")
+        .eq("status", "published")
+        .order("daily_rate", {
+          ascending: false,
+        })
+        .limit(1)
+        .maybeSingle()
+
+      if (error) {
+        console.warn(
+          "Impossible de récupérer le tarif maximum :",
+          error
+        )
+        return
+      }
+
+      if (!mounted) return
+
+      const highestRate =
+        Number(data?.daily_rate) || 0
+
+      const calculatedCeiling =
+        highestRate > 0
+          ? Math.max(
+              DEFAULT_RATE_CEILING,
+              Math.ceil(
+                highestRate / RATE_STEP
+              ) * RATE_STEP
+            )
+          : DEFAULT_RATE_CEILING
+
+      setRateCeiling(
+        calculatedCeiling
+      )
+
+      setMaxRate(
+        (current) => {
+          /*
+           * Si le curseur est encore sur l'ancien
+           * plafond, on le replace sur le nouveau plafond.
+           */
+          if (
+            current >=
+            DEFAULT_RATE_CEILING
+          ) {
+            return calculatedCeiling
+          }
+
+          return Math.min(
+            current,
+            calculatedCeiling
+          )
+        }
+      )
+    }
+
+    loadRateCeiling()
+
+    return () => {
+      mounted = false
+    }
+  }, [])
+
+  /*
+   * ============================================================
+   * RECHERCHE FINE SUR LA PAGE COURANTE
+   * ============================================================
+   */
+  const filteredTalents = useMemo(() => {
+    const term =
+      search
+        .trim()
+        .toLowerCase()
+
+    if (!term) {
+      return visibleTalents
+    }
+
+    return visibleTalents.filter(
+      (talent) =>
+        talent.firstName
+          .toLowerCase()
+          .includes(term) ||
+        talent.lastName
+          .toLowerCase()
+          .includes(term) ||
+        talent.title
+          .toLowerCase()
+          .includes(term) ||
+        talent.city
+          .toLowerCase()
+          .includes(term) ||
+        talent.skills.some(
+          (skill) =>
+            skill
+              .toLowerCase()
+              .includes(term)
+        )
+    )
+  }, [
+    visibleTalents,
+    search,
+  ])
+
+  /*
+   * ============================================================
+   * FAVORIS
+   * ============================================================
+   */
+  const toggleFavorite = async (
+    talentId
+  ) => {
+    if (!authUserId) {
+      return
+    }
+
+    const wasFavorite =
+      favorites.has(talentId)
+
+    setFavorites((current) => {
+      const next =
+        new Set(current)
+
+      if (wasFavorite) {
+        next.delete(talentId)
+      } else {
+        next.add(talentId)
+      }
+
+      return next
+    })
 
     try {
       if (wasFavorite) {
-        const { error } = await supabase
+        const {
+          error,
+        } = await supabase
           .from("favorites")
           .delete()
-          .eq("client_id", user.authId)
-          .eq("talent_id", talentId);
-        if (error) throw error;
-      } else {
-        const { error } = await supabase
-          .from("favorites")
-          .insert({ client_id: user.authId, talent_id: talentId });
-        if (error) throw error;
-      }
-    } catch (err) {
-      console.error("Erreur mise à jour des favoris :", err);
-      toast.error("Impossible de mettre à jour vos favoris");
-      setFavorites((prev) => {
-        const next = new Set(prev);
-        if (wasFavorite) next.add(talentId);
-        else next.delete(talentId);
-        return next;
-      });
-    }
-  };
+          .eq(
+            "client_id",
+            authUserId
+          )
+          .eq(
+            "talent_id",
+            talentId
+          )
 
+        if (error) {
+          throw error
+        }
+      } else {
+        const {
+          error,
+        } = await supabase
+          .from("favorites")
+          .insert({
+            client_id:
+              authUserId,
+            talent_id:
+              talentId,
+          })
+
+        if (error) {
+          throw error
+        }
+      }
+    } catch (error) {
+      console.error(
+        "Erreur favori :",
+        error
+      )
+
+      toast.error(
+        "Impossible de mettre à jour votre favori."
+      )
+
+      setFavorites((current) => {
+        const next =
+          new Set(current)
+
+        if (wasFavorite) {
+          next.add(talentId)
+        } else {
+          next.delete(talentId)
+        }
+
+        return next
+      })
+    }
+  }
+
+  /*
+   * ============================================================
+   * FILTRES
+   * ============================================================
+   */
   const activeFiltersCount =
-    (selectedCategory !== "all" ? 1 : 0) +
-    (selectedCountry !== ALL_COUNTRIES_LABEL ? 1 : 0) +
-    (minRate > 0 ? 1 : 0) +
-    (maxRate < DEFAULT_MAX_RATE ? 1 : 0) +
-    (availableOnly ? 1 : 0) +
-    (verifiedOnly ? 1 : 0);
+    (selectedCategory !==
+    "all"
+      ? 1
+      : 0) +
+    (selectedCountry !==
+    "all"
+      ? 1
+      : 0) +
+    (minRate > 0
+      ? 1
+      : 0) +
+    (maxRate < rateCeiling
+      ? 1
+      : 0) +
+    (availableOnly
+      ? 1
+      : 0) +
+    (verifiedOnly
+      ? 1
+      : 0)
 
   const resetFilters = () => {
-    setSelectedCategory("all");
-    setSelectedCountry(ALL_COUNTRIES_LABEL);
-    setMinRate(0);
-    setMaxRate(DEFAULT_MAX_RATE);
-    setAvailableOnly(false);
-    setVerifiedOnly(false);
-  };
+    setSelectedCategory(
+      "all"
+    )
 
+    setSelectedCountry(
+      "all"
+    )
+
+    setMinRate(0)
+
+    setMaxRate(
+      rateCeiling
+    )
+
+    setAvailableOnly(
+      false
+    )
+
+    setVerifiedOnly(
+      false
+    )
+
+    setSearch("")
+
+    setPage(1)
+  }
+
+  const handleCategoryChange = (
+    value
+  ) => {
+    setSelectedCategory(value)
+    setPage(1)
+  }
+
+  const handleCountryChange = (
+    value
+  ) => {
+    setSelectedCountry(value)
+    setPage(1)
+  }
+
+  const handleSearchChange = (
+    event
+  ) => {
+    setSearch(
+      event.target.value
+    )
+    setPage(1)
+  }
+
+  const handleMinRateChange = (
+    event
+  ) => {
+    const value =
+      Number(event.target.value) ||
+      0
+
+    setMinRate(
+      Math.min(
+        value,
+        rateCeiling
+      )
+    )
+
+    setPage(1)
+  }
+
+  const handleMaxRateChange = (
+    event
+  ) => {
+    const value =
+      Number(event.target.value) ||
+      0
+
+    setMaxRate(
+      Math.min(
+        Math.max(
+          value,
+          minRate
+        ),
+        rateCeiling
+      )
+    )
+
+    setPage(1)
+  }
+
+  const goToPreviousPage = () => {
+    setPage(
+      (current) =>
+        Math.max(
+          1,
+          current - 1
+        )
+    )
+  }
+
+  const goToNextPage = () => {
+    setPage(
+      (current) =>
+        Math.min(
+          totalPages,
+          current + 1
+        )
+    )
+  }
+
+  const loading =
+    talentsLoading ||
+    (!talentPage &&
+      talentsFetching)
+
+  /*
+   * ============================================================
+   * AFFICHAGE
+   * ============================================================
+   */
   return (
     <div className="min-h-screen bg-gradient-to-br from-accent/40 via-background to-background p-4 md:p-8">
       <motion.div
@@ -275,96 +827,189 @@ export default function ClientBrowse() {
         animate="visible"
         className="mx-auto max-w-7xl space-y-6"
       >
-        <motion.div variants={itemVariants}>
+        <motion.div
+          variants={itemVariants}
+        >
           <div className="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
             <div>
               <h1 className="text-2xl font-bold tracking-tight md:text-3xl">
-                Découvrez nos <span className="gold-text-gradient">Talents</span>
+                Découvrez nos{" "}
+                <span className="gold-text-gradient">
+                  Talents
+                </span>
               </h1>
+
               <p className="mt-1 text-sm text-muted-foreground">
-                {talents.length} professionnel{talents.length > 1 ? "s" : ""} disponible{talents.length > 1 ? "s" : ""} à travers toute l'Afrique
+                {totalTalents} professionnel
+                {totalTalents > 1
+                  ? "s"
+                  : ""}{" "}
+                disponible
+                {totalTalents > 1
+                  ? "s"
+                  : ""}{" "}
+                à travers toute l'Afrique
               </p>
             </div>
+
+            {talentsFetching &&
+            !loading ? (
+              <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                Actualisation…
+              </div>
+            ) : null}
           </div>
 
           <div className="mt-6 flex flex-col gap-4 lg:flex-row">
             <div className="relative flex-1">
               <Search className="absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-muted-foreground" />
+
               <Input
                 placeholder="Rechercher un talent, une compétence, un métier..."
                 value={search}
-                onChange={(e) => setSearch(e.target.value)}
+                onChange={
+                  handleSearchChange
+                }
                 className="h-12 pl-12 pr-4 border-gold/30 focus:border-gold focus:ring-gold/30 bg-card text-base"
               />
-              {search && (
+
+              {search ? (
                 <button
-                  onClick={() => setSearch("")}
+                  type="button"
+                  onClick={() => {
+                    setSearch("")
+                    setPage(1)
+                  }}
                   className="absolute right-4 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
                 >
                   <X className="h-4 w-4" />
                 </button>
-              )}
+              ) : null}
             </div>
+
             <div className="flex items-center gap-3">
               <select
                 value={sortBy}
-                onChange={(e) => setSortBy(e.target.value)}
+                onChange={(event) =>
+                  setSortBy(
+                    event.target.value
+                  )
+                }
                 className="h-12 rounded-xl border border-gold/30 bg-card px-4 pr-9 text-sm font-medium text-foreground focus:outline-none focus:ring-2 focus:ring-gold/30"
               >
-                <option value="recommended">Recommandés</option>
-                <option value="rating">Mieux notés</option>
-                <option value="projects">Plus d'expérience</option>
-                <option value="rate-asc">Prix croissant</option>
-                <option value="rate-desc">Prix décroissant</option>
+                <option value="recommended">
+                  Recommandés
+                </option>
+                <option value="rating">
+                  Mieux notés
+                </option>
+                <option value="projects">
+                  Plus d'expérience
+                </option>
+                <option value="rate-asc">
+                  Prix croissant
+                </option>
+                <option value="rate-desc">
+                  Prix décroissant
+                </option>
               </select>
+
               <Button
                 variant="outline"
-                onClick={() => setShowFilters((v) => !v)}
+                onClick={() =>
+                  setShowFilters(
+                    (value) =>
+                      !value
+                  )
+                }
                 className={cn(
                   "h-12 gap-2 border-gold/30",
-                  showFilters || activeFiltersCount > 0 ? "bg-gold/10 border-gold text-gold-dark" : ""
+                  showFilters ||
+                    activeFiltersCount >
+                      0
+                    ? "bg-gold/10 border-gold text-gold-dark"
+                    : ""
                 )}
               >
                 <Filter className="h-4 w-4" />
                 Filtres
-                {activeFiltersCount > 0 && (
+
+                {activeFiltersCount >
+                0 ? (
                   <span className="ml-1 flex h-5 min-w-5 items-center justify-center rounded-full bg-gold px-1.5 text-[10px] font-bold text-primary-foreground">
                     {activeFiltersCount}
                   </span>
-                )}
+                ) : null}
               </Button>
             </div>
           </div>
         </motion.div>
 
-        <motion.div variants={itemVariants} className="space-y-4">
-          <Tabs value={selectedCategory} onValueChange={setSelectedCategory}>
+        <motion.div
+          variants={itemVariants}
+          className="space-y-4"
+        >
+          <Tabs
+            value={
+              selectedCategory
+            }
+            onValueChange={
+              handleCategoryChange
+            }
+          >
             <TabsList className="flex h-auto flex-wrap gap-2 bg-transparent p-0">
-              {categoryOptions.map((cat) => (
-                <TabsTrigger
-                  key={cat.id}
-                  value={cat.id}
-                  className={cn(
-                    "h-10 gap-2 rounded-xl border px-4 transition-all data-[state=active]:shadow-md",
-                    selectedCategory === cat.id
-                      ? "gold-gradient text-primary-foreground border-transparent shadow-gold/30"
-                      : "border-gold/20 bg-card text-muted-foreground hover:border-gold/40 hover:text-foreground"
-                  )}
-                >
-                  <cat.icon className="h-4 w-4" />
-                  {cat.label}
-                </TabsTrigger>
-              ))}
+              {categoryOptions.map(
+                (category) => {
+                  const Icon =
+                    category.icon
+
+                  return (
+                    <TabsTrigger
+                      key={
+                        category.id
+                      }
+                      value={
+                        category.id
+                      }
+                      className={cn(
+                        "h-10 gap-2 rounded-xl border px-4 transition-all data-[state=active]:shadow-md",
+                        selectedCategory ===
+                          category.id
+                          ? "gold-gradient text-primary-foreground border-transparent shadow-gold/30"
+                          : "border-gold/20 bg-card text-muted-foreground hover:border-gold/40 hover:text-foreground"
+                      )}
+                    >
+                      <Icon className="h-4 w-4" />
+                      {
+                        category.label
+                      }
+                    </TabsTrigger>
+                  )
+                }
+              )}
             </TabsList>
           </Tabs>
 
           <AnimatePresence>
-            {showFilters && (
+            {showFilters ? (
               <motion.div
-                initial={{ opacity: 0, height: 0 }}
-                animate={{ opacity: 1, height: "auto" }}
-                exit={{ opacity: 0, height: 0 }}
-                transition={{ duration: 0.25, ease: "easeInOut" }}
+                initial={{
+                  opacity: 0,
+                  height: 0,
+                }}
+                animate={{
+                  opacity: 1,
+                  height: "auto",
+                }}
+                exit={{
+                  opacity: 0,
+                  height: 0,
+                }}
+                transition={{
+                  duration: 0.25,
+                  ease: "easeInOut",
+                }}
                 className="overflow-hidden"
               >
                 <Card className="border-gold/20 shadow-sm">
@@ -374,73 +1019,168 @@ export default function ClientBrowse() {
                         <MapPin className="h-4 w-4 text-gold-dark" />
                         Pays
                       </label>
+
                       <select
-                        value={selectedCountry}
-                        onChange={(e) => setSelectedCountry(e.target.value)}
+                        value={
+                          selectedCountry
+                        }
+                        onChange={(event) =>
+                          handleCountryChange(
+                            event.target
+                              .value
+                          )
+                        }
                         className="h-11 w-full rounded-lg border border-input bg-background px-3 text-sm focus:outline-none focus:ring-2 focus:ring-gold/30 focus:border-gold"
                       >
-                        {countryOptions.map((c) => (
-                          <option key={c} value={c}>{c}</option>
-                        ))}
+                        {countryOptions.map(
+                          (country) => (
+                            <option
+                              key={
+                                country.id
+                              }
+                              value={
+                                country.id
+                              }
+                            >
+                              {
+                                country.name
+                              }
+                            </option>
+                          )
+                        )}
                       </select>
                     </div>
+
                     <div className="space-y-2 md:col-span-2">
                       <label className="text-sm font-semibold text-foreground">
-                        Fourchette de tarif (XOF/jour)
+                        Fourchette de tarif
                       </label>
+
                       <div className="flex items-center gap-3">
                         <Input
                           type="number"
-                          value={minRate}
-                          onChange={(e) => setMinRate(Number(e.target.value))}
+                          value={
+                            minRate
+                          }
+                          onChange={
+                            handleMinRateChange
+                          }
                           className="h-11"
                           min={0}
-                          max={150000}
+                          max={
+                            rateCeiling
+                          }
                         />
-                        <span className="text-muted-foreground">—</span>
+
+                        <span className="text-muted-foreground">
+                          —
+                        </span>
+
                         <Input
                           type="number"
-                          value={maxRate}
-                          onChange={(e) => setMaxRate(Number(e.target.value))}
+                          value={
+                            maxRate
+                          }
+                          onChange={
+                            handleMaxRateChange
+                          }
                           className="h-11"
-                          min={0}
-                          max={500000}
+                          min={minRate}
+                          max={
+                            rateCeiling
+                          }
                         />
                       </div>
+
                       <input
                         type="range"
                         min={0}
-                        max={150000}
-                        step={5000}
-                        value={maxRate}
-                        onChange={(e) => setMaxRate(Number(e.target.value))}
+                        max={
+                          rateCeiling
+                        }
+                        step={RATE_STEP}
+                        value={Math.min(
+                          maxRate,
+                          rateCeiling
+                        )}
+                        onChange={(event) => {
+                          setMaxRate(
+                            Math.max(
+                              Number(
+                                event
+                                  .target
+                                  .value
+                              ),
+                              minRate
+                            )
+                          )
+                          setPage(1)
+                        }}
                         className="w-full accent-gold"
                       />
+
+                      <div className="flex justify-between text-[11px] text-muted-foreground">
+                        <span>
+                          {formatCurrency(
+                            minRate,
+                            "XOF"
+                          )}
+                        </span>
+
+                        <span>
+                          Jusqu'à{" "}
+                          {formatCurrency(
+                            rateCeiling,
+                            "XOF"
+                          )}
+                        </span>
+                      </div>
                     </div>
+
                     <div className="md:col-span-3 flex flex-wrap items-center gap-3 md:justify-between">
                       <div className="flex flex-wrap items-center gap-4">
                         <label className="flex cursor-pointer items-center gap-2 text-sm">
                           <input
                             type="checkbox"
-                            checked={availableOnly}
-                            onChange={(e) => setAvailableOnly(e.target.checked)}
+                            checked={
+                              availableOnly
+                            }
+                            onChange={(event) => {
+                              setAvailableOnly(
+                                event.target
+                                  .checked
+                              )
+                              setPage(1)
+                            }}
                             className="h-4 w-4 rounded accent-gold"
                           />
                           Disponibles uniquement
                         </label>
+
                         <label className="flex cursor-pointer items-center gap-2 text-sm">
                           <input
                             type="checkbox"
-                            checked={verifiedOnly}
-                            onChange={(e) => setVerifiedOnly(e.target.checked)}
+                            checked={
+                              verifiedOnly
+                            }
+                            onChange={(event) => {
+                              setVerifiedOnly(
+                                event.target
+                                  .checked
+                              )
+                              setPage(1)
+                            }}
                             className="h-4 w-4 rounded accent-gold"
                           />
                           Vérifiés uniquement
                         </label>
                       </div>
+
                       <Button
                         variant="ghost"
-                        onClick={resetFilters}
+                        onClick={
+                          resetFilters
+                        }
                         className="text-sm text-muted-foreground hover:text-foreground"
                       >
                         <X className="mr-1 h-3.5 w-3.5" />
@@ -450,16 +1190,23 @@ export default function ClientBrowse() {
                   </CardContent>
                 </Card>
               </motion.div>
-            )}
+            ) : null}
           </AnimatePresence>
         </motion.div>
 
-        {loadError && (
-          <motion.div variants={itemVariants}>
+        {(loadError ||
+          talentsError) && (
+          <motion.div
+            variants={itemVariants}
+          >
             <Card className="border-red-500/30 bg-red-500/5">
               <CardContent className="flex items-center gap-3 p-4">
                 <AlertCircle className="h-5 w-5 text-red-500 shrink-0" />
-                <p className="text-sm text-red-600">{loadError}</p>
+                <p className="text-sm text-red-600">
+                  {loadError ||
+                    talentsError?.message ||
+                    "Impossible de charger les talents."}
+                </p>
               </CardContent>
             </Card>
           </motion.div>
@@ -467,150 +1214,391 @@ export default function ClientBrowse() {
 
         {loading ? (
           <div className="flex items-center justify-center py-20">
-            <Loader2 className="h-8 w-8 text-gold animate-spin" aria-label="Chargement" />
+            <Loader2
+              className="h-8 w-8 text-gold animate-spin"
+              aria-label="Chargement"
+            />
           </div>
         ) : (
           <>
-            <motion.div variants={itemVariants} className="flex items-center justify-between text-sm">
+            <motion.div
+              variants={itemVariants}
+              className="flex flex-wrap items-center justify-between gap-3 text-sm"
+            >
               <p className="text-muted-foreground">
-                <span className="font-semibold text-foreground">{filteredTalents.length}</span> talent{filteredTalents.length > 1 ? "s" : ""} trouvés
+                <span className="font-semibold text-foreground">
+                  {filteredTalents.length}
+                </span>{" "}
+                affichés sur{" "}
+                <span className="font-semibold text-foreground">
+                  {totalTalents}
+                </span>{" "}
+                talent
+                {totalTalents > 1
+                  ? "s"
+                  : ""}
               </p>
+
+              {totalPages > 1 ? (
+                <p className="text-xs text-muted-foreground">
+                  Page{" "}
+                  <span className="font-semibold text-foreground">
+                    {page}
+                  </span>{" "}
+                  /{" "}
+                  <span className="font-semibold text-foreground">
+                    {totalPages}
+                  </span>
+                </p>
+              ) : null}
             </motion.div>
 
             <motion.div
-              variants={containerVariants}
+              variants={
+                containerVariants
+              }
               initial="hidden"
               animate="visible"
               className="grid gap-5 sm:grid-cols-2 xl:grid-cols-3"
             >
-              {filteredTalents.length === 0 ? (
-                <motion.div variants={itemVariants} className="col-span-full">
+              {filteredTalents.length ===
+              0 ? (
+                <motion.div
+                  variants={
+                    itemVariants
+                  }
+                  className="col-span-full"
+                >
                   <Card className="border-dashed border-gold/30 bg-card/50">
                     <CardContent className="flex flex-col items-center justify-center py-16 text-center">
                       <div className="mb-4 flex h-16 w-16 items-center justify-center rounded-2xl bg-gold/10 text-gold-dark">
                         <Search className="h-8 w-8" />
                       </div>
-                      <h3 className="text-lg font-semibold">Aucun talent trouvé</h3>
+
+                      <h3 className="text-lg font-semibold">
+                        Aucun talent trouvé
+                      </h3>
+
                       <p className="mt-1 text-sm text-muted-foreground max-w-sm">
                         Modifiez vos critères de recherche ou de filtrage pour découvrir d'autres professionnels.
                       </p>
-                      <Button onClick={resetFilters} variant="outline" className="mt-5 border-gold/50 text-gold-dark hover:bg-gold/10">
+
+                      <Button
+                        onClick={
+                          resetFilters
+                        }
+                        variant="outline"
+                        className="mt-5 border-gold/50 text-gold-dark hover:bg-gold/10"
+                      >
                         Réinitialiser les filtres
                       </Button>
                     </CardContent>
                   </Card>
                 </motion.div>
               ) : (
-                filteredTalents.map((t) => (
-                  <motion.div key={t.id} variants={itemVariants} layout>
-                    <Card className="group h-full border-gold/15 transition-all duration-300 hover:border-gold/40 hover:shadow-xl hover:shadow-gold/10 hover:-translate-y-0.5">
-                      <CardHeader className="pb-3">
-                        <div className="flex items-start justify-between">
-                          <div className="flex items-start gap-3">
-                            <Avatar className="h-14 w-14 ring-2 ring-gold/30 ring-offset-2 ring-offset-card">
-                              <AvatarFallback className="gold-gradient text-white font-bold text-lg">
-                                {t.firstName[0] || ""}{t.lastName[0] || ""}
-                              </AvatarFallback>
-                            </Avatar>
-                            <div className="min-w-0">
-                              <div className="flex items-center gap-1.5">
-                                <h3 className="font-bold truncate">{t.firstName} {t.lastName}</h3>
-                                {t.verified && (
-                                  <CheckCircle2 className="h-4 w-4 shrink-0 text-emerald-500 fill-emerald-50" />
-                                )}
-                              </div>
-                              {t.title && <p className="text-sm font-medium text-gold-dark truncate">{t.title}</p>}
-                              {(t.city || t.country) && (
-                                <div className="mt-1 flex items-center gap-1.5 text-xs text-muted-foreground">
-                                  <MapPin className="h-3 w-3" />
-                                  {[t.city, t.country].filter(Boolean).join(", ")}
-                                </div>
-                              )}
-                            </div>
-                          </div>
-                          <button
-                            onClick={() => toggleFavorite(t.id)}
-                            className="shrink-0 rounded-full p-2 transition-all hover:bg-rose-50 active:scale-90"
-                          >
-                            <Heart
-                              className={cn(
-                                "h-5 w-5 transition-all",
-                                favorites.has(t.id)
-                                  ? "fill-rose-500 text-rose-500"
-                                  : "text-muted-foreground group-hover:text-rose-400"
-                              )}
-                            />
-                          </button>
-                        </div>
-                      </CardHeader>
-                      <CardContent className="space-y-4 pb-4">
-                        {t.bio && <p className="text-sm text-muted-foreground line-clamp-2">{t.bio}</p>}
+                filteredTalents.map(
+                  (talent) => (
+                    <motion.div
+                      key={
+                        talent.id
+                      }
+                      variants={
+                        itemVariants
+                      }
+                      layout
+                    >
+                      <Card className="group h-full border-gold/15 transition-all duration-300 hover:border-gold/40 hover:shadow-xl hover:shadow-gold/10 hover:-translate-y-0.5">
+                        <CardHeader className="pb-3">
+                          <div className="flex items-start justify-between">
+                            <div className="flex items-start gap-3">
+                              <Avatar className="h-14 w-14 ring-2 ring-gold/30 ring-offset-2 ring-offset-card">
+                                <AvatarFallback className="gold-gradient text-white font-bold text-lg">
+                                  {talent.firstName[0] ||
+                                    ""}
+                                  {talent.lastName[0] ||
+                                    ""}
+                                </AvatarFallback>
+                              </Avatar>
 
-                        {t.skills.length > 0 && (
-                          <div className="flex flex-wrap gap-1.5">
-                            {t.skills.slice(0, 4).map((s) => (
-                              <Badge key={s} variant="outline" className="border-gold/25 bg-gold/5 text-gold-dark text-xs font-medium">
-                                {s}
+                              <div className="min-w-0">
+                                <div className="flex items-center gap-1.5">
+                                  <h3 className="font-bold truncate">
+                                    {
+                                      talent.firstName
+                                    }{" "}
+                                    {
+                                      talent.lastName
+                                    }
+                                  </h3>
+
+                                  {talent.verified ? (
+                                    <CheckCircle2 className="h-4 w-4 shrink-0 text-emerald-500 fill-emerald-50" />
+                                  ) : null}
+                                </div>
+
+                                {talent.title ? (
+                                  <p className="text-sm font-medium text-gold-dark truncate">
+                                    {
+                                      talent.title
+                                    }
+                                  </p>
+                                ) : null}
+
+                                {(talent.city ||
+                                  talent.country) ? (
+                                  <div className="mt-1 flex items-center gap-1.5 text-xs text-muted-foreground">
+                                    <MapPin className="h-3 w-3" />
+                                    {[
+                                      talent.city,
+                                      talent.country,
+                                    ]
+                                      .filter(
+                                        Boolean
+                                      )
+                                      .join(
+                                        ", "
+                                      )}
+                                  </div>
+                                ) : null}
+                              </div>
+                            </div>
+
+                            <button
+                              type="button"
+                              onClick={() =>
+                                toggleFavorite(
+                                  talent.id
+                                )
+                              }
+                              className="shrink-0 rounded-full p-2 transition-all hover:bg-rose-50 active:scale-90"
+                              aria-label={
+                                favorites.has(
+                                  talent.id
+                                )
+                                  ? "Retirer des favoris"
+                                  : "Ajouter aux favoris"
+                              }
+                            >
+                              <Heart
+                                className={cn(
+                                  "h-5 w-5 transition-all",
+                                  favorites.has(
+                                    talent.id
+                                  )
+                                    ? "fill-rose-500 text-rose-500"
+                                    : "text-muted-foreground group-hover:text-rose-400"
+                                )}
+                              />
+                            </button>
+                          </div>
+                        </CardHeader>
+
+                        <CardContent className="space-y-4 pb-4">
+                          {talent.bio ? (
+                            <p className="text-sm text-muted-foreground line-clamp-2">
+                              {
+                                talent.bio
+                              }
+                            </p>
+                          ) : null}
+
+                          {talent.skills
+                            .length > 0 ? (
+                            <div className="flex flex-wrap gap-1.5">
+                              {talent.skills
+                                .slice(
+                                  0,
+                                  4
+                                )
+                                .map(
+                                  (
+                                    skill
+                                  ) => (
+                                    <Badge
+                                      key={
+                                        skill
+                                      }
+                                      variant="outline"
+                                      className="border-gold/25 bg-gold/5 text-gold-dark text-xs font-medium"
+                                    >
+                                      {
+                                        skill
+                                      }
+                                    </Badge>
+                                  )
+                                )}
+
+                              {talent.skills
+                                .length >
+                              4 ? (
+                                <Badge
+                                  variant="outline"
+                                  className="border-muted text-muted-foreground text-xs"
+                                >
+                                  +
+                                  {talent
+                                    .skills
+                                    .length -
+                                    4}
+                                </Badge>
+                              ) : null}
+                            </div>
+                          ) : null}
+
+                          <div className="flex items-center justify-between text-xs">
+                            <div className="flex items-center gap-3">
+                              <div className="flex items-center gap-0.5">
+                                <Star className="h-3.5 w-3.5 fill-gold text-gold" />
+
+                                <span className="font-semibold text-foreground">
+                                  {talent.rating
+                                    ? talent.rating.toFixed(
+                                        1
+                                      )
+                                    : "—"}
+                                </span>
+
+                                <span className="text-muted-foreground">
+                                  (
+                                  {
+                                    talent.reviews
+                                  }
+                                  )
+                                </span>
+                              </div>
+
+                              <div className="flex items-center gap-1 text-muted-foreground">
+                                <Briefcase className="h-3.5 w-3.5" />
+                                {
+                                  talent.completedProjects
+                                }{" "}
+                                projets
+                              </div>
+                            </div>
+
+                            {talent.available ? (
+                              <Badge
+                                variant="outline"
+                                className="border-emerald-500/30 bg-emerald-500/10 text-emerald-600 text-[10px]"
+                              >
+                                Disponible
                               </Badge>
-                            ))}
-                            {t.skills.length > 4 && (
-                              <Badge variant="outline" className="border-muted text-muted-foreground text-xs">
-                                +{t.skills.length - 4}
+                            ) : (
+                              <Badge
+                                variant="outline"
+                                className="border-muted text-muted-foreground text-[10px]"
+                              >
+                                Occupé
                               </Badge>
                             )}
                           </div>
-                        )}
+                        </CardContent>
 
-                        <div className="flex items-center justify-between text-xs">
-                          <div className="flex items-center gap-3">
-                            <div className="flex items-center gap-0.5">
-                              <Star className="h-3.5 w-3.5 fill-gold text-gold" />
-                              <span className="font-semibold text-foreground">{t.rating ? t.rating.toFixed(1) : "—"}</span>
-                              <span className="text-muted-foreground">({t.reviews})</span>
-                            </div>
-                            <div className="flex items-center gap-1 text-muted-foreground">
-                              <Briefcase className="h-3.5 w-3.5" />
-                              {t.completedProjects} projets
-                            </div>
+                        <Separator />
+
+                        <CardFooter className="flex items-center justify-between py-4">
+                          <div>
+                            <p className="text-xs text-muted-foreground">
+                              Tarif journalier
+                            </p>
+
+                            <p className="text-lg font-bold gold-text-gradient">
+                              {formatCurrency(
+                                talent.rate,
+                                talent.currency
+                              )}
+                            </p>
                           </div>
-                          {t.available ? (
-                            <Badge variant="outline" className="border-emerald-500/30 bg-emerald-500/10 text-emerald-600 text-[10px]">
-                              Disponible
-                            </Badge>
-                          ) : (
-                            <Badge variant="outline" className="border-muted text-muted-foreground text-[10px]">
-                              Occupé
-                            </Badge>
-                          )}
-                        </div>
-                      </CardContent>
-                      <Separator />
-                      <CardFooter className="flex items-center justify-between py-4">
-                        <div>
-                          <p className="text-xs text-muted-foreground">Tarif journalier</p>
-                          <p className="text-lg font-bold gold-text-gradient">{formatCurrency(t.rate)}</p>
-                        </div>
-                        <div className="flex items-center gap-2">
-                          <Button variant="ghost" size="sm" className="text-gold-dark hover:bg-gold/10 h-9 w-9 p-0">
-                            <Eye className="h-4 w-4" />
-                          </Button>
-                          <Button
-                            size="sm"
-                            className="h-9 gold-gradient text-primary-foreground hover:opacity-90 shadow-sm shadow-gold/25"
-                          >
-                            <Send className="h-3.5 w-3.5 mr-1.5" />
-                            Contacter
-                          </Button>
-                        </div>
-                      </CardFooter>
-                    </Card>
-                  </motion.div>
-                ))
+
+                          <div className="flex items-center gap-2">
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              onClick={() =>
+                                navigate(
+                                  `/talent/${talent.id}`
+                                )
+                              }
+                              className="text-gold-dark hover:bg-gold/10 h-9 w-9 p-0"
+                              title="Voir le profil"
+                            >
+                              <Eye className="h-4 w-4" />
+                            </Button>
+
+                            <Button
+                              size="sm"
+                              onClick={() =>
+                                navigate(
+                                  `/talent/${talent.id}`
+                                )
+                              }
+                              className="h-9 gold-gradient text-primary-foreground hover:opacity-90 shadow-sm shadow-gold/25"
+                            >
+                              <Send className="h-3.5 w-3.5 mr-1.5" />
+                              Contacter
+                            </Button>
+                          </div>
+                        </CardFooter>
+                      </Card>
+                    </motion.div>
+                  )
+                )
               )}
             </motion.div>
+
+            {totalPages > 1 ? (
+              <motion.div
+                variants={
+                  itemVariants
+                }
+                className="flex flex-wrap items-center justify-center gap-2 pt-2"
+              >
+                <Button
+                  variant="outline"
+                  onClick={
+                    goToPreviousPage
+                  }
+                  disabled={
+                    page <= 1 ||
+                    talentsFetching
+                  }
+                  className="gap-2 border-gold/30"
+                >
+                  <ChevronLeft className="h-4 w-4" />
+                  Précédent
+                </Button>
+
+                <div className="rounded-xl border border-gold/20 bg-card px-4 py-2 text-sm">
+                  Page{" "}
+                  <span className="font-black">
+                    {page}
+                  </span>{" "}
+                  sur{" "}
+                  <span className="font-black">
+                    {totalPages}
+                  </span>
+                </div>
+
+                <Button
+                  variant="outline"
+                  onClick={
+                    goToNextPage
+                  }
+                  disabled={
+                    page >=
+                      totalPages ||
+                    talentsFetching
+                  }
+                  className="gap-2 border-gold/30"
+                >
+                  Suivant
+                  <ChevronRight className="h-4 w-4" />
+                </Button>
+              </motion.div>
+            ) : null}
           </>
         )}
       </motion.div>
     </div>
-  );
+  )
 }

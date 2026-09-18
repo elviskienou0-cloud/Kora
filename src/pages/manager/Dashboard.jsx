@@ -89,7 +89,6 @@ const [error, setError] = useState("")
 useEffect(() => {
 if (authLoading) return
 
-```
 if (!user?.authId) {
   setLoading(false)
   return
@@ -116,7 +115,7 @@ async function loadDashboard() {
       supabase
         .from("talent_profiles")
         .select("*")
-        .eq("manager_id", user.authId)
+        .eq("managed_by", user.authId)
         .order("created_at", {
           ascending: false,
         }),
@@ -180,14 +179,12 @@ loadDashboard()
 return () => {
   cancelled = true
 }
-```
 
 }, [authLoading, user, navigate])
 
 const filteredTalents = useMemo(() => {
 const query = search.trim().toLowerCase()
 
-```
 if (!query) return talents
 
 return talents.filter((talent) => {
@@ -204,7 +201,6 @@ return talents.filter((talent) => {
     category.includes(query)
   )
 })
-```
 
 }, [talents, search])
 
@@ -226,7 +222,6 @@ return null
 return ( <div className="space-y-8 p-6"> <div> <h1 className="text-3xl font-bold tracking-tight">
 Tableau de bord </h1>
 
-```
     <p className="mt-2 text-muted-foreground">
       Gérez vos talents et suivez vos demandes.
     </p>

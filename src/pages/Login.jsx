@@ -32,9 +32,20 @@ export default function Login() {
     setIsLoading(true)
 
     try {
-      await login({ email: email.trim(), password })
-      toast.success("Connexion réussie !", { description: "Bienvenue sur KORA." })
-      navigate("/home", { replace: true })
+      const connectedUser = await login({ email: email.trim(), password })
+
+      toast.success("Connexion réussie !", {
+        description: "Bienvenue sur KORA.",
+      })
+
+      const destination =
+        connectedUser?.role === "admin"
+          ? "/admin"
+          : connectedUser?.role === "manager"
+          ? "/manager/dashboard"
+          : "/client/dashboard"
+
+      navigate(destination, { replace: true })
     } catch (error) {
       toast.error("Erreur de connexion", {
         description: error?.message || "Identifiants incorrects.",

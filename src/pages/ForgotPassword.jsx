@@ -1,4 +1,3 @@
-// @ts-nocheck
 import { useState } from "react"
 import { Link, useNavigate } from "react-router-dom"
 import { motion } from "framer-motion"
@@ -10,6 +9,7 @@ import { Label } from "@/components/ui/label"
 import { Card, CardContent, CardHeader, CardDescription } from "@/components/ui/card"
 import { Separator } from "@/components/ui/separator"
 import { APP_PARAMS } from "@/lib/app-params"
+import { supabase } from "@/lib/supabase"
 
 export default function ForgotPassword() {
   const navigate = useNavigate()
@@ -19,15 +19,40 @@ export default function ForgotPassword() {
 
   const handleSubmit = async (e) => {
     e.preventDefault()
-    if (!email) {
+    const cleanEmail = email.trim().toLowerCase()
+
+    if (!cleanEmail) {
       toast.error("Veuillez saisir votre email")
       return
     }
+
     setIsLoading(true)
-    await new Promise((r) => setTimeout(r, 800))
-    toast.success("Email envoyé !", { description: "Vérifiez votre boîte de réception." })
-    setSent(true)
-    setIsLoading(false)
+
+    try {
+      const redirectTo = `${window.location.origin}/reset-password`
+
+      const { error } = await supabase.auth.resetPasswordForEmail(
+        cleanEmail,
+        { redirectTo }
+      )
+
+      if (error) throw error
+
+      // Message volontairement générique : on ne révèle pas
+      // si une adresse existe ou non dans Supabase Auth.
+      setEmail(cleanEmail)
+      setSent(true)
+      toast.success("Demande envoyée", {
+        description: "Vérifiez votre boîte de réception et vos spams.",
+      })
+    } catch (error) {
+      console.error("Erreur récupération mot de passe :", error)
+      toast.error("Impossible d'envoyer le lien", {
+        description: error?.message || "Réessayez dans quelques instants.",
+      })
+    } finally {
+      setIsLoading(false)
+    }
   }
 
   return (
@@ -73,9 +98,9 @@ export default function ForgotPassword() {
                   <Mail className="h-8 w-8 text-emerald-600" />
                 </div>
                 <div>
-                  <p className="font-black text-lg mb-1">Lien envoyé ✅</p>
+                  <p className="font-black text-lg mb-1">Lien de récupération envoyé ✅</p>
                   <p className="text-sm text-muted-foreground mb-2">
-                    Un email a été envoyé à <span className="font-bold text-foreground">{email}</span>
+                    Si un compte KORA correspond à cette adresse, vous recevrez un email de réinitialisation.
                   </p>
                   <p className="text-xs text-muted-foreground">Pensez à vérifier vos spams.</p>
                 </div>
@@ -84,7 +109,7 @@ export default function ForgotPassword() {
                   <Button variant="outline" className="flex-1 gap-2" onClick={() => navigate("/login")}>
                     <ArrowLeft className="h-4 w-4" /> Retour connexion
                   </Button>
-                  <Button className="flex-1 gap-2" onClick={() => { setSent(false); setEmail("") }}>
+                  <Button className="flex-1 gap-2" onClick={() => setSent(false)}>
                     Renvoyer <ArrowRight className="h-4 w-4" />
                   </Button>
                 </div>
@@ -103,6 +128,7 @@ export default function ForgotPassword() {
                       onChange={(e) => setEmail(e.target.value)}
                       className="pl-11"
                       autoComplete="email"
+                      required
                     />
                   </div>
                 </div>
