@@ -27,8 +27,8 @@ import { Separator } from "@/components/ui/separator"
 import { useAuth } from "@/lib/AuthContext"
 import { supabase } from "@/lib/supabase"
 import { APP_PARAMS } from "@/lib/app-params"
-import { getCategoryIcon } from "@/lib/categoryIcons"
 import { cn, formatCurrency, truncate } from "@/lib/utils"
+import { useKoraStats } from "@/lib/useKoraStats"
 
 const fadeInUp = {
   hidden: { opacity: 0, y: 24 },
@@ -146,33 +146,18 @@ export default function Home() {
     if (isAuthenticated) loadUnreadMessages()
   }, [isAuthenticated, user?.authId])
 
-  const [stats, setStats] = useState([
-    { label: "Talents disponibles", value: "—", icon: Users, color: "from-blue-400/20 text-blue-600" },
-    { label: "Projets", value: "—", icon: Briefcase, color: "from-emerald-400/20 text-emerald-600" },
-    { label: "Satisfaction moyenne", value: "—", icon: Star, color: "from-amber-400/20 text-amber-600" },
-  ])
+  const { stats: globalStats } = useKoraStats({ enabled: isAuthenticated })
 
-  useEffect(() => {
-    async function loadStats() {
-      const [{ count: talentsCount }, { count: projectsCount }, { data: ratedTalents }] = await Promise.all([
-        supabase.from("talent_profiles").select("id", { count: "exact", head: true }).eq("status", "published").eq("is_visible", true),
-        supabase.from("projects").select("id", { count: "exact", head: true }),
-        supabase.from("talent_profiles").select("rating").gt("reviews_count", 0),
-      ])
-
-      const avgRating = ratedTalents?.length
-        ? (ratedTalents.reduce((sum, t) => sum + Number(t.rating || 0), 0) / ratedTalents.length).toFixed(1)
-        : "—"
-
-      setStats([
-        { label: "Talents disponibles", value: String(talentsCount ?? 0), icon: Users, color: "from-blue-400/20 text-blue-600" },
-        { label: "Projets", value: String(projectsCount ?? 0), icon: Briefcase, color: "from-emerald-400/20 text-emerald-600" },
-        { label: "Satisfaction moyenne", value: avgRating === "—" ? "—" : `${avgRating}/5`, icon: Star, color: "from-amber-400/20 text-amber-600" },
-      ])
-    }
-
-    if (isAuthenticated) loadStats()
-  }, [isAuthenticated])
+  const stats = globalStats.slice(0, 3).map((stat, index) => ({
+    ...stat,
+    label: index === 0 ? "Talents inscrits" : stat.label,
+    color: [
+      "from-blue-400/20 text-blue-600",
+      "from-emerald-400/20 text-emerald-600",
+      "from-amber-400/20 text-amber-600",
+    ][index],
+    icon: [Users, Briefcase, Star][index],
+  }))
 
   const [activity, setActivity] = useState([])
 
@@ -273,10 +258,8 @@ export default function Home() {
                 </div>
               </div>
               <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mt-8">
-                {[
-            
-                ].map((s) => {
-                  const Icon = s.icon
+                {globalStats.slice(0, 4).map((s, index) => {
+                  const Icon = [Users, Briefcase, Star, TrendingUp][index] || Star
                   return (
                     <div key={s.label} className="rounded-2xl bg-white/15 backdrop-blur-sm border border-white/25 p-4">
                       <div className="flex items-center gap-2 mb-1.5 opacity-90">
@@ -339,7 +322,6 @@ export default function Home() {
               <p className="col-span-full text-sm text-muted-foreground">Aucun talent publié pour le moment.</p>
             ) : (
               recommended.map((t, i) => {
-              const CatIcon = getCategoryIcon(t.category)
               return (
                 <motion.div key={t.id} variants={fadeInUp} custom={i} whileHover={{ y: -5 }} transition={{ type: "spring", stiffness: 300 }}>
                   <Card className="h-full cursor-pointer group" onClick={() => navigate(`/talent/${t.id}`)}>
@@ -394,41 +376,8 @@ export default function Home() {
         </motion.section>
 
         <motion.section initial="hidden" whileInView="visible" viewport={{ once: true, margin: "-80px" }} variants={stagger}>
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-5">
-            <motion.div variants={fadeInUp} custom={0} className="lg:col-span-2">
-              <Card>
-                <CardHeader className="pb-3">
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <CardTitle>Catégories populaires</CardTitle>
-                      <CardDescription>Explorez les domaines les plus actifs</CardDescription>
-                    </div>
-                    <Button variant="ghost" size="sm" className="gap-1" onClick={() => navigate("/categories")}>Tout voir <ChevronRight className="h-4 w-4" /></Button>
-                  </div>
-                </CardHeader>
-                <CardContent>
-                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-                    {APP_PARAMS.categories.slice(0, 8).map((c, i) => {
-                      const Icon = getCategoryIcon(c.icon)
-                      return (
-                        <Link
-                          key={c.id}
-                          to="/categories"
-                          className="rounded-2xl border border-border/60 hover:border-gold/30 hover:bg-gold/5 p-4 text-center transition-all duration-200 group"
-                        >
-                          <div className="w-11 h-11 mx-auto rounded-xl gold-gradient flex items-center justify-center mb-2.5 group-hover:scale-110 transition-transform">
-                            <Icon className="h-5.5 w-5.5 text-primary-foreground" strokeWidth={2} />
-                          </div>
-                          <p className="font-bold text-xs line-clamp-2 min-h-[2rem]">{c.name}</p>
-                          <p className="text-[10px] font-bold gold-text-gradient mt-0.5">{c.count.toLocaleString("fr-FR")} talents</p>
-                        </Link>
-                      )
-                    })}
-                  </div>
-                </CardContent>
-              </Card>
-            </motion.div>
-            <motion.div variants={fadeInUp} custom={1}>
+          <div className="grid grid-cols-1">
+            <motion.div variants={fadeInUp} custom={0}>
               <Card className="h-full overflow-hidden relative">
                 <div className="absolute top-0 left-0 right-0 h-1 gold-gradient" />
                 <CardHeader className="pb-3">

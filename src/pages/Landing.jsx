@@ -30,6 +30,7 @@ import LandingFooter from "@/components/landing/LandingFooter"
 import { APP_PARAMS } from "@/lib/app-params"
 import { getCategoryIcon } from "@/lib/categoryIcons"
 import { cn, formatCurrency } from "@/lib/utils"
+import { useKoraStats } from "@/lib/useKoraStats"
 import { supabase } from "@/lib/supabase"
 
 const fadeInUp = {
@@ -56,267 +57,121 @@ export default function Landing() {
     window.scrollTo(0, 0)
   }, [])
 
-  const [stats, setStats] = useState([
-    { value: "0", label: "Talents inscrits", icon: Users },
-    { value: "0", label: "Projets", icon: Briefcase },
-    { value: "0", label: "Pays représentés", icon: Globe },
-    { value: "0/5", label: "Satisfaction moyenne", icon: Star },
-  ])
+  const { stats: liveStats, categoryCounts } = useKoraStats()
 
-  const [categoryCounts, setCategoryCounts] = useState(() =>
-    Object.fromEntries(APP_PARAMS.categories.map((category) => [category.id, 0]))
-  )
+  const stats = liveStats.map((stat) => ({
+    ...stat,
+    icon: stat.label === "Talents inscrits" ? Users
+      : stat.label === "Projets" ? Briefcase
+      : stat.label === "Pays représentés" ? Globe
+      : Star,
+  }))
 
-  const [testimonials, setTestimonials] = useState([])
+  const [publicPlans, setPublicPlans] = useState([])
+  const [publicReviews, setPublicReviews] = useState([])
+  const [featuredTalents, setFeaturedTalents] = useState([])
+  const [landingDataLoading, setLandingDataLoading] = useState(true)
 
   useEffect(() => {
-    let channel
     let cancelled = false
 
-    const normalize = (value) =>
-      String(value || "")
-        .trim()
-        .toLowerCase()
-        .normalize("NFD")
-        .replace(/[\u0300-\u036f]/g, "")
-        .replace(/&/g, "et")
-        .replace(/[^a-z0-9]+/g, "-")
-        .replace(/^-+|-+$/g, "")
+    const loadPublicData = async () => {
+      setLandingDataLoading(true)
 
-    const categoryAliases = {
-      tech: ["tech", "technology", "technologie", "digital", "technologie-digital", "development", "developpement"],
-      creative: ["creative", "creatif", "design", "creatif-design", "creation"],
-      business: ["business", "strategie", "business-strategie", "strategy", "consulting", "conseil"],
-      marketing: ["marketing", "communication", "marketing-communication"],
-      finance: ["finance", "comptabilite", "finance-comptabilite", "accounting"],
-      legal: ["legal", "juridique", "droit", "juridique-conseil"],
-      education: ["education", "formation", "formation-education", "training"],
-      health: ["health", "sante", "bien-etre", "sante-bien-etre"],
-    }
-
-    const appCategoryKeys = Object.fromEntries(
-      APP_PARAMS.categories.map((category) => [
-        category.id,
-        new Set([
-          normalize(category.id),
-          normalize(category.name),
-          ...(categoryAliases[category.id] || []),
-        ].map(normalize)),
-      ])
-    )
-
-    const resolveAppCategoryId = (category) => {
-      if (!category) return null
-
-      const values = [category.id, category.slug, category.name]
-        .map(normalize)
-        .filter(Boolean)
-
-      for (const appCategory of APP_PARAMS.categories) {
-        const keys = appCategoryKeys[appCategory.id]
-        if (values.some((value) => keys.has(value))) {
-          return appCategory.id
-        }
-      }
-
-      return null
-    }
-
-    const loadLandingData = async () => {
       try {
-        const [
-          talentResult,
-          projectResult,
-          categoryResult,
-          countryResult,
-          ratingResult,
-          reviewResult,
-        ] = await Promise.all([
+        const [plansResult, reviewsResult, talentsResult] = await Promise.all([
           supabase
-            .from("talent_profiles")
-            .select("id, category_id, country_id"),
+            .from("plans")
+            .select("id, name, price, currency, duration_months, talent_limit, features, trial_days, annual_discount_pct, is_active")
+            .eq("is_active", true)
+            .order("price", { ascending: true }),
 
-          supabase
-            .from("projects")
-            .select("id", { count: "exact", head: true }),
-
-          supabase
-            .from("categories")
-            .select("id, slug, name"),
-
-          supabase
-            .from("talent_profiles")
-            .select("country_id"),
-
-          supabase
-            .from("talent_profiles")
-            .select("rating, reviews_count")
-            .gt("reviews_count", 0),
           supabase
             .from("reviews")
-            .select("id, author_name, role, country, avatar_url, rating, comment, created_at, is_visible")
+            .select("id, author_name, role, country, avatar_url, rating, comment, created_at")
             .eq("is_visible", true)
-            .gte("rating", 3)
-            .order("created_at", { ascending: false }),
+            .order("created_at", { ascending: false })
+            .limit(6),
+
+          supabase
+            .from("talent_profiles")
+            .select("id, first_name, last_name, title, city, daily_rate, currency, rating, reviews_count, verified, categories(name), countries(name), talent_profile_skills(skills(name))")
+            .eq("status", "published")
+            .eq("is_visible", true)
+            .order("rating", { ascending: false })
+            .limit(3),
         ])
 
         if (cancelled) return
 
-        if (talentResult.error) {
-          console.error("Erreur chargement talents Landing :", talentResult.error)
-        }
-        if (projectResult.error) {
-          console.error("Erreur chargement projets Landing :", projectResult.error)
-        }
-        if (categoryResult.error) {
-          console.error("Erreur chargement catégories Landing :", categoryResult.error)
-        }
-        if (countryResult.error) {
-          console.error("Erreur chargement pays Landing :", countryResult.error)
-        }
-        if (ratingResult.error) {
-          console.error("Erreur chargement évaluations Landing :", ratingResult.error)
-        }
-        if (reviewResult.error) {
-          console.error("Erreur chargement avis Landing :", reviewResult.error)
+        if (plansResult.error) {
+          console.error("Erreur chargement plans publics :", plansResult.error)
+          setPublicPlans([])
+        } else {
+          setPublicPlans(plansResult.data || [])
         }
 
-        const talents = talentResult.data || []
-        const categories = categoryResult.data || []
-        const countries = countryResult.data || []
-        const ratedTalents = ratingResult.data || []
-        const reviews = (reviewResult.data || []).filter((review) => {
-          const rating = Number(review.rating)
-          return Boolean(review.comment?.trim()) && Number.isFinite(rating) && rating >= 3
-        })
-
-        const categoryById = Object.fromEntries(
-          categories.map((category) => [String(category.id), category])
-        )
-
-        const nextCategoryCounts = Object.fromEntries(
-          APP_PARAMS.categories.map((category) => [category.id, 0])
-        )
-
-        for (const talent of talents) {
-          const category = categoryById[String(talent.category_id)]
-          const appCategoryId = resolveAppCategoryId(category)
-
-          if (appCategoryId) {
-            nextCategoryCounts[appCategoryId] += 1
-          }
+        if (reviewsResult.error) {
+          console.error("Erreur chargement avis publics :", reviewsResult.error)
+          setPublicReviews([])
+        } else {
+          setPublicReviews((reviewsResult.data || []).filter((review) => Number(review.rating) >= 3))
         }
 
-        const uniqueCountryIds = new Set(
-          countries
-            .map((row) => row.country_id)
-            .filter(Boolean)
-            .map(String)
-        )
-
-        const averageRating = reviews.length
-          ? reviews.reduce((sum, review) => sum + Number(review.rating || 0), 0) / reviews.length
-          : 0
-
-        const shuffle = (items) => [...items].sort(() => Math.random() - 0.5)
-        const highRated = shuffle(reviews.filter((review) => Number(review.rating) >= 4))
-        const threePlusRated = shuffle(reviews.filter((review) => Number(review.rating) >= 3 && Number(review.rating) < 4))
-
-        const selectedReviews = [
-          ...highRated.slice(0, 2),
-          ...threePlusRated.slice(0, 2),
-        ]
-
-        if (selectedReviews.length < 4) {
-          const selectedIds = new Set(selectedReviews.map((review) => review.id))
-          const fallback = shuffle(reviews.filter((review) => !selectedIds.has(review.id)))
-          selectedReviews.push(...fallback.slice(0, 4 - selectedReviews.length))
+        if (talentsResult.error) {
+          console.error("Erreur chargement talents mis en avant :", talentsResult.error)
+          setFeaturedTalents([])
+        } else {
+          setFeaturedTalents(talentsResult.data || [])
         }
-
-        const formattedReviews = shuffle(selectedReviews).map((review) => {
-          const authorName = review.author_name?.trim() || "Membre KORA"
-          const avatar = authorName
-            .split(/\s+/)
-            .filter(Boolean)
-            .slice(0, 2)
-            .map((part) => part[0])
-            .join("")
-            .toUpperCase() || "K"
-
-          return {
-            id: review.id,
-            name: authorName,
-            role: review.role?.trim() || "Membre KORA",
-            country: review.country?.trim() || "Afrique",
-            avatar: avatar,
-            avatarUrl: review.avatar_url || "",
-            rating: Math.round(Number(review.rating)),
-            text: review.comment.trim(),
-            createdAt: review.created_at,
-          }
-        })
-
-        setCategoryCounts(nextCategoryCounts)
-        setTestimonials(formattedReviews)
-        setStats([
-          {
-            value: String(talents.length),
-            label: "Talents inscrits",
-            icon: Users,
-          },
-          {
-            value: String(projectResult.count ?? 0),
-            label: "Projets",
-            icon: Briefcase,
-          },
-          {
-            value: String(uniqueCountryIds.size),
-            label: "Pays représentés",
-            icon: Globe,
-          },
-          {
-            value: `${averageRating.toFixed(1)}/5`,
-            label: "Satisfaction moyenne",
-            icon: Star,
-          },
-        ])
-      } catch (error) {
-        console.error("Erreur inattendue chargement statistiques Landing :", error)
+      } finally {
+        if (!cancelled) setLandingDataLoading(false)
       }
     }
 
-    loadLandingData()
-
-    channel = supabase
-      .channel("kora-landing-live-stats")
-      .on(
-        "postgres_changes",
-        { event: "*", schema: "public", table: "talent_profiles" },
-        () => loadLandingData()
-      )
-      .on(
-        "postgres_changes",
-        { event: "*", schema: "public", table: "projects" },
-        () => loadLandingData()
-      )
-      .on(
-        "postgres_changes",
-        { event: "*", schema: "public", table: "reviews" },
-        () => loadLandingData()
-      )
-      .subscribe((status) => {
-        if (status === "CHANNEL_ERROR") {
-          console.warn("Les mises à jour temps réel Supabase ne sont pas disponibles pour Landing.")
-        }
-      })
+    loadPublicData()
 
     return () => {
       cancelled = true
-      if (channel) {
-        supabase.removeChannel(channel)
-      }
     }
   }, [])
+
+  const planFeatureLabels = {
+    messaging: "Messagerie",
+    favorites: "Favoris",
+    project_invitations: "Invitations de projets",
+    analytics: "Analytics",
+    contracts: "Contrats & e-signatures",
+    api: "API & webhooks",
+    account_manager: "Account manager dédié",
+  }
+
+  const formatPlanPrice = (plan) => {
+    const price = Number(plan?.price)
+    if (!Number.isFinite(price) || price <= 0) return "Gratuit"
+
+    return new Intl.NumberFormat("fr-FR", {
+      maximumFractionDigits: 0,
+    }).format(price)
+  }
+
+  const planCards = publicPlans.slice(0, 3).map((plan, index) => {
+    const enabledFeatures = plan?.features && typeof plan.features === "object"
+      ? Object.entries(plan.features).filter(([, value]) => value === true).map(([key]) => planFeatureLabels[key] || key)
+      : []
+
+    return {
+      ...plan,
+      description: index === 0
+        ? "Pour découvrir et tester la plateforme"
+        : index === 1
+          ? "Pour développer votre activité sur KORA"
+          : "Pour les équipes et entreprises",
+      featureList: enabledFeatures,
+      highlighted: index === 1,
+      period: Number(plan?.duration_months || 1) === 1 ? "/ mois" : ` / ${plan.duration_months} mois`,
+    }
+  })
 
   const features = [
     {
@@ -362,6 +217,7 @@ export default function Landing() {
       iconColor: "text-cyan-600",
     },
   ]
+
 
 
   return (
@@ -458,13 +314,13 @@ export default function Landing() {
                   <span className="text-xs font-mono text-muted-foreground ml-3">app.kora.africa — Talents recommandés</span>
                 </div>
                 <div className="p-6 sm:p-8 grid grid-cols-1 md:grid-cols-3 gap-5">
-                  {[
-                    { name: "Nana K.", role: "Dev Fullstack • Senior", country: "🇬🇭 Ghana", tags: ["React", "Node.js", "TypeScript"], price: "55 000" },
-                    { name: "Sadio M.", role: "Designer UI/UX", country: "🇸🇳 Sénégal", tags: ["Figma", "Design System", "Branding"], price: "40 000" },
-                    { name: "Amaka O.", role: "Data Scientist", country: "🇳🇬 Nigéria", tags: ["Python", "ML", "SQL"], price: "70 000" },
-                  ].map((t, i) => (
+                  {featuredTalents.length === 0 ? (
+                    <div className="md:col-span-3 py-12 text-center text-sm text-muted-foreground">
+                      Aucun talent publié pour le moment.
+                    </div>
+                  ) : featuredTalents.map((t, i) => (
                     <motion.div
-                      key={t.name}
+                      key={t.id}
                       initial={{ opacity: 0, y: 20 }}
                       animate={{ opacity: 1, y: 0 }}
                       transition={{ delay: 1 + i * 0.1, duration: 0.5 }}
@@ -472,29 +328,29 @@ export default function Landing() {
                     >
                       <div className="flex items-center gap-3 mb-4">
                         <Avatar className="h-12 w-12 ring-2 ring-gold/30">
-                          <AvatarFallback>{t.name.split(" ").map(n => n[0]).join("")}</AvatarFallback>
+                          <AvatarFallback>{[t.first_name, t.last_name].filter(Boolean).join(" ").split(/\s+/).filter(Boolean).slice(0,2).map((part) => part[0]).join("").toUpperCase() || "T"}</AvatarFallback>
                         </Avatar>
                         <div>
-                          <p className="font-bold text-foreground">{t.name}</p>
-                          <p className="text-xs text-muted-foreground">{t.country}</p>
+                          <p className="font-bold text-foreground">{[t.first_name, t.last_name].filter(Boolean).join(" ").trim() || t.title || "Talent"}</p>
+                          <p className="text-xs text-muted-foreground">{t.countries?.name || t.city || "Localisation non renseignée"}</p>
                         </div>
                         <div className="ml-auto flex items-center gap-1">
                           <Star className="h-3.5 w-3.5 text-amber-500 fill-amber-500" />
-                          <span className="text-xs font-bold">4.9</span>
+                          <span className="text-xs font-bold">{Number(t.rating || 0) > 0 ? Number(t.rating).toFixed(1) : "—"}</span>
                         </div>
                       </div>
-                      <p className="text-sm font-semibold mb-3">{t.role}</p>
+                      <p className="text-sm font-semibold mb-3">{t.title || "Talent"}</p>
                       <div className="flex flex-wrap gap-1.5 mb-4">
-                        {t.tags.map(tag => (
+                        {(t.talent_profile_skills || []).map((row) => row.skills?.name).filter(Boolean).slice(0, 4).map((tag) => (
                           <Badge key={tag} variant="secondary" className="text-[10px]">{tag}</Badge>
                         ))}
                       </div>
                       <div className="flex items-center justify-between pt-3 border-t border-border/50">
                         <div>
                           <p className="text-xs text-muted-foreground">à partir de</p>
-                          <p className="text-lg font-black gold-text-gradient">{formatCurrency(parseInt(t.price))}<span className="text-xs font-medium text-muted-foreground ml-1">/jour</span></p>
+                          <p className="text-lg font-black gold-text-gradient">{formatCurrency(t.daily_rate, t.currency || "XOF")}<span className="text-xs font-medium text-muted-foreground ml-1">/jour</span></p>
                         </div>
-                        <Button size="sm" variant="outline" className="text-xs">Voir profil</Button>
+                        <Button size="sm" variant="outline" className="text-xs" onClick={(event) => { event.stopPropagation(); navigate(`/talent/${t.id}`) }}>Voir profil</Button>
                       </div>
                     </motion.div>
                   ))}
@@ -619,7 +475,7 @@ export default function Landing() {
                 className="text-4xl sm:text-5xl font-black tracking-tight mb-5"
               >
                 8 catégories,{" "}
-                <span className="gold-text-gradient">milliers de talents</span>
+                <span className="gold-text-gradient">une communauté en croissance</span>
               </motion.h2>
               <motion.p
                 variants={fadeInUp}
@@ -709,7 +565,7 @@ export default function Landing() {
                 custom={2}
                 className="text-lg text-muted-foreground"
               >
-                Découvrez des avis publiés par la communauté KORA
+                Des clients et talents de toute l'Afrique nous font confiance
               </motion.p>
             </motion.div>
 
@@ -720,49 +576,58 @@ export default function Landing() {
               variants={staggerContainer}
               className="grid grid-cols-1 md:grid-cols-2 gap-6"
             >
-              {testimonials.length > 0 ? (
-                testimonials.map((t, i) => (
-                  <motion.div
-                    key={t.id}
-                    variants={fadeInUp}
-                    custom={i}
-                    whileHover={{ y: -4 }}
-                    transition={{ type: "spring", stiffness: 300 }}
-                  >
-                    <Card className="h-full relative overflow-hidden">
-                      <div className="absolute top-5 right-5 opacity-10">
-                        <Quote className="h-16 w-16 text-gold-dark" />
-                      </div>
-                      <CardContent className="p-7 relative z-10">
-                        <div className="flex gap-0.5 mb-5">
-                          {Array.from({ length: t.rating }).map((_, j) => (
-                            <Star key={j} className="h-5 w-5 text-amber-500 fill-amber-500" />
-                          ))}
-                        </div>
-                        <p className="text-foreground leading-relaxed mb-6 text-base font-medium">
-                          "{t.text}"
-                        </p>
-                        <Separator className="mb-5" />
-                        <div className="flex items-center gap-4">
-                          <Avatar className="h-12 w-12 ring-2 ring-gold/30">
-                            {t.avatarUrl ? (
-                              <img src={t.avatarUrl} alt={t.name} className="h-full w-full object-cover rounded-full" />
-                            ) : null}
-                            <AvatarFallback>{t.avatar}</AvatarFallback>
-                          </Avatar>
-                          <div>
-                            <p className="font-bold">{t.name}</p>
-                            <p className="text-sm text-muted-foreground">{t.role} • {t.country}</p>
-                          </div>
-                        </div>
-                      </CardContent>
-                    </Card>
-                  </motion.div>
-                ))
-              ) : (
-                <div className="md:col-span-2 text-center py-16 text-muted-foreground">
-                  Aucun avis publié pour le moment.
+              {publicReviews.length === 0 ? (
+                <div className="md:col-span-2 text-center py-10 text-sm text-muted-foreground">
+                  Aucun avis public pour le moment.
                 </div>
+              ) : (
+                publicReviews.map((review, i) => {
+                  const authorName = review.author_name || "Membre KORA"
+                  const initials = authorName
+                    .trim()
+                    .split(/\s+/)
+                    .filter(Boolean)
+                    .slice(0, 2)
+                    .map((part) => part[0])
+                    .join("")
+                    .toUpperCase() || "MK"
+
+                  return (
+                    <motion.div
+                      key={review.id}
+                      variants={fadeInUp}
+                      custom={i}
+                      whileHover={{ y: -4 }}
+                      transition={{ type: "spring", stiffness: 300 }}
+                    >
+                      <Card className="h-full relative overflow-hidden">
+                        <div className="absolute top-5 right-5 opacity-10">
+                          <Quote className="h-16 w-16 text-gold-dark" />
+                        </div>
+                        <CardContent className="p-7 relative z-10">
+                          <div className="flex gap-0.5 mb-5">
+                            {Array.from({ length: Math.min(5, Math.max(0, Number(review.rating) || 0)) }).map((_, j) => (
+                              <Star key={j} className="h-5 w-5 text-amber-500 fill-amber-500" />
+                            ))}
+                          </div>
+                          <p className="text-foreground leading-relaxed mb-6 text-base font-medium">
+                            &quot;{review.comment}&quot;
+                          </p>
+                          <Separator className="mb-5" />
+                          <div className="flex items-center gap-4">
+                            <Avatar className="h-12 w-12 ring-2 ring-gold/30">
+                              <AvatarFallback>{initials}</AvatarFallback>
+                            </Avatar>
+                            <div>
+                              <p className="font-bold">{authorName}</p>
+                              <p className="text-sm text-muted-foreground">{review.role || "Membre KORA"}{review.country ? ` • ${review.country}` : ""}</p>
+                            </div>
+                          </div>
+                        </CardContent>
+                      </Card>
+                    </motion.div>
+                  )
+                })
               )}
             </motion.div>
           </div>
@@ -798,34 +663,16 @@ export default function Landing() {
               variants={staggerContainer}
               className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-5xl mx-auto"
             >
-              {[
-                {
-                  name: APP_PARAMS.plans.free.name,
-                  price: APP_PARAMS.plans.free.price,
-                  description: "Pour découvrir et tester la plateforme",
-                  features: ["Publication de projet", "Accès aux profils publics", "1 candidatures", "Support email"],
-                  cta: "Commencer",
-                  highlighted: false,
-                },
-                {
-                  name: APP_PARAMS.plans.pro.name,
-                  price: APP_PARAMS.plans.pro.price,
-                  period: "FCFA/mois",
-                  description: "Pour les talents et indépendants sérieux",
-                  features: ["Tout le plan Gratuit", "Profil vérifié & prioritaire", "Candidatures illimitées", "Support WhatsApp", "Alertes projets premium", "Paiement sécurisé"],
-                  cta: "Essayer 30 jours",
-                  highlighted: true,
-                },
-                {
-                  name: APP_PARAMS.plans.business.name,
-                  price: APP_PARAMS.plans.business.price,
-                  period: "FCFA/mois",
-                  description: "Pour équipes et PME qui recrutent",
-                  features: ["Tout le plan Pro", "Projets illimités", "Team members (5)", "Account manager dédié", "Facturation entreprise"],
-                  cta: "Contacter",
-                  highlighted: false,
-                },
-              ].map((plan, i) => (
+              {landingDataLoading ? (
+                <div className="md:col-span-3 text-center py-12 text-sm text-muted-foreground">
+                  Chargement des offres…
+                </div>
+              ) : planCards.length === 0 ? (
+                <div className="md:col-span-3 text-center py-12 text-sm text-muted-foreground">
+                  Les offres publiques ne sont pas disponibles pour le moment.
+                </div>
+              ) : (
+                planCards.map((plan, i) => (
                 <motion.div
                   key={plan.name}
                   variants={fadeInUp}
@@ -850,13 +697,13 @@ export default function Landing() {
                       <div className="mb-6 pb-6 border-b border-border/60">
                         <div className="flex items-baseline gap-1">
                           <span className="text-5xl font-black gold-text-gradient">
-                            {plan.price === 0 ? "Gratuit" : formatCurrency(plan.price).replace("FCFA", "")}
+                            {formatPlanPrice(plan)}
                           </span>
                           {plan.period && <span className="text-sm text-muted-foreground font-semibold">{plan.period}</span>}
                         </div>
                       </div>
                       <ul className="space-y-3 mb-8">
-                        {plan.features.map((f) => (
+                        {plan.featureList.map((f) => (
                           <li key={f} className="flex items-start gap-3">
                             <CheckCircle2 className="h-5 w-5 text-emerald-500 shrink-0 mt-0.5" />
                             <span className="text-sm text-foreground/90">{f}</span>
@@ -868,12 +715,13 @@ export default function Landing() {
                         variant={plan.highlighted ? "default" : "outline"}
                         onClick={() => navigate("/register")}
                       >
-                        {plan.cta} <ArrowRight className="h-4 w-4" />
+                        {plan.trial_days > 0 ? `Essai ${plan.trial_days} jours` : plan.price > 0 ? "Choisir" : "Commencer"} <ArrowRight className="h-4 w-4" />
                       </Button>
                     </CardContent>
                   </Card>
                 </motion.div>
-              ))}
+                ))
+              )}
             </motion.div>
           </div>
         </section>
@@ -899,7 +747,7 @@ export default function Landing() {
               >
                 <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/20 backdrop-blur-sm mb-8 border border-white/30">
                   <Heart className="h-4 w-4 fill-current" />
-                  <span className="text-sm font-bold">Rejoignez plus de 5 000 talents africains</span>
+                  <span className="text-sm font-bold">Rejoignez la communauté de {liveStats.find((stat) => stat.label === "Talents inscrits")?.value ?? "0"} talents africains</span>
                 </div>
                 <h2 className="text-4xl sm:text-5xl lg:text-6xl font-black tracking-tight mb-6 leading-[1.1]">
                   Prêt à transformer

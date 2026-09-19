@@ -107,6 +107,7 @@ export default function LandingFooter() {
                     "w-10 h-10 rounded-xl border border-border flex items-center justify-center",
                     "text-muted-foreground hover:text-foreground hover:border-gold/50 hover:bg-gold/10",
                     "transition-all duration-200"
+                    
                   )}
                 >
                   <social.icon className="h-4 w-4" />

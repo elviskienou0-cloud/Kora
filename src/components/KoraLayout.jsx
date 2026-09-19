@@ -308,9 +308,13 @@ export default function KoraLayout() {
             >
               <li>
                 <button
+                  type="button"
                   onClick={() => {
                     setMenuOpen(false)
-                    navigate(role === "admin" ? "/admin?view=settings" : role === "manager" ? "/manager/settings" : "/client/profile")
+                    if (role === "client") navigate("/client/profile")
+                    else if (role === "manager") navigate("/manager/settings")
+                    else if (role === "admin") navigate("/admin?view=settings")
+                    else navigate("/home")
                   }}
                   className="w-full flex items-center gap-2 px-3 py-2 rounded-lg text-sm text-sidebar-foreground/70 hover:bg-sidebar-accent/50 hover:text-sidebar-foreground transition-colors"
                 >
@@ -320,9 +324,13 @@ export default function KoraLayout() {
               </li>
               <li>
                 <button
+                  type="button"
                   onClick={() => {
                     setMenuOpen(false)
-                    navigate(role === "admin" ? "/admin?view=settings" : role === "manager" ? "/manager/settings" : "/client/settings")
+                    if (role === "client") navigate("/client/settings")
+                    else if (role === "manager") navigate("/manager/settings")
+                    else if (role === "admin") navigate("/admin?view=settings")
+                    else navigate("/home")
                   }}
                   className="w-full flex items-center gap-2 px-3 py-2 rounded-lg text-sm text-sidebar-foreground/70 hover:bg-sidebar-accent/50 hover:text-sidebar-foreground transition-colors"
                 >

@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react"
+import { useEffect, useMemo, useState } from "react"
 import { Link, useNavigate } from "react-router-dom"
 import { motion } from "framer-motion"
 import { Sparkles, Search, ChevronRight, Users, Filter, ArrowRight, X, Star, MapPin, Briefcase } from "lucide-react"
@@ -11,6 +11,7 @@ import { useAuth } from "@/lib/AuthContext"
 import { APP_PARAMS } from "@/lib/app-params"
 import { getCategoryIcon } from "@/lib/categoryIcons"
 import { cn, formatCurrency } from "@/lib/utils"
+import { useKoraStats } from "@/lib/useKoraStats"
 
 const fadeInUp = {
   hidden: { opacity: 0, y: 20 },
@@ -18,35 +19,39 @@ const fadeInUp = {
 }
 const stagger = { hidden: {}, visible: { transition: { staggerChildren: 0.06 } } }
 
-const TALENTS_BY_CATEGORY = {
-  tech: [
-    { id: "t1", name: "Nana Kwarteng", role: "Développeuse React Senior", country: "🇬🇭 Ghana", avatar: "NK", price: 55000, rating: 4.9, reviews: 142, skills: ["React", "Next.js", "TypeScript"] },
-    { id: "t2", name: "Tunde Balogun", role: "Ingénieur DevOps", country: "🇳🇬 Nigéria", avatar: "TB", price: 65000, rating: 5, reviews: 89, skills: ["AWS", "Docker", "Kubernetes"] },
-    { id: "t3", name: "Aïcha Bah", role: "Data Engineer", country: "🇸🇳 Sénégal", avatar: "AB", price: 50000, rating: 4.8, reviews: 67, skills: ["Python", "Spark", "SQL"] },
-  ],
-  creative: [
-    { id: "t4", name: "Sadio Mané", role: "Designer UI/UX", country: "🇸🇳 Sénégal", avatar: "SM", price: 40000, rating: 5, reviews: 112, skills: ["Figma", "Branding", "Design System"] },
-    { id: "t5", name: "Zara Abubakar", role: "Directrice Artistique", country: "🇳🇪 Niger", avatar: "ZA", price: 48000, rating: 4.9, reviews: 76, skills: ["Photoshop", "Illustrator", "Motion"] },
-    { id: "t6", name: "Kofi Asante", role: "Graphiste", country: "🇬🇭 Ghana", avatar: "KA", price: 30000, rating: 4.7, reviews: 203, skills: ["Logo", "Print", "Identité"] },
-  ],
-  business: [
-    { id: "t7", name: "Moussa Traoré", role: "Consultant Stratégie", country: "🇲🇱 Mali", avatar: "MT", price: 75000, rating: 5, reviews: 54, skills: ["Business Plan", "Levée de fonds"] },
-  ],
-  marketing: [
-    { id: "t8", name: "Léa Koffi", role: "Growth Marketer", country: "🇨🇮 Côte d'Ivoire", avatar: "LK", price: 35000, rating: 4.9, reviews: 98, skills: ["SEO", "Ads", "Content"] },
-  ],
-  finance: [
-    { id: "t9", name: "Yao Yao", role: "Expert Comptable", country: "🇨🇮 Côte d'Ivoire", avatar: "YY", price: 42000, rating: 4.8, reviews: 41, skills: ["Comptabilité", "Fiscalité", "Finance"] },
-  ],
-  legal: [
-    { id: "t10", name: "Amina Bello", role: "Avocate d'affaires", country: "🇳🇬 Nigéria", avatar: "YB", price: 80000, rating: 5, reviews: 32, skills: ["Droit des affaires", "Contrats"] },
-  ],
-  education: [
-    { id: "t11", name: "Peter Omondi", role: "Formateur Certifié", country: "🇰🇪 Kenya", avatar: "PO", price: 25000, rating: 4.9, reviews: 156, skills: ["Formation", "Coaching", "E-learning"] },
-  ],
-  health: [
-    { id: "t12", name: "Dr. Fatou Dieng", role: "Consultante Santé", country: "🇸🇳 Sénégal", avatar: "FD", price: 55000, rating: 5, reviews: 28, skills: ["Santé publique", "Consultation"] },
-  ],
+function normalize(value) {
+  return String(value || "")
+    .trim()
+    .toLowerCase()
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .replace(/&/g, "et")
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-+|-+$/g, "")
+}
+
+const CATEGORY_ALIASES = {
+  tech: ["tech", "technology", "technologie", "digital", "technologie-digital", "development", "developpement"],
+  creative: ["creative", "creatif", "design", "creatif-design", "creation"],
+  business: ["business", "strategie", "business-strategie", "strategy", "consulting", "conseil"],
+  marketing: ["marketing", "communication", "marketing-communication"],
+  finance: ["finance", "comptabilite", "finance-comptabilite", "accounting"],
+  legal: ["legal", "juridique", "droit", "juridique-conseil"],
+  education: ["education", "formation", "formation-education", "training"],
+  health: ["health", "sante", "bien-etre", "sante-bien-etre"],
+}
+
+function categoryMatches(talent, categoryId) {
+  if (!categoryId || categoryId === "all") return true
+  const category = APP_PARAMS.categories.find((item) => item.id === categoryId)
+  if (!category) return false
+  const values = [talent?.categories?.id, talent?.categories?.slug, talent?.categories?.name].map(normalize).filter(Boolean)
+  const wanted = new Set([normalize(category.id), normalize(category.name), ...(CATEGORY_ALIASES[category.id] || [])].map(normalize))
+  return values.some((value) => wanted.has(value))
+}
+
+function getInitials(name = "Talent") {
+  return name.trim().split(/\s+/).filter(Boolean).slice(0, 2).map((part) => part[0]).join("").toUpperCase() || "T"
 }
 
 export default function Categories() {
@@ -55,6 +60,71 @@ export default function Categories() {
   const [active, setActive] = useState("all")
   const [search, setSearch] = useState("")
   const [showMobile, setShowMobile] = useState(false)
+  const { categoryCounts } = useKoraStats({ enabled: isAuthenticated })
+
+  const [talents, setTalents] = useState([])
+  const [talentsLoading, setTalentsLoading] = useState(true)
+  const [talentsError, setTalentsError] = useState("")
+
+  useEffect(() => {
+    if (!isAuthenticated) return undefined
+
+    let mounted = true
+    let channel
+
+    const loadTalents = async () => {
+      setTalentsLoading(true)
+      setTalentsError("")
+
+      const { data, error } = await supabase
+        .from("talent_profiles")
+        .select(`
+          id,
+          first_name,
+          last_name,
+          title,
+          city,
+          daily_rate,
+          currency,
+          rating,
+          reviews_count,
+          verified,
+          available,
+          category_id,
+          categories ( id, slug, name ),
+          countries ( name ),
+          talent_profile_skills ( skills ( name ) )
+        `)
+        .eq("status", "published")
+        .eq("is_visible", true)
+        .order("rating", { ascending: false })
+        .limit(100)
+
+      if (!mounted) return
+
+      if (error) {
+        console.error("Erreur talents catégories :", error)
+        setTalents([])
+        setTalentsError(error.message || "Impossible de charger les talents.")
+      } else {
+        setTalents(data || [])
+      }
+
+      setTalentsLoading(false)
+    }
+
+    loadTalents()
+
+    channel = supabase
+      .channel("kora-categories-talents")
+      .on("postgres_changes", { event: "*", schema: "public", table: "talent_profiles" }, loadTalents)
+      .subscribe()
+
+    return () => {
+      mounted = false
+      if (channel) supabase.removeChannel(channel)
+    }
+  }, [isAuthenticated])
 
   useEffect(() => {
     if (!isAuthenticated) navigate("/login", { replace: true })
@@ -64,11 +134,18 @@ export default function Categories() {
     c.name.toLowerCase().includes(search.toLowerCase())
   )
 
-  const selectedTalents = active === "all"
-    ? Object.values(TALENTS_BY_CATEGORY).flat().slice(0, 8)
-    : TALENTS_BY_CATEGORY[active] || []
+  const selectedTalents = useMemo(() => {
+    return talents
+      .filter((talent) => categoryMatches(talent, active))
+      .slice(0, 8)
+  }, [talents, active])
 
-  const activeCategory = APP_PARAMS.categories.find(c => c.id === active)
+  const activeCategory = APP_PARAMS.categories.find((c) => c.id === active)
+  const allTalentCount = APP_PARAMS.categories.reduce(
+    (sum, category) => sum + (categoryCounts[category.id] ?? 0),
+    0,
+  )
+  const activeTalentCount = active === "all" ? allTalentCount : (categoryCounts[active] ?? 0)
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-background via-accent/10 to-background">
@@ -94,7 +171,7 @@ export default function Categories() {
         </div>
         <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-14 text-center">
           <Badge variant="gold" className="mb-4 px-4 py-1.5 text-xs font-bold">
-            8 domaines • {APP_PARAMS.categories.reduce((s, c) => s + c.count, 0).toLocaleString("fr-FR")}+ talents
+            8 domaines • {allTalentCount.toLocaleString("fr-FR")}+ talents
           </Badge>
           <h1 className="text-4xl sm:text-5xl font-black tracking-tight mb-4">
             Explorez toutes les <span className="gold-text-gradient">catégories</span>
@@ -153,7 +230,7 @@ export default function Categories() {
               </div>
               <h3 className="font-black text-lg mb-1">Voir tout</h3>
               <p className="text-sm font-semibold text-muted-foreground">
-                {APP_PARAMS.categories.reduce((s, c) => s + c.count, 0).toLocaleString("fr-FR")} talents
+                {allTalentCount.toLocaleString("fr-FR")} talents
               </p>
             </motion.button>
             {filtered.map((cat, i) => {
@@ -180,7 +257,7 @@ export default function Categories() {
                     {isActive && <Badge variant="gold" className="text-[10px] font-bold">Sélectionné</Badge>}
                   </div>
                   <h3 className="font-black text-base mb-1 line-clamp-2 min-h-[2.5rem]">{cat.name}</h3>
-                  <p className="text-sm font-bold gold-text-gradient">{cat.count.toLocaleString("fr-FR")} talents</p>
+                  <p className="text-sm font-bold gold-text-gradient">{(categoryCounts[cat.id] ?? 0).toLocaleString("fr-FR")} talents</p>
                 </motion.button>
               )
             })}
@@ -194,7 +271,7 @@ export default function Categories() {
                 <>
                   <Badge variant="default" className="mb-2 px-3 py-1 text-xs font-bold">{activeCategory.name}</Badge>
                   <h2 className="text-2xl font-black tracking-tight">Talents en {activeCategory.name.toLowerCase()}</h2>
-                  <p className="text-muted-foreground font-medium">{selectedTalents.length} profils trouvés dans cette catégorie</p>
+                  <p className="text-muted-foreground font-medium">{activeTalentCount.toLocaleString("fr-FR")} profil{activeTalentCount > 1 ? "s" : ""} trouvé{activeTalentCount > 1 ? "s" : ""} dans cette catégorie</p>
                 </>
               ) : (
                 <>
@@ -206,7 +283,23 @@ export default function Categories() {
             </div>
           </div>
 
-          {selectedTalents.length === 0 ? (
+          {talentsLoading ? (
+            <Card>
+              <CardContent className="p-16 text-center text-sm text-muted-foreground">
+                Chargement des talents…
+              </CardContent>
+            </Card>
+          ) : talentsError ? (
+            <Card>
+              <CardContent className="p-16 text-center">
+                <div className="w-16 h-16 mx-auto rounded-2xl bg-red-500/10 flex items-center justify-center mb-4">
+                  <Users className="h-8 w-8 text-red-600" />
+                </div>
+                <h3 className="text-xl font-bold mb-2">Impossible de charger les talents</h3>
+                <p className="text-muted-foreground mb-6">{talentsError}</p>
+              </CardContent>
+            </Card>
+          ) : selectedTalents.length === 0 ? (
             <Card>
               <CardContent className="p-16 text-center">
                 <div className="w-16 h-16 mx-auto rounded-2xl bg-gold/10 flex items-center justify-center mb-4">
@@ -235,28 +328,28 @@ export default function Categories() {
                     <CardContent className="p-5 space-y-4">
                       <div className="flex items-start gap-3">
                         <Avatar className="h-14 w-14 ring-2 ring-gold/30">
-                          <AvatarFallback className="text-base">{t.avatar}</AvatarFallback>
+                          <AvatarFallback className="text-base">{getInitials(`${t.first_name || ""} ${t.last_name || ""}`.trim() || t.title)}</AvatarFallback>
                         </Avatar>
                         <div className="flex-1 min-w-0">
-                          <p className="font-bold truncate">{t.name}</p>
+                          <p className="font-bold truncate">{`${t.first_name || ""} ${t.last_name || ""}`.trim() || t.title || "Talent"}</p>
                           <p className="text-xs text-muted-foreground flex items-center gap-1">
-                            <MapPin className="h-3 w-3" />{t.country}
+                            <MapPin className="h-3 w-3" />{t.countries?.name || t.city || "Localisation non renseignée"}
                           </p>
                           <div className="flex items-center gap-1 mt-1">
                             <Star className="h-3 w-3 text-amber-500 fill-amber-500" />
-                            <span className="text-xs font-bold">{t.rating}</span>
-                            <span className="text-[10px] text-muted-foreground">({t.reviews})</span>
+                            <span className="text-xs font-bold">{Number(t.rating || 0) > 0 ? Number(t.rating).toFixed(1) : "—"}</span>
+                            <span className="text-[10px] text-muted-foreground">({Number(t.reviews_count || 0)})</span>
                           </div>
                         </div>
                       </div>
-                      <p className="font-bold text-sm mb-1 line-clamp-1">{t.role}</p>
+                      <p className="font-bold text-sm mb-1 line-clamp-1">{t.title || "Talent"}</p>
                       <div className="flex flex-wrap gap-1.5">
-                        {t.skills.map(s => <Badge key={s} variant="secondary" className="text-[10px]">{s}</Badge>)}
+                        {(t.talent_profile_skills || []).map((row) => row.skills?.name).filter(Boolean).slice(0, 4).map((skill) => <Badge key={skill} variant="secondary" className="text-[10px]">{skill}</Badge>)}
                       </div>
                       <div className="pt-3 border-t border-border/50 flex items-center justify-between">
                         <div>
                           <p className="text-[10px] text-muted-foreground">À partir de</p>
-                          <p className="text-lg font-black gold-text-gradient">{formatCurrency(t.price)}<span className="text-[10px] text-muted-foreground ml-1 font-medium">/jour</span></p>
+                          <p className="text-lg font-black gold-text-gradient">{formatCurrency(t.daily_rate, t.currency || "XOF")}<span className="text-[10px] text-muted-foreground ml-1 font-medium">/jour</span></p>
                         </div>
                         <Button size="sm" variant="outline" className="text-xs gap-1">
                           Voir <ArrowRight className="h-3.5 w-3.5" />
