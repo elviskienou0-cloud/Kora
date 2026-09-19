@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useState } from "react"
 import { Link, useNavigate, useParams } from "react-router-dom"
-import { ArrowLeft, CalendarDays, Edit3, Loader2, XCircle } from "lucide-react"
+import { ArrowLeft, CalendarDays, Edit3, Loader2, MessageCircle, Star, XCircle } from "lucide-react"
 import { toast } from "sonner"
 
 import { Button } from "@/components/ui/button"
@@ -35,34 +35,76 @@ export default function ProjectDetail() {
   const authUserId = user?.authId || user?.id
 
   const [project, setProject] = useState(null)
+  const [eligibleTalents, setEligibleTalents] = useState([])
+  const [alreadyReviewed, setAlreadyReviewed] = useState(false)
   const [loading, setLoading] = useState(true)
 
   const loadProject = useCallback(async () => {
     if (!id || !authUserId) return
-
     setLoading(true)
-    const { data, error } = await supabase
-      .from("projects")
-      .select("id, client_id, manager_id, title, description, budget_min, budget_max, currency, status, due_date, created_at, updated_at")
-      .eq("id", id)
-      .eq("client_id", authUserId)
-      .maybeSingle()
 
-    if (error) {
+    try {
+      const { data, error } = await supabase
+        .from("projects")
+        .select("id, client_id, manager_id, title, description, budget_min, budget_max, currency, status, due_date, created_at, updated_at")
+        .eq("id", id)
+        .eq("client_id", authUserId)
+        .maybeSingle()
+
+      if (error) throw error
+      if (!data) throw new Error("Projet introuvable ou inaccessible.")
+
+      setProject(data)
+
+      if (data.status === "completed") {
+        const { data: requests, error: requestsError } = await supabase
+          .from("requests")
+          .select("talent_id")
+          .eq("project_id", id)
+          .eq("client_id", authUserId)
+          .eq("status", "accepted")
+
+        if (requestsError) throw requestsError
+
+        const talentIds = [...new Set((requests || []).map((row) => row.talent_id).filter(Boolean))]
+
+        if (talentIds.length) {
+          const { data: talents, error: talentsError } = await supabase
+            .from("talent_profiles")
+            .select("id, first_name, last_name, title")
+            .in("id", talentIds)
+
+          if (talentsError) throw talentsError
+          setEligibleTalents(talents || [])
+
+          const { data: reviews, error: reviewsError } = await supabase
+            .from("reviews")
+            .select("talent_id")
+            .eq("project_id", id)
+            .eq("client_id", authUserId)
+
+          if (!reviewsError) {
+            const reviewedIds = new Set((reviews || []).map((row) => row.talent_id))
+            setAlreadyReviewed(talentIds.every((talentId) => reviewedIds.has(talentId)))
+          } else {
+            setAlreadyReviewed(false)
+          }
+        } else {
+          setEligibleTalents([])
+          setAlreadyReviewed(true)
+        }
+      } else {
+        setEligibleTalents([])
+        setAlreadyReviewed(false)
+      }
+    } catch (error) {
       console.error("Erreur détail projet :", error)
-      toast.error("Impossible de charger le projet.")
+      toast.error(error?.message || "Impossible de charger le projet.")
       navigate("/client/projects", { replace: true })
       return
+    } finally {
+      setLoading(false)
     }
-
-    if (!data) {
-      toast.error("Projet introuvable ou inaccessible.")
-      navigate("/client/projects", { replace: true })
-      return
-    }
-
-    setProject(data)
-    setLoading(false)
   }, [id, authUserId, navigate])
 
   useEffect(() => {
@@ -89,11 +131,7 @@ export default function ProjectDetail() {
   }
 
   if (loading) {
-    return (
-      <div className="min-h-[60vh] flex items-center justify-center">
-        <Loader2 className="h-7 w-7 animate-spin text-gold" aria-label="Chargement" />
-      </div>
-    )
+    return <div className="min-h-[60vh] flex items-center justify-center"><Loader2 className="h-7 w-7 animate-spin text-gold" /></div>
   }
 
   if (!project) return null
@@ -122,12 +160,8 @@ export default function ProjectDetail() {
         </div>
 
         <Card className="border-gold/20">
-          <CardHeader>
-            <CardTitle>Description</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <p className="whitespace-pre-line text-sm leading-7 text-muted-foreground">{project.description}</p>
-          </CardContent>
+          <CardHeader><CardTitle>Description</CardTitle></CardHeader>
+          <CardContent><p className="whitespace-pre-line text-sm leading-7 text-muted-foreground">{project.description}</p></CardContent>
         </Card>
 
         <div className="grid gap-4 md:grid-cols-2">
@@ -144,33 +178,42 @@ export default function ProjectDetail() {
           </Card>
         </div>
 
+        {project.status === "completed" && (
+          <Card className="border-gold/20 bg-gold/5">
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2"><Star className="h-5 w-5 text-gold" /> Évaluation du projet</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <p className="text-sm text-muted-foreground mb-4">
+                {eligibleTalents.length
+                  ? "Le projet est terminé. Vous pouvez maintenant évaluer les talents avec lesquels vous avez réellement collaboré."
+                  : "Aucun talent éligible n'est rattaché à ce projet."
+                }
+              </p>
+              {eligibleTalents.length > 0 && !alreadyReviewed ? (
+                <Button className="gap-2" asChild>
+                  <Link to={`/client/projects/${project.id}/review`}><Star className="h-4 w-4" /> Laisser un avis</Link>
+                </Button>
+              ) : eligibleTalents.length > 0 ? (
+                <Badge variant="outline" className="border-emerald-500/30 bg-emerald-500/10 text-emerald-700">Avis déjà enregistrés</Badge>
+              ) : null}
+            </CardContent>
+          </Card>
+        )}
+
         <Card className="border-gold/15">
           <CardContent className="p-5">
             <div className="flex flex-wrap items-center justify-between gap-3 text-sm">
-              <div>
-                <p className="text-muted-foreground">Créé le</p>
-                <p className="font-medium">{new Date(project.created_at).toLocaleString("fr-FR")}</p>
-              </div>
-              <div>
-                <p className="text-muted-foreground">Dernière mise à jour</p>
-                <p className="font-medium">{project.updated_at ? new Date(project.updated_at).toLocaleString("fr-FR") : "—"}</p>
-              </div>
-              <div>
-                <p className="text-muted-foreground">Manager</p>
-                <p className="font-medium">{project.manager_id || "Non assigné"}</p>
-              </div>
+              <div><p className="text-muted-foreground">Créé le</p><p className="font-medium">{new Date(project.created_at).toLocaleString("fr-FR")}</p></div>
+              <div><p className="text-muted-foreground">Dernière mise à jour</p><p className="font-medium">{project.updated_at ? new Date(project.updated_at).toLocaleString("fr-FR") : "—"}</p></div>
+              <div><p className="text-muted-foreground">Manager</p><p className="font-medium">{project.manager_id ? "Assigné" : "Non assigné"}</p></div>
             </div>
-
             <Separator className="my-5" />
-
             <div className="flex flex-wrap justify-end gap-2">
-              <Button variant="outline" asChild>
-                <Link to={`/client/projects/${project.id}/edit`}><Edit3 className="mr-2 h-4 w-4" /> Modifier</Link>
-              </Button>
+              <Button variant="outline" asChild><Link to={`/client/projects/${project.id}/edit`}><Edit3 className="mr-2 h-4 w-4" /> Modifier</Link></Button>
+              <Button variant="outline" onClick={() => navigate("/messages")}><MessageCircle className="mr-2 h-4 w-4" /> Messages</Button>
               {!['completed', 'cancelled'].includes(project.status) && (
-                <Button variant="ghost" onClick={cancelProject} className="text-red-600 hover:bg-red-50 hover:text-red-700">
-                  <XCircle className="mr-2 h-4 w-4" /> Annuler le projet
-                </Button>
+                <Button variant="ghost" onClick={cancelProject} className="text-red-600 hover:bg-red-50 hover:text-red-700"><XCircle className="mr-2 h-4 w-4" /> Annuler le projet</Button>
               )}
             </div>
           </CardContent>

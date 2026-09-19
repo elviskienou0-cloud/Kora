@@ -42,11 +42,11 @@ export default function Contact() {
             </p>
 
             <a
-              href="mailto:elviskienou0@gmail.com"
+              href="mailto:kora.contact@gmail.com"
               className="mt-6 inline-flex items-center gap-2 font-medium underline underline-offset-4"
             >
               <Mail className="h-4 w-4" />
-              contact@kora.africa
+              kora.contact@gmail.com
             </a>
           </section>
 

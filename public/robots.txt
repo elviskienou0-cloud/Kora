@@ -1,0 +1,14 @@
+User-agent: *
+Allow: /
+
+Disallow: /login
+Disallow: /register
+Disallow: /forgot-password
+Disallow: /reset-password
+Disallow: /oauth/
+Disallow: /admin
+Disallow: /client/
+Disallow: /manager/
+Disallow: /messages
+
+Sitemap: https://kora.africa/sitemap.xml

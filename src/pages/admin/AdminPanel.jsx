@@ -25,6 +25,9 @@ import { Card, CardContent } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { APP_PARAMS } from "@/lib/app-params"
 import { supabase } from "@/lib/supabase"
+import { useAuth } from "@/lib/AuthContext"
+import { queryClient } from "@/lib/queryClient"
+import { useAdminStatsQuery } from "@/hooks/queries/useAdminStatsQuery"
 
 import AdminUsers from "@/pages/admin/Users.jsx"
 import AdminTalents from "@/pages/admin/Talents.jsx"
@@ -37,6 +40,7 @@ import AdminReports from "@/pages/admin/Reports.jsx"
 import AdminSubscriptions from "@/pages/admin/Subscriptions.jsx"
 import AdminPayments from "@/pages/admin/Payments.jsx"
 import AdminLogs from "@/pages/admin/Logs.jsx"
+import ManagerSettings from "@/pages/manager/Settings.jsx"
 
 const VIEW_LABELS = {
   dashboard: "Tableau de bord",
@@ -86,25 +90,23 @@ export default function AdminPanel() {
   const navigate = useNavigate()
 
   const [view, setView] = useState("dashboard")
-  const [loading, setLoading] = useState(true)
-  const [refreshing, setRefreshing] = useState(false)
-  const [error, setError] = useState("")
+  const { user } = useAuth()
+  const authUserId = user?.authId || user?.id
 
-  const [stats, setStats] = useState({
-    users: null,
-    clients: null,
-    managers: null,
-    admins: null,
-    talents: null,
-    projects: null,
-    requests: null,
-    messages: null,
-    conversations: null,
-    subscriptions: null,
-    payments: null,
-    reports: null,
-    reviews: null,
+  const [refreshing, setRefreshing] = useState(false)
+
+  const {
+    data: stats = {},
+    isLoading: loading,
+    error: statsQueryError,
+    refetch: refetchStats,
+  } = useAdminStatsQuery({
+    userId: authUserId,
+    role: "admin",
+    enabled: Boolean(authUserId),
   })
+
+  const error = statsQueryError?.message || ""
 
   const getViewFromUrl = useCallback(() => {
     const params = new URLSearchParams(location.search)
@@ -124,111 +126,44 @@ export default function AdminPanel() {
     [navigate]
   )
 
-  const loadStats = useCallback(async () => {
-    setLoading(true)
-    setError("")
+  useEffect(() => {
+    if (!authUserId) return
 
-    try {
-      const [
-        users,
-        clients,
-        managers,
-        admins,
-        talents,
-        projects,
-        requests,
-        messages,
-        conversations,
-        subscriptions,
-        payments,
-        reports,
-        reviews,
-      ] = await Promise.all([
-        supabase.from("profiles").select("id", { count: "exact", head: true }),
-        supabase.from("profiles").select("id", { count: "exact", head: true }).eq("role", "client"),
-        supabase.from("profiles").select("id", { count: "exact", head: true }).eq("role", "manager"),
-        supabase.from("profiles").select("id", { count: "exact", head: true }).eq("role", "admin"),
-        supabase.from("talent_profiles").select("id", { count: "exact", head: true }),
-        supabase.from("projects").select("id", { count: "exact", head: true }),
-        supabase.from("requests").select("id", { count: "exact", head: true }),
-        supabase.from("messages").select("id", { count: "exact", head: true }),
-        supabase.from("conversations").select("id", { count: "exact", head: true }),
-        supabase.from("subscriptions").select("id", { count: "exact", head: true }),
-        supabase.from("payments").select("id", { count: "exact", head: true }),
-        supabase.from("reports").select("id", { count: "exact", head: true }),
-        supabase.from("reviews").select("id", { count: "exact", head: true }),
-      ])
+    const tables = [
+      "profiles",
+      "talent_profiles",
+      "projects",
+      "requests",
+      "messages",
+      "conversations",
+      "reports",
+      "subscriptions",
+      "payments",
+    ]
 
-      const essential = [
-        users,
-        clients,
-        managers,
-        admins,
-        talents,
-        projects,
-        requests,
-        messages,
-        conversations,
-        subscriptions,
-        payments,
-        reviews,
-      ]
+    const channel = supabase.channel("kora-admin-panel-live")
 
-      const firstError = essential.find((item) => item.error)?.error
-      if (firstError) throw firstError
-
-      setStats({
-        users: users.count ?? 0,
-        clients: clients.count ?? 0,
-        managers: managers.count ?? 0,
-        admins: admins.count ?? 0,
-        talents: talents.count ?? 0,
-        projects: projects.count ?? 0,
-        requests: requests.count ?? 0,
-        messages: messages.count ?? 0,
-        conversations: conversations.count ?? 0,
-        subscriptions: subscriptions.count ?? 0,
-        payments: payments.count ?? 0,
-        reports: reports.error ? null : (reports.count ?? 0),
-        reviews: reviews.count ?? 0,
-      })
-    } catch (err) {
-      console.error("Erreur statistiques admin :", err)
-      setError(
-        err?.message ||
-          "Impossible de charger les statistiques administrateur."
+    for (const table of tables) {
+      channel.on(
+        "postgres_changes",
+        { event: "*", schema: "public", table },
+        () => {
+          queryClient.invalidateQueries({ queryKey: ["admin-stats"] })
+        }
       )
-    } finally {
-      setLoading(false)
     }
-  }, [])
-
-  useEffect(() => {
-    loadStats()
-  }, [loadStats])
-
-  useEffect(() => {
-    const channel = supabase
-      .channel("kora-admin-panel-live")
-      .on("postgres_changes", { event: "*", schema: "public", table: "profiles" }, loadStats)
-      .on("postgres_changes", { event: "*", schema: "public", table: "talent_profiles" }, loadStats)
-      .on("postgres_changes", { event: "*", schema: "public", table: "projects" }, loadStats)
-      .on("postgres_changes", { event: "*", schema: "public", table: "requests" }, loadStats)
-      .on("postgres_changes", { event: "*", schema: "public", table: "messages" }, loadStats)
-      .on("postgres_changes", { event: "*", schema: "public", table: "subscriptions" }, loadStats)
-      .on("postgres_changes", { event: "*", schema: "public", table: "payments" }, loadStats)
 
     channel.subscribe()
 
     return () => {
       supabase.removeChannel(channel)
     }
-  }, [loadStats])
+  }, [authUserId])
 
   const refresh = async () => {
     setRefreshing(true)
     try {
-      await loadStats()
+      await refetchStats()
     } finally {
       setRefreshing(false)
     }
@@ -358,19 +293,7 @@ export default function AdminPanel() {
       case "logs":
         return <AdminLogs />
       case "settings":
-        return (
-          <Card className="border-border/60">
-            <CardContent className="py-16 text-center">
-              <Settings className="h-10 w-10 mx-auto text-gold-dark mb-4" />
-              <h2 className="text-xl font-black">
-                Paramètres administration
-              </h2>
-              <p className="text-sm text-muted-foreground mt-2">
-                Aucun paramètre global fictif n'est affiché.
-              </p>
-            </CardContent>
-          </Card>
-        )
+        return <ManagerSettings />
       case "dashboard":
       default:
         return renderDashboard()
@@ -409,6 +332,15 @@ export default function AdminPanel() {
           <CardContent className="p-4 text-sm text-red-700 flex items-center gap-2">
             <AlertTriangle className="h-4 w-4 shrink-0" />
             {error}
+          </CardContent>
+        </Card>
+      )}
+
+      {!authUserId && (
+        <Card className="border-amber-500/30 bg-amber-500/5">
+          <CardContent className="p-4 text-sm text-amber-700 flex items-center gap-2">
+            <AlertTriangle className="h-4 w-4 shrink-0" />
+            Session administrateur en cours de chargement…
           </CardContent>
         </Card>
       )}

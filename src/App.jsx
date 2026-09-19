@@ -52,11 +52,9 @@ import KoraLayout from "@/components/KoraLayout.jsx"
 import ClientDashboard from "@/pages/client/Dashboard.jsx"
 import ClientBrowse from "@/pages/client/Browse.jsx"
 import ClientFavorites from "@/pages/client/Favorites.jsx"
-import ClientProjects from "@/pages/client/Projects.jsx"
-import ClientProjectForm from "@/pages/client/ProjectForm.jsx"
-import ClientProjectDetail from "@/pages/client/ProjectDetail.jsx"
 import ClientRequests from "@/pages/client/Requests.jsx"
 import ClientNotifications from "@/pages/client/Notifications.jsx"
+import ClientSettings from "@/pages/client/ClientSettings.jsx"
 
 // =========================
 // MANAGER
@@ -75,6 +73,7 @@ import ManagerNotifications from "@/pages/manager/Notifications.jsx"
 // =========================
 
 import AdminPanel from "@/pages/admin/AdminPanel.jsx"
+
 
 export default function App() {
   return (
@@ -227,46 +226,6 @@ export default function App() {
               }
             />
 
-            {/* =====================
-                CLIENT PROJECTS
-            ====================== */}
-
-            <Route
-              path="/client/projects"
-              element={
-                <RoleGuard allowedRoles={["client"]}>
-                  <ClientProjects />
-                </RoleGuard>
-              }
-            />
-
-            <Route
-              path="/client/projects/new"
-              element={
-                <RoleGuard allowedRoles={["client"]}>
-                  <ClientProjectForm />
-                </RoleGuard>
-              }
-            />
-
-            <Route
-              path="/client/projects/:id/edit"
-              element={
-                <RoleGuard allowedRoles={["client"]}>
-                  <ClientProjectForm />
-                </RoleGuard>
-              }
-            />
-
-            <Route
-              path="/client/projects/:id"
-              element={
-                <RoleGuard allowedRoles={["client"]}>
-                  <ClientProjectDetail />
-                </RoleGuard>
-              }
-            />
-
             <Route
               path="/client/requests"
               element={
@@ -281,6 +240,24 @@ export default function App() {
               element={
                 <RoleGuard allowedRoles={["client"]}>
                   <ClientNotifications />
+                </RoleGuard>
+              }
+            />
+
+            <Route
+              path="/client/profile"
+              element={
+                <RoleGuard allowedRoles={["client"]}>
+                  <ClientSettings initialTab="profile" />
+                </RoleGuard>
+              }
+            />
+
+            <Route
+              path="/client/settings"
+              element={
+                <RoleGuard allowedRoles={["client"]}>
+                  <ClientSettings initialTab="preferences" />
                 </RoleGuard>
               }
             />

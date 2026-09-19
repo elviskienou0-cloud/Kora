@@ -29,12 +29,11 @@ import { Badge } from "@/components/ui/badge"
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
 import { Separator } from "@/components/ui/separator"
 import { Avatar, AvatarFallback } from "@/components/ui/avatar"
-import { Input } from "@/components/ui/input"
 import { cn } from "@/lib/utils"
 import { supabase } from "@/lib/supabase"
 import { useAuth } from "@/lib/AuthContext"
 import { resolvePortfolioUrls } from "@/lib/talentPortfolio"
-import { createRequestFromTalent } from "@/lib/requestInvitations"
+import TalentRequestButton from "@/components/TalentRequestButton.jsx"
 import { buildTalentShareUrl, copyTalentShareLink, getTalentShareTargets } from "@/lib/talentShare"
 
 function formatCurrency(value, currency = "XOF") {
@@ -77,11 +76,7 @@ export default function TalentDetail() {
   const [loadError, setLoadError] = useState("")
   const [liked, setLiked] = useState(false)
   const [contacting, setContacting] = useState(false)
-  const [inviting, setInviting] = useState(false)
-  const [showInvite, setShowInvite] = useState(false)
   const [showShareMenu, setShowShareMenu] = useState(false)
-  const [selectedProjectId, setSelectedProjectId] = useState("")
-  const [inviteMessage, setInviteMessage] = useState("")
 
   useEffect(() => {
     if (!talent) return
@@ -216,36 +211,7 @@ export default function TalentDetail() {
     }
   }, [id])
 
-  useEffect(() => {
-    if (!authUserId || !showInvite) return
 
-    let mounted = true
-
-    async function loadProjects() {
-      const { data, error } = await supabase
-        .from("projects")
-        .select("id, title, description, budget_min, budget_max, currency, status, due_date")
-        .eq("client_id", authUserId)
-        .not("status", "in", "(completed,cancelled)")
-        .order("created_at", { ascending: false })
-
-      if (!mounted) return
-      if (error) {
-        console.error("Erreur projets invitation :", error)
-        toast.error("Impossible de charger vos projets")
-        return
-      }
-
-      setProjects(data || [])
-      if (!selectedProjectId && data?.[0]?.id) setSelectedProjectId(data[0].id)
-    }
-
-    loadProjects()
-
-    return () => {
-      mounted = false
-    }
-  }, [authUserId, showInvite])
 
   useEffect(() => {
     if (!authUserId || !id) return
@@ -356,51 +322,6 @@ export default function TalentDetail() {
       toast.error(error?.message || "Impossible d'ouvrir la conversation")
     } finally {
       setContacting(false)
-    }
-  }
-
-  const handleInvite = async () => {
-    if (!isAuthenticated || !authUserId) {
-      toast.info("Connectez-vous pour inviter ce talent.")
-      navigate("/login")
-      return
-    }
-
-    if (!selectedProjectId) {
-      toast.error("Sélectionnez un projet.")
-      return
-    }
-
-    const project = projects.find((item) => item.id === selectedProjectId)
-    if (!project) {
-      toast.error("Projet introuvable.")
-      return
-    }
-
-    setInviting(true)
-
-    try {
-      await createRequestFromTalent({
-        talentId: talent.id,
-        projectId: project.id,
-        title: `Invitation — ${talentName}`,
-        description:
-          inviteMessage.trim() ||
-          `Invitation de ${talentName} sur le projet « ${project.title} ».`,
-        budget: project.budget_max ?? project.budget_min ?? null,
-        currency: project.currency || "XOF",
-      })
-
-      toast.success("Invitation envoyée ✅", {
-        description: `La demande a été envoyée au manager de ${talentName}.`,
-      })
-      setShowInvite(false)
-      setInviteMessage("")
-    } catch (error) {
-      console.error("Erreur invitation :", error)
-      toast.error(error?.message || "Impossible d'envoyer l'invitation")
-    } finally {
-      setInviting(false)
     }
   }
 
@@ -540,30 +461,11 @@ export default function TalentDetail() {
                 </div>
                 <div className="grid gap-2">
                   <Button className="gap-2" onClick={handleContact} disabled={contacting}><MessageCircle className="h-4 w-4" /> {contacting ? "Ouverture…" : "Contacter"}</Button>
-                  <Button variant="outline" className="gap-2" onClick={() => setShowInvite((value) => !value)}><Send className="h-4 w-4" /> Inviter à un projet</Button>
+                  <TalentRequestButton talentId={talent.id} talentName={talentName} />
                 </div>
               </CardContent>
             </Card>
 
-            {showInvite && (
-              <Card className="border-gold/20">
-                <CardHeader><CardTitle className="font-black text-lg">Inviter à un projet</CardTitle><CardDescription>Sélectionnez un de vos projets actifs.</CardDescription></CardHeader>
-                <CardContent className="space-y-4">
-                  {!projects.length ? (
-                    <div className="text-sm text-muted-foreground rounded-xl border p-4">Aucun projet disponible. Créez d'abord un projet depuis votre espace Client.</div>
-                  ) : (
-                    <>
-                      <select value={selectedProjectId} onChange={(e) => setSelectedProjectId(e.target.value)} className="w-full h-11 rounded-xl border border-border bg-background px-3 text-sm">
-                        <option value="">Sélectionnez un projet…</option>
-                        {projects.map((project) => <option key={project.id} value={project.id}>{project.title}</option>)}
-                      </select>
-                      <Input value={inviteMessage} onChange={(e) => setInviteMessage(e.target.value)} placeholder="Message d'invitation (optionnel)" />
-                      <Button className="w-full gap-2" onClick={handleInvite} disabled={inviting || !selectedProjectId}>{inviting ? <Loader2 className="h-4 w-4 animate-spin" /> : <Send className="h-4 w-4" />} Envoyer l'invitation</Button>
-                    </>
-                  )}
-                </CardContent>
-              </Card>
-            )}
 
             <Card className="border-border/60">
               <CardHeader><CardTitle className="font-black flex items-center gap-2"><UserRound className="h-5 w-5 text-gold" /> Manager</CardTitle><CardDescription>Responsable de ce talent.</CardDescription></CardHeader>

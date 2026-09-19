@@ -1,183 +1,323 @@
 import { useQuery } from "@tanstack/react-query"
 import { supabase } from "@/lib/supabase"
 
-function countOf(result) {
-  return result?.count ?? 0
+async function countRows(
+  table,
+  filters = {},
+  options = {}
+) {
+  let query = supabase
+    .from(table)
+    .select("id", {
+      count: "exact",
+      head: true,
+    })
+
+  for (const [column, value] of Object.entries(filters)) {
+    if (
+      value === null ||
+      value === undefined ||
+      value === ""
+    ) {
+      continue
+    }
+
+    query = query.eq(column, value)
+  }
+
+  if (options.notSenderId) {
+    query = query.neq(
+      "sender_id",
+      options.notSenderId
+    )
+  }
+
+  if (options.readAtNull) {
+    query = query.is("read_at", null)
+  }
+
+  const {
+    count,
+    error,
+  } = await query
+
+  if (error) {
+    throw error
+  }
+
+  return count ?? 0
 }
 
 export function useAdminStatsQuery({
+  userId = null,
+  role = "admin",
   enabled = true,
 } = {}) {
   return useQuery({
-    queryKey: ["admin-stats"],
-    enabled,
-    staleTime: 15_000,
+    queryKey: [
+      "admin-stats",
+      {
+        userId,
+        role,
+      },
+    ],
+
+    enabled: Boolean(
+      enabled && role === "admin"
+    ),
 
     queryFn: async () => {
+      /*
+       * On récupère directement l'utilisateur Supabase.
+       * Cela évite qu'un problème éventuel dans l'objet
+       * user d'AuthContext bloque les statistiques.
+       */
+      const {
+        data: authData,
+        error: authError,
+      } = await supabase.auth.getUser()
+
+      if (authError) {
+        throw authError
+      }
+
+      const currentUserId =
+        authData?.user?.id || userId
+
+      if (!currentUserId) {
+        throw new Error(
+          "Utilisateur administrateur introuvable."
+        )
+      }
+
       const [
         users,
         clients,
         managers,
         admins,
+        suspendedUsers,
+
         talents,
+        publishedTalents,
+        pendingTalents,
+
         projects,
+        openProjects,
+        activeProjects,
+        completedProjects,
+
         requests,
+        pendingRequests,
+        acceptedRequests,
+        rejectedRequests,
+
         conversations,
+
         messages,
-        notifications,
-        subscriptions,
-        payments,
-        reviews,
+        unreadMessages,
+
         reports,
+        pendingReports,
+
+        subscriptions,
+        activeSubscriptions,
+        expiredSubscriptions,
+
+        payments,
+        pendingPayments,
+        paidPayments,
+        failedPayments,
       ] = await Promise.all([
-        supabase
-          .from("profiles")
-          .select("id", {
-            count: "exact",
-            head: true,
-          }),
+        // =========================
+        // UTILISATEURS
+        // =========================
 
-        supabase
-          .from("profiles")
-          .select("id", {
-            count: "exact",
-            head: true,
-          })
-          .eq("role", "client"),
+        countRows("profiles"),
 
-        supabase
-          .from("profiles")
-          .select("id", {
-            count: "exact",
-            head: true,
-          })
-          .eq("role", "manager"),
+        countRows("profiles", {
+          role: "client",
+        }),
 
-        supabase
-          .from("profiles")
-          .select("id", {
-            count: "exact",
-            head: true,
-          })
-          .eq("role", "admin"),
+        countRows("profiles", {
+          role: "manager",
+        }),
 
-        supabase
-          .from("talent_profiles")
-          .select("id", {
-            count: "exact",
-            head: true,
-          }),
+        countRows("profiles", {
+          role: "admin",
+        }),
 
-        supabase
-          .from("projects")
-          .select("id", {
-            count: "exact",
-            head: true,
-          }),
+        countRows("profiles", {
+          is_suspended: true,
+        }),
 
-        supabase
-          .from("requests")
-          .select("id", {
-            count: "exact",
-            head: true,
-          }),
+        // =========================
+        // TALENTS
+        // =========================
 
-        supabase
-          .from("conversations")
-          .select("id", {
-            count: "exact",
-            head: true,
-          }),
+        countRows("talent_profiles"),
 
-        supabase
-          .from("messages")
-          .select("id", {
-            count: "exact",
-            head: true,
-          }),
+        countRows("talent_profiles", {
+          status: "published",
+        }),
 
-        supabase
-          .from("notifications")
-          .select("id", {
-            count: "exact",
-            head: true,
-          }),
+        countRows("talent_profiles", {
+          status: "pending",
+        }),
 
-        supabase
-          .from("subscriptions")
-          .select("id", {
-            count: "exact",
-            head: true,
-          }),
+        // =========================
+        // PROJETS
+        // =========================
 
-        supabase
-          .from("payments")
-          .select("id", {
-            count: "exact",
-            head: true,
-          }),
+        countRows("projects"),
 
-        supabase
-          .from("reviews")
-          .select("id", {
-            count: "exact",
-            head: true,
-          }),
+        countRows("projects", {
+          status: "open",
+        }),
 
-        supabase
-          .from("reports")
-          .select("id", {
-            count: "exact",
-            head: true,
-          }),
+        countRows("projects", {
+          status: "active",
+        }),
+
+        countRows("projects", {
+          status: "completed",
+        }),
+
+        // =========================
+        // DEMANDES
+        // =========================
+
+        countRows("requests"),
+
+        countRows("requests", {
+          status: "pending",
+        }),
+
+        countRows("requests", {
+          status: "accepted",
+        }),
+
+        countRows("requests", {
+          status: "rejected",
+        }),
+
+        // =========================
+        // CONVERSATIONS
+        // =========================
+
+        countRows("conversations"),
+
+        // =========================
+        // MESSAGES
+        // =========================
+
+        countRows("messages"),
+
+        /*
+         * IMPORTANT :
+         * messages utilise read_at,
+         * pas is_read.
+         */
+        countRows(
+          "messages",
+          {},
+          {
+            notSenderId: currentUserId,
+            readAtNull: true,
+          }
+        ),
+
+        // =========================
+        // SIGNALEMENTS
+        // =========================
+
+        countRows("reports"),
+
+        countRows("reports", {
+          status: "pending",
+        }),
+
+        // =========================
+        // ABONNEMENTS
+        // =========================
+
+        countRows("subscriptions"),
+
+        countRows("subscriptions", {
+          status: "active",
+        }),
+
+        countRows("subscriptions", {
+          status: "expired",
+        }),
+
+        // =========================
+        // PAIEMENTS
+        // =========================
+
+        countRows("payments"),
+
+        countRows("payments", {
+          status: "pending",
+        }),
+
+        countRows("payments", {
+          status: "paid",
+        }),
+
+        countRows("payments", {
+          status: "failed",
+        }),
       ])
 
-      const essential = [
+      return {
         users,
         clients,
         managers,
         admins,
+        suspendedUsers,
+
         talents,
+        publishedTalents,
+        pendingTalents,
+
         projects,
+        openProjects,
+        activeProjects,
+        completedProjects,
+
         requests,
+        pendingRequests,
+        acceptedRequests,
+        rejectedRequests,
+
         conversations,
+
         messages,
-        notifications,
+        unreadMessages,
+
+        reports,
+        pendingReports,
+
         subscriptions,
+        activeSubscriptions,
+        expiredSubscriptions,
+
         payments,
-        reviews,
-      ]
+        pendingPayments,
+        paidPayments,
+        failedPayments,
 
-      const firstError = essential
-        .map((result) => result.error)
-        .find(Boolean)
-
-      if (firstError) {
-        throw firstError
-      }
-
-      return {
-        users: countOf(users),
-        clients: countOf(clients),
-        managers: countOf(managers),
-        admins: countOf(admins),
-        talents: countOf(talents),
-        projects: countOf(projects),
-        requests: countOf(requests),
-        conversations:
-          countOf(conversations),
-        messages: countOf(messages),
-        notifications:
-          countOf(notifications),
-        subscriptions:
-          countOf(subscriptions),
-        payments: countOf(payments),
-        reviews: countOf(reviews),
-
-        reports: reports.error
-          ? null
-          : countOf(reports),
+        generatedAt:
+          new Date().toISOString(),
       }
     },
+
+    staleTime: 30_000,
+    gcTime: 5 * 60_000,
+    retry: 1,
+    refetchOnWindowFocus: false,
+    refetchOnReconnect: true,
   })
 }
+
+export default useAdminStatsQuery

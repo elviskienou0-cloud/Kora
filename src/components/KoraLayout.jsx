@@ -1,3 +1,4 @@
+import { LanguageSwitcher, useI18n } from "@/i18n/kora-i18n.jsx"
 import { useState } from "react"
 import { Outlet, NavLink, Link, useNavigate, useLocation } from "react-router-dom"
 import { motion, AnimatePresence } from "framer-motion"
@@ -28,110 +29,162 @@ import { useAuth } from "@/lib/AuthContext.jsx"
 import useIsMobile from "@/hooks/use-mobile.jsx"
 import { cn } from "@/lib/utils.js"
 
-const MENU_ITEMS = {
-  client: [
-    { label: "Accueil", href: "/home", icon: Home },
-    { label: "Découvrir", href: "/client/browse", icon: Search },
-    { label: "Mes favoris", href: "/client/favorites", icon: Heart },
-    { label: "Mes projets", href: "/client/projects", icon: BriefcaseBusiness },
-    { label: "Mes demandes", href: "/client/requests", icon: FileText },
-    { label: "Messages", href: "/messages", icon: MessageCircle },
-    { label: "Notifications", href: "/client/notifications", icon: Bell },
-  ],
-  manager: [
-    { label: "Tableau de bord", href: "/manager/dashboard", icon: LayoutDashboard },
-    { label: "Mes talents", href: "/manager/talents", icon: Users },
-    { label: "Demandes", href: "/manager/requests", icon: FileText },
-    { label: "Abonnement", href: "/manager/subscription", icon: CreditCard },
-    { label: "Messages", href: "/messages", icon: MessageCircle },
-    { label: "Notifications", href: "/manager/notifications", icon: Bell },
-    { label: "Paramètres", href: "/manager/settings", icon: Settings },
-  ],
-admin: [
-  {
-    label: "Tableau de bord",
-    href: "/admin",
-    icon: LayoutDashboard,
-    view: "dashboard",
-  },
+function getMenuItems(t) {
+  return {
+    client: [
+      {
+        label: t("navigation.home"),
+        href: "/home",
+        icon: Home,
+      },
+      {
+        label: t("navigation.discover"),
+        href: "/client/browse",
+        icon: Search,
+      },
+      {
+        label: t("navigation.favorites"),
+        href: "/client/favorites",
+        icon: Heart,
+      },
+      {
+        label: t("navigation.projects"),
+        href: "/client/projects",
+        icon: BriefcaseBusiness,
+      },
+      {
+        label: t("navigation.requests"),
+        href: "/client/requests",
+        icon: FileText,
+      },
+      {
+        label: t("navigation.messages"),
+        href: "/messages",
+        icon: MessageCircle,
+      },
+      {
+        label: t("navigation.notifications"),
+        href: "/client/notifications",
+        icon: Bell,
+      },
+    ],
 
-  {
-    label: "Utilisateurs",
-    href: "/admin?view=users",
-    icon: Users,
-    view: "users",
-  },
+    manager: [
+      {
+        label: t("navigation.dashboard"),
+        href: "/manager/dashboard",
+        icon: LayoutDashboard,
+      },
+      {
+        label: t("navigation.talents"),
+        href: "/manager/talents",
+        icon: Users,
+      },
+      {
+        label: t("navigation.requests"),
+        href: "/manager/requests",
+        icon: FileText,
+      },
+      {
+        label: t("navigation.subscription"),
+        href: "/manager/subscription",
+        icon: CreditCard,
+      },
+      {
+        label: t("navigation.messages"),
+        href: "/messages",
+        icon: MessageCircle,
+      },
+      {
+        label: t("navigation.notifications"),
+        href: "/manager/notifications",
+        icon: Bell,
+      },
+      {
+        label: t("navigation.settings"),
+        href: "/manager/settings",
+        icon: Settings,
+      },
+    ],
 
-  {
-    label: "Talents",
-    href: "/admin?view=talents",
-    icon: Sparkles,
-    view: "talents",
-  },
-
-  {
-    label: "Projets",
-    href: "/admin?view=projects",
-    icon: BriefcaseBusiness,
-    view: "projects",
-  },
-
-  {
-    label: "Demandes",
-    href: "/admin?view=requests",
-    icon: FileText,
-    view: "requests",
-  },
-
-  {
-    label: "Messages",
-    href: "/admin?view=messages",
-    icon: MessageCircle,
-    view: "messages",
-  },
-
-  {
-    label: "Modération",
-    href: "/admin?view=moderation",
-    icon: AlertTriangle,
-    view: "moderation",
-  },
-
-  {
-    label: "Paiements",
-    href: "/admin?view=payments",
-    icon: WalletCards,
-    view: "payments",
-  },
-
-  {
-    label: "Abonnements",
-    href: "/admin?view=subscriptions",
-    icon: CreditCard,
-    view: "subscriptions",
-  },
-
-  {
-    label: "Journaux",
-    href: "/admin?view=logs",
-    icon: FileText,
-    view: "logs",
-  },
-
-  {
-    label: "Paramètres",
-    href: "/admin?view=settings",
-    icon: Settings,
-    view: "settings",
-  },
-],
+    admin: [
+      {
+        label: t("navigation.dashboard"),
+        href: "/admin",
+        icon: LayoutDashboard,
+        view: "dashboard",
+      },
+      {
+        label: t("navigation.users"),
+        href: "/admin?view=users",
+        icon: Users,
+        view: "users",
+      },
+      {
+        label: t("navigation.talents"),
+        href: "/admin?view=talents",
+        icon: Sparkles,
+        view: "talents",
+      },
+      {
+        label: t("navigation.projects"),
+        href: "/admin?view=projects",
+        icon: BriefcaseBusiness,
+        view: "projects",
+      },
+      {
+        label: t("navigation.requests"),
+        href: "/admin?view=requests",
+        icon: FileText,
+        view: "requests",
+      },
+      {
+        label: t("navigation.messages"),
+        href: "/admin?view=messages",
+        icon: MessageCircle,
+        view: "messages",
+      },
+      {
+        label: t("navigation.moderation"),
+        href: "/admin?view=moderation",
+        icon: AlertTriangle,
+        view: "moderation",
+      },
+      {
+        label: t("navigation.payments"),
+        href: "/admin?view=payments",
+        icon: WalletCards,
+        view: "payments",
+      },
+      {
+        label: t("navigation.subscription"),
+        href: "/admin?view=subscriptions",
+        icon: CreditCard,
+        view: "subscriptions",
+      },
+      {
+        label: t("navigation.logs"),
+        href: "/admin?view=logs",
+        icon: FileText,
+        view: "logs",
+      },
+      {
+        label: t("navigation.settings"),
+        href: "/admin?view=settings",
+        icon: Settings,
+        view: "settings",
+      },
+    ],
+  }
 }
 
-const ROLE_LABELS = {
-  client: { label: "Client", badge: "bg-emerald-500" },
-  manager: { label: "Manager", badge: "bg-gold" },
-  talent: { label: "Talent", badge: "bg-purple-500" },
-  admin: { label: "Administrateur", badge: "bg-red-500" },
+function getRoleLabels(t) {
+  return {
+    client: { label: t("account.client"), badge: "bg-emerald-500" },
+    manager: { label: t("account.manager"), badge: "bg-gold" },
+    talent: { label: t("account.talent"), badge: "bg-purple-500" },
+    admin: { label: t("account.admin"), badge: "bg-red-500" },
+  }
 }
 
 export default function KoraLayout() {
@@ -139,12 +192,15 @@ export default function KoraLayout() {
   const navigate = useNavigate()
   const location = useLocation()
   const isMobile = useIsMobile()
+  const { t } = useI18n()
+  const menuItems = getMenuItems(t)
+  const roleLabels = getRoleLabels(t)
   const [sidebarOpen, setSidebarOpen] = useState(false)
   const [menuOpen, setMenuOpen] = useState(false)
 
   const role = user?.role
-  const menu = MENU_ITEMS[role] || MENU_ITEMS.client
-  const roleInfo = ROLE_LABELS[role] || ROLE_LABELS.client
+  const menu = menuItems[role] || menuItems.client
+  const roleInfo = roleLabels[role] || roleLabels.client
   const homeHref = role === "admin"
     ? "/admin"
     : role === "manager"
@@ -209,13 +265,13 @@ export default function KoraLayout() {
           <div className="rounded-xl bg-sidebar-accent/50 p-3 mb-3">
             <div className="flex items-center gap-2 mb-1">
               <Crown className="h-4 w-4 text-gold" />
-              <span className="text-xs font-semibold">Passer Premium</span>
+              <span className="text-xs font-semibold">{t("premium.title")}</span>
             </div>
             <p className="text-[11px] text-muted-foreground mb-2">
-              Débloquez toutes les fonctionnalités
+              {t("premium.description")}
             </p>
             <button className="w-full py-1.5 rounded-lg gold-gradient text-white text-xs font-medium hover:opacity-90 transition-opacity">
-              Mettre à jour
+              {t("premium.button")}
             </button>
           </div>
         </div>
@@ -236,7 +292,7 @@ export default function KoraLayout() {
             )} />
           </div>
           <div className="flex-1 min-w-0">
-            <p className="text-sm font-medium truncate">{user?.name || "Utilisateur"}</p>
+            <p className="text-sm font-medium truncate">{user?.name || t("account.name")}</p>
             <p className="text-xs text-muted-foreground truncate">{roleInfo.label}</p>
           </div>
           <ChevronDown className={cn("h-4 w-4 text-muted-foreground transition-transform", menuOpen && "rotate-180")} />
@@ -251,15 +307,27 @@ export default function KoraLayout() {
               className="overflow-hidden mt-2 space-y-0.5"
             >
               <li>
-                <button className="w-full flex items-center gap-2 px-3 py-2 rounded-lg text-sm text-sidebar-foreground/70 hover:bg-sidebar-accent/50 hover:text-sidebar-foreground transition-colors">
+                <button
+                  onClick={() => {
+                    setMenuOpen(false)
+                    navigate(role === "admin" ? "/admin?view=settings" : role === "manager" ? "/manager/settings" : "/client/profile")
+                  }}
+                  className="w-full flex items-center gap-2 px-3 py-2 rounded-lg text-sm text-sidebar-foreground/70 hover:bg-sidebar-accent/50 hover:text-sidebar-foreground transition-colors"
+                >
                   <User className="h-4 w-4" />
-                  <span>Mon profil</span>
+                  <span>{t("account.profile")}</span>
                 </button>
               </li>
               <li>
-                <button className="w-full flex items-center gap-2 px-3 py-2 rounded-lg text-sm text-sidebar-foreground/70 hover:bg-sidebar-accent/50 hover:text-sidebar-foreground transition-colors">
+                <button
+                  onClick={() => {
+                    setMenuOpen(false)
+                    navigate(role === "admin" ? "/admin?view=settings" : role === "manager" ? "/manager/settings" : "/client/settings")
+                  }}
+                  className="w-full flex items-center gap-2 px-3 py-2 rounded-lg text-sm text-sidebar-foreground/70 hover:bg-sidebar-accent/50 hover:text-sidebar-foreground transition-colors"
+                >
                   <Settings className="h-4 w-4" />
-                  <span>Paramètres</span>
+                  <span>{t("navigation.settings")}</span>
                 </button>
               </li>
               <li>
@@ -268,7 +336,7 @@ export default function KoraLayout() {
                   className="w-full flex items-center gap-2 px-3 py-2 rounded-lg text-sm text-destructive hover:bg-destructive/10 transition-colors"
                 >
                   <LogOut className="h-4 w-4" />
-                  <span>Déconnexion</span>
+                  <span>{t("account.logout")}</span>
                 </button>
               </li>
             </motion.ul>
@@ -323,7 +391,7 @@ export default function KoraLayout() {
                 <button
                   onClick={() => setSidebarOpen(true)}
                   className="p-2 rounded-lg hover:bg-accent hover:text-accent-foreground transition-colors"
-                  aria-label="Ouvrir le menu"
+                  aria-label={t("common.details")}
                 >
                   <svg viewBox="0 0 24 24" className="h-5 w-5 fill-none stroke-current stroke-2" aria-hidden="true">
                     <path d="M4 6h16M4 12h16M4 18h16" />
@@ -331,23 +399,24 @@ export default function KoraLayout() {
                 </button>
               )}
               <div className="hidden sm:block text-sm font-medium text-muted-foreground">
-                {role === "admin" ? "Espace administration" : "Espace KORA"}
+                {role === "admin" ? t("admin.administration") : "KORA"}
               </div>
             </div>
 
             <div className="flex items-center gap-2">
+              <LanguageSwitcher compact />
               {role !== "admin" && (
                 <button
                   onClick={() => navigate("/messages")}
                   className="p-2 rounded-lg hover:bg-accent transition-colors"
-                  aria-label="Messages"
+                  aria-label={t("navigation.messages")}
                 >
                   <MessageCircle className="h-5 w-5" />
                 </button>
               )}
               <div className="h-8 w-px bg-border mx-1" />
               <div className="text-right hidden sm:block">
-                <p className="text-sm font-semibold leading-none">{user?.name || "Utilisateur"}</p>
+                <p className="text-sm font-semibold leading-none">{user?.name || t("account.name")}</p>
                 <p className="text-[11px] text-gold-dark mt-1">{roleInfo.label}</p>
               </div>
             </div>

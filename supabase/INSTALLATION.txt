@@ -1,0 +1,20 @@
+KORA — CORRECTION CLIENT PROFIL / PARAMETRES
+
+1. Remplacer :
+   src/App.jsx
+   par le App.jsx fourni dans ce dossier.
+
+2. Ajouter :
+   src/pages/client/ClientSettings.jsx
+
+3. Redémarrer Vite :
+   npm run dev
+
+Cause corrigée :
+- /client/profile et /client/settings pointaient vers ManagerSettings.jsx.
+- Les deux routes utilisent maintenant ClientSettings.jsx.
+- /client/profile ouvre l'onglet Profil.
+- /client/settings ouvre les Préférences.
+- Sauvegarde réelle dans public.profiles : name, avatar, phone, city, company, bio, preferences.
+- Changement de mot de passe via Supabase Auth.
+- Suppression du compte via delete_my_account().

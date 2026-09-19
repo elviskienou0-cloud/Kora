@@ -1,78 +1,23 @@
 import { useCallback, useEffect, useState } from "react"
-import { Loader2, RefreshCw } from "lucide-react"
+import { CheckCircle2, Loader2, RefreshCw, XCircle } from "lucide-react"
+import { toast } from "sonner"
 
+import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Badge } from "@/components/ui/badge"
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog"
+import { Label } from "@/components/ui/label"
+import { Textarea } from "@/components/ui/textarea"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { supabase } from "@/lib/supabase"
+import { validateAdminPayment } from "@/lib/admin"
 
-function formatDate(value) {
-  if (!value) return "—"
-  const d = new Date(value)
-  return Number.isNaN(d.getTime()) ? "—" : d.toLocaleString("fr-FR")
-}
+function money(v,c){ if(v==null)return "—"; try{return new Intl.NumberFormat("fr-FR",{style:"currency",currency:c||"XOF",maximumFractionDigits:0}).format(Number(v))}catch{return `${Number(v).toLocaleString("fr-FR")} ${c||"XOF"}`} }
 
-export default function AdminPayments() {
-  const [items, setItems] = useState([])
-  const [loading, setLoading] = useState(true)
-  const [refreshing, setRefreshing] = useState(false)
-  const [error, setError] = useState("")
-
-  const load = useCallback(async () => {
-    setLoading(true)
-    setError("")
-    try {
-      const { data, error: queryError } = await supabase
-        .from("payments")
-        .select("id, user_id, subscription_id, plan_id, provider, provider_payment_id, reference, amount, currency, billing_cycle, status, checkout_url, paid_at, metadata, created_at, updated_at")
-        .order("created_at", { ascending: false })
-
-      if (queryError) throw queryError
-      setItems(data || [])
-    } catch (err) {
-      setError(err?.message || "Impossible de charger les paiements.")
-    } finally {
-      setLoading(false)
-    }
-  }, [])
-
-  useEffect(() => { load() }, [load])
-
-  const refresh = async () => {
-    setRefreshing(true)
-    await load()
-    setRefreshing(false)
-  }
-
-  return (
-    <div className="space-y-6">
-      <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
-        <div><h1 className="text-2xl font-black">Paiements</h1><p className="text-sm text-muted-foreground">Transactions et statuts réellement enregistrés.</p></div>
-        <Button variant="outline" className="gap-2" onClick={refresh} disabled={refreshing}>{refreshing ? <Loader2 className="h-4 w-4 animate-spin" /> : <RefreshCw className="h-4 w-4" />}Actualiser</Button>
-      </div>
-      <Card>
-        <CardHeader><CardTitle>Transactions</CardTitle><CardDescription>Le frontend ne modifie pas le statut des paiements.</CardDescription></CardHeader>
-        <CardContent className="p-0">
-          {error && <div className="m-5 rounded-xl border border-red-500/30 bg-red-500/5 p-4 text-sm text-red-700">{error}</div>}
-          {loading ? <div className="py-16 flex justify-center gap-2 text-sm text-muted-foreground"><Loader2 className="h-5 w-5 animate-spin" />Chargement…</div> : (
-            <div className="overflow-x-auto">
-              <table className="w-full text-sm">
-                <thead><tr className="border-y bg-muted/30 text-left">
-                  <th className="px-5 py-3">Référence</th><th className="px-5 py-3">Prestataire</th><th className="px-5 py-3">Montant</th><th className="px-5 py-3">Statut</th><th className="px-5 py-3">Date</th>
-                </tr></thead>
-                <tbody>{items.map((item) => <tr key={item.id} className="border-b">
-                  <td className="px-5 py-4 font-semibold">{item.reference || String(item.id).slice(0, 8)}</td>
-                  <td className="px-5 py-4">{item.provider || "—"}</td>
-                  <td className="px-5 py-4">{item.amount == null ? "—" : `${new Intl.NumberFormat("fr-FR").format(Number(item.amount))} ${item.currency || ""}`}</td>
-                  <td className="px-5 py-4"><Badge variant="outline">{item.status || "—"}</Badge></td>
-                  <td className="px-5 py-4 text-xs text-muted-foreground">{formatDate(item.created_at)}</td>
-                </tr>)}</tbody>
-              </table>
-              {!items.length && <div className="py-14 text-center text-sm text-muted-foreground">Aucun paiement.</div>}
-            </div>
-          )}
-        </CardContent>
-      </Card>
-    </div>
-  )
+export default function AdminPayments(){
+ const [items,setItems]=useState([]),[loading,setLoading]=useState(true),[saving,setSaving]=useState(false),[selected,setSelected]=useState(null),[status,setStatus]=useState("paid"),[note,setNote]=useState("")
+ const load=useCallback(async()=>{setLoading(true);try{const {data,error}=await supabase.from("payments").select("id,user_id,subscription_id,plan_id,provider,provider_payment_id,reference,amount,currency,billing_cycle,status,checkout_url,paid_at,metadata,created_at,updated_at").order("created_at",{ascending:false});if(error)throw error;setItems(data||[])}catch(e){toast.error(e?.message||"Impossible de charger les paiements.")}finally{setLoading(false)}},[])
+ useEffect(()=>{load()},[load])
+ const submit=async()=>{if(!selected)return;setSaving(true);try{await validateAdminPayment(selected.id,status,note);toast.success("Statut du paiement mis à jour ✅");setSelected(null);setNote("");await load()}catch(e){toast.error(e?.message||"Impossible de valider le paiement.")}finally{setSaving(false)}}
+ return <div className="space-y-6"><div className="flex items-center justify-between gap-3"><div><h1 className="text-2xl font-black">Paiements</h1><p className="text-sm text-muted-foreground">Validation et suivi des transactions réelles.</p></div><Button variant="outline" onClick={load}><RefreshCw className="mr-2 h-4 w-4"/>Actualiser</Button></div><Card><CardHeader><CardTitle>Transactions</CardTitle><CardDescription>L'administrateur peut valider ou modifier le statut via Supabase sécurisé.</CardDescription></CardHeader><CardContent className="p-0">{loading?<div className="py-16 flex justify-center"><Loader2 className="h-7 w-7 animate-spin text-gold"/></div>:<div className="overflow-x-auto"><table className="w-full text-sm"><thead><tr className="border-y bg-muted/30 text-left"><th className="px-4 py-3">Référence</th><th className="px-4 py-3">Prestataire</th><th className="px-4 py-3">Montant</th><th className="px-4 py-3">Statut</th><th className="px-4 py-3">Action</th></tr></thead><tbody>{items.map(p=><tr key={p.id} className="border-b border-border/40"><td className="px-4 py-3"><p className="font-bold">{p.reference||"—"}</p><p className="text-xs text-muted-foreground">{p.provider||"—"}</p></td><td className="px-4 py-3">{p.provider||"—"}</td><td className="px-4 py-3 font-bold">{money(p.amount,p.currency)}</td><td className="px-4 py-3"><Badge variant="outline">{p.status||"—"}</Badge></td><td className="px-4 py-3"><Button size="sm" onClick={()=>{setSelected(p);setStatus(p.status==="pending"?"paid":p.status||"paid")}}><CheckCircle2 className="mr-1 h-4 w-4"/>Gérer</Button></td></tr>)}</tbody></table></div>}</CardContent></Card><Dialog open={Boolean(selected)} onOpenChange={(o)=>!o&&setSelected(null)}><DialogContent><DialogHeader><DialogTitle>Valider le paiement</DialogTitle><DialogDescription>{selected?.reference||selected?.id}</DialogDescription></DialogHeader><div className="space-y-4"><div className="space-y-2"><Label>Statut</Label><Select value={status} onValueChange={setStatus}><SelectTrigger><SelectValue/></SelectTrigger><SelectContent><SelectItem value="paid">Payé</SelectItem><SelectItem value="failed">Échoué</SelectItem><SelectItem value="cancelled">Annulé</SelectItem><SelectItem value="refunded">Remboursé</SelectItem></SelectContent></Select></div><div className="space-y-2"><Label>Note admin</Label><Textarea value={note} onChange={e=>setNote(e.target.value)} placeholder="Note optionnelle…"/></div></div><DialogFooter><Button variant="outline" onClick={()=>setSelected(null)}>Annuler</Button><Button onClick={submit} disabled={saving}>{saving?<Loader2 className="mr-2 h-4 w-4 animate-spin"/>:null}Confirmer</Button></DialogFooter></DialogContent></Dialog></div>
 }

@@ -1,37 +1,25 @@
 import { useQuery } from "@tanstack/react-query"
 import { supabase } from "@/lib/supabase"
-import {
-  buildPaginatedResult,
-  getPaginationRange,
-} from "@/lib/pagination"
+import { buildPaginatedResult, getPaginationRange } from "@/lib/pagination"
 
 export function useNotificationsQuery({
   userId = null,
   page = 1,
-  pageSize = 20,
+  pageSize = 10,
   unreadOnly = false,
   enabled = true,
 } = {}) {
   return useQuery({
-    queryKey: [
-      "notifications",
-      {
-        userId,
-        page,
-        pageSize,
-        unreadOnly,
-      },
-    ],
-
-    enabled:
-      enabled && Boolean(userId),
+    queryKey: ["notifications", { userId, page, pageSize, unreadOnly }],
+    enabled: Boolean(enabled && userId),
 
     queryFn: async () => {
-      const { from, to } =
-        getPaginationRange(
-          page,
-          pageSize
-        )
+      const {
+        page: safePage,
+        pageSize: safePageSize,
+        from,
+        to,
+      } = getPaginationRange(page, pageSize)
 
       let query = supabase
         .from("notifications")
@@ -40,32 +28,30 @@ export function useNotificationsQuery({
           { count: "exact" }
         )
         .eq("user_id", userId)
-        .order("created_at", {
-          ascending: false,
-        })
+        .order("created_at", { ascending: false })
         .range(from, to)
 
       if (unreadOnly) {
-        query = query.eq(
-          "is_read",
-          false
-        )
+        query = query.eq("is_read", false)
       }
 
-      const {
-        data,
-        error,
-        count,
-      } = await query
+      const { data, error, count } = await query
 
-      if (error) throw error
+      if (error) {
+        throw error
+      }
 
       return buildPaginatedResult(
-        data,
-        count,
-        page,
-        pageSize
+        data || [],
+        count || 0,
+        safePage,
+        safePageSize
       )
     },
+
+    placeholderData: (previousData) => previousData,
+    staleTime: 30_000,
   })
 }
+
+export default useNotificationsQuery
