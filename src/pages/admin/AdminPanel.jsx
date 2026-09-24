@@ -41,6 +41,19 @@ import AdminSubscriptions from "@/pages/admin/Subscriptions.jsx"
 import AdminPayments from "@/pages/admin/Payments.jsx"
 import AdminLogs from "@/pages/admin/Logs.jsx"
 import ManagerSettings from "@/pages/manager/Settings.jsx"
+import {
+  ResponsiveContainer,
+  BarChart,
+  Bar,
+  PieChart,
+  Pie,
+  Cell,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  Legend,
+} from "recharts"
 
 const VIEW_LABELS = {
   dashboard: "Tableau de bord",
@@ -169,104 +182,138 @@ export default function AdminPanel() {
     }
   }
 
-  const renderDashboard = () => (
-    <div className="space-y-6">
-      <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-5 gap-4">
-        <StatCard
-          label="Utilisateurs"
-          value={stats.users}
-          icon={Users}
-          helper="Tous les comptes"
-          onClick={() => goTo("users")}
-        />
-        <StatCard
-          label="Clients"
-          value={stats.clients}
-          icon={UserCheck}
-          helper="Comptes client"
-          onClick={() => goTo("clients")}
-        />
-        <StatCard
-          label="Managers"
-          value={stats.managers}
-          icon={UserCog}
-          helper="Comptes manager"
-          onClick={() => goTo("managers")}
-        />
-        <StatCard
-          label="Talents"
-          value={stats.talents}
-          icon={Sparkles}
-          helper="Profils talents"
-          onClick={() => goTo("talents")}
-        />
-        <StatCard
-          label="Projets"
-          value={stats.projects}
-          icon={FolderKanban}
-          helper="Projets enregistrés"
-          onClick={() => goTo("projects")}
-        />
-        <StatCard
-          label="Demandes"
-          value={stats.requests}
-          icon={BriefcaseBusiness}
-          helper="Invitations"
-          onClick={() => goTo("requests")}
-        />
-        <StatCard
-          label="Messages"
-          value={stats.messages}
-          icon={MessageSquare}
-          helper="Messages enregistrés"
-          onClick={() => goTo("messages")}
-        />
-        <StatCard
-          label="Abonnements"
-          value={stats.subscriptions}
-          icon={CreditCard}
-          helper="Souscriptions"
-          onClick={() => goTo("subscriptions")}
-        />
-        <StatCard
-          label="Paiements"
-          value={stats.payments}
-          icon={WalletCards}
-          helper="Transactions"
-          onClick={() => goTo("payments")}
-        />
-        <StatCard
-          label="Signalements"
-          value={stats.reports}
-          icon={AlertTriangle}
-          helper={
-            stats.reports === null
-              ? "Table reports indisponible"
-              : "Signalements"
-          }
-          onClick={() => goTo("moderation")}
-        />
-      </div>
+  const renderDashboard = () => {
+    const userDistribution = [
+      { name: "Clients", value: Number(stats.clients || 0) },
+      { name: "Managers", value: Number(stats.managers || 0) },
+      { name: "Admins", value: Number(stats.admins || 0) },
+    ]
 
-      <Card className="border-border/60">
-        <CardContent className="p-6">
-          <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-            <div>
-              <p className="font-black">Centre de contrôle KORA</p>
-              <p className="text-sm text-muted-foreground mt-1">
-                Toutes les données affichées proviennent des tables Supabase disponibles.
-              </p>
+    const projectStatus = [
+      { name: "Ouverts", value: Number(stats.openProjects || 0) },
+      { name: "Actifs", value: Number(stats.activeProjects || 0) },
+      { name: "Terminés", value: Number(stats.completedProjects || 0) },
+    ]
+
+    const requestStatus = [
+      { name: "En attente", value: Number(stats.pendingRequests || 0) },
+      { name: "Acceptées", value: Number(stats.acceptedRequests || 0) },
+      { name: "Refusées", value: Number(stats.rejectedRequests || 0) },
+    ]
+
+    const paymentStatus = [
+      { name: "En attente", value: Number(stats.pendingPayments || 0) },
+      { name: "Payés", value: Number(stats.paidPayments || 0) },
+      { name: "Échoués", value: Number(stats.failedPayments || 0) },
+    ]
+
+    const hasValues = (data) => data.some((item) => item.value > 0)
+
+    return (
+      <div className="space-y-6">
+        <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
+          <Card className="border-border/60">
+            <CardContent className="p-5 sm:p-6">
+              <div className="mb-5">
+                <p className="font-black">Répartition des utilisateurs</p>
+                <p className="text-sm text-muted-foreground mt-1">Clients, managers et administrateurs actuellement enregistrés.</p>
+              </div>
+              <div className="h-[280px]">
+                {hasValues(userDistribution) ? (
+                  <ResponsiveContainer width="100%" height="100%">
+                    <PieChart>
+                      <Pie data={userDistribution} dataKey="value" nameKey="name" cx="50%" cy="50%" outerRadius={92} innerRadius={55} paddingAngle={3}>
+                        {userDistribution.map((entry, index) => <Cell key={entry.name} fill={["hsl(var(--gold))", "hsl(var(--foreground))", "hsl(var(--muted-foreground))"][index]} />)}
+                      </Pie>
+                      <Tooltip />
+                      <Legend />
+                    </PieChart>
+                  </ResponsiveContainer>
+                ) : (
+                  <div className="h-full flex items-center justify-center text-sm text-muted-foreground">Aucune donnée utilisateur à afficher.</div>
+                )}
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card className="border-border/60">
+            <CardContent className="p-5 sm:p-6">
+              <div className="mb-5">
+                <p className="font-black">État des projets</p>
+                <p className="text-sm text-muted-foreground mt-1">Répartition des projets selon leur statut.</p>
+              </div>
+              <div className="h-[280px]">
+                <ResponsiveContainer width="100%" height="100%">
+                  <BarChart data={projectStatus} margin={{ top: 10, right: 10, left: -20, bottom: 5 }}>
+                    <CartesianGrid strokeDasharray="3 3" vertical={false} />
+                    <XAxis dataKey="name" />
+                    <YAxis allowDecimals={false} />
+                    <Tooltip />
+                    <Bar dataKey="value" name="Projets" fill="hsl(var(--gold))" radius={[8, 8, 0, 0]} />
+                  </BarChart>
+                </ResponsiveContainer>
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card className="border-border/60">
+            <CardContent className="p-5 sm:p-6">
+              <div className="mb-5">
+                <p className="font-black">État des demandes</p>
+                <p className="text-sm text-muted-foreground mt-1">Demandes reçues et leur état actuel.</p>
+              </div>
+              <div className="h-[280px]">
+                <ResponsiveContainer width="100%" height="100%">
+                  <BarChart data={requestStatus} margin={{ top: 10, right: 10, left: -20, bottom: 5 }}>
+                    <CartesianGrid strokeDasharray="3 3" vertical={false} />
+                    <XAxis dataKey="name" />
+                    <YAxis allowDecimals={false} />
+                    <Tooltip />
+                    <Bar dataKey="value" name="Demandes" fill="hsl(var(--gold))" radius={[8, 8, 0, 0]} />
+                  </BarChart>
+                </ResponsiveContainer>
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card className="border-border/60">
+            <CardContent className="p-5 sm:p-6">
+              <div className="mb-5">
+                <p className="font-black">État des paiements</p>
+                <p className="text-sm text-muted-foreground mt-1">Répartition des transactions selon leur statut.</p>
+              </div>
+              <div className="h-[280px]">
+                <ResponsiveContainer width="100%" height="100%">
+                  <BarChart data={paymentStatus} margin={{ top: 10, right: 10, left: -20, bottom: 5 }}>
+                    <CartesianGrid strokeDasharray="3 3" vertical={false} />
+                    <XAxis dataKey="name" />
+                    <YAxis allowDecimals={false} />
+                    <Tooltip />
+                    <Bar dataKey="value" name="Paiements" fill="hsl(var(--gold))" radius={[8, 8, 0, 0]} />
+                  </BarChart>
+                </ResponsiveContainer>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+
+        <Card className="border-border/60">
+          <CardContent className="p-6">
+            <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+              <div>
+                <p className="font-black">Centre de contrôle KORA</p>
+                <p className="text-sm text-muted-foreground mt-1">Toutes les données des graphiques proviennent des compteurs Supabase disponibles.</p>
+              </div>
+              <Badge variant="outline" className="w-fit gap-2">
+                <ShieldCheck className="h-3.5 w-3.5" />
+                Administration
+              </Badge>
             </div>
-
-            <Badge variant="outline" className="w-fit gap-2">
-              <ShieldCheck className="h-3.5 w-3.5" />
-              Administration
-            </Badge>
-          </div>
-        </CardContent>
-      </Card>
-    </div>
-  )
+          </CardContent>
+        </Card>
+      </div>
+    )
+  }
 
   const renderCurrentView = () => {
     switch (view) {

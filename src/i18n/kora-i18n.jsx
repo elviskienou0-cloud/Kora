@@ -380,16 +380,17 @@ function replaceVariables(value, variables = {}) {
 }
 
 function normalizeTheme(value) {
-  return value === "dark" || value === "light" || value === "auto" ? value : "auto"
+  return value === "dark" || value === "light" || value === "auto" ? value : "light"
 }
 
 function getInitialTheme() {
-  if (typeof window === "undefined") return "auto"
+  if (typeof window === "undefined") return "light"
   try {
     const saved = window.localStorage.getItem(THEME_STORAGE_KEY)
-    return normalizeTheme(saved)
+    const normalized = normalizeTheme(saved)
+    return normalized === "auto" ? "light" : normalized
   } catch {}
-  return "auto"
+  return "light"
 }
 
 function resolveTheme(theme) {

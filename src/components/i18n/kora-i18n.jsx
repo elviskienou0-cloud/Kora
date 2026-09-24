@@ -165,6 +165,35 @@ const fr = {
     noRequestsDescription: "Vous n'avez actuellement aucune demande.",
   },
 
+  requestForm: {
+    badge: "Demande de collaboration",
+    title: "Décrire votre projet",
+    forTalent: "Pour {talent}",
+    openButton: "Envoyer une demande",
+    projectTitle: "Titre du projet",
+    projectTitlePlaceholder: "Ex. Campagne publicitaire Coca-Cola",
+    projectType: "Type de projet",
+    selectType: "Sélectionnez un type…",
+    description: "Description",
+    descriptionPlaceholder: "Décrivez ce que vous souhaitez réaliser avec ce talent…",
+    dateStart: "Date / début de période",
+    dateEnd: "Fin de période",
+    budget: "Budget proposé (facultatif)",
+    location: "Lieu",
+    locationPlaceholder: "Ex. Ouagadougou, Burkina Faso",
+    additionalInfo: "Informations complémentaires",
+    additionalInfoPlaceholder: "Contraintes, livrables, horaires, références, etc.",
+    notice: "La demande contient directement le contexte du projet. Le manager pourra l'examiner, vous répondre, accepter ou refuser la collaboration.",
+    submit: "Envoyer la demande",
+    titleRequired: "Le titre du projet est obligatoire.",
+    descriptionRequired: "La description du projet est obligatoire.",
+    dateInvalid: "La fin de période ne peut pas être avant le début.",
+    sent: "Demande envoyée ✅",
+    sentDescription: "Le manager du talent a reçu les informations du projet.",
+    error: "Impossible d'envoyer la demande",
+    types: { advertising: "Publicité", event: "Événement", musicVideo: "Clip", shooting: "Shooting", socialCampaign: "Campagne réseaux sociaux", fashion: "Mode", filmTv: "Film / TV", other: "Autre" },
+  },
+
   messages: {
     title: "Messages", conversations: "Conversations", newConversation: "Nouvelle conversation", search: "Rechercher une conversation",
     placeholder: "Écrivez votre message...", send: "Envoyer", online: "En ligne", offline: "Hors connexion", realtime: "Temps réel",
@@ -298,6 +327,7 @@ const en = {
   favorites: { title: "My favorites", description: "Find the talents you saved.", empty: "You don't have any favorites yet.", discover: "Discover talents", remove: "Remove from favorites", add: "Add to favorites" },
   projects: { title: "My Projects", description: "Create and manage your projects.", create: "Create a project", new: "New project", edit: "Edit project", detail: "Project details", titleLabel: "Project title", descriptionLabel: "Description", budget: "Budget", budgetMin: "Minimum budget", budgetMax: "Maximum budget", currency: "Currency", dueDate: "Due date", status: "Status", draft: "Draft", open: "Open", pending: "Pending", active: "Active", completed: "Completed", cancelled: "Cancelled", save: "Save project", update: "Update project", delete: "Delete project", cancel: "Cancel project", noProjects: "No projects.", projectCreated: "Project created ✅", projectUpdated: "Project updated ✅", projectDeleted: "Project deleted ✅", confirmDelete: "Are you sure you want to delete this project?" },
   requests: { title: "My requests", description: "Track your requests and invitations.", request: "Request", requests: "Requests", pending: "Pending", accepted: "Accepted", rejected: "Rejected", cancelled: "Cancelled", sent: "Sent", received: "Received", project: "Project", talent: "Talent", manager: "Manager", client: "Client", budget: "Budget", details: "Request details", accept: "Accept", reject: "Reject", view: "View request", invitation: "Invitation", invitationSent: "Invitation sent", noRequests: "No requests.", noRequestsDescription: "You currently have no requests." },
+  requestForm: { badge: "Collaboration request", title: "Describe your project", forTalent: "For {talent}", openButton: "Send a request", projectTitle: "Project title", projectTitlePlaceholder: "E.g. Coca-Cola advertising campaign", projectType: "Project type", selectType: "Select a type…", description: "Description", descriptionPlaceholder: "Describe what you want to accomplish with this talent…", dateStart: "Date / period start", dateEnd: "Period end", budget: "Proposed budget (optional)", location: "Location", locationPlaceholder: "E.g. Ouagadougou, Burkina Faso", additionalInfo: "Additional information", additionalInfoPlaceholder: "Constraints, deliverables, schedules, references, etc.", notice: "The request contains the project context directly. The manager can review it, reply, accept or reject the collaboration.", submit: "Send request", titleRequired: "Project title is required.", descriptionRequired: "Project description is required.", dateInvalid: "The period end cannot be before the start.", sent: "Request sent ✅", sentDescription: "The talent manager received the project information.", error: "Unable to send the request", types: { advertising: "Advertising", event: "Event", musicVideo: "Music video", shooting: "Shooting", socialCampaign: "Social media campaign", fashion: "Fashion", filmTv: "Film / TV", other: "Other" } },
   messages: { title: "Messages", conversations: "Conversations", newConversation: "New conversation", search: "Search a conversation", placeholder: "Write your message...", send: "Send", online: "Online", offline: "Offline", realtime: "Real-time", noConversations: "No conversations.", noMessages: "No messages.", loading: "Loading messages…", opening: "Opening…", back: "Back", unread: "unread", unreadPlural: "unread" },
   notifications: { title: "Notifications", description: "View your alerts and updates.", markRead: "Mark as read", markAllRead: "Mark all as read", all: "All", unread: "Unread", read: "Read", noNotifications: "No notifications.", noUnread: "No unread notifications.", invitation: "New invitation", request: "Request update", message: "New message", payment: "Payment", subscription: "Subscription", security: "Security" },
   dashboard: { title: "Dashboard", welcome: "Welcome to KORA.", overview: "Overview", recentActivity: "Recent activity", statistics: "Statistics", totalProjects: "Total projects", activeProjects: "Active projects", completedProjects: "Completed projects", pendingRequests: "Pending requests", talents: "Talents", messages: "Messages", notifications: "Notifications", unreadMessages: "Unread messages", noActivity: "No recent activity." },
@@ -350,16 +380,17 @@ function replaceVariables(value, variables = {}) {
 }
 
 function normalizeTheme(value) {
-  return value === "dark" || value === "light" || value === "auto" ? value : "auto"
+  return value === "dark" || value === "light" || value === "auto" ? value : "light"
 }
 
 function getInitialTheme() {
-  if (typeof window === "undefined") return "auto"
+  if (typeof window === "undefined") return "light"
   try {
     const saved = window.localStorage.getItem(THEME_STORAGE_KEY)
-    return normalizeTheme(saved)
+    const normalized = normalizeTheme(saved)
+    return normalized === "auto" ? "light" : normalized
   } catch {}
-  return "auto"
+  return "light"
 }
 
 function resolveTheme(theme) {

@@ -16,6 +16,7 @@ import { useAuth } from "@/lib/AuthContext"
 import { supabase } from "@/lib/supabase"
 import { queryClient } from "@/lib/queryClient"
 import { useNotificationsQuery } from "@/hooks/queries/useNotificationsQuery"
+import { playNotificationSound } from "@/lib/notificationSound"
 
 const PAGE_SIZE = 10
 
@@ -64,7 +65,11 @@ export default function ManagerNotifications() {
           table: "notifications",
           filter: `user_id=eq.${userId}`,
         },
-        () => {
+        (payload) => {
+          if (payload?.eventType === "INSERT" && payload?.new?.user_id === userId) {
+            playNotificationSound()
+          }
+
           queryClient.invalidateQueries({ queryKey: ["notifications"] })
         }
       )

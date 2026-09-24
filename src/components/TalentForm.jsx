@@ -9,7 +9,6 @@ import {
   User,
   Briefcase,
   MapPin,
-  DollarSign,
   FileText,
   Loader2,
   Sparkles,
@@ -19,6 +18,8 @@ import {
   CalendarDays,
   Link2,
   Video,
+  Camera,
+  Image as ImageIcon,
 } from "lucide-react"
 import { cn } from "@/lib/utils.js"
 import { supabase } from "@/lib/supabase"
@@ -26,15 +27,8 @@ import FileUpload from "@/components/FileUpload.jsx"
 
 const talentSchema = z.object({
   displayName: z.string().min(2, "Le nom doit contenir au moins 2 caractères").max(100),
-  title: z.string().min(5, "Le titre doit contenir au moins 5 caractères").max(120),
   category: z.string().min(1, "Veuillez sélectionner une catégorie"),
   location: z.string().min(2, "Veuillez indiquer la localisation").max(160),
-  hourlyRate: z.coerce
-    .number({ invalid_type_error: "Tarif invalide" })
-    .int("Le tarif doit être un entier")
-    .positive("Le tarif doit être positif")
-    .min(1000, "Tarif minimum : 1 000 XOF")
-    .max(1000000, "Tarif maximum : 1 000 000 XOF"),
   bio: z.string().min(30, "La description doit contenir au moins 30 caractères").max(1500),
   skills: z.array(z.string()).min(1, "Ajoutez au moins une compétence").max(15),
   available: z.boolean(),
@@ -70,6 +64,12 @@ export default function TalentForm({
   const [categories, setCategories] = useState([])
   const [categoryLoading, setCategoryLoading] = useState(true)
   const [portfolioFiles, setPortfolioFiles] = useState([])
+  const [avatarFile, setAvatarFile] = useState(null)
+  const [coverFile, setCoverFile] = useState(null)
+  const [avatarPreview, setAvatarPreview] = useState(initialValues?.avatar_url || "")
+  const [coverPreview, setCoverPreview] = useState(initialValues?.cover_url || "")
+  const [customCategory, setCustomCategory] = useState("")
+  const [addingCategory, setAddingCategory] = useState(false)
   const [portfolioLinks, setPortfolioLinks] = useState([
     { id: createLocalId(), title: "", url: "" },
   ])
@@ -88,7 +88,6 @@ export default function TalentForm({
       title: initialValues?.title || "",
       category: initialValues?.category || "",
       location: initialValues?.location || "",
-      hourlyRate: initialValues?.hourlyRate ?? "",
       bio: initialValues?.bio || "",
       skills: initialValues?.skills || [],
       available: initialValues?.available ?? true,
@@ -105,13 +104,16 @@ export default function TalentForm({
       title: initialValues?.title || "",
       category: initialValues?.category || "",
       location: initialValues?.location || "",
-      hourlyRate: initialValues?.hourlyRate ?? "",
       bio: initialValues?.bio || "",
       skills: initialValues?.skills || [],
       available: initialValues?.available ?? true,
     })
 
     setPortfolioFiles([])
+    setAvatarFile(null)
+    setCoverFile(null)
+    setAvatarPreview(initialValues?.avatar_url || "")
+    setCoverPreview(initialValues?.cover_url || "")
     setPortfolioLinks(
       initialValues?.portfolioLinks?.length
         ? initialValues.portfolioLinks.map((item) => ({
@@ -150,6 +152,33 @@ export default function TalentForm({
       active = false
     }
   }, [])
+
+  const addCustomCategory = async () => {
+    const name = customCategory.trim()
+    if (!name) return
+    const slug = name.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "")
+    if (!slug) return toast.error("Nom de métier invalide.")
+    setAddingCategory(true)
+    try {
+      const existing = categories.find((item) => String(item.name || "").trim().toLowerCase() === name.toLowerCase())
+      if (existing) { setValue("category", existing.id, { shouldValidate: true }); setCustomCategory(""); return }
+      const { data, error } = await supabase.from("categories").insert({ name, slug }).select("id, slug, name").single()
+      if (error) throw error
+      setCategories((current) => [...current, data].sort((a, b) => String(a.name).localeCompare(String(b.name), "fr")))
+      setValue("category", data.id, { shouldValidate: true })
+      setCustomCategory("")
+      toast.success(`Métier « ${name} » ajouté.`)
+    } catch (error) {
+      toast.error(error?.message || "Impossible d'ajouter ce métier.")
+    } finally { setAddingCategory(false) }
+  }
+
+  const handleProfileImage = (setter, previewSetter, file) => {
+    if (!file) return
+    if (!file.type.startsWith("image/")) return toast.error("Veuillez sélectionner une image.")
+    setter(file)
+    previewSetter(URL.createObjectURL(file))
+  }
 
   const toggleSkill = (skill) => {
     const current = new Set(selectedSkills)
@@ -192,10 +221,19 @@ export default function TalentForm({
       }
     }
 
+    const selectedCategory = categories.find((category) => String(category.id) === String(data.category))
+
     onSubmit?.({
       ...data,
+      // Le métier et la catégorie sont désormais un seul champ dans l'interface.
+      // On conserve `title` pour rester compatible avec la structure actuelle de la base.
+      title: getCategoryLabel(selectedCategory),
       portfolioFiles,
       portfolioLinks: normalizedLinks,
+      avatarFile,
+      coverFile,
+      avatar_url: avatarPreview,
+      cover_url: coverPreview,
     })
   }
 
@@ -237,32 +275,42 @@ export default function TalentForm({
           <input type="text" placeholder="Ex: Marie Koné" className={inputClass(!!errors.displayName)} {...register("displayName")} disabled={disabled || isSubmitting} />
         </FieldWrap>
 
-        <FieldWrap label="Titre professionnel" icon={Briefcase} error={errors.title?.message} required>
-          <input type="text" placeholder="Ex: Designer UI/UX" className={inputClass(!!errors.title)} {...register("title")} disabled={disabled || isSubmitting} />
-        </FieldWrap>
-      </div>
-
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-        <FieldWrap label="Catégorie" error={errors.category?.message} required>
-          <select className={cn(inputClass(!!errors.category), "appearance-none pr-10")} {...register("category")} disabled={disabled || isSubmitting || categoryLoading}>
-            <option value="">{categoryLoading ? "Chargement…" : "Sélectionnez une catégorie…"}</option>
+        <FieldWrap label="Métier" icon={Briefcase} error={errors.category?.message} required>
+          <select className={cn(inputClass(!!errors.category), "appearance-none pr-10")} {...register("category")} disabled={disabled || isSubmitting || categoryLoading || addingCategory}>
+            <option value="">{categoryLoading ? "Chargement…" : "Sélectionnez un métier…"}</option>
             {categories.map((category) => (
               <option key={category.id} value={category.id}>{getCategoryLabel(category)}</option>
             ))}
           </select>
+          <div className="mt-2 flex gap-2">
+            <input value={customCategory} onChange={(e) => setCustomCategory(e.target.value)} onKeyDown={(e) => { if (e.key === "Enter") { e.preventDefault(); addCustomCategory() } }} placeholder="Ou ajouter un métier personnalisé" className={inputClass(false)} disabled={disabled || isSubmitting || addingCategory} />
+            <button type="button" onClick={addCustomCategory} disabled={disabled || isSubmitting || addingCategory || !customCategory.trim()} className="rounded-xl border border-border px-3 text-sm font-medium hover:border-gold/40">{addingCategory ? "…" : "+ Ajouter"}</button>
+          </div>
         </FieldWrap>
+      </div>
 
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+        <FieldWrap label="Photo de profil" icon={Camera} hint="Photo principale du talent">
+          <div className="flex items-center gap-4 rounded-xl border border-border bg-card p-3">
+            <div className="h-20 w-20 overflow-hidden rounded-full bg-muted/40">
+              {avatarPreview ? <img src={avatarPreview} alt="Aperçu" className="h-full w-full object-cover" /> : null}
+            </div>
+            <input type="file" accept="image/*" className="block w-full text-sm" disabled={disabled || isSubmitting} onChange={(e) => handleProfileImage(setAvatarFile, setAvatarPreview, e.target.files?.[0])} />
+          </div>
+        </FieldWrap>
+        <FieldWrap label="Photo de couverture" icon={ImageIcon} hint="Image affichée en haut du profil">
+          <div className="overflow-hidden rounded-xl border border-border bg-card">
+            <div className="h-24 bg-muted/40">{coverPreview ? <img src={coverPreview} alt="Aperçu" className="h-full w-full object-cover" /> : null}</div>
+            <div className="p-3"><input type="file" accept="image/*" className="block w-full text-sm" disabled={disabled || isSubmitting} onChange={(e) => handleProfileImage(setCoverFile, setCoverPreview, e.target.files?.[0])} /></div>
+          </div>
+        </FieldWrap>
+      </div>
+
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
         <FieldWrap label="Localisation" icon={MapPin} error={errors.location?.message} required>
           <input type="text" placeholder="Ex: Ouagadougou, Burkina Faso" className={inputClass(!!errors.location)} {...register("location")} disabled={disabled || isSubmitting} />
         </FieldWrap>
       </div>
-
-      <FieldWrap label="Tarif journalier (XOF)" icon={DollarSign} error={errors.hourlyRate?.message} required>
-        <div className="relative">
-          <input type="number" min={1000} step={500} placeholder="5000" className={cn(inputClass(!!errors.hourlyRate), "pr-16")} {...register("hourlyRate")} disabled={disabled || isSubmitting} />
-          <span className="absolute right-4 top-1/2 -translate-y-1/2 text-sm font-semibold text-muted-foreground">XOF</span>
-        </div>
-      </FieldWrap>
 
       <FieldWrap label="Vos compétences" error={errors.skills?.message} hint="Sélectionnez les compétences clés du talent (max 15)" required>
         <div className="flex flex-wrap gap-2 mb-3 p-4 rounded-xl border border-border bg-card/50 min-h-[52px]">

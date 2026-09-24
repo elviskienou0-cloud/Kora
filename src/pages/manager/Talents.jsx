@@ -22,7 +22,6 @@ import {
   User,
   Briefcase,
   MapPin,
-  DollarSign,
   FileText,
   CalendarDays,
   Link2,
@@ -180,7 +179,6 @@ function TalentEditor({
     title: initialValues?.title || "",
     category: initialValues?.category || "",
     location: initialValues?.location || "",
-    hourlyRate: initialValues?.hourlyRate ?? "",
     bio: initialValues?.bio || "",
     skills: initialValues?.skills || [],
     available: initialValues?.available !== false,
@@ -211,8 +209,20 @@ function TalentEditor({
 
       if (error) {
         console.error("Erreur catégories :", error)
-        toast.error(error.message || "Impossible de charger les catégories")
-        setCategories([])
+        // En édition, on garde au minimum la catégorie déjà associée au talent.
+        // Cela permet de modifier les autres champs même si la lecture globale
+        // des catégories est refusée par les règles RLS.
+        if (mode === "edit" && initialValues?.category) {
+          setCategories([
+            {
+              id: initialValues.category,
+              name: initialValues.categoryName || "Catégorie actuelle",
+              slug: initialValues.categoryName || "categorie-actuelle",
+            },
+          ])
+        } else {
+          setCategories([])
+        }
       } else {
         setCategories(data || [])
       }
@@ -290,11 +300,6 @@ function TalentEditor({
       next.location = "Veuillez indiquer la localisation."
     }
 
-    const rate = Number(form.hourlyRate)
-    if (!Number.isFinite(rate) || rate < 1000) {
-      next.hourlyRate = "Le tarif doit être supérieur ou égal à 1 000 XOF."
-    }
-
     if (!form.bio.trim() || form.bio.trim().length < 30) {
       next.bio = "La description doit contenir au moins 30 caractères."
     }
@@ -339,7 +344,6 @@ function TalentEditor({
       title: form.title.trim(),
       location: form.location.trim(),
       bio: form.bio.trim(),
-      hourlyRate: result.rate,
       portfolioFiles,
       portfolioLinks: result.normalizedLinks,
     })
@@ -437,23 +441,6 @@ function TalentEditor({
               />
             </Field>
           </div>
-
-          <Field
-            label="Tarif journalier (XOF)"
-            icon={DollarSign}
-            required
-            error={errors.hourlyRate}
-          >
-            <Input
-              type="number"
-              min="1000"
-              step="500"
-              value={form.hourlyRate}
-              onChange={(e) => updateField("hourlyRate", e.target.value)}
-              placeholder="25000"
-              disabled={saving}
-            />
-          </Field>
 
           <Field label="Compétences" required error={errors.skills}>
             <div className="flex flex-wrap gap-2 rounded-xl border border-border bg-card/50 p-4">
@@ -676,7 +663,6 @@ export default function ManagerTalents() {
           bio,
           status,
           is_visible,
-          daily_rate,
           currency,
           rating,
           reviews_count,
@@ -736,10 +722,10 @@ export default function ManagerTalents() {
     displayName: `${talent.first_name || ""} ${talent.last_name || ""}`.trim(),
     title: talent.title || "",
     category: talent.category_id || talent.categories?.id || "",
+    categoryName: talent.categories?.name || talent.categories?.slug || "Catégorie actuelle",
     location: [talent.city, talent.countries?.name]
       .filter(Boolean)
       .join(", "),
-    hourlyRate: Number(talent.daily_rate || 0),
     bio: talent.bio || "",
     skills: talent.skills || [],
     available: talent.available !== false,
@@ -754,7 +740,6 @@ export default function ManagerTalents() {
         title: "",
         category: "",
         location: "",
-        hourlyRate: "",
         bio: "",
         skills: [],
         available: true,
@@ -781,8 +766,7 @@ export default function ManagerTalents() {
             category_id,
             country_id,
             city,
-            daily_rate,
-            available,
+              available,
             managed_by,
             categories ( id, slug, name ),
             countries ( id, code, name )
@@ -842,17 +826,30 @@ export default function ManagerTalents() {
 
       const country = await resolveCountry(countryName)
 
-      const { data: categoryRows, error: categoryError } = await supabase
-        .from("categories")
-        .select("id, slug, name")
+      let category = null
 
-      if (categoryError) throw categoryError
+      // En édition, on peut conserver la catégorie actuelle sans dépendre
+      // d'une lecture globale de categories (qui peut être bloquée par RLS).
+      const currentCategoryId = editingTalent?.initialValues?.category
+      if (
+        editingTalent?.mode === "edit" &&
+        currentCategoryId &&
+        String(formData.category) === String(currentCategoryId)
+      ) {
+        category = { id: currentCategoryId }
+      } else {
+        const { data: categoryRows, error: categoryError } = await supabase
+          .from("categories")
+          .select("id, slug, name")
 
-      const category = (categoryRows || []).find(
-        (item) => String(item.id) === String(formData.category)
-      )
+        if (categoryError) throw categoryError
 
-      if (!category) throw new Error("Catégorie introuvable.")
+        category = (categoryRows || []).find(
+          (item) => String(item.id) === String(formData.category)
+        )
+
+        if (!category) throw new Error("Catégorie introuvable.")
+      }
 
       const nameParts = String(formData.displayName || "")
         .trim()
@@ -861,8 +858,6 @@ export default function ManagerTalents() {
 
       const firstName = nameParts.shift() || "Talent"
       const lastName = nameParts.join(" ")
-      const dailyRate = Number(formData.hourlyRate)
-
       if (!Number.isFinite(dailyRate) || dailyRate < 1000) {
         throw new Error("Le tarif journalier est invalide.")
       }
@@ -880,7 +875,6 @@ export default function ManagerTalents() {
             category_id: category.id,
             country_id: country.id,
             city,
-            daily_rate: dailyRate,
             available: !!formData.available,
           })
           .eq("id", editingTalent.id)
@@ -899,7 +893,6 @@ export default function ManagerTalents() {
             category_id: category.id,
             country_id: country.id,
             city,
-            daily_rate: dailyRate,
             currency: "XOF",
             available: !!formData.available,
             verified: false,
@@ -916,22 +909,31 @@ export default function ManagerTalents() {
         talentId = data.id
       }
 
-      const { error: oldSkillsError } = await supabase
-        .from("talent_profile_skills")
-        .delete()
-        .eq("talent_id", talentId)
+      const previousSkills = editingTalent?.initialValues?.skills || []
+      const nextSkills = formData.skills || []
+      const skillsChanged =
+        editingTalent?.mode !== "edit" ||
+        JSON.stringify([...previousSkills].sort()) !==
+          JSON.stringify([...nextSkills].sort())
 
-      if (oldSkillsError) throw oldSkillsError
-
-      for (const skillName of formData.skills || []) {
-        const skill = await resolveSkill(skillName)
-        if (!skill?.id) continue
-
-        const { error: relationError } = await supabase
+      if (skillsChanged) {
+        const { error: oldSkillsError } = await supabase
           .from("talent_profile_skills")
-          .insert({ talent_id: talentId, skill_id: skill.id })
+          .delete()
+          .eq("talent_id", talentId)
 
-        if (relationError) throw relationError
+        if (oldSkillsError) throw oldSkillsError
+
+        for (const skillName of nextSkills) {
+          const skill = await resolveSkill(skillName)
+          if (!skill?.id) continue
+
+          const { error: relationError } = await supabase
+            .from("talent_profile_skills")
+            .insert({ talent_id: talentId, skill_id: skill.id })
+
+          if (relationError) throw relationError
+        }
       }
 
       if (editingTalent?.mode === "edit") {

@@ -55,6 +55,10 @@ import ClientFavorites from "@/pages/client/Favorites.jsx"
 import ClientRequests from "@/pages/client/Requests.jsx"
 import ClientNotifications from "@/pages/client/Notifications.jsx"
 import ClientSettings from "@/pages/client/ClientSettings.jsx"
+import ClientProjects from "@/pages/client/Projects.jsx"
+import ClientProjectForm from "@/pages/client/ProjectForm.jsx"
+import ClientProjectDetail from "@/pages/client/ProjectDetail.jsx"
+import ClientReviewProject from "@/pages/client/ReviewProject.jsx"
 
 // =========================
 // MANAGER
@@ -258,6 +262,51 @@ export default function App() {
               element={
                 <RoleGuard allowedRoles={["client"]}>
                   <ClientSettings initialTab="preferences" />
+                </RoleGuard>
+              }
+            />
+
+            <Route
+              path="/client/projects"
+              element={
+                <RoleGuard allowedRoles={["client"]}>
+                  <ClientProjects />
+                </RoleGuard>
+              }
+            />
+
+            <Route
+              path="/client/projects/new"
+              element={
+                <RoleGuard allowedRoles={["client"]}>
+                  <ClientProjectForm />
+                </RoleGuard>
+              }
+            />
+
+            <Route
+              path="/client/projects/:id/edit"
+              element={
+                <RoleGuard allowedRoles={["client"]}>
+                  <ClientProjectForm />
+                </RoleGuard>
+              }
+            />
+
+            <Route
+              path="/client/projects/:id/review"
+              element={
+                <RoleGuard allowedRoles={["client"]}>
+                  <ClientReviewProject />
+                </RoleGuard>
+              }
+            />
+
+            <Route
+              path="/client/projects/:id"
+              element={
+                <RoleGuard allowedRoles={["client"]}>
+                  <ClientProjectDetail />
                 </RoleGuard>
               }
             />

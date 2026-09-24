@@ -21,6 +21,7 @@ CardHeader,
 CardTitle,
 } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
+import WeeklyChart from "@/components/WeeklyChart"
 
 function getTalentName(talent) {
 if (!talent) return "Talent sans nom"
@@ -210,6 +211,32 @@ isActiveRequest(request.status)
 ).length
 }, [requests])
 
+const weeklyRequests = useMemo(() => {
+  const now = new Date()
+  const days = Array.from({ length: 7 }, (_, index) => {
+    const date = new Date(now)
+    date.setHours(0, 0, 0, 0)
+    date.setDate(now.getDate() - (6 - index))
+    return date
+  })
+
+  return days.map((date) => {
+    const nextDay = new Date(date)
+    nextDay.setDate(date.getDate() + 1)
+
+    const value = requests.filter((request) => {
+      if (!request.created_at) return false
+      const createdAt = new Date(request.created_at)
+      return createdAt >= date && createdAt < nextDay
+    }).length
+
+    return {
+      name: date.toLocaleDateString("fr-FR", { weekday: "short" }).replace(".", ""),
+      value,
+    }
+  })
+}, [requests])
+
 if (authLoading || loading) {
 return ( <div className="flex min-h-[60vh] items-center justify-center"> <div className="flex items-center gap-3 text-muted-foreground"> <RefreshCw className="h-5 w-5 animate-spin" /> <span>Chargement du tableau de bord...</span> </div> </div>
 )
@@ -301,6 +328,34 @@ Tableau de bord </h1>
         <div className="rounded-full bg-primary/10 p-3">
           <ClipboardList className="h-6 w-6 text-primary" />
         </div>
+      </CardContent>
+    </Card>
+  </div>
+
+  <div className="grid gap-6 lg:grid-cols-3">
+    <div className="lg:col-span-2">
+      <WeeklyChart
+        data={weeklyRequests}
+        title="Activité des demandes"
+        subtitle="Demandes reçues au cours des 7 derniers jours"
+      />
+    </div>
+
+    <Card>
+      <CardHeader>
+        <CardTitle>Gestion rapide</CardTitle>
+        <p className="text-sm text-muted-foreground">
+          Accédez rapidement à vos talents.
+        </p>
+      </CardHeader>
+      <CardContent>
+        <Button
+          className="w-full"
+          onClick={() => navigate("/manager/talents")}
+        >
+          Modifier mes talents
+          <ArrowRight className="ml-2 h-4 w-4" />
+        </Button>
       </CardContent>
     </Card>
   </div>

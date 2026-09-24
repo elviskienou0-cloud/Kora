@@ -10,7 +10,6 @@ import {
   Globe,
   Users,
   Star,
-  Quote,
   TrendingUp,
   Briefcase,
   Award,
@@ -24,9 +23,9 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Avatar, AvatarFallback } from "@/components/ui/avatar"
-import { Separator } from "@/components/ui/separator"
 import LandingHeader from "@/components/landing/LandingHeader"
 import LandingFooter from "@/components/landing/LandingFooter"
+import ReviewSection from "@/components/ReviewSection.jsx"
 import { APP_PARAMS } from "@/lib/app-params"
 import { getCategoryIcon } from "@/lib/categoryIcons"
 import { cn, formatCurrency } from "@/lib/utils"
@@ -68,7 +67,6 @@ export default function Landing() {
   }))
 
   const [publicPlans, setPublicPlans] = useState([])
-  const [publicReviews, setPublicReviews] = useState([])
   const [featuredTalents, setFeaturedTalents] = useState([])
   const [landingDataLoading, setLandingDataLoading] = useState(true)
 
@@ -79,19 +77,12 @@ export default function Landing() {
       setLandingDataLoading(true)
 
       try {
-        const [plansResult, reviewsResult, talentsResult] = await Promise.all([
+        const [plansResult, talentsResult] = await Promise.all([
           supabase
             .from("plans")
             .select("id, name, price, currency, duration_months, talent_limit, features, trial_days, annual_discount_pct, is_active")
             .eq("is_active", true)
             .order("price", { ascending: true }),
-
-          supabase
-            .from("reviews")
-            .select("id, author_name, role, country, avatar_url, rating, comment, created_at")
-            .eq("is_visible", true)
-            .order("created_at", { ascending: false })
-            .limit(6),
 
           supabase
             .from("talent_profiles")
@@ -109,13 +100,6 @@ export default function Landing() {
           setPublicPlans([])
         } else {
           setPublicPlans(plansResult.data || [])
-        }
-
-        if (reviewsResult.error) {
-          console.error("Erreur chargement avis publics :", reviewsResult.error)
-          setPublicReviews([])
-        } else {
-          setPublicReviews((reviewsResult.data || []).filter((review) => Number(review.rating) >= 3))
         }
 
         if (talentsResult.error) {
@@ -540,96 +524,11 @@ export default function Landing() {
             <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] rounded-full bg-gradient-to-br from-gold/8 via-amber-300/5 to-transparent blur-3xl" />
           </div>
 
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative">
-            <motion.div
-              initial="hidden"
-              whileInView="visible"
-              viewport={{ once: true, margin: "-100px" }}
-              variants={staggerContainer}
-              className="text-center max-w-3xl mx-auto mb-16"
-            >
-              <motion.div variants={fadeInUp} custom={0}>
-                <Badge variant="gold" className="mb-5 px-4 py-1.5 text-xs font-bold uppercase tracking-wider">
-                  Ils nous font confiance
-                </Badge>
-              </motion.div>
-              <motion.h2
-                variants={fadeInUp}
-                custom={1}
-                className="text-4xl sm:text-5xl font-black tracking-tight mb-5"
-              >
-                L'avis de notre <span className="gold-text-gradient">communauté</span>
-              </motion.h2>
-              <motion.p
-                variants={fadeInUp}
-                custom={2}
-                className="text-lg text-muted-foreground"
-              >
-                Des clients et talents de toute l'Afrique nous font confiance
-              </motion.p>
-            </motion.div>
-
-            <motion.div
-              initial="hidden"
-              whileInView="visible"
-              viewport={{ once: true, margin: "-100px" }}
-              variants={staggerContainer}
-              className="grid grid-cols-1 md:grid-cols-2 gap-6"
-            >
-              {publicReviews.length === 0 ? (
-                <div className="md:col-span-2 text-center py-10 text-sm text-muted-foreground">
-                  Aucun avis public pour le moment.
-                </div>
-              ) : (
-                publicReviews.map((review, i) => {
-                  const authorName = review.author_name || "Membre KORA"
-                  const initials = authorName
-                    .trim()
-                    .split(/\s+/)
-                    .filter(Boolean)
-                    .slice(0, 2)
-                    .map((part) => part[0])
-                    .join("")
-                    .toUpperCase() || "MK"
-
-                  return (
-                    <motion.div
-                      key={review.id}
-                      variants={fadeInUp}
-                      custom={i}
-                      whileHover={{ y: -4 }}
-                      transition={{ type: "spring", stiffness: 300 }}
-                    >
-                      <Card className="h-full relative overflow-hidden">
-                        <div className="absolute top-5 right-5 opacity-10">
-                          <Quote className="h-16 w-16 text-gold-dark" />
-                        </div>
-                        <CardContent className="p-7 relative z-10">
-                          <div className="flex gap-0.5 mb-5">
-                            {Array.from({ length: Math.min(5, Math.max(0, Number(review.rating) || 0)) }).map((_, j) => (
-                              <Star key={j} className="h-5 w-5 text-amber-500 fill-amber-500" />
-                            ))}
-                          </div>
-                          <p className="text-foreground leading-relaxed mb-6 text-base font-medium">
-                            &quot;{review.comment}&quot;
-                          </p>
-                          <Separator className="mb-5" />
-                          <div className="flex items-center gap-4">
-                            <Avatar className="h-12 w-12 ring-2 ring-gold/30">
-                              <AvatarFallback>{initials}</AvatarFallback>
-                            </Avatar>
-                            <div>
-                              <p className="font-bold">{authorName}</p>
-                              <p className="text-sm text-muted-foreground">{review.role || "Membre KORA"}{review.country ? ` • ${review.country}` : ""}</p>
-                            </div>
-                          </div>
-                        </CardContent>
-                      </Card>
-                    </motion.div>
-                  )
-                })
-              )}
-            </motion.div>
+          <div className="relative px-4 sm:px-6 lg:px-8">
+            <ReviewSection
+              title="L'avis de notre communauté"
+              showForm
+            />
           </div>
         </section>
 
