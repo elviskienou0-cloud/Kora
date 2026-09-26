@@ -86,7 +86,7 @@ export default function TalentDetail() {
     const title = `${fullName} — Talent KORA`
     const description = (talent.bio || `${talent.title || "Professionnel"} disponible sur KORA.`).replace(/\s+/g, " ").trim().slice(0, 160)
     const url = `${window.location.origin}/talent/${talent.id}`
-    const image = `${window.location.origin}/favicon.svg`
+    const image = talent.avatar_url || `${window.location.origin}/favicon.svg`
 
     document.title = title
 
@@ -160,6 +160,8 @@ export default function TalentDetail() {
             completed_projects,
             verified,
             available,
+            avatar_url,
+            cover_url,
             status,
             is_visible,
             managed_by,
@@ -368,10 +370,24 @@ export default function TalentDetail() {
         <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           <div className="lg:col-span-2 space-y-6">
             <Card className="overflow-hidden border-border/60">
-              <div className="h-36 bg-gradient-to-br from-gold/30 via-amber-400/20 to-violet-400/20" />
+              <div className="relative h-36 overflow-hidden bg-gradient-to-br from-gold/30 via-amber-400/20 to-violet-400/20">
+                {talent.cover_url ? (
+                  <img
+                    src={talent.cover_url}
+                    alt={`Couverture de ${talentName}`}
+                    className="absolute inset-0 h-full w-full object-cover"
+                  />
+                ) : null}
+                <div className="absolute inset-0 bg-gradient-to-t from-black/25 via-transparent to-transparent" />
+              </div>
               <CardContent className="p-6 pt-0 -mt-12 relative">
                 <div className="flex flex-col sm:flex-row sm:items-end gap-4 sm:gap-6">
-                  <Avatar className="h-24 w-24 border-4 border-background shadow-lg shrink-0"><AvatarFallback className="gold-gradient text-white text-2xl font-black">{initials}</AvatarFallback></Avatar>
+                  <Avatar className="h-24 w-24 border-4 border-background shadow-lg shrink-0">
+                    {talent.avatar_url ? (
+                      <img src={talent.avatar_url} alt={talentName} className="h-full w-full object-cover" />
+                    ) : null}
+                    <AvatarFallback className="gold-gradient text-white text-2xl font-black">{initials}</AvatarFallback>
+                  </Avatar>
                   <div className="flex-1 min-w-0">
                     <div className="flex flex-wrap items-center gap-2 mb-1">
                       <h2 className="text-2xl font-black tracking-tight">{talentName}</h2>
