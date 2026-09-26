@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react"
 import { toast } from "sonner"
-import { Bell, Globe, Key, Loader2, Lock, Palette, Save, Shield, Trash2, User } from "lucide-react"
+import { Bell, Globe, Key, Loader2, Lock, Palette, Save, Shield, Trash2, User, Camera, Image as ImageIcon } from "lucide-react"
 
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
@@ -13,6 +13,7 @@ import { Textarea } from "@/components/ui/textarea"
 import { useAuth } from "@/lib/AuthContext"
 import { supabase } from "@/lib/supabase"
 import { useI18n } from "@/i18n/kora-i18n.jsx"
+import { uploadProfileImage } from "@/lib/profileMedia"
 
 const DEFAULT_PREFERENCES = {
   language: "fr",
@@ -49,7 +50,8 @@ export default function ManagerSettings() {
   const [savingPrefs, setSavingPrefs] = useState(false)
   const [savingPassword, setSavingPassword] = useState(false)
   const [deleting, setDeleting] = useState(false)
-  const [profile, setProfile] = useState({ name: "", email: "", phone: "", city: "", company: "", bio: "", avatar: "" })
+  const [profile, setProfile] = useState({ name: "", email: "", phone: "", city: "", company: "", bio: "", avatar: "", cover_url: "" })
+  const [uploadingImage, setUploadingImage] = useState(null)
   const [preferences, setPreferences] = useState(DEFAULT_PREFERENCES)
   const [passwords, setPasswords] = useState({ old: "", next: "", confirm: "" })
 
@@ -61,7 +63,7 @@ export default function ManagerSettings() {
       try {
         const { data, error } = await supabase
           .from("profiles")
-          .select("id, name, role, avatar, phone, city, company, bio, preferences")
+          .select("id, name, role, avatar, cover_url, phone, city, company, bio, preferences")
           .eq("id", userId)
           .maybeSingle()
         if (error) throw error
@@ -75,6 +77,7 @@ export default function ManagerSettings() {
           company: data?.company || "",
           bio: data?.bio || "",
           avatar: data?.avatar || "",
+          cover_url: data?.cover_url || "",
         })
         setPreferences(p)
         setLanguage(p.language)
@@ -93,6 +96,17 @@ export default function ManagerSettings() {
     setPreferences((p) => ({ ...p, language, theme }))
   }, [language, theme])
 
+  const uploadImage = async (file, kind) => {
+    if (!userId || !file) return
+    setUploadingImage(kind)
+    try {
+      const url = await uploadProfileImage(userId, file, kind)
+      setProfile((p) => ({ ...p, ...(kind === "avatar" ? { avatar: url } : { cover_url: url }) }))
+      toast.success(kind === "avatar" ? "Photo de profil mise à jour." : "Photo de couverture mise à jour.")
+    } catch (error) { console.error(error); toast.error(error?.message || "Impossible d’envoyer l’image.") }
+    finally { setUploadingImage(null) }
+  }
+
   const saveProfile = async () => {
     if (!userId) return toast.error("Connexion requise.")
     if (!profile.name.trim()) return toast.error(t("settings.errors.nameRequired"))
@@ -101,14 +115,15 @@ export default function ManagerSettings() {
       const patch = {
         name: profile.name.trim(),
         avatar: profile.avatar.trim() || null,
+        cover_url: profile.cover_url.trim() || null,
         phone: profile.phone.trim() || null,
         city: profile.city.trim() || null,
         company: profile.company.trim() || null,
         bio: profile.bio.trim() || null,
       }
-      const { data, error } = await supabase.from("profiles").update(patch).eq("id", userId).select("id, name, avatar, phone, city, company, bio, preferences").single()
+      const { data, error } = await supabase.from("profiles").update(patch).eq("id", userId).select("id, name, avatar, cover_url, phone, city, company, bio, preferences").single()
       if (error) throw error
-      setProfile((p) => ({ ...p, ...patch, avatar: data.avatar || "" }))
+      setProfile((p) => ({ ...p, ...patch, avatar: data.avatar || "", cover_url: data.cover_url || "" }))
       toast.success(t("settings.success.profile"))
     } catch (error) {
       console.error(error)
@@ -184,14 +199,14 @@ export default function ManagerSettings() {
 
         <div className="space-y-6">
           {tab === "profile" && <Card><CardHeader><CardTitle>Informations du profil</CardTitle><CardDescription>Modifiez vos informations enregistrées dans Supabase.</CardDescription></CardHeader><CardContent className="space-y-5">
-            <div className="flex items-center gap-4"><div className="h-16 w-16 rounded-full gold-gradient text-white flex items-center justify-center text-xl font-black">{initials(profile.name)}</div><div><div className="font-black">{profile.name || "Manager KORA"}</div><Badge variant="outline">Manager</Badge></div></div>
+            <div className="space-y-4"><div className="relative h-32 rounded-2xl overflow-hidden border bg-muted">{profile.cover_url ? <img src={profile.cover_url} alt="Couverture" className="w-full h-full object-cover" /> : <div className="w-full h-full flex items-center justify-center text-muted-foreground"><ImageIcon className="h-8 w-8" /></div>}<label className="absolute right-3 bottom-3 inline-flex items-center gap-2 rounded-lg bg-black/70 text-white px-3 py-2 text-xs font-bold cursor-pointer"><Camera className="h-4 w-4" />{uploadingImage === "cover" ? "Envoi…" : "Changer la couverture"}<input type="file" accept="image/jpeg,image/png,image/webp,image/gif" className="hidden" disabled={!!uploadingImage} onChange={(e) => { const f=e.target.files?.[0]; if(f) uploadImage(f,"cover"); e.target.value="" }} /></label></div><div className="flex items-center gap-4"><div className="relative h-20 w-20 shrink-0">{profile.avatar ? <img src={profile.avatar} alt="Profil" className="h-20 w-20 rounded-full object-cover border-4 border-background shadow" /> : <div className="h-20 w-20 rounded-full gold-gradient text-white flex items-center justify-center text-xl font-black">{initials(profile.name)}</div>}<label className="absolute -right-1 -bottom-1 h-8 w-8 rounded-full bg-gold text-white flex items-center justify-center cursor-pointer border-2 border-background"><Camera className="h-4 w-4" /><input type="file" accept="image/jpeg,image/png,image/webp,image/gif" className="hidden" disabled={!!uploadingImage} onChange={(e) => { const f=e.target.files?.[0]; if(f) uploadImage(f,"avatar"); e.target.value="" }} /></label></div><div><div className="font-black">{profile.name || "Manager KORA"}</div><Badge variant="outline">Manager</Badge></div></div></div>
             <div className="grid gap-4 md:grid-cols-2">
               <div className="space-y-2 md:col-span-2"><Label>Nom complet</Label><Input value={profile.name} onChange={(e) => setProfile((p) => ({ ...p, name: e.target.value }))} /></div>
               <div className="space-y-2"><Label>Email</Label><Input value={profile.email} disabled readOnly /></div>
               <div className="space-y-2"><Label>Téléphone</Label><Input value={profile.phone} onChange={(e) => setProfile((p) => ({ ...p, phone: e.target.value }))} /></div>
               <div className="space-y-2"><Label>Ville</Label><Input value={profile.city} onChange={(e) => setProfile((p) => ({ ...p, city: e.target.value }))} /></div>
               <div className="space-y-2"><Label>Entreprise</Label><Input value={profile.company} onChange={(e) => setProfile((p) => ({ ...p, company: e.target.value }))} /></div>
-              <div className="space-y-2 md:col-span-2"><Label>URL avatar</Label><Input value={profile.avatar} onChange={(e) => setProfile((p) => ({ ...p, avatar: e.target.value }))} /></div>
+              
               <div className="space-y-2 md:col-span-2"><Label>Biographie</Label><Textarea value={profile.bio} onChange={(e) => setProfile((p) => ({ ...p, bio: e.target.value }))} rows={5} maxLength={2000} /></div>
             </div>
             <div className="flex justify-end"><Button onClick={saveProfile} disabled={savingProfile} className="gap-2">{savingProfile ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />} {savingProfile ? t("common.saving") : t("common.save")}</Button></div>
