@@ -3,6 +3,8 @@ import { Globe2, Languages } from "lucide-react"
 
 const STORAGE_KEY = "kora-language"
 const THEME_STORAGE_KEY = "kora-theme"
+const THEME_EXPLICIT_STORAGE_KEY = "kora-theme-explicit"
+const DEFAULT_THEME = "light"
 
 export const SUPPORTED_LANGUAGES = {
   fr: { code: "fr", label: "Français", flag: "🇫🇷", htmlLang: "fr", locale: "fr_FR" },
@@ -380,17 +382,27 @@ function replaceVariables(value, variables = {}) {
 }
 
 function normalizeTheme(value) {
-  return value === "dark" || value === "light" || value === "auto" ? value : "light"
+  return value === "dark" || value === "light" || value === "auto" ? value : DEFAULT_THEME
 }
 
 function getInitialTheme() {
-  if (typeof window === "undefined") return "light"
+  if (typeof window === "undefined") return DEFAULT_THEME
+
   try {
     const saved = window.localStorage.getItem(THEME_STORAGE_KEY)
-    const normalized = normalizeTheme(saved)
-    return normalized === "auto" ? "light" : normalized
+    const explicitlySelected = window.localStorage.getItem(THEME_EXPLICIT_STORAGE_KEY) === "1"
+
+    // Light is Kora's default. The old version used "auto" by default, so
+    // migrate that legacy value once unless the user explicitly chose a theme.
+    if (saved === "auto" && !explicitlySelected) {
+      window.localStorage.setItem(THEME_STORAGE_KEY, DEFAULT_THEME)
+      return DEFAULT_THEME
+    }
+
+    return normalizeTheme(saved)
   } catch {}
-  return "light"
+
+  return DEFAULT_THEME
 }
 
 function resolveTheme(theme) {
@@ -425,7 +437,10 @@ export function I18nProvider({ children }) {
   const setTheme = (nextTheme) => {
     const normalized = normalizeTheme(nextTheme)
     setThemeState(normalized)
-    try { window.localStorage.setItem(THEME_STORAGE_KEY, normalized) } catch {}
+    try {
+      window.localStorage.setItem(THEME_STORAGE_KEY, normalized)
+      window.localStorage.setItem(THEME_EXPLICIT_STORAGE_KEY, "1")
+    } catch {}
     applyTheme(normalized)
   }
 

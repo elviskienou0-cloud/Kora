@@ -16,7 +16,7 @@ import { useI18n } from "@/i18n/kora-i18n.jsx"
 
 const DEFAULT_PREFERENCES = {
   language: "fr",
-  theme: "auto",
+theme: "light",
   notifications: { email: true, push: true, marketing: false },
 }
 
@@ -25,7 +25,7 @@ function mergePreferences(value) {
   const n = source.notifications && typeof source.notifications === "object" ? source.notifications : {}
   return {
     language: source.language === "en" ? "en" : "fr",
-    theme: ["light", "dark", "auto"].includes(source.theme) ? source.theme : "auto",
+theme: ["light", "dark", "auto"].includes(source.theme) ? source.theme : "light",
     notifications: {
       email: typeof n.email === "boolean" ? n.email : true,
       push: typeof n.push === "boolean" ? n.push : true,
