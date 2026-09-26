@@ -47,3 +47,48 @@ with check (
     where p.id = auth.uid() and p.role = 'manager'
   )
 );
+
+
+-- Autoriser le manager propriétaire à remplacer une image existante.
+drop policy if exists "Managers update talent profile media" on storage.objects;
+create policy "Managers update talent profile media"
+on storage.objects
+for update
+to authenticated
+using (
+  bucket_id = 'talent-profile-media'
+  and split_part(name, '/', 1) = auth.uid()::text
+  and exists (
+    select 1
+    from public.talent_profiles tp
+    where tp.id::text = split_part(name, '/', 2)
+      and tp.managed_by = auth.uid()
+  )
+)
+with check (
+  bucket_id = 'talent-profile-media'
+  and split_part(name, '/', 1) = auth.uid()::text
+  and exists (
+    select 1
+    from public.talent_profiles tp
+    where tp.id::text = split_part(name, '/', 2)
+      and tp.managed_by = auth.uid()
+  )
+);
+
+-- Autoriser le manager propriétaire à supprimer ses images.
+drop policy if exists "Managers delete talent profile media" on storage.objects;
+create policy "Managers delete talent profile media"
+on storage.objects
+for delete
+to authenticated
+using (
+  bucket_id = 'talent-profile-media'
+  and split_part(name, '/', 1) = auth.uid()::text
+  and exists (
+    select 1
+    from public.talent_profiles tp
+    where tp.id::text = split_part(name, '/', 2)
+      and tp.managed_by = auth.uid()
+  )
+);
