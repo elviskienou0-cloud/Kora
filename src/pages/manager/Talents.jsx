@@ -790,6 +790,8 @@ export default function ManagerTalents() {
           verified,
           available,
           managed_by,
+          avatar_url,
+          cover_url,
           categories ( id, slug, name ),
           countries ( id, code, name )
         `)
