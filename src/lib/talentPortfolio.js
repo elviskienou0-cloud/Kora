@@ -43,7 +43,8 @@ export async function uploadTalentPortfolioFiles(talentId, files = []) {
       .replace(/-+/g, "-")
       .slice(0, 120)
 
-    const path = `${talentId}/${crypto.randomUUID()}-${cleanName}`
+    const id = globalThis.crypto?.randomUUID?.() || `${Date.now()}-${Math.random().toString(36).slice(2, 12)}`
+    const path = `${talentId}/${id}-${cleanName}`
 
     const { error: uploadError } = await supabase.storage
       .from(TALENT_PORTFOLIO_BUCKET)
