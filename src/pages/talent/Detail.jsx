@@ -34,6 +34,7 @@ import { supabase } from "@/lib/supabase"
 import { useAuth } from "@/lib/AuthContext"
 import { resolvePortfolioUrls } from "@/lib/talentPortfolio"
 import TalentRequestButton from "@/components/TalentRequestButton.jsx"
+import TalentReviews from "@/components/reviews/TalentReviews.jsx"
 import { buildTalentShareUrl, copyTalentShareLink, getTalentShareTargets } from "@/lib/talentShare"
 
 function formatCurrency(value, currency = "XOF") {
@@ -443,6 +444,8 @@ export default function TalentDetail() {
                 )}
               </CardContent>
             </Card>
+
+            <TalentReviews talentId={talent.id} />
           </div>
 
           <div className="space-y-6">

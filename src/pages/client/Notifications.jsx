@@ -66,7 +66,10 @@ export default function ClientNotifications() {
           filter: `user_id=eq.${userId}`,
         },
         (payload) => {
-          if (payload?.eventType === "INSERT" && payload?.new?.user_id === userId) {
+          const createdAt = payload?.new?.created_at ? new Date(payload.new.created_at).getTime() : 0
+          const isRecent = createdAt > 0 && Date.now() - createdAt < 20_000
+
+          if (payload?.eventType === "INSERT" && payload?.new?.user_id === userId && isRecent) {
             playNotificationSound()
           }
 
