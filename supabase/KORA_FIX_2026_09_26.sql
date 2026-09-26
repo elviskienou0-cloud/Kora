@@ -1,6 +1,6 @@
 -- KORA — correction Supabase 2026-09-26
--- À exécuter une seule fois dans Supabase SQL Editor.
--- Corrige les colonnes médias des talents et les statistiques live.
+-- Source of truth for the live-stat/media reconciliation.
+-- Idempotent: safe to execute again.
 
 begin;
 
@@ -102,15 +102,23 @@ begin
 end;
 $$;
 
-revoke all on function public.get_kora_live_stats() from public;
+-- SECURITY DEFINER functions in public must never be callable anonymously.
+do $$
+declare
+  r record;
+begin
+  for r in
+    select p.oid::regprocedure as fn
+    from pg_proc p
+    join pg_namespace n on n.oid = p.pronamespace
+    where n.nspname = 'public'
+      and p.prosecdef = true
+  loop
+    execute format('revoke execute on function %s from anon', r.fn);
+  end loop;
+end $$;
+
+revoke execute on function public.get_kora_live_stats() from anon;
 grant execute on function public.get_kora_live_stats() to authenticated;
 
 commit;
-
--- Vérifications :
--- select column_name from information_schema.columns
--- where table_schema = 'public'
---   and table_name = 'talent_profiles'
---   and column_name in ('avatar_url', 'cover_url');
-
--- select public.get_kora_live_stats();
