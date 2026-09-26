@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react"
 import { motion } from "framer-motion"
-import { Bell, Globe, Lock, Palette, Save, User } from "lucide-react"
+import { Bell, Globe, Lock, Palette, Save, User, Camera, Image as ImageIcon } from "lucide-react"
 import { toast } from "sonner"
 
 import { Button } from "@/components/ui/button"
@@ -12,6 +12,7 @@ import { cn } from "@/lib/utils"
 import { supabase } from "@/lib/supabase"
 import { useAuth } from "@/lib/AuthContext"
 import { useI18n } from "@/i18n/kora-i18n.jsx"
+import { uploadProfileImage } from "@/lib/profileMedia"
 
 const TABS = [
   ["profile", "Mon profil", User],
@@ -27,7 +28,8 @@ export default function ClientSettings({ initialTab = "profile" }) {
   const [tab, setTab] = useState(initialTab)
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)
-  const [profile, setProfile] = useState({ name: "", phone: "", city: "", company: "", bio: "" })
+  const [profile, setProfile] = useState({ name: "", phone: "", city: "", company: "", bio: "", avatar: "", cover_url: "" })
+  const [uploadingImage, setUploadingImage] = useState(null)
   const [preferences, setPreferences] = useState({ email: true, push: true, marketing: false })
   const [passwords, setPasswords] = useState({ current: "", next: "", confirm: "" })
 
@@ -43,14 +45,14 @@ export default function ClientSettings({ initialTab = "profile" }) {
       try {
         const { data, error } = await supabase
           .from("profiles")
-          .select("id, name, role, phone, city, company, bio, preferences")
+          .select("id, name, role, avatar, cover_url, phone, city, company, bio, preferences")
           .eq("id", authUserId)
           .maybeSingle()
         if (error) throw error
         if (!mounted) return
         const prefs = data?.preferences && typeof data.preferences === "object" ? data.preferences : {}
         const notif = prefs.notifications && typeof prefs.notifications === "object" ? prefs.notifications : {}
-        setProfile({ name: data?.name || user?.name || "", phone: data?.phone || "", city: data?.city || "", company: data?.company || "", bio: data?.bio || "" })
+        setProfile({ name: data?.name || user?.name || "", phone: data?.phone || "", city: data?.city || "", company: data?.company || "", bio: data?.bio || "", avatar: data?.avatar || "", cover_url: data?.cover_url || "" })
         setPreferences({ email: notif.email !== false, push: notif.push !== false, marketing: notif.marketing === true })
       } catch (error) {
         console.error("Erreur paramètres client :", error)
@@ -63,12 +65,23 @@ export default function ClientSettings({ initialTab = "profile" }) {
     return () => { mounted = false }
   }, [authUserId, user?.name])
 
+  const uploadImage = async (file, kind) => {
+    if (!authUserId || !file) return
+    setUploadingImage(kind)
+    try {
+      const url = await uploadProfileImage(authUserId, file, kind)
+      setProfile((p) => ({ ...p, ...(kind === "avatar" ? { avatar: url } : { cover_url: url }) }))
+      toast.success(kind === "avatar" ? "Photo de profil mise à jour." : "Photo de couverture mise à jour.")
+    } catch (error) { console.error(error); toast.error(error?.message || "Impossible d’envoyer l’image.") }
+    finally { setUploadingImage(null) }
+  }
+
   const saveProfile = async () => {
     if (!authUserId) return
     if (!profile.name.trim()) return toast.error("Le nom est obligatoire.")
     setSaving(true)
     try {
-      const { error } = await supabase.from("profiles").update({ name: profile.name.trim(), phone: profile.phone.trim() || null, city: profile.city.trim() || null, company: profile.company.trim() || null, bio: profile.bio.trim() || null }).eq("id", authUserId)
+      const { error } = await supabase.from("profiles").update({ name: profile.name.trim(), avatar: profile.avatar || null, cover_url: profile.cover_url || null, phone: profile.phone.trim() || null, city: profile.city.trim() || null, company: profile.company.trim() || null, bio: profile.bio.trim() || null }).eq("id", authUserId)
       if (error) throw error
       toast.success("Profil enregistré ✅")
     } catch (error) {
@@ -123,7 +136,7 @@ export default function ClientSettings({ initialTab = "profile" }) {
         </nav></CardContent></Card>
         <div>
           {tab === "profile" && <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }}><Card><CardHeader><CardTitle>Mon profil</CardTitle><CardDescription>Informations personnelles de votre compte.</CardDescription></CardHeader><CardContent className="space-y-4">
-            <div className="grid gap-4 md:grid-cols-2"><div className="space-y-2 md:col-span-2"><Label>Nom complet</Label><Input value={profile.name} onChange={(e) => setProfile({ ...profile, name: e.target.value })} /></div><div className="space-y-2"><Label>Téléphone</Label><Input value={profile.phone} onChange={(e) => setProfile({ ...profile, phone: e.target.value })} /></div><div className="space-y-2"><Label>Ville</Label><Input value={profile.city} onChange={(e) => setProfile({ ...profile, city: e.target.value })} /></div><div className="space-y-2 md:col-span-2"><Label>Entreprise</Label><Input value={profile.company} onChange={(e) => setProfile({ ...profile, company: e.target.value })} /></div><div className="space-y-2 md:col-span-2"><Label>Bio</Label><Textarea rows={5} value={profile.bio} onChange={(e) => setProfile({ ...profile, bio: e.target.value })} /></div></div>
+            <div className="space-y-4 mb-6"><div className="relative h-32 rounded-2xl overflow-hidden border bg-muted">{profile.cover_url ? <img src={profile.cover_url} alt="Couverture" className="w-full h-full object-cover" /> : <div className="w-full h-full flex items-center justify-center text-muted-foreground"><ImageIcon className="h-8 w-8" /></div>}<label className="absolute right-3 bottom-3 inline-flex items-center gap-2 rounded-lg bg-black/70 text-white px-3 py-2 text-xs font-bold cursor-pointer"><Camera className="h-4 w-4" />{uploadingImage === "cover" ? "Envoi…" : "Changer la couverture"}<input type="file" accept="image/jpeg,image/png,image/webp,image/gif" className="hidden" disabled={!!uploadingImage} onChange={(e) => { const f=e.target.files?.[0]; if(f) uploadImage(f,"cover"); e.target.value="" }} /></label></div><div className="flex items-center gap-4"><div className="relative h-20 w-20 shrink-0">{profile.avatar ? <img src={profile.avatar} alt="Profil" className="h-20 w-20 rounded-full object-cover border-4 border-background shadow" /> : <div className="h-20 w-20 rounded-full bg-gold/10 text-gold flex items-center justify-center text-xl font-black">{profile.name?.trim()?.charAt(0)?.toUpperCase() || "K"}</div>}<label className="absolute -right-1 -bottom-1 h-8 w-8 rounded-full bg-gold text-white flex items-center justify-center cursor-pointer border-2 border-background"><Camera className="h-4 w-4" /><input type="file" accept="image/jpeg,image/png,image/webp,image/gif" className="hidden" disabled={!!uploadingImage} onChange={(e) => { const f=e.target.files?.[0]; if(f) uploadImage(f,"avatar"); e.target.value="" }} /></label></div><span className="text-sm text-muted-foreground">{uploadingImage ? "Envoi de l’image…" : "Photo de profil et couverture"}</span></div></div><div className="grid gap-4 md:grid-cols-2"><div className="space-y-2 md:col-span-2"><Label>Nom complet</Label><Input value={profile.name} onChange={(e) => setProfile({ ...profile, name: e.target.value })} /></div><div className="space-y-2"><Label>Téléphone</Label><Input value={profile.phone} onChange={(e) => setProfile({ ...profile, phone: e.target.value })} /></div><div className="space-y-2"><Label>Ville</Label><Input value={profile.city} onChange={(e) => setProfile({ ...profile, city: e.target.value })} /></div><div className="space-y-2 md:col-span-2"><Label>Entreprise</Label><Input value={profile.company} onChange={(e) => setProfile({ ...profile, company: e.target.value })} /></div><div className="space-y-2 md:col-span-2"><Label>Bio</Label><Textarea rows={5} value={profile.bio} onChange={(e) => setProfile({ ...profile, bio: e.target.value })} /></div></div>
             <Button onClick={saveProfile} disabled={saving} className="gap-2"><Save className="h-4 w-4" />{saving ? "Enregistrement…" : "Enregistrer"}</Button>
           </CardContent></Card></motion.div>}
 
