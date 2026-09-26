@@ -30,8 +30,6 @@ export default function TalentReviews({ talentId }) {
   const [reviews, setReviews] = useState([])
   const [loadingReviews, setLoadingReviews] = useState(true)
 
-  const [checkingEligibility, setCheckingEligibility] = useState(false)
-
   const [showForm, setShowForm] = useState(false)
   const [rating, setRating] = useState(0)
   const [hoverRating, setHoverRating] = useState(0)
@@ -46,7 +44,7 @@ export default function TalentReviews({ talentId }) {
         .from("reviews")
         .select("id, author_name, rating, comment, created_at")
         .eq("talent_id", talentId)
-        .eq("source", "project_review")
+        .in("source", ["project_review", "talent_review"])
         .eq("is_visible", true)
         .order("created_at", { ascending: false })
         .limit(30)
@@ -73,6 +71,11 @@ export default function TalentReviews({ talentId }) {
   const submit = async (event) => {
     event.preventDefault()
 
+    if (!clientId) {
+      toast.info("Connectez-vous en tant que Client pour laisser un avis.")
+      return
+    }
+
     if (!rating) {
       toast.error("Choisissez une note de 1 à 5.")
       return
@@ -84,7 +87,7 @@ export default function TalentReviews({ talentId }) {
 
     setSaving(true)
     try {
-      const { error } = await supabase.rpc("create_project_review", {
+      const { error } = await supabase.rpc("create_talent_review", {
         p_talent_id: talentId,
         p_rating: rating,
         p_comment: comment.trim(),
