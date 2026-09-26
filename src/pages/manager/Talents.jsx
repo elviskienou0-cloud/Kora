@@ -26,6 +26,7 @@ import {
   CalendarDays,
   Link2,
   Video,
+  Image as ImageIcon,
   ChevronRight,
 } from "lucide-react"
 
@@ -48,6 +49,7 @@ import {
   deleteTalentPortfolioItems,
   uploadTalentPortfolioFiles,
 } from "@/lib/talentPortfolio"
+import { uploadTalentProfileMedia } from "@/lib/talentMedia"
 
 const STATUS = {
   published: {
@@ -183,6 +185,8 @@ function TalentEditor({
     skills: initialValues?.skills || [],
     available: initialValues?.available !== false,
   })
+  const [avatarFile, setAvatarFile] = useState(null)
+  const [coverFile, setCoverFile] = useState(null)
   const [portfolioFiles, setPortfolioFiles] = useState([])
   const [portfolioLinks, setPortfolioLinks] = useState(
     initialValues?.portfolioLinks?.length
@@ -281,6 +285,30 @@ function TalentEditor({
     setPortfolioFiles(files)
   }
 
+  const handleProfileImageChange = (kind, event) => {
+    const file = event.target.files?.[0] || null
+
+    if (!file) return
+
+    if (!file.type.startsWith("image/")) {
+      toast.error("Veuillez sélectionner une image.")
+      event.target.value = ""
+      return
+    }
+
+    if (file.size > 5 * 1024 * 1024) {
+      toast.error("L'image ne doit pas dépasser 5 Mo.")
+      event.target.value = ""
+      return
+    }
+
+    if (kind === "avatar") {
+      setAvatarFile(file)
+    } else {
+      setCoverFile(file)
+    }
+  }
+
   const validate = () => {
     const next = {}
 
@@ -343,6 +371,8 @@ function TalentEditor({
       title: form.title.trim(),
       location: form.location.trim(),
       bio: form.bio.trim(),
+      avatarFile,
+      coverFile,
       portfolioFiles,
       portfolioLinks: result.normalizedLinks,
     })
@@ -518,6 +548,96 @@ function TalentEditor({
                 ? "Disponible pour de nouvelles missions"
                 : "Indisponible pour le moment"}
             </p>
+          </div>
+
+          <div className="rounded-2xl border border-gold/20 bg-gold/5 p-4 sm:p-5">
+            <div className="mb-4">
+              <p className="font-black flex items-center gap-2">
+                <ImageIcon className="h-5 w-5 text-gold" />
+                Images du profil
+              </p>
+              <p className="mt-1 text-xs text-muted-foreground">
+                Ces images sont différentes du portfolio : elles servent directement à l'identité visuelle du profil public du talent.
+              </p>
+            </div>
+
+            <div className="grid gap-5 md:grid-cols-2">
+              <div className="space-y-3">
+                <div className="flex items-center justify-between gap-3">
+                  <div>
+                    <p className="text-sm font-bold">Photo de profil</p>
+                    <p className="text-xs text-muted-foreground">1 image · JPG, PNG, WebP ou GIF · 5 Mo max.</p>
+                  </div>
+                  <span className="rounded-full border border-border bg-background px-2.5 py-1 text-[10px] font-bold">
+                    Avatar
+                  </span>
+                </div>
+
+                {initialValues?.avatarUrl ? (
+                  <img
+                    src={initialValues.avatarUrl}
+                    alt="Photo actuelle du talent"
+                    className="h-24 w-24 rounded-2xl object-cover border border-border shadow-sm"
+                  />
+                ) : (
+                  <div className="h-24 w-24 rounded-2xl border border-dashed border-border bg-background flex items-center justify-center text-xs text-muted-foreground">
+                    Aucune photo
+                  </div>
+                )}
+
+                <input
+                  id="talent-avatar"
+                  type="file"
+                  accept="image/jpeg,image/png,image/webp,image/gif"
+                  onChange={(event) => handleProfileImageChange("avatar", event)}
+                  disabled={saving}
+                  className="block w-full rounded-xl border border-border bg-background p-3 text-sm"
+                />
+                {avatarFile ? (
+                  <p className="text-xs text-emerald-600 font-medium">
+                    Nouvelle photo : {avatarFile.name}
+                  </p>
+                ) : null}
+              </div>
+
+              <div className="space-y-3">
+                <div className="flex items-center justify-between gap-3">
+                  <div>
+                    <p className="text-sm font-bold">Photo de couverture</p>
+                    <p className="text-xs text-muted-foreground">1 image · format paysage recommandé · 5 Mo max.</p>
+                  </div>
+                  <span className="rounded-full border border-border bg-background px-2.5 py-1 text-[10px] font-bold">
+                    Couverture
+                  </span>
+                </div>
+
+                {initialValues?.coverUrl ? (
+                  <img
+                    src={initialValues.coverUrl}
+                    alt="Couverture actuelle du talent"
+                    className="h-24 w-full rounded-2xl object-cover border border-border shadow-sm"
+                  />
+                ) : (
+                  <div className="h-24 w-full rounded-2xl border border-dashed border-border bg-background flex items-center justify-center text-xs text-muted-foreground">
+                    Aucune couverture
+                  </div>
+                )}
+
+                <input
+                  id="talent-cover"
+                  type="file"
+                  accept="image/jpeg,image/png,image/webp,image/gif"
+                  onChange={(event) => handleProfileImageChange("cover", event)}
+                  disabled={saving}
+                  className="block w-full rounded-xl border border-border bg-background p-3 text-sm"
+                />
+                {coverFile ? (
+                  <p className="text-xs text-emerald-600 font-medium">
+                    Nouvelle couverture : {coverFile.name}
+                  </p>
+                ) : null}
+              </div>
+            </div>
           </div>
 
           <Field label="Photos / vidéos du portfolio" icon={Video}>
@@ -728,6 +848,8 @@ export default function ManagerTalents() {
     bio: talent.bio || "",
     skills: talent.skills || [],
     available: talent.available !== false,
+    avatarUrl: talent.avatar_url || "",
+    coverUrl: talent.cover_url || "",
     portfolioLinks: talent.portfolioLinks || [],
   })
 
@@ -742,6 +864,8 @@ export default function ManagerTalents() {
         bio: "",
         skills: [],
         available: true,
+        avatarUrl: "",
+        coverUrl: "",
         portfolioLinks: [],
       },
     })
@@ -765,7 +889,9 @@ export default function ManagerTalents() {
             category_id,
             country_id,
             city,
-              available,
+            available,
+            avatar_url,
+            cover_url,
             managed_by,
             categories ( id, slug, name ),
             countries ( id, code, name )
@@ -939,6 +1065,13 @@ export default function ManagerTalents() {
           .eq("type", "link")
 
         if (linkDeleteError) throw linkDeleteError
+      }
+
+      if (formData.avatarFile || formData.coverFile) {
+        await uploadTalentProfileMedia(talentId, managerId, {
+          avatar: formData.avatarFile,
+          cover: formData.coverFile,
+        })
       }
 
       if ((formData.portfolioFiles || []).length > 0) {
