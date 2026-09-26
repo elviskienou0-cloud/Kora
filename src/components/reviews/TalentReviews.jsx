@@ -30,8 +30,6 @@ export default function TalentReviews({ talentId }) {
   const [reviews, setReviews] = useState([])
   const [loadingReviews, setLoadingReviews] = useState(true)
 
-  const [eligibleProjects, setEligibleProjects] = useState([])
-  const [selectedProjectId, setSelectedProjectId] = useState("")
   const [checkingEligibility, setCheckingEligibility] = useState(false)
 
   const [showForm, setShowForm] = useState(false)
@@ -62,72 +60,10 @@ export default function TalentReviews({ talentId }) {
     }
   }, [talentId])
 
-  const loadEligibility = useCallback(async () => {
-    if (!talentId || !clientId) {
-      setEligibleProjects([])
-      return
-    }
-
-    setCheckingEligibility(true)
-    try {
-      // Projets terminés du client où ce talent a été engagé via une demande acceptée.
-      const { data: requestRows, error: requestError } = await supabase
-        .from("requests")
-        .select("project_id")
-        .eq("client_id", clientId)
-        .eq("talent_id", talentId)
-        .eq("status", "accepted")
-
-      if (requestError) throw requestError
-
-      const projectIds = [
-        ...new Set((requestRows || []).map((row) => row.project_id).filter(Boolean)),
-      ]
-
-      if (!projectIds.length) {
-        setEligibleProjects([])
-        return
-      }
-
-      const { data: projectRows, error: projectError } = await supabase
-        .from("projects")
-        .select("id, title, status")
-        .eq("client_id", clientId)
-        .eq("status", "completed")
-        .in("id", projectIds)
-
-      if (projectError) throw projectError
-
-      const { data: reviewedRows, error: reviewedError } = await supabase
-        .from("reviews")
-        .select("project_id")
-        .eq("client_id", clientId)
-        .eq("talent_id", talentId)
-        .eq("source", "project_review")
-
-      if (reviewedError) throw reviewedError
-
-      const reviewedProjectIds = new Set((reviewedRows || []).map((row) => row.project_id))
-
-      const eligible = (projectRows || []).filter((project) => !reviewedProjectIds.has(project.id))
-
-      setEligibleProjects(eligible)
-      setSelectedProjectId(eligible[0]?.id || "")
-    } catch (error) {
-      console.error("Erreur vérification éligibilité avis :", error)
-      setEligibleProjects([])
-    } finally {
-      setCheckingEligibility(false)
-    }
-  }, [talentId, clientId])
 
   useEffect(() => {
     loadReviews()
   }, [loadReviews])
-
-  useEffect(() => {
-    loadEligibility()
-  }, [loadEligibility])
 
   const average = useMemo(() => {
     if (!reviews.length) return 0
@@ -137,10 +73,6 @@ export default function TalentReviews({ talentId }) {
   const submit = async (event) => {
     event.preventDefault()
 
-    if (!selectedProjectId) {
-      toast.error("Sélectionnez le projet concerné.")
-      return
-    }
     if (!rating) {
       toast.error("Choisissez une note de 1 à 5.")
       return
@@ -153,7 +85,6 @@ export default function TalentReviews({ talentId }) {
     setSaving(true)
     try {
       const { error } = await supabase.rpc("create_project_review", {
-        p_project_id: selectedProjectId,
         p_talent_id: talentId,
         p_rating: rating,
         p_comment: comment.trim(),
@@ -166,7 +97,6 @@ export default function TalentReviews({ talentId }) {
       setRating(0)
       setShowForm(false)
       loadReviews()
-      loadEligibility()
     } catch (error) {
       console.error("Erreur création avis :", error)
       toast.error(error?.message || "Impossible d'enregistrer votre avis.")
@@ -188,7 +118,7 @@ export default function TalentReviews({ talentId }) {
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-6">
-        {!checkingEligibility && eligibleProjects.length > 0 && !showForm && (
+        {!showForm && (
           <Button onClick={() => setShowForm(true)} className="gap-2 gold-gradient text-white">
             <Star className="h-4 w-4" /> Laisser un avis
           </Button>
@@ -196,25 +126,6 @@ export default function TalentReviews({ talentId }) {
 
         {showForm && (
           <form onSubmit={submit} className="space-y-4 rounded-2xl border border-gold/20 bg-gold/5 p-4">
-            {eligibleProjects.length > 1 && (
-              <div className="space-y-2">
-                <Label htmlFor="talent-review-project">Projet concerné</Label>
-                <select
-                  id="talent-review-project"
-                  value={selectedProjectId}
-                  onChange={(event) => setSelectedProjectId(event.target.value)}
-                  className="h-10 w-full rounded-md border border-input bg-background px-3 text-sm"
-                  disabled={saving}
-                >
-                  {eligibleProjects.map((project) => (
-                    <option key={project.id} value={project.id}>
-                      {project.title}
-                    </option>
-                  ))}
-                </select>
-              </div>
-            )}
-
             <div className="space-y-2">
               <Label>Votre note</Label>
               <div className="flex items-center gap-1" onMouseLeave={() => setHoverRating(0)}>
