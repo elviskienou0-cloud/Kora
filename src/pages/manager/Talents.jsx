@@ -857,10 +857,6 @@ export default function ManagerTalents() {
 
       const firstName = nameParts.shift() || "Talent"
       const lastName = nameParts.join(" ")
-      if (!Number.isFinite(dailyRate) || dailyRate < 1000) {
-        throw new Error("Le tarif journalier est invalide.")
-      }
-
       let talentId = editingTalent?.id
 
       if (editingTalent?.mode === "edit") {
