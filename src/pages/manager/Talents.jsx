@@ -328,7 +328,6 @@ function TalentEditor({
     return {
       valid: Object.keys(next).length === 0,
       normalizedLinks,
-      rate,
     }
   }
 
