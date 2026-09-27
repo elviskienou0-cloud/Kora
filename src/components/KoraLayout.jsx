@@ -28,6 +28,7 @@ import {
 import { useAuth } from "@/lib/AuthContext.jsx"
 import useIsMobile from "@/hooks/use-mobile.jsx"
 import { cn } from "@/lib/utils.js"
+import AnnouncementTicker from "@/components/AnnouncementTicker.jsx"
 
 function getMenuItems(t) {
   return {
@@ -406,9 +407,10 @@ export default function KoraLayout() {
                   </svg>
                 </button>
               )}
-              <div className="hidden sm:block text-sm font-medium text-muted-foreground">
+              <div className="hidden sm:block text-sm font-medium text-muted-foreground shrink-0">
                 {role === "admin" ? t("admin.administration") : "KORA"}
               </div>
+              <AnnouncementTicker />
             </div>
 
             <div className="flex items-center gap-2">
