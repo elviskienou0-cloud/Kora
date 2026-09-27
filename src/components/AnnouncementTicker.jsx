@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react"
-import { Megaphone, X } from "lucide-react"
+import { Megaphone } from "lucide-react"
 import { supabase } from "@/lib/supabase"
 
 function isCurrentlyActive(item) {
@@ -63,32 +63,42 @@ export default function AnnouncementTicker() {
   const content = [...messages, ...messages]
 
   return (
-    <div className="min-w-0 flex-1 mx-2 sm:mx-4 overflow-hidden rounded-full border border-gold/20 bg-gold/5">
-      <div className="flex items-center h-10">
-        <div className="z-10 shrink-0 flex items-center gap-1.5 px-3 bg-background/95 border-r border-gold/15">
-          <Megaphone className="h-4 w-4 text-gold-dark" />
-          <span className="hidden sm:inline text-[10px] font-black uppercase tracking-wider text-gold-dark">
-            KORA
-          </span>
-        </div>
+    <>
+      <style>{`
+        @keyframes kora-marquee {
+          from { transform: translateX(0); }
+          to { transform: translateX(-50%); }
+        }
+      `}</style>
 
-        <div className="relative min-w-0 flex-1 overflow-hidden">
-          <div
-            className="flex w-max min-w-full"\n            style={{ animation: "kora-marquee 28s linear infinite" }}
-            aria-label="Annonces KORA"
-          >
-            {content.map((message, index) => (
-              <span
-                key={message.id + "-" + index}
-                className="shrink-0 px-8 text-sm font-semibold text-foreground whitespace-nowrap"
-              >
-                {message.text}
-                <span className="mx-8 text-gold">•</span>
-              </span>
-            ))}
+      <div className="min-w-0 flex-1 mx-2 sm:mx-4 overflow-hidden rounded-full border border-gold/20 bg-gold/5">
+        <div className="flex items-center h-10">
+          <div className="z-10 shrink-0 flex items-center gap-1.5 px-3 bg-background/95 border-r border-gold/15">
+            <Megaphone className="h-4 w-4 text-gold-dark" />
+            <span className="hidden sm:inline text-[10px] font-black uppercase tracking-wider text-gold-dark">
+              KORA
+            </span>
+          </div>
+
+          <div className="relative min-w-0 flex-1 overflow-hidden">
+            <div
+              className="flex w-max min-w-full hover:[animation-play-state:paused]"
+              style={{ animation: "kora-marquee 28s linear infinite" }}
+              aria-label="Annonces KORA"
+            >
+              {content.map((message, index) => (
+                <span
+                  key={message.id + "-" + index}
+                  className="shrink-0 px-8 text-sm font-semibold text-foreground whitespace-nowrap"
+                >
+                  {message.text}
+                  <span className="mx-8 text-gold">•</span>
+                </span>
+              ))}
+            </div>
           </div>
         </div>
       </div>
-    </div>
+    </>
   )
 }
