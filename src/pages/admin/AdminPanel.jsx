@@ -40,6 +40,7 @@ import AdminReports from "@/pages/admin/Reports.jsx"
 import AdminSubscriptions from "@/pages/admin/Subscriptions.jsx"
 import AdminPayments from "@/pages/admin/Payments.jsx"
 import AdminLogs from "@/pages/admin/Logs.jsx"
+import AdminAnnouncements from "@/pages/admin/Announcements.jsx"
 import ManagerSettings from "@/pages/manager/Settings.jsx"
 import {
   ResponsiveContainer,
@@ -68,6 +69,7 @@ const VIEW_LABELS = {
   payments: "Paiements",
   subscriptions: "Abonnements",
   logs: "Logs",
+  announcements: "Annonces",
   settings: "Paramètres administration",
 }
 
@@ -339,6 +341,8 @@ export default function AdminPanel() {
         return <AdminPayments />
       case "logs":
         return <AdminLogs />
+      case "announcements":
+        return <AdminAnnouncements />
       case "settings":
         return <ManagerSettings />
       case "dashboard":
@@ -417,6 +421,7 @@ export default function AdminPanel() {
             ["subscriptions", "Abonnements", CreditCard],
             ["payments", "Paiements", WalletCards],
             ["logs", "Logs", Clock],
+            ["announcements", "Annonces", Megaphone],
             ["settings", "Paramètres", Settings],
           ].map(([key, label, Icon]) => (
             <Button
