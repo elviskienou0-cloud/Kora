@@ -21,11 +21,14 @@ function toLocalInput(value) {
   const d = new Date(value)
   if (Number.isNaN(d.getTime())) return ""
   const pad = (n) => String(n).padStart(2, "0")
-  return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`
+  return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`
 }
 
 function toIso(value) {
-  return value ? new Date(value).toISOString() : null
+  if (!value) return null
+  // value is "YYYY-MM-DD" from a <input type="date">; anchor at local midnight.
+  const d = new Date(`${value}T00:00:00`)
+  return Number.isNaN(d.getTime()) ? null : d.toISOString()
 }
 
 function formatDate(value) {
@@ -211,7 +214,7 @@ export default function AdminAnnouncements() {
               <label className="text-sm font-semibold">
                 Début
                 <input
-                  type="datetime-local"
+                  type="date"
                   value={form.starts_at}
                   onChange={(e) => setForm((v) => ({ ...v, starts_at: e.target.value }))}
                   className="mt-1 h-10 w-full rounded-md border border-input bg-background px-3 text-sm"
@@ -220,7 +223,7 @@ export default function AdminAnnouncements() {
               <label className="text-sm font-semibold">
                 Fin
                 <input
-                  type="datetime-local"
+                  type="date"
                   value={form.ends_at}
                   onChange={(e) => setForm((v) => ({ ...v, ends_at: e.target.value }))}
                   className="mt-1 h-10 w-full rounded-md border border-input bg-background px-3 text-sm"

@@ -108,7 +108,19 @@ export default function TalentRequestButton({ talentId, talentName = "ce talent"
       })
       setOpen(false)
     } catch (error) {
-      console.error("Erreur création demande :", error)
+      console.error(
+  "ERREUR RPC KORA :",
+  JSON.stringify(
+    {
+      message: error?.message,
+      details: error?.details,
+      hint: error?.hint,
+      code: error?.code,
+    },
+    null,
+    2
+  )
+)
       toast.error(t("requestForm.error"), {
         description: error?.message || t("common.retry"),
       })
