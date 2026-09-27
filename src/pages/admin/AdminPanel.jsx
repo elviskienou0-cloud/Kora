@@ -18,6 +18,7 @@ import {
   WalletCards,
   BriefcaseBusiness,
   Clock,
+  Megaphone,
 } from "lucide-react"
 
 import { Button } from "@/components/ui/button"
