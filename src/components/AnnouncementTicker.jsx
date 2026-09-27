@@ -74,7 +74,7 @@ export default function AnnouncementTicker() {
 
         <div className="relative min-w-0 flex-1 overflow-hidden">
           <div
-            className="flex w-max min-w-full animate-[kora-marquee_28s_linear_infinite] hover:[animation-play-state:paused]"
+            className="flex w-max min-w-full"\n            style={{ animation: "kora-marquee 28s linear infinite" }}
             aria-label="Annonces KORA"
           >
             {content.map((message, index) => (
