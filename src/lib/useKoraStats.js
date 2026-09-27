@@ -16,14 +16,17 @@ const normalize = (value) =>
     .replace(/^-+|-+$/g, "")
 
 const categoryAliases = {
-  tech: ["tech", "technology", "technologie", "digital", "technologie-digital", "development", "developpement"],
-  creative: ["creative", "creatif", "design", "creatif-design", "creation"],
-  business: ["business", "strategie", "business-strategie", "strategy", "consulting", "conseil"],
-  marketing: ["marketing", "communication", "marketing-communication"],
-  finance: ["finance", "comptabilite", "finance-comptabilite", "accounting"],
-  legal: ["legal", "juridique", "droit", "juridique-conseil"],
-  education: ["education", "formation", "formation-education", "training"],
-  health: ["health", "sante", "bien-etre", "sante-bien-etre"],
+  music: ["music", "musique", "musicien", "chanteur", "chanteuse", "danseur", "danseuse", "spectacle", "artiste-musicien"],
+  fashion: ["fashion", "mode", "mannequin", "mannequinat", "styliste", "modele"],
+  influence: ["influence", "influenceur", "influenceuse", "createur-de-contenu", "createur", "content-creator", "streamer"],
+  sport: ["sport", "sportif", "sportive", "athlete", "coach-sportif"],
+  events: ["evenementiel", "evenement", "hote", "hotesse", "dj", "organisateur", "decorateur"],
+  culture: ["culture", "traditions", "griot", "conteur", "conteuse", "folklore", "percussion"],
+  cinema: ["cinema", "audiovisuel", "acteur", "actrice", "realisateur", "realisatrice", "cadreur", "technicien", "plateau"],
+  voice: ["voix", "doublage", "voix-off", "speaker", "speakerine"],
+  comedy: ["humour", "humoriste", "animation", "animateur", "animatrice", "mc", "maitre-de-ceremonie"],
+  beauty: ["beaute", "image", "maquilleur", "maquilleuse", "coiffeur", "coiffeuse", "styliste-plateau"],
+  gastronomy: ["gastronomie", "traiteur", "chef", "cuisine", "chef-prive"],
 }
 
 function resolveAppCategoryId(row) {
