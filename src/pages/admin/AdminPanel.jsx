@@ -364,19 +364,30 @@ export default function AdminPanel() {
           </p>
         </div>
 
-        <Button
-          variant="outline"
-          className="gap-2"
-          onClick={refresh}
-          disabled={refreshing}
-        >
+        <div className="flex items-center gap-2">
+          <Button
+            variant={view === "announcements" ? "default" : "outline"}
+            className="gap-2"
+            onClick={() => goTo("announcements")}
+          >
+            <Megaphone className="h-4 w-4" />
+            Annonces
+          </Button>
+
+          <Button
+            variant="outline"
+            className="gap-2"
+            onClick={refresh}
+            disabled={refreshing}
+          >
           {refreshing ? (
             <Loader2 className="h-4 w-4 animate-spin" />
           ) : (
             <RefreshCw className="h-4 w-4" />
           )}
           Actualiser
-        </Button>
+          </Button>
+        </div>
       </div>
 
       {error && (
