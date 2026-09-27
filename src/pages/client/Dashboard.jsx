@@ -197,7 +197,7 @@ export default function ClientDashboard() {
         ] = await Promise.all([
           supabase
             .from("profiles")
-            .select("id, first_name, last_name, name, role")
+            .select("id, name, role")
             .eq("id", user.id)
             .single(),
 
@@ -276,8 +276,6 @@ export default function ClientDashboard() {
 
   const firstName = useMemo(() => {
     if (!profile) return "vous"
-
-    if (profile.first_name) return profile.first_name
 
     if (profile.name) {
       return profile.name.split(" ")[0]
