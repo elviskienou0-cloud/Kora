@@ -66,51 +66,48 @@ export default function ManagerSubscription() {
 
   const currentPlanId = subscription?.plan_id || "FREE"
 
+  const activateBusiness = async (plan) => {
+    if (!managerId || !plan) return
+    setLoadingPlan(plan.id)
+    try {
+      const { error } = await supabase.rpc("activate_business_plan")
+      if (error) throw error
+      toast.success("Plan Business activé.")
+      await load()
+    } catch (error) {
+      toast.error(error?.message || "Impossible d'activer Business.")
+    } finally {
+      setLoadingPlan(null)
+    }
+  }
+
   const requestPayment = async (plan) => {
     if (!managerId || !plan) return
-
+    if (plan.name === "Business") return activateBusiness(plan)
     if (plan.price <= 0) {
-      toast.info("Le plan Free est gratuit.")
+      toast.info("Ce plan est gratuit.")
       return
     }
-
     setLoadingPlan(plan.id)
-
     try {
       const { data: sessionData } = await supabase.auth.getSession()
       const token = sessionData?.session?.access_token
       if (!token) throw new Error("Session de connexion introuvable.")
-
       const supabaseUrl = import.meta.env.VITE_SUPABASE_URL
-      const response = await fetch(`${supabaseUrl}/functions/v1/create-payment`, {
+      const response = await fetch(supabaseUrl + "/functions/v1/create-payment", {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify({
-          plan_id: plan.id,
-          billing_cycle: cycle,
-          provider: "orange_money",
-        }),
+        headers: { "Content-Type": "application/json", Authorization: "Bearer " + token },
+        body: JSON.stringify({ plan_id: plan.id, billing_cycle: cycle, provider: import.meta.env.VITE_PAYMENT_PROVIDER || "unconfigured" }),
       })
-
       const payload = await response.json().catch(() => ({}))
       if (!response.ok) throw new Error(payload?.error || "Impossible d'initialiser le paiement.")
-
-      if (payload.checkout_url) {
-        window.location.href = payload.checkout_url
-        return
-      }
-
+      if (payload.checkout_url) { window.location.href = payload.checkout_url; return }
       toast.success("Paiement créé. Attendez la confirmation du prestataire.")
       await load()
     } catch (error) {
       console.error("Erreur initialisation paiement :", error)
       toast.error(error?.message || "Impossible d'initialiser le paiement.")
-    } finally {
-      setLoadingPlan(null)
-    }
+    } finally { setLoadingPlan(null) }
   }
 
   if (loading) {
@@ -211,7 +208,7 @@ export default function ManagerSubscription() {
 
                 <Button className="w-full gap-2" disabled={isCurrent || loadingPlan === plan.id} onClick={() => requestPayment(plan)}>
                   {loadingPlan === plan.id ? <Loader2 className="h-4 w-4 animate-spin" /> : <CreditCard className="h-4 w-4" />}
-                  {isCurrent ? "Forfait actif" : plan.price === 0 ? "Plan gratuit" : `Choisir ${plan.name}`}
+                  {isCurrent ? "Forfait actif" : plan.name === "Business" ? "Activer Business" : plan.price === 0 ? "Plan gratuit" : `Choisir ${plan.name}`}
                 </Button>
               </CardContent>
             </Card>
