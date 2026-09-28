@@ -95,12 +95,12 @@ where lower(coalesce(name,'')) in ('discovery','free','essai');
 update public.plans set name='Pro',price=3000,currency='XOF',duration_months=1,talent_limit=3,
 features='{"professional_tools":true,"kora_transactions":false,"commission_pct":0}'::jsonb,
 trial_days=0,annual_discount_pct=0,is_active=true,updated_at=now()
-where lower(coalesce(name,'')) in ('talent pro','premium','pro');
+where lower(coalesce(name,'')) in ('talent pro','premium','pro','standard');
 
 update public.plans set name='Business',price=0,currency='XOF',duration_months=1,talent_limit=null,
 features='{"professional_tools":true,"kora_transactions":true,"commission_pct":5}'::jsonb,
 trial_days=0,annual_discount_pct=0,is_active=true,updated_at=now()
-where lower(coalesce(name,''))='business';
+where lower(coalesce(name,'')) in ('business','agent');
 
 insert into public.plans(name,price,currency,duration_months,talent_limit,features,trial_days,annual_discount_pct,is_active)
 select 'Essai',0,'XOF',1,1,'{"professional_tools":true,"kora_transactions":false,"commission_pct":0}',30,0,true
@@ -111,6 +111,13 @@ where not exists(select 1 from public.plans where lower(coalesce(name,''))='pro'
 insert into public.plans(name,price,currency,duration_months,talent_limit,features,trial_days,annual_discount_pct,is_active)
 select 'Business',0,'XOF',1,null,'{"professional_tools":true,"kora_transactions":true,"commission_pct":5}',0,0,true
 where not exists(select 1 from public.plans where lower(coalesce(name,''))='business');
+
+-- Seules les trois offres KORA V2 restent actives. Les anciennes offres
+-- (ex. Free/Standard/Agent si elles n'ont pas été renommées) ne doivent plus
+-- apparaître dans l'interface pilotée par Supabase.
+update public.plans
+set is_active=false, updated_at=now()
+where lower(coalesce(name,'')) not in ('essai','pro','business');
 
 create table if not exists public.kora_transactions (
   id uuid primary key default gen_random_uuid(),
@@ -226,7 +233,7 @@ revoke all on function public.create_manager_talent(uuid,text,text,text,text,uui
 grant execute on function public.create_manager_talent(uuid,text,text,text,text,uuid,uuid,text,boolean) to authenticated;
 
 create or replace function public.create_subscription_payment(
-  p_plan_id public.plans.id%type,p_billing_cycle text default 'monthly',p_provider text default 'unconfigured'
+  p_plan_id text,p_billing_cycle text default 'monthly',p_provider text default 'unconfigured'
 )
 returns public.payments
 language plpgsql security definer set search_path=public,pg_temp
@@ -235,7 +242,7 @@ declare
   v_user uuid:=auth.uid(); v_plan public.plans%rowtype; v_sub public.subscriptions%rowtype; v_payment public.payments%rowtype; v_ref text;
 begin
   if v_user is null then raise exception 'Connexion requise'; end if;
-  select * into v_plan from public.plans where id=p_plan_id and is_active=true;
+  select * into v_plan from public.plans where id::text=p_plan_id and is_active=true;
   if v_plan.id is null then raise exception 'Plan introuvable'; end if;
   if lower(v_plan.name)<>'pro' then raise exception 'Ce plan ne nécessite pas de paiement via cette fonction'; end if;
   if v_plan.price<=0 then raise exception 'Montant invalide'; end if;
@@ -248,8 +255,8 @@ begin
   return v_payment;
 end;
 $$;
-revoke all on function public.create_subscription_payment(public.plans.id%type,text,text) from public,anon;
-grant execute on function public.create_subscription_payment(public.plans.id%type,text,text) to authenticated;
+revoke all on function public.create_subscription_payment(text,text,text) from public,anon;
+grant execute on function public.create_subscription_payment(text,text,text) to authenticated;
 
 create or replace function public.create_kora_transaction(
   p_manager_id uuid,p_talent_id uuid,p_project_id uuid,p_amount numeric,p_currency text default 'XOF'
