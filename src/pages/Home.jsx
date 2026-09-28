@@ -27,6 +27,7 @@ import { useAuth } from "@/lib/AuthContext"
 import { supabase } from "@/lib/supabase"
 import { APP_PARAMS } from "@/lib/app-params"
 import { cn, formatCurrency, truncate } from "@/lib/utils"
+import koraLogo from "@/assets/kora-logo.svg"
 import { useKoraStats } from "@/lib/useKoraStats"
 
 const fadeInUp = {
