@@ -225,7 +225,7 @@ export default function Landing() {
           style={{ opacity: heroOpacity, scale: heroScale }}
           className="relative pt-32 pb-24 lg:pt-40 lg:pb-32 overflow-hidden"
         >
-          <div className="absolute inset-0 pointer-events-none">
+          <div className="absolute inset-0 pointer-events-none opacity-40">
             <div className="absolute top-20 -left-40 w-96 h-96 rounded-full bg-gradient-to-br from-gold/20 via-amber-300/10 to-transparent blur-3xl" />
             <div className="absolute top-60 -right-40 w-[500px] h-[500px] rounded-full bg-gradient-to-bl from-amber-400/15 via-yellow-300/10 to-transparent blur-3xl" />
             <div className="absolute bottom-0 left-1/3 w-80 h-80 rounded-full bg-gradient-to-t from-gold/10 to-transparent blur-3xl" />
@@ -239,8 +239,8 @@ export default function Landing() {
               className="max-w-4xl mx-auto text-center"
             >
               <motion.div variants={fadeInUp} custom={0} className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-gold/10 border border-gold/30 mb-8">
-                <Sparkles className="h-4 w-4 text-gold-dark" />
-                <span className="text-sm font-semibold text-gold-dark">✨ Nouvelle plateforme — Lancement officiel en Afrique de l'Ouest</span>
+                <span className="h-1.5 w-1.5 rounded-full bg-gold-dark" aria-hidden="true" />
+                <span className="text-sm font-semibold text-gold-dark">Nouvelle plateforme — Lancement officiel en Afrique de l'Ouest</span>
               </motion.div>
 
               <motion.h1
@@ -249,10 +249,10 @@ export default function Landing() {
                 className="text-5xl sm:text-6xl lg:text-7xl font-black tracking-tight leading-[1.05] mb-6"
               >
                 Révélez les talents{" "}
-                <span className="gold-text-gradient italic">africains</span>
+                <span className="text-gold-dark italic">africains</span>
                 <br />
                 qui feront votre{" "}
-                <span className="gold-text-gradient">succès</span>
+                <span className="text-gold-dark">succès</span>
               </motion.h1>
 
               <motion.p
@@ -299,8 +299,8 @@ export default function Landing() {
               transition={{ delay: 0.8, duration: 0.8, ease: [0.22, 1, 0.36, 1] }}
               className="mt-20 relative"
             >
-              <div className="absolute -inset-1 bg-gradient-to-r from-gold via-amber-300 to-gold rounded-3xl blur-xl opacity-25" />
-              <div className="relative rounded-3xl border-2 border-gold/25 bg-card shadow-2xl overflow-hidden">
+              <div className="absolute -inset-px rounded-3xl border border-gold/15 opacity-70" />
+              <div className="relative rounded-3xl border border-border bg-card shadow-xl overflow-hidden">
                 <div className="flex items-center gap-2 px-5 py-3 bg-gradient-to-r from-accent/50 to-transparent border-b border-gold/15">
                   <div className="flex gap-1.5">
                     <div className="w-3 h-3 rounded-full bg-red-400/70" />
