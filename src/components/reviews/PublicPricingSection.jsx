@@ -8,6 +8,39 @@ import { Badge } from "@/components/ui/badge"
 import { supabase } from "@/lib/supabase"
 import { formatCurrency } from "@/lib/utils"
 
+const PLAN_DETAILS = {
+  Essai: [
+    "30 jours gratuits",
+    "1 talent maximum",
+    "Outils professionnels",
+    "Gestion du profil talent",
+    "Portfolio et compétences",
+    "Gestion des demandes",
+    "Visibilité sur KORA selon le workflow de publication",
+    "Pas de transactions KORA",
+    "0 % de commission",
+  ],
+  Pro: [
+    "3 talents maximum",
+    "Outils professionnels",
+    "Gestion des profils",
+    "Portfolio et compétences",
+    "Gestion des demandes et projets",
+    "Fonctionnalités professionnelles KORA",
+    "Pas de paiement de transactions via KORA",
+    "0 % de commission sur les transactions KORA",
+  ],
+  Business: [
+    "Talents illimités",
+    "Tous les outils professionnels",
+    "Transactions directement via KORA",
+    "Paiement des projets via KORA",
+    "Suivi des transactions",
+    "5 % de commission uniquement sur les transactions réalisées via KORA",
+    "95 % du montant de la transaction revient au manager/talent",
+  ],
+}
+
 export default function PublicPricingSection({ fadeInUp, staggerContainer }) {
   const [plans, setPlans] = useState([])
   const [loading, setLoading] = useState(true)
@@ -95,10 +128,10 @@ export default function PublicPricingSection({ fadeInUp, staggerContainer }) {
                     <CheckCircle2 className="h-5 w-5 text-emerald-500 shrink-0 mt-0.5" />
                     <span className="text-sm">{plan.talent_limit == null ? "Talents illimités" : `Jusqu'à ${plan.talent_limit} talents`}</span>
                   </li>
-                  {features.map((feature) => (
+                  {(PLAN_DETAILS[plan.name] || features).map((feature) => (
                     <li key={feature} className="flex items-start gap-3">
                       <CheckCircle2 className="h-5 w-5 text-emerald-500 shrink-0 mt-0.5" />
-                      <span className="text-sm capitalize">{feature}</span>
+                      <span className="text-sm">{feature}</span>
                     </li>
                   ))}
                 </ul>
