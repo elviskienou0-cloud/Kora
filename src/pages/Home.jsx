@@ -3,7 +3,6 @@ import { Link, useNavigate } from "react-router-dom"
 import { motion } from "framer-motion"
 import { toast } from "sonner"
 import {
-  Sparkles,
   Users,
   Briefcase,
   Star,
@@ -28,6 +27,7 @@ import { useAuth } from "@/lib/AuthContext"
 import { supabase } from "@/lib/supabase"
 import { APP_PARAMS } from "@/lib/app-params"
 import { cn, formatCurrency, truncate } from "@/lib/utils"
+import koraLogo from "@/assets/kora-logo.svg"
 import { useKoraStats } from "@/lib/useKoraStats"
 
 const fadeInUp = {
@@ -196,7 +196,7 @@ export default function Home() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
           <Link to="/home" className="flex items-center gap-2.5">
             <div className="w-9 h-9 rounded-xl gold-gradient flex items-center justify-center shadow-md shadow-gold/25">
-              <Sparkles className="h-5 w-5 text-primary-foreground" strokeWidth={2.5} />
+              <img src={koraLogo} alt="KORA" className="h-5 w-5 object-contain" />
             </div>
             <span className="text-xl font-black gold-text-gradient">{APP_PARAMS.name}</span>
           </Link>

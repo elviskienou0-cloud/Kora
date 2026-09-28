@@ -23,6 +23,7 @@ import {
   BriefcaseBusiness,
   AlertTriangle,
   WalletCards,
+  Sparkles,
 } from "lucide-react"
 import { useAuth } from "@/lib/AuthContext.jsx"
 import useIsMobile from "@/hooks/use-mobile.jsx"
