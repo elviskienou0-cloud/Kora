@@ -35,13 +35,7 @@ const FOOTER_LINKS = {
   ],
 }
 
-const SOCIAL_LINKS = [] // Réseaux sociaux masqués tant que les URLs officielles ne sont pas configurées
-  { icon: Facebook, href: "#", label: "Facebook" },
-  { icon: Twitter, href: "#", label: "Twitter" },
-  { icon: Instagram, href: "#", label: "Instagram" },
-  { icon: Linkedin, href: "#", label: "LinkedIn" },
-  { icon: Youtube, href: "#", label: "YouTube" },
-]
+const SOCIAL_LINKS = []
 
 export default function LandingFooter() {
   return (
