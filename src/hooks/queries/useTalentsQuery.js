@@ -195,18 +195,18 @@ export function useTalentsQuery({
       }
 
       if (term) {
-        query = query.or([
+        const searchParts = [
           "first_name.ilike.%" + term + "%",
           "last_name.ilike.%" + term + "%",
           "title.ilike.%" + term + "%",
           "city.ilike.%" + term + "%",
-        ].join(","))
+        ]
 
         if (matchingSkillTalentIds?.length) {
-          query = query.in("id", matchingSkillTalentIds)
-        } else if (matchingSkillTalentIds && matchingSkillTalentIds.length === 0) {
-          query = query.eq("id", "00000000-0000-0000-0000-000000000000")
+          searchParts.push("id.in.(" + matchingSkillTalentIds.join(",") + ")")
         }
+
+        query = query.or(searchParts.join(","))
       }
 
       const {
