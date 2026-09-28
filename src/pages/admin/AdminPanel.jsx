@@ -11,7 +11,7 @@ import {
   RefreshCw,
   Settings,
   ShieldCheck,
-  Sparkles,
+  ContactRound,
   Users,
   UserCheck,
   UserCog,
@@ -42,7 +42,6 @@ import AdminSubscriptions from "@/pages/admin/Subscriptions.jsx"
 import AdminPayments from "@/pages/admin/Payments.jsx"
 import AdminLogs from "@/pages/admin/Logs.jsx"
 import AdminAnnouncements from "@/pages/admin/Announcements.jsx"
-import ManagerSettings from "@/pages/manager/Settings.jsx"
 import {
   ResponsiveContainer,
   BarChart,
@@ -345,7 +344,19 @@ export default function AdminPanel() {
       case "announcements":
         return <AdminAnnouncements />
       case "settings":
-        return <ManagerSettings />
+        return (
+          <Card className="border-border/60">
+            <CardContent className="space-y-4 p-6">
+              <div>
+                <p className="font-black">Paramètres administration</p>
+                <p className="mt-1 text-sm text-muted-foreground">Les réglages de sécurité et de configuration administrateur sont gérés depuis Supabase et l’environnement de déploiement.</p>
+              </div>
+              <div className="rounded-xl border bg-muted/30 p-4 text-sm text-muted-foreground">
+                Session administrateur active. Aucun réglage manager n’est affiché dans cet espace.
+              </div>
+            </CardContent>
+          </Card>
+        )
       case "dashboard":
       default:
         return renderDashboard()
@@ -425,7 +436,7 @@ export default function AdminPanel() {
             ["users", "Utilisateurs", Users],
             ["managers", "Managers", UserCog],
             ["clients", "Clients", UserCheck],
-            ["talents", "Talents", Sparkles],
+            ["talents", "Talents", ContactRound],
             ["projects", "Projets", FolderKanban],
             ["requests", "Demandes", BriefcaseBusiness],
             ["messages", "Messages", MessageSquare],
