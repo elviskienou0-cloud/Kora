@@ -446,7 +446,7 @@ export default function ClientDashboard() {
                         key={request.id}
                         type="button"
                         onClick={() =>
-                          navigate(`/client/requests/${request.id}`)
+                          navigate("/client/requests")
                         }
                         className="w-full flex flex-col sm:flex-row sm:items-center gap-3 py-4 text-left hover:bg-accent/30 transition-colors rounded-lg px-2"
                       >
