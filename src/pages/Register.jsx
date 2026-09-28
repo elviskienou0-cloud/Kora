@@ -1,5 +1,5 @@
 import { useState } from "react"
-import { Link, useNavigate } from "react-router-dom"
+import { Link, useNavigate, useSearchParams } from "react-router-dom"
 import { motion } from "framer-motion"
 import { Eye, EyeOff, Lock, Mail, UserRound, ArrowRight } from "lucide-react"
 
@@ -12,14 +12,18 @@ import koraLogo from "@/assets/kora-logo.svg"
 
 export default function Register() {
   const navigate = useNavigate()
+  const [searchParams] = useSearchParams()
   const { register } = useAuth()
+
+  const requestedRole = searchParams.get("role")
+  const initialRole = requestedRole === "manager" ? "manager" : "client"
 
   const [form, setForm] = useState({
     firstName: "",
     lastName: "",
     email: "",
     password: "",
-    role: "client",
+    role: initialRole,
   })
   const [showPassword, setShowPassword] = useState(false)
   const [loading, setLoading] = useState(false)
