@@ -11,18 +11,8 @@ export const APP_PARAMS = {
     instagram: "https://instagram.com/kora.africa",
   },
   countries: [
-    "Côte d'Ivoire",
-    "Afrique du Sud",
-    "Nigéria",
-    "Kenya",
-    "Ghana",
-    "Maroc",
-    "Égypte",
-    "Sénégal",
-    "Éthiopie",
-    "Tanzanie",
-    "Cameroun",
-    "Rwanda",
+    "Côte d'Ivoire","Afrique du Sud","Nigéria","Kenya","Ghana","Maroc","Égypte",
+    "Sénégal","Éthiopie","Tanzanie","Cameroun","Rwanda",
   ],
   categories: [
     { id: "music", name: "Musique & Spectacle", icon: "music" },
@@ -38,11 +28,9 @@ export const APP_PARAMS = {
     { id: "gastronomy", name: "Gastronomie & Traiteur", icon: "utensils" },
   ],
   plans: {
-    free: { name: "Découverte", price: 0, period: "/mois" },
-    pro: { name: "Talent Pro", price: 2500, period: "/mois" },
-    business: { name: "Business", price: 7500, period: "/mois" },
-    enterprise: { name: "Entreprise", price: null, period: "" },
+    trial: { name: "Essai", price: 0, period: "30 jours", talentLimit: 1, commissionPct: 0 },
+    pro: { name: "Pro", price: 3000, period: "/mois", talentLimit: 3, commissionPct: 0 },
+    business: { name: "Business", price: 0, period: "", talentLimit: null, commissionPct: 5 },
   },
 }
-
 export default APP_PARAMS
