@@ -50,7 +50,7 @@ export default function PublicPricingSection({ fadeInUp, staggerContainer }) {
     >
       {plans.map((plan, i) => {
         const features = Object.entries(plan.features || {}).filter(([, enabled]) => enabled).map(([key]) => key.replace(/_/g, " "))
-        const highlighted = plan.id === "PREMIUM"
+        const highlighted = plan.name === "Pro"
 
         return (
           <motion.div
