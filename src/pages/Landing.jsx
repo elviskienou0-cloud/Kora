@@ -120,14 +120,28 @@ export default function Landing() {
     }
   }, [])
 
-  const planFeatureLabels = {
-    messaging: "Messagerie",
-    favorites: "Favoris",
-    project_invitations: "Invitations de projets",
-    analytics: "Analytics",
-    contracts: "Contrats & e-signatures",
-    api: "API & webhooks",
-    account_manager: "Account manager dédié",
+  const PLAN_DETAILS = {
+    "Essai": [
+      "30 jours gratuits",
+      "1 talent maximum",
+      "Outils professionnels",
+      "Gestion du profil et des demandes",
+      "0 % de commission",
+    ],
+    "Pro": [
+      "Jusqu’à 3 talents",
+      "Outils professionnels complets",
+      "Gestion des profils et projets",
+      "0 % de commission KORA",
+      "Sans paiement via KORA",
+    ],
+    "Business": [
+      "Talents illimités",
+      "Tous les outils professionnels",
+      "Paiements via KORA",
+      "Suivi des transactions",
+      "5 % uniquement sur les transactions réalisées via KORA",
+    ],
   }
 
   const formatPlanPrice = (plan) => {
@@ -139,23 +153,21 @@ export default function Landing() {
     }).format(price)
   }
 
-  const planCards = publicPlans.slice(0, 3).map((plan, index) => {
-    const enabledFeatures = plan?.features && typeof plan.features === "object"
-      ? Object.entries(plan.features).filter(([, value]) => value === true).map(([key]) => planFeatureLabels[key] || key)
-      : []
-
-    return {
+  const planCards = ["Essai", "Pro", "Business"]
+    .map((planName) => publicPlans.find((plan) => plan.name === planName))
+    .filter(Boolean)
+    .map((plan) => ({
       ...plan,
-      description: index === 0
-        ? "Pour découvrir et tester la plateforme"
-        : index === 1
-          ? "Pour développer votre activité sur KORA"
-          : "Pour les équipes et entreprises",
-      featureList: enabledFeatures,
-      highlighted: index === 1,
-      period: Number(plan?.duration_months || 1) === 1 ? "/ mois" : ` / ${plan.duration_months} mois`,
-    }
-  })
+      description:
+        plan.name === "Essai"
+          ? "Pour découvrir KORA"
+          : plan.name === "Pro"
+            ? "Pour développer votre activité"
+            : "Pour développer votre activité sur KORA",
+      featureList: PLAN_DETAILS[plan.name] || [],
+      highlighted: plan.name === "Pro",
+      period: plan.name === "Pro" ? "/ mois" : "",
+    }))
 
   const features = [
     {
@@ -614,7 +626,7 @@ export default function Landing() {
                         variant={plan.highlighted ? "default" : "outline"}
                         onClick={() => navigate("/register")}
                       >
-                        {plan.trial_days > 0 ? `Essai ${plan.trial_days} jours` : plan.price > 0 ? "Choisir" : "Commencer"} <ArrowRight className="h-4 w-4" />
+                        {plan.name === "Pro" ? "Choisir Pro" : plan.name === "Business" ? "Activer Business" : "Commencer"} <ArrowRight className="h-4 w-4" />
                       </Button>
                     </CardContent>
                   </Card>
