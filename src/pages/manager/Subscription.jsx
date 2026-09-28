@@ -17,6 +17,41 @@ function formatMoney(value, currency = "XOF") {
   }).format(Number(value || 0))
 }
 
+function getPlanDetails(plan) {
+  const name = String(plan?.name || "").toLowerCase()
+  if (name === "essai") return [
+    "30 jours gratuits",
+    "1 talent maximum",
+    "Outils professionnels",
+    "Gestion du profil talent",
+    "Portfolio et compétences",
+    "Gestion des demandes",
+    "Visibilité sur KORA selon le workflow de publication",
+    "Pas de transactions KORA",
+    "0 % de commission",
+  ]
+  if (name === "pro") return [
+    "3 talents maximum",
+    "Outils professionnels",
+    "Gestion des profils",
+    "Portfolio et compétences",
+    "Gestion des demandes et projets",
+    "Fonctionnalités professionnelles KORA",
+    "Pas de paiement de transactions via KORA",
+    "0 % de commission sur les transactions KORA",
+  ]
+  if (name === "business") return [
+    "Talents illimités",
+    "Tous les outils professionnels",
+    "Transactions directement via KORA",
+    "Paiement des projets via KORA",
+    "Suivi des transactions",
+    "5 % de commission uniquement sur les transactions réalisées via KORA",
+    "95 % du montant de la transaction revient au manager/talent",
+  ]
+  return []
+}
+
 function formatDate(value) {
   if (!value) return "—"
   const d = new Date(value)
@@ -186,8 +221,8 @@ export default function ManagerSubscription() {
 
                 <div className="space-y-2">
                   <div className="text-sm font-bold">Limite talents : {plan.talent_limit == null ? "Illimitée" : plan.talent_limit}</div>
-                  {features.map((feature) => (
-                    <div key={feature} className="flex items-center gap-2 text-sm text-muted-foreground">
+                  {getPlanDetails(plan).map((feature) => (
+                    <div key={feature} className="flex items-start gap-2 text-sm text-muted-foreground">
                       <CheckCircle2 className="h-4 w-4 text-emerald-600" />
                       {feature.replace(/_/g, " ")}
                     </div>
