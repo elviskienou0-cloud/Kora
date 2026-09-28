@@ -834,7 +834,7 @@ export default function ClientBrowse() {
             <div>
               <h1 className="text-2xl font-bold tracking-tight md:text-3xl">
                 Découvrez nos{" "}
-                <span className="gold-text-gradient">
+                <span className="text-gold-dark">
                   Talents
                 </span>
               </h1>
@@ -871,7 +871,7 @@ export default function ClientBrowse() {
                 onChange={
                   handleSearchChange
                 }
-                className="h-12 pl-12 pr-4 border-gold/30 focus:border-gold focus:ring-gold/30 bg-card text-base"
+                className="h-12 pl-12 pr-4 border-border focus:border-gold focus:ring-gold/30 bg-card text-base"
               />
 
               {search ? (
@@ -896,7 +896,7 @@ export default function ClientBrowse() {
                     event.target.value
                   )
                 }
-                className="h-12 rounded-xl border border-gold/30 bg-card px-4 pr-9 text-sm font-medium text-foreground focus:outline-none focus:ring-2 focus:ring-gold/30"
+                className="h-12 rounded-xl border border-border bg-card px-4 pr-9 text-sm font-medium text-foreground focus:outline-none focus:ring-2 focus:ring-gold/30"
               >
                 <option value="recommended">
                   Recommandés
@@ -924,7 +924,7 @@ export default function ClientBrowse() {
                   )
                 }
                 className={cn(
-                  "h-12 gap-2 border-gold/30",
+                  "h-12 gap-2 border-border",
                   showFilters ||
                     activeFiltersCount >
                       0
@@ -977,7 +977,7 @@ export default function ClientBrowse() {
                         selectedCategory ===
                           category.id
                           ? "gold-gradient text-primary-foreground border-transparent shadow-gold/30"
-                          : "border-gold/20 bg-card text-muted-foreground hover:border-gold/40 hover:text-foreground"
+                          : "border-border bg-card text-muted-foreground hover:border-border hover:text-foreground"
                       )}
                     >
                       <Icon className="h-4 w-4" />
@@ -1012,7 +1012,7 @@ export default function ClientBrowse() {
                 }}
                 className="overflow-hidden"
               >
-                <Card className="border-gold/20 shadow-sm">
+                <Card className="border-border shadow-sm">
                   <CardContent className="grid gap-5 p-5 md:grid-cols-3">
                     <div className="space-y-2">
                       <label className="text-sm font-semibold text-foreground flex items-center gap-2">
@@ -1269,7 +1269,7 @@ export default function ClientBrowse() {
                   }
                   className="col-span-full"
                 >
-                  <Card className="border-dashed border-gold/30 bg-card/50">
+                  <Card className="border-dashed border-border bg-card/50">
                     <CardContent className="flex flex-col items-center justify-center py-16 text-center">
                       <div className="mb-4 flex h-16 w-16 items-center justify-center rounded-2xl bg-gold/10 text-gold-dark">
                         <Search className="h-8 w-8" />
@@ -1288,7 +1288,7 @@ export default function ClientBrowse() {
                           resetFilters
                         }
                         variant="outline"
-                        className="mt-5 border-gold/50 text-gold-dark hover:bg-gold/10"
+                        className="mt-5 border-gold/50 text-gold-dark hover:bg-accent"
                       >
                         Réinitialiser les filtres
                       </Button>
@@ -1307,7 +1307,7 @@ export default function ClientBrowse() {
                       }
                       layout
                     >
-                      <Card className="group h-full border-gold/15 transition-all duration-300 hover:border-gold/40 hover:shadow-xl hover:shadow-gold/10 hover:-translate-y-0.5">
+                      <Card className="group h-full border-gold/15 transition-all duration-300 hover:border-border hover:shadow-xl hover:shadow-gold/10 hover:-translate-y-0.5">
                         <CardHeader className="pb-3">
                           <div className="flex items-start justify-between">
                             <div className="flex items-start gap-3">
@@ -1502,7 +1502,7 @@ export default function ClientBrowse() {
                               Tarif journalier
                             </p>
 
-                            <p className="text-lg font-bold gold-text-gradient">
+                            <p className="text-lg font-bold text-gold-dark">
                               {formatCurrency(
                                 talent.rate,
                                 talent.currency
@@ -1519,7 +1519,7 @@ export default function ClientBrowse() {
                                   `/talent/${talent.id}`
                                 )
                               }
-                              className="text-gold-dark hover:bg-gold/10 h-9 w-9 p-0"
+                              className="text-gold-dark hover:bg-accent h-9 w-9 p-0"
                               title="Voir le profil"
                             >
                               <Eye className="h-4 w-4" />
@@ -1532,7 +1532,7 @@ export default function ClientBrowse() {
                                   `/talent/${talent.id}`
                                 )
                               }
-                              className="h-9 gold-gradient text-primary-foreground hover:opacity-90 shadow-sm shadow-gold/25"
+                              className="h-9 bg-foreground text-background hover:bg-foreground/90 shadow-sm"
                             >
                               <Send className="h-3.5 w-3.5 mr-1.5" />
                               Contacter
@@ -1562,13 +1562,13 @@ export default function ClientBrowse() {
                     page <= 1 ||
                     talentsFetching
                   }
-                  className="gap-2 border-gold/30"
+                  className="gap-2 border-border"
                 >
                   <ChevronLeft className="h-4 w-4" />
                   Précédent
                 </Button>
 
-                <div className="rounded-xl border border-gold/20 bg-card px-4 py-2 text-sm">
+                <div className="rounded-xl border border-border bg-card px-4 py-2 text-sm">
                   Page{" "}
                   <span className="font-black">
                     {page}
@@ -1589,7 +1589,7 @@ export default function ClientBrowse() {
                       totalPages ||
                     talentsFetching
                   }
-                  className="gap-2 border-gold/30"
+                  className="gap-2 border-border"
                 >
                   Suivant
                   <ChevronRight className="h-4 w-4" />
