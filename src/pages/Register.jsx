@@ -45,7 +45,7 @@ export default function Register() {
         return
       }
 
-      navigate("/home", { replace: true })
+      navigate(result?.role === "manager" ? "/manager/dashboard" : "/client/dashboard", { replace: true })
     } catch (err) {
       setError(err?.message || "Impossible de créer le compte.")
     } finally {
