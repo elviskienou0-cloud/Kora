@@ -1059,10 +1059,38 @@ export default function ManagerTalents() {
       }
 
       if (formData.avatarFile || formData.coverFile) {
-        await uploadTalentProfileMedia(talentId, managerId, {
-          avatar: formData.avatarFile,
-          cover: formData.coverFile,
-        })
+        // Upload vers le bucket public puis enregistrer les URLs dans talent_profiles.
+        // IMPORTANT : la fonction attend managerId puis talentId.
+        const mediaUrls = await uploadTalentProfileMedia(
+          managerId,
+          talentId,
+          {
+            avatar: formData.avatarFile,
+            cover: formData.coverFile,
+          }
+        )
+
+        const mediaUpdate = {}
+
+        if (mediaUrls.avatar_url) {
+          mediaUpdate.avatar_url = mediaUrls.avatar_url
+        }
+
+        if (mediaUrls.cover_url) {
+          mediaUpdate.cover_url = mediaUrls.cover_url
+        }
+
+        if (Object.keys(mediaUpdate).length > 0) {
+          const { error: mediaUpdateError } = await supabase
+            .from("talent_profiles")
+            .update(mediaUpdate)
+            .eq("id", talentId)
+            .eq("managed_by", managerId)
+
+          if (mediaUpdateError) {
+            throw mediaUpdateError
+          }
+        }
       }
 
       if ((formData.portfolioFiles || []).length > 0) {
