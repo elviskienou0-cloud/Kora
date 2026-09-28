@@ -1,7 +1,6 @@
 import { Link } from "react-router-dom"
 import { motion } from "framer-motion"
 import {
-  Sparkles,
   Mail,
   Phone,
   MapPin,
@@ -13,12 +12,13 @@ import {
   Heart,
 } from "lucide-react"
 import { cn } from "@/lib/utils.js"
+import koraLogo from "@/assets/kora-logo.svg"
 
 const FOOTER_LINKS = {
   Plateforme: [
     { label: "Accueil", href: "/" },
     { label: "Catégories", href: "/categories" },
-    { label: "Devenir Talent", href: "/register?role=talent" },
+    { label: "Devenir Manager", href: "/register?role=manager" },
     { label: "Tarifs", href: "#pricing" },
   ],
   Support: [
@@ -35,7 +35,7 @@ const FOOTER_LINKS = {
   ],
 }
 
-const SOCIAL_LINKS = [
+const SOCIAL_LINKS = [] // Réseaux sociaux masqués tant que les URLs officielles ne sont pas configurées
   { icon: Facebook, href: "#", label: "Facebook" },
   { icon: Twitter, href: "#", label: "Twitter" },
   { icon: Instagram, href: "#", label: "Instagram" },
@@ -56,12 +56,7 @@ export default function LandingFooter() {
           ========================== */}
           <div className="lg:col-span-2">
             <Link to="/" className="inline-flex items-center gap-2 group mb-5">
-              <div className="w-11 h-11 rounded-2xl gold-gradient flex items-center justify-center shadow-lg shadow-gold/25 group-hover:shadow-gold/40 transition-all">
-                <Sparkles
-                  className="h-6 w-6 text-white"
-                  strokeWidth={2.5}
-                />
-              </div>
+              <img src={koraLogo} alt="KORA" className="w-11 h-11 rounded-2xl object-contain" />
 
               <span className="text-2xl font-bold tracking-tight gold-text-gradient font-display">
                 KORA
