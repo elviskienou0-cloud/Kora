@@ -22,7 +22,7 @@ import {
   Star,
   ChevronRight,
   Search,
-  Sparkles,
+  LayoutDashboard,
   Users,
   Briefcase,
   AlertCircle,
@@ -325,7 +325,7 @@ export default function ClientDashboard() {
         >
           <div className="flex items-center gap-3">
             <div className="flex h-12 w-12 items-center justify-center rounded-2xl gold-gradient shadow-lg shadow-gold/25">
-              <Sparkles className="h-6 w-6 text-white" />
+              <LayoutDashboard className="h-6 w-6 text-white" />
             </div>
 
             <div>
