@@ -294,6 +294,7 @@ export default function Landing() {
             </motion.div>
 
             <motion.div
+              id="talents"
               initial={{ opacity: 0, y: 60, scale: 0.95 }}
               animate={{ opacity: 1, y: 0, scale: 1 }}
               transition={{ delay: 0.8, duration: 0.8, ease: [0.22, 1, 0.36, 1] }}
@@ -680,7 +681,7 @@ export default function Landing() {
                     size="lg"
                     variant="outline"
                     className="border-2 border-white/60 text-primary-foreground hover:bg-white/20 gap-2 font-black"
-                    onClick={() => navigate("/register?role=talent")}
+                    onClick={() => navigate("/register?role=manager")}
                   >
                     <Sparkles className="h-5 w-5" />
                     Managers
