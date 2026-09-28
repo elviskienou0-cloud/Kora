@@ -1,6 +1,56 @@
-<svg width="64" height="64" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
-  <rect width="64" height="64" rx="18" fill="#111111"/>
-  <path d="M19 17V47" stroke="#D4A72C" stroke-width="6" stroke-linecap="round"/>
-  <path d="M25 32L44 17" stroke="#D4A72C" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/>
-  <path d="M25 32L45 47" stroke="#F3D27A" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/>
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="1024" height="1024" viewBox="0 0 1024 1024" role="img" aria-labelledby="title desc">
+  <title id="title">KORA — K icon</title>
+  <desc id="desc">Luxury KORA app icon with a metallic gold K on glossy black.</desc>
+  <defs>
+    <linearGradient id="goldFrame" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#fff0a8"/>
+      <stop offset="0.18" stop-color="#f5c95d"/>
+      <stop offset="0.45" stop-color="#b87812"/>
+      <stop offset="0.65" stop-color="#ffd968"/>
+      <stop offset="0.88" stop-color="#c98a1a"/>
+      <stop offset="1" stop-color="#fff2a9"/>
+    </linearGradient>
+    <linearGradient id="goldK" x1="0.1" y1="0.1" x2="0.9" y2="0.95">
+      <stop offset="0" stop-color="#fff3a6"/>
+      <stop offset="0.22" stop-color="#ffd968"/>
+      <stop offset="0.5" stop-color="#fff8c6"/>
+      <stop offset="0.72" stop-color="#d89422"/>
+      <stop offset="1" stop-color="#fff0a0"/>
+    </linearGradient>
+    <linearGradient id="glass" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#0c0d0f"/>
+      <stop offset="0.5" stop-color="#010102"/>
+      <stop offset="1" stop-color="#101215"/>
+    </linearGradient>
+    <linearGradient id="gloss" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#ffffff" stop-opacity="0.22"/>
+      <stop offset="1" stop-color="#ffffff" stop-opacity="0"/>
+    </linearGradient>
+    <filter id="shadow" x="-30%" y="-30%" width="160%" height="160%">
+      <feDropShadow dx="0" dy="18" stdDeviation="18" flood-color="#000" flood-opacity="0.45"/>
+    </filter>
+    <filter id="kShadow" x="-30%" y="-30%" width="160%" height="160%">
+      <feDropShadow dx="0" dy="8" stdDeviation="7" flood-color="#000" flood-opacity="0.75"/>
+    </filter>
+  </defs>
+
+  <!-- Outer icon -->
+  <rect x="58" y="58" width="908" height="908" rx="165" fill="url(#goldFrame)" filter="url(#shadow)"/>
+  <rect x="76" y="76" width="872" height="872" rx="150" fill="#080808" stroke="#fff0a0" stroke-width="3"/>
+  <rect x="92" y="92" width="840" height="840" rx="132" fill="url(#glass)"/>
+
+  <!-- Glass highlights -->
+  <path d="M135 225 C210 126 350 104 520 104 L840 104 C894 104 925 130 925 175 C820 230 690 267 558 263 C395 258 250 246 135 225 Z" fill="url(#gloss)"/>
+  <path d="M738 112 L916 112 L916 320 C866 272 806 224 738 178 Z" fill="#fff" opacity="0.08"/>
+
+  <!-- K -->
+  <g transform="translate(180.6096,785.6790) scale(0.411154,-0.411154)" filter="url(#kShadow)">
+    <path d="M1469 1341V1268L1305 1242L862 851L1452 100L1577 73V0H1139L638 646L522 546V100L715 73V0H35V73L207 100V1242L35 1268V1341H695V1268L522 1242V696L1133 1242L1010 1268V1341Z" fill="url(#goldK)" stroke="#8e5b0b" stroke-width="7" stroke-linejoin="round" paint-order="stroke fill"/>
+  </g>
+
+  <!-- K edge highlight -->
+  <g transform="translate(180.6096,785.6790) scale(0.411154,-0.411154)" opacity="0.55">
+    <path d="M1469 1341V1268L1305 1242L862 851L1452 100L1577 73V0H1139L638 646L522 546V100L715 73V0H35V73L207 100V1242L35 1268V1341H695V1268L522 1242V696L1133 1242L1010 1268V1341Z" fill="none" stroke="#fff7bf" stroke-width="2.8"/>
+  </g>
 </svg>

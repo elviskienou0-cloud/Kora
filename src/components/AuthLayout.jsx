@@ -1,6 +1,5 @@
 import { Outlet, Link } from "react-router-dom"
 import { motion } from "framer-motion"
-import { Sparkles } from "lucide-react"
 import { cn } from "@/lib/utils.js"
 
 export default function AuthLayout() {
@@ -22,7 +21,7 @@ export default function AuthLayout() {
             <div className={cn(
               "w-12 h-12 rounded-2xl gold-gradient flex items-center justify-center shadow-lg shadow-gold/25 group-hover:shadow-gold/40 transition-shadow duration-300"
             )}>
-              <Sparkles className="h-6 w-6 text-white" strokeWidth={2.5} />
+              <img src="/favicon.svg" alt="KORA" className="h-full w-full rounded-2xl object-contain" />
             </div>
             <span className="text-3xl font-bold tracking-tight gold-text-gradient font-display">
               KORA

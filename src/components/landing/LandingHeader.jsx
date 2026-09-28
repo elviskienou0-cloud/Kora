@@ -120,7 +120,7 @@ export default function LandingHeader() {
               <div className="h-16 px-5 flex items-center justify-between border-b border-border">
                 <div className="flex items-center gap-2">
                   <div className="w-9 h-9 rounded-xl gold-gradient flex items-center justify-center">
-                    <Sparkles className="h-5 w-5 text-white" strokeWidth={2.5} />
+                    <img src={koraLogo} alt="KORA" className="h-full w-full rounded-xl object-contain" />
                   </div>
                   <span className="text-xl font-bold gold-text-gradient font-display">KORA</span>
                 </div>
