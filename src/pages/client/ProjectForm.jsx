@@ -13,8 +13,6 @@ import { useAuth } from "@/lib/AuthContext"
 import { supabase } from "@/lib/supabase"
 
 const CURRENCIES = ["XOF", "XAF", "GHS", "NGN", "KES", "USD", "EUR"]
-const STATUSES = ["draft", "open", "pending", "active", "completed", "cancelled"]
-
 const EMPTY_FORM = {
   title: "",
   description: "",
@@ -130,29 +128,20 @@ export default function ProjectForm() {
       return
     }
 
-    if (!STATUSES.includes(form.status)) {
-      toast.error("État du projet invalide.")
-      return
-    }
-
     setSaving(true)
 
     try {
       const payload = {
-        client_id: authUserId,
-        manager_id: editing ? undefined : null,
         title,
         description,
         budget_min: min,
         budget_max: max,
         currency: form.currency,
-        status: form.status,
         due_date: form.due_date || null,
       }
 
       if (editing) {
-        delete payload.client_id
-        delete payload.manager_id
+        // Le statut d'un projet existant est piloté par le workflow KORA/RPC.
 
         const { error } = await supabase
           .from("projects")
@@ -165,9 +154,16 @@ export default function ProjectForm() {
         toast.success("Projet modifié ✅")
         navigate(`/client/projects/${id}`)
       } else {
+        const createPayload = {
+          ...payload,
+          client_id: authUserId,
+          manager_id: null,
+          status: "open",
+        }
+
         const { data, error } = await supabase
           .from("projects")
-          .insert(payload)
+          .insert(createPayload)
           .select("id")
           .single()
 
@@ -306,17 +302,13 @@ export default function ProjectForm() {
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="status">État</Label>
-                  <select
-                    id="status"
-                    value={form.status}
-                    onChange={(event) => setField("status", event.target.value)}
-                    className="h-10 w-full rounded-md border border-input bg-background px-3 text-sm capitalize focus:outline-none focus:ring-2 focus:ring-gold/30"
-                  >
-                    {STATUSES.map((status) => (
-                      <option key={status} value={status}>{status}</option>
-                    ))}
-                  </select>
+                  <Label>État</Label>
+                  <div className="h-10 flex items-center rounded-md border border-input bg-muted/40 px-3 text-sm font-semibold capitalize text-muted-foreground">
+                    {form.status || "open"}
+                  </div>
+                  <p className="text-xs text-muted-foreground">
+                    L'état est géré automatiquement par le processus KORA.
+                  </p>
                 </div>
               </div>
 

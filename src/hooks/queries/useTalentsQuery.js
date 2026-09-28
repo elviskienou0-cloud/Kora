@@ -51,6 +51,39 @@ export function useTalentsQuery({
         to,
       } = getPaginationRange(page, pageSize)
 
+      const term = String(search || "")
+        .trim()
+        .replace(/[%(),]/g, " ")
+
+      let matchingSkillTalentIds = null
+
+      if (term) {
+        const { data: matchingSkills, error: matchingSkillsError } = await supabase
+          .from("skills")
+          .select("id")
+          .ilike("name", "%" + term + "%")
+          .limit(100)
+
+        if (matchingSkillsError) {
+          console.warn("Recherche des compétences indisponible :", matchingSkillsError)
+        } else if (matchingSkills?.length) {
+          const skillIds = matchingSkills.map((skill) => skill.id)
+          const { data: skillLinks, error: skillLinksError } = await supabase
+            .from("talent_profile_skills")
+            .select("talent_id")
+            .in("skill_id", skillIds)
+            .limit(5000)
+
+          if (skillLinksError) {
+            console.warn("Recherche des talents par compétence indisponible :", skillLinksError)
+          } else {
+            matchingSkillTalentIds = [...new Set((skillLinks || []).map((row) => row.talent_id).filter(Boolean))]
+          }
+        } else {
+          matchingSkillTalentIds = []
+        }
+      }
+
       let query = supabase
         .from("talent_profiles")
         .select(
@@ -60,6 +93,8 @@ export function useTalentsQuery({
           last_name,
           title,
           bio,
+          avatar_url,
+          cover_url,
           city,
           daily_rate,
           currency,
@@ -83,15 +118,9 @@ export function useTalentsQuery({
         })
         .range(from, to)
 
-      /*
-       * IMPORTANT
-       * La RLS Supabase gère déjà la visibilité publique.
-       *
-       * On ne fait donc PAS :
-       * .eq("is_visible", true)
-       *
-       * afin de ne pas exclure un talent dont is_visible serait NULL.
-       */
+      if (visibleOnly) {
+        query = query.eq("is_visible", true)
+      }
 
       if (status && status !== "all") {
         query = query.eq("status", status)
@@ -165,21 +194,19 @@ export function useTalentsQuery({
         }
       }
 
-      const term = String(
-        search || ""
-      )
-        .trim()
-        .replace(/[%(),]/g, " ")
-
       if (term) {
-        query = query.or(
-          [
-            `first_name.ilike.%${term}%`,
-            `last_name.ilike.%${term}%`,
-            `title.ilike.%${term}%`,
-            `city.ilike.%${term}%`,
-          ].join(",")
-        )
+        query = query.or([
+          "first_name.ilike.%" + term + "%",
+          "last_name.ilike.%" + term + "%",
+          "title.ilike.%" + term + "%",
+          "city.ilike.%" + term + "%",
+        ].join(","))
+
+        if (matchingSkillTalentIds?.length) {
+          query = query.in("id", matchingSkillTalentIds)
+        } else if (matchingSkillTalentIds && matchingSkillTalentIds.length === 0) {
+          query = query.eq("id", "00000000-0000-0000-0000-000000000000")
+        }
       }
 
       const {
