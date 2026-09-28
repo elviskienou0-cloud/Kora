@@ -30,7 +30,6 @@ export default function ManagerSubscription() {
   const [plans, setPlans] = useState([])
   const [subscription, setSubscription] = useState(null)
   const [payments, setPayments] = useState([])
-  const [cycle, setCycle] = useState("monthly")
   const [loading, setLoading] = useState(true)
   const [loadingPlan, setLoadingPlan] = useState(null)
 
@@ -97,7 +96,7 @@ export default function ManagerSubscription() {
       const response = await fetch(supabaseUrl + "/functions/v1/create-payment", {
         method: "POST",
         headers: { "Content-Type": "application/json", Authorization: "Bearer " + token },
-        body: JSON.stringify({ plan_id: plan.id, billing_cycle: cycle, provider: import.meta.env.VITE_PAYMENT_PROVIDER || "unconfigured" }),
+        body: JSON.stringify({ plan_id: plan.id, billing_cycle: "monthly", provider: import.meta.env.VITE_PAYMENT_PROVIDER || "unconfigured" }),
       })
       const payload = await response.json().catch(() => ({}))
       if (!response.ok) throw new Error(payload?.error || "Impossible d'initialiser le paiement.")
@@ -157,17 +156,9 @@ export default function ManagerSubscription() {
         </Card>
       )}
 
-      <div className="flex justify-end">
-        <div className="inline-flex rounded-xl bg-muted/60 p-1">
-          <button type="button" onClick={() => setCycle("monthly")} className={`rounded-lg px-4 py-2 text-xs font-bold ${cycle === "monthly" ? "bg-background shadow" : "text-muted-foreground"}`}>Mensuel</button>
-          <button type="button" onClick={() => setCycle("yearly")} className={`rounded-lg px-4 py-2 text-xs font-bold ${cycle === "yearly" ? "bg-background shadow" : "text-muted-foreground"}`}>Annuel -10%</button>
-        </div>
-      </div>
-
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-5">
         {plans.map((plan) => {
-          const yearlyPrice = Math.round(Number(plan.price || 0) * 12 * (1 - Number(plan.annual_discount_pct || 0) / 100))
-          const price = cycle === "yearly" ? yearlyPrice : Number(plan.price || 0)
+          const price = Number(plan.price || 0)
           const isCurrent = currentPlanId === plan.id && ["trialing", "active"].includes(subscription?.status)
           const features = Object.entries(plan.features || {}).filter(([, enabled]) => enabled).map(([key]) => key)
 
@@ -187,11 +178,8 @@ export default function ManagerSubscription() {
                 <div>
                   <div className="flex items-baseline gap-1.5">
                     <span className="text-4xl font-black gold-text-gradient">{formatMoney(price, plan.currency)}</span>
-                    <span className="text-xs font-bold text-muted-foreground">{cycle === "yearly" ? "/ an" : "/ mois"}</span>
+                    <span className="text-xs font-bold text-muted-foreground">/ mois</span>
                   </div>
-                  {cycle === "yearly" && plan.price > 0 && (
-                    <p className="mt-1 text-[11px] font-bold text-emerald-600">Économie : {formatMoney(Number(plan.price) * 12 - yearlyPrice, plan.currency)} / an</p>
-                  )}
                 </div>
 
                 <Separator />
