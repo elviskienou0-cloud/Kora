@@ -2,7 +2,6 @@ import { useState, useEffect } from "react"
 import { Link, useNavigate } from "react-router-dom"
 import { motion, AnimatePresence } from "framer-motion"
 import {
-  Sparkles,
   Menu,
   X,
   ChevronRight,
@@ -14,6 +13,7 @@ import {
 } from "lucide-react"
 import { cn } from "@/lib/utils.js"
 import useIsMobile from "@/hooks/use-mobile.jsx"
+import koraLogo from "@/assets/kora-logo.svg"
 
 const NAV_LINKS = [
   { href: "/", label: "Accueil", icon: Home },
@@ -45,9 +45,7 @@ export default function LandingHeader() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="h-16 sm:h-20 flex items-center justify-between gap-4">
             <Link to="/" className="flex items-center gap-2 group shrink-0">
-              <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl gold-gradient flex items-center justify-center shadow-md shadow-gold/25 group-hover:shadow-gold/40 transition-all duration-300 group-hover:scale-105">
-                <Sparkles className="h-5 w-5 sm:h-[22px] sm:w-[22px] text-white" strokeWidth={2.5} />
-              </div>
+              <img src={koraLogo} alt="KORA" className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl object-contain" />
               <span className="text-xl sm:text-2xl font-bold tracking-tight gold-text-gradient font-display">
                 KORA
               </span>
