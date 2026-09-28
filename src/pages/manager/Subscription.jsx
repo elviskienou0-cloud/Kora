@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react"
+import { useEffect, useState } from "react"
 import { CheckCircle2, Clock3, CreditCard, Crown, Loader2, ShieldCheck } from "lucide-react"
 import { toast } from "sonner"
 
@@ -23,31 +23,22 @@ function getPlanDetails(plan) {
     "30 jours gratuits",
     "1 talent maximum",
     "Outils professionnels",
-    "Gestion du profil talent",
-    "Portfolio et compétences",
-    "Gestion des demandes",
-    "Visibilité sur KORA selon le workflow de publication",
-    "Pas de transactions KORA",
+    "Gestion du profil et des demandes",
     "0 % de commission",
   ]
   if (name === "pro") return [
-    "3 talents maximum",
-    "Outils professionnels",
-    "Gestion des profils",
-    "Portfolio et compétences",
-    "Gestion des demandes et projets",
-    "Fonctionnalités professionnelles KORA",
-    "Pas de paiement de transactions via KORA",
-    "0 % de commission sur les transactions KORA",
+    "Jusqu'à 3 talents",
+    "Outils professionnels complets",
+    "Gestion des profils et projets",
+    "0 % de commission KORA",
+    "Sans paiement via KORA",
   ]
   if (name === "business") return [
     "Talents illimités",
     "Tous les outils professionnels",
-    "Transactions directement via KORA",
-    "Paiement des projets via KORA",
+    "Paiements via KORA",
     "Suivi des transactions",
-    "5 % de commission uniquement sur les transactions réalisées via KORA",
-    "95 % du montant de la transaction revient au manager/talent",
+    "5 % uniquement sur les transactions réalisées via KORA",
   ]
   return []
 }
@@ -195,7 +186,6 @@ export default function ManagerSubscription() {
         {plans.map((plan) => {
           const price = Number(plan.price || 0)
           const isCurrent = currentPlanId === plan.id && ["trialing", "active"].includes(subscription?.status)
-          const features = Object.entries(plan.features || {}).filter(([, enabled]) => enabled).map(([key]) => key)
 
           return (
             <Card key={plan.id} className={`h-full border-border/60 ${isCurrent ? "border-gold/50 shadow-xl shadow-gold/10" : ""}`}>
@@ -219,12 +209,11 @@ export default function ManagerSubscription() {
 
                 <Separator />
 
-                <div className="space-y-2">
-                  <div className="text-sm font-bold">Limite talents : {plan.talent_limit == null ? "Illimitée" : plan.talent_limit}</div>
+                <div className="space-y-2.5">
                   {getPlanDetails(plan).map((feature) => (
                     <div key={feature} className="flex items-start gap-2 text-sm text-muted-foreground">
-                      <CheckCircle2 className="h-4 w-4 text-emerald-600" />
-                      {feature.replace(/_/g, " ")}
+                      <CheckCircle2 className="h-4 w-4 text-emerald-600 shrink-0 mt-0.5" />
+                      <span>{feature}</span>
                     </div>
                   ))}
                 </div>
