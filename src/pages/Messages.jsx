@@ -631,7 +631,7 @@ export default function Messages() {
                         }}
                         className="flex w-full items-center gap-4 border-b px-5 py-4 text-left last:border-b-0 hover:bg-accent/40"
                       >
-                        <div className="flex h-12 w-12 shrink-0 items-center justify-center overflow-hidden rounded-full bg-gold/10 font-bold text-gold">
+                        <div className="flex h-12 w-12 shrink-0 items-center justify-center overflow-hidden rounded-full bg-accent font-bold text-foreground">
                           {conversation.avatar ? (
                             <img
                               src={
@@ -672,7 +672,7 @@ export default function Messages() {
 
                             {conversation.unreadCount >
                               0 && (
-                              <span className="min-w-6 rounded-full bg-gold px-2 py-0.5 text-center text-xs font-bold text-white">
+                              <span className="min-w-6 rounded-full bg-foreground px-2 py-0.5 text-center text-xs font-bold text-background">
                                 {conversation.unreadCount >
                                 99
                                   ? "99+"
@@ -776,7 +776,7 @@ export default function Messages() {
               <ArrowLeft className="h-5 w-5" />
             </button>
 
-            <div className="flex h-10 w-10 items-center justify-center overflow-hidden rounded-full bg-gold/10 font-bold text-gold">
+            <div className="flex h-10 w-10 items-center justify-center overflow-hidden rounded-full bg-accent font-bold text-foreground">
               {currentConversation?.avatar ? (
                 <img
                   src={
@@ -895,7 +895,7 @@ export default function Messages() {
                           <div
                             className={`whitespace-pre-wrap break-words rounded-2xl px-4 py-3 text-sm ${
                               mine
-                                ? "rounded-br-md bg-slate-900 text-white"
+                                ? "rounded-br-md bg-foreground text-background"
                                 : "rounded-bl-md bg-muted text-foreground"
                             }`}
                           >
@@ -1021,7 +1021,7 @@ export default function Messages() {
                     ? "Écrire un message…"
                     : "Hors connexion…"
                 }
-                className="min-h-12 flex-1 resize-none rounded-xl border bg-muted/30 px-4 py-3 text-sm outline-none focus:ring-2 focus:ring-gold/30 disabled:cursor-not-allowed disabled:opacity-60"
+                className="min-h-12 flex-1 resize-none rounded-xl border bg-muted/30 px-4 py-3 text-sm outline-none focus:ring-2 focus:ring-ring/40 disabled:cursor-not-allowed disabled:opacity-60"
               />
 
               <button
@@ -1034,7 +1034,7 @@ export default function Messages() {
                   !online ||
                   !messageText.trim()
                 }
-                className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-slate-900 text-white hover:bg-slate-800 disabled:cursor-not-allowed disabled:opacity-40"
+                className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-foreground text-background hover:bg-foreground/90 disabled:cursor-not-allowed disabled:opacity-40"
                 aria-label="Envoyer"
               >
                 {sending ? (
