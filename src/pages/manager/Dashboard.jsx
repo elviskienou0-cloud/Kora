@@ -246,7 +246,7 @@ if (!user || user.role !== "manager") {
 return null
 }
 
-return ( <div className="space-y-8 p-6"> <div> <h1 className="text-3xl font-bold tracking-tight">
+return ( <div className="min-h-full space-y-8 bg-background p-4 md:p-6"> <div> <h1 className="text-3xl font-bold tracking-tight">
 Tableau de bord </h1>
 
     <p className="mt-2 text-muted-foreground">
@@ -285,8 +285,8 @@ Tableau de bord </h1>
           </p>
         </div>
 
-        <div className="rounded-full bg-primary/10 p-3">
-          <Users className="h-6 w-6 text-primary" />
+        <div className="rounded-xl bg-accent p-3">
+          <Users className="h-6 w-6 text-foreground" />
         </div>
       </CardContent>
     </Card>
@@ -303,8 +303,8 @@ Tableau de bord </h1>
           </p>
         </div>
 
-        <div className="rounded-full bg-primary/10 p-3">
-          <ClipboardList className="h-6 w-6 text-primary" />
+        <div className="rounded-xl bg-accent p-3">
+          <ClipboardList className="h-6 w-6 text-foreground" />
         </div>
       </CardContent>
     </Card>
@@ -325,8 +325,8 @@ Tableau de bord </h1>
           </p>
         </div>
 
-        <div className="rounded-full bg-primary/10 p-3">
-          <ClipboardList className="h-6 w-6 text-primary" />
+        <div className="rounded-xl bg-accent p-3">
+          <ClipboardList className="h-6 w-6 text-foreground" />
         </div>
       </CardContent>
     </Card>
@@ -427,7 +427,7 @@ Tableau de bord </h1>
             {filteredTalents.slice(0, 6).map((talent) => (
               <Card
                 key={talent.id}
-                className="overflow-hidden"
+                className="overflow-hidden border-border/80 shadow-sm"
               >
                 <CardContent className="p-5">
                   <div className="flex items-center gap-4">
@@ -500,7 +500,7 @@ Tableau de bord </h1>
             {notifications.map((notification) => (
               <div
                 key={notification.id}
-                className="rounded-lg border p-3"
+                className="rounded-xl border border-border/80 bg-card p-3"
               >
                 <p className="text-sm">
                   {getNotificationText(
