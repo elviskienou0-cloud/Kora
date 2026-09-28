@@ -1005,31 +1005,20 @@ export default function ManagerTalents() {
 
         if (error) throw error
       } else {
-        const { data, error } = await supabase
-          .from("talent_profiles")
-          .insert({
-            managed_by: managerId,
-            first_name: firstName,
-            last_name: lastName,
-            title: formData.title,
-            bio: formData.bio,
-            category_id: category.id,
-            country_id: country.id,
-            city,
-            currency: "XOF",
-            available: !!formData.available,
-            verified: false,
-            status: "pending",
-            is_visible: false,
-            rating: 0,
-            reviews_count: 0,
-            completed_projects: 0,
-          })
-          .select("id")
-          .single()
+        const { data, error } = await supabase.rpc("create_manager_talent", {
+          p_managed_by: managerId,
+          p_first_name: firstName,
+          p_last_name: lastName,
+          p_title: formData.title,
+          p_bio: formData.bio,
+          p_category_id: category.id,
+          p_country_id: country.id,
+          p_city: city,
+          p_available: !!formData.available,
+        })
 
         if (error) throw error
-        talentId = data.id
+        talentId = data
       }
 
       const previousSkills = editingTalent?.initialValues?.skills || []
