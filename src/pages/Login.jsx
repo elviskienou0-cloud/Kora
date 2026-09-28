@@ -2,7 +2,7 @@ import { useState } from "react"
 import { Link, useNavigate } from "react-router-dom"
 import { motion } from "framer-motion"
 import { toast } from "sonner"
-import { Sparkles, Mail, Lock, Eye, EyeOff, ArrowRight } from "lucide-react"
+import { Mail, Lock, Eye, EyeOff, ArrowRight } from "lucide-react"
 
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -11,6 +11,7 @@ import { Card, CardContent, CardHeader, CardDescription } from "@/components/ui/
 
 import { useAuth } from "@/lib/AuthContext"
 import { APP_PARAMS } from "@/lib/app-params"
+import koraLogo from "@/assets/kora-logo.svg"
 
 export default function Login() {
   const navigate = useNavigate()
@@ -58,12 +59,7 @@ export default function Login() {
   const loading = isLoading || authLoading
 
   return (
-    <div className="min-h-screen flex items-center justify-center relative overflow-hidden bg-gradient-to-br from-background via-accent/30 to-background py-12 px-4">
-      <div className="absolute inset-0 pointer-events-none">
-        <div className="absolute -top-40 -left-40 w-96 h-96 rounded-full bg-gold/20 blur-3xl" />
-        <div className="absolute -bottom-40 -right-40 w-96 h-96 rounded-full bg-amber-400/15 blur-3xl" />
-      </div>
-
+    <div className="min-h-screen flex items-center justify-center relative overflow-hidden bg-background py-12 px-4">
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
@@ -71,19 +67,19 @@ export default function Login() {
         className="w-full max-w-md relative z-10"
       >
         <Link to="/" className="flex items-center justify-center gap-3 mb-8 group">
-          <div className="w-12 h-12 rounded-2xl gold-gradient flex items-center justify-center shadow-lg shadow-gold/30 group-hover:scale-105 transition-transform">
-            <Sparkles className="h-6 w-6 text-primary-foreground" strokeWidth={2.5} />
+          <div className="w-12 h-12 rounded-2xl overflow-hidden shadow-sm ring-1 ring-border group-hover:ring-gold/50 group-hover:scale-105 transition-all">
+            <img src={koraLogo} alt="KORA" className="w-full h-full object-cover" />
           </div>
           <div className="flex flex-col items-start">
-            <span className="text-2xl font-black gold-text-gradient">{APP_PARAMS.name}</span>
+            <span className="text-2xl font-black tracking-tight text-foreground">{APP_PARAMS.name}</span>
             <span className="text-[10px] font-semibold text-muted-foreground -mt-1 tracking-widest uppercase">
               {APP_PARAMS.tagline}
             </span>
           </div>
         </Link>
 
-        <Card className="shadow-2xl shadow-gold/5 border-gold/10 overflow-hidden">
-          <div className="absolute top-0 left-0 right-0 h-1 gold-gradient" />
+        <Card className="shadow-xl border-border/80 overflow-hidden">
+          <div className="absolute top-0 left-0 right-0 h-0.5 bg-primary" />
 
           <CardHeader className="text-center pb-2 pt-8">
             <motion.div initial={{ scale: 0.9, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} transition={{ delay: 0.1 }}>
@@ -162,9 +158,9 @@ export default function Login() {
               </motion.div>
             </form>
 
-            <p className="text-center text-sm font-medium">
+            <p className="text-center text-sm text-muted-foreground">
               Pas encore de compte ?{" "}
-              <Link to="/register" className="font-black gold-text-gradient hover:underline">
+              <Link to="/register" className="font-semibold text-gold-dark hover:underline">
                 Créer un compte
               </Link>
             </p>
