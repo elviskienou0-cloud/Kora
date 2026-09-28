@@ -18,7 +18,6 @@ import {
   LogOut,
   User,
   ChevronRight,
-  Sparkles,
   ChevronDown,
   Crown,
   BriefcaseBusiness,
@@ -29,6 +28,7 @@ import { useAuth } from "@/lib/AuthContext.jsx"
 import useIsMobile from "@/hooks/use-mobile.jsx"
 import { cn } from "@/lib/utils.js"
 import AnnouncementTicker from "@/components/AnnouncementTicker.jsx"
+import koraLogo from "@/assets/kora-logo.svg"
 
 function getMenuItems(t) {
   return {
@@ -217,10 +217,10 @@ export default function KoraLayout() {
     <aside className="flex flex-col h-full">
       <div className="p-5 border-b border-sidebar-border">
         <Link to={homeHref} className="flex items-center gap-2 group">
-          <div className="w-10 h-10 rounded-xl gold-gradient flex items-center justify-center shadow-md shadow-gold/25 group-hover:shadow-gold/40 transition-shadow">
-            <Sparkles className="h-5 w-5 text-white" strokeWidth={2.5} />
+          <div className="w-10 h-10 rounded-xl overflow-hidden shadow-sm ring-1 ring-border group-hover:ring-gold/40 transition-all">
+            <img src={koraLogo} alt="KORA" className="w-full h-full object-cover" />
           </div>
-          <span className="text-xl font-bold gold-text-gradient font-display tracking-tight">
+          <span className="text-xl font-bold font-display tracking-tight text-foreground">
             KORA
           </span>
         </Link>
