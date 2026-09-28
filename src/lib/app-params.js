@@ -1,8 +1,7 @@
 export const APP_PARAMS = {
   name: "KORA",
   tagline: "La plateforme des talents africains",
-  description:
-    "KORA connecte les talents africains exceptionnels avec les opportunités qui les méritent, en Afrique et au-delà.",
+  description: "KORA connecte les talents africains exceptionnels avec les opportunités qui les méritent, en Afrique et au-delà.",
   supportEmail: "support@kora.africa",
   contactEmail: "hello@kora.africa",
   socials: {
@@ -10,10 +9,7 @@ export const APP_PARAMS = {
     linkedin: "https://linkedin.com/company/kora-africa",
     instagram: "https://instagram.com/kora.africa",
   },
-  countries: [
-    "Côte d'Ivoire","Afrique du Sud","Nigéria","Kenya","Ghana","Maroc","Égypte",
-    "Sénégal","Éthiopie","Tanzanie","Cameroun","Rwanda",
-  ],
+  countries: ["Côte d'Ivoire","Afrique du Sud","Nigéria","Kenya","Ghana","Maroc","Égypte","Sénégal","Éthiopie","Tanzanie","Cameroun","Rwanda"],
   categories: [
     { id: "music", name: "Musique & Spectacle", icon: "music" },
     { id: "fashion", name: "Mode & Mannequinat", icon: "shirt" },
