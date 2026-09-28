@@ -301,7 +301,7 @@ export default function ClientDashboard() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-accent/40 via-background to-background p-4 md:p-8">
+    <div className="min-h-screen bg-background p-4 md:p-8">
       <motion.div
         variants={containerVariants}
         initial="hidden"
@@ -324,14 +324,14 @@ export default function ClientDashboard() {
           className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between"
         >
           <div className="flex items-center gap-3">
-            <div className="flex h-12 w-12 items-center justify-center rounded-2xl gold-gradient shadow-lg shadow-gold/25">
+            <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-foreground shadow-sm">
               <LayoutDashboard className="h-6 w-6 text-white" />
             </div>
 
             <div>
               <h1 className="text-2xl font-bold tracking-tight md:text-3xl">
                 Bonjour,{" "}
-                <span className="gold-text-gradient">{firstName}</span>
+                <span className="text-gold-dark">{firstName}</span>
               </h1>
 
               <p className="text-sm text-muted-foreground">
@@ -351,7 +351,7 @@ export default function ClientDashboard() {
             </Button>
 
             <Button
-              className="gold-gradient text-primary-foreground shadow-md shadow-gold/30"
+              className="bg-foreground text-background shadow-sm hover:bg-foreground/90"
               onClick={() => navigate("/categories")}
             >
               <Send className="mr-2 h-4 w-4" />
@@ -397,7 +397,7 @@ export default function ClientDashboard() {
           variants={itemVariants}
           className="grid gap-6 lg:grid-cols-3"
         >
-          <Card className="lg:col-span-2 border-gold/20 shadow-sm">
+          <Card className="lg:col-span-2 border-border shadow-sm">
             <CardHeader className="flex flex-row items-center justify-between">
               <div>
                 <CardTitle className="flex items-center gap-2 text-xl">
@@ -531,9 +531,9 @@ export default function ClientDashboard() {
                         onClick={() =>
                           navigate(`/talent/${talent.id}`)
                         }
-                        className="group w-full flex items-center gap-3 rounded-xl p-2 text-left hover:bg-gold/5 transition-all"
+                        className="group w-full flex items-center gap-3 rounded-xl p-2 text-left hover:bg-accent/50 transition-all"
                       >
-                        <Avatar className="h-11 w-11 ring-2 ring-gold/30 ring-offset-2 ring-offset-card">
+                        <Avatar className="h-11 w-11 ring-1 ring-border">
                           <AvatarFallback className="bg-gold/20 text-gold-dark font-semibold">
                             {getInitials(name)}
                           </AvatarFallback>
