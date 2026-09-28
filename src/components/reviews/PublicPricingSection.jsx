@@ -4,7 +4,6 @@ import { motion } from "framer-motion"
 import { ArrowRight, CheckCircle2, Loader2, Sparkles } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
-import { Badge } from "@/components/ui/badge"
 import { supabase } from "@/lib/supabase"
 import { formatCurrency } from "@/lib/utils"
 
@@ -13,31 +12,22 @@ const PLAN_DETAILS = {
     "30 jours gratuits",
     "1 talent maximum",
     "Outils professionnels",
-    "Gestion du profil talent",
-    "Portfolio et compétences",
-    "Gestion des demandes",
-    "Visibilité sur KORA selon le workflow de publication",
-    "Pas de transactions KORA",
+    "Gestion du profil et des demandes",
     "0 % de commission",
   ],
   Pro: [
-    "3 talents maximum",
-    "Outils professionnels",
-    "Gestion des profils",
-    "Portfolio et compétences",
-    "Gestion des demandes et projets",
-    "Fonctionnalités professionnelles KORA",
-    "Pas de paiement de transactions via KORA",
-    "0 % de commission sur les transactions KORA",
+    "Jusqu'à 3 talents",
+    "Outils professionnels complets",
+    "Gestion des profils et projets",
+    "0 % de commission KORA",
+    "Sans paiement via KORA",
   ],
   Business: [
     "Talents illimités",
     "Tous les outils professionnels",
-    "Transactions directement via KORA",
-    "Paiement des projets via KORA",
+    "Paiements via KORA",
     "Suivi des transactions",
-    "5 % de commission uniquement sur les transactions réalisées via KORA",
-    "95 % du montant de la transaction revient au manager/talent",
+    "5 % uniquement sur les transactions réalisées via KORA",
   ],
 }
 
@@ -82,7 +72,6 @@ export default function PublicPricingSection({ fadeInUp, staggerContainer }) {
       className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-5xl mx-auto"
     >
       {plans.map((plan, i) => {
-        const features = Object.entries(plan.features || {}).filter(([, enabled]) => enabled).map(([key]) => key.replace(/_/g, " "))
         const highlighted = plan.name === "Pro"
 
         return (
@@ -116,19 +105,10 @@ export default function PublicPricingSection({ fadeInUp, staggerContainer }) {
                     </span>
                     {Number(plan.price) > 0 && <span className="text-sm text-muted-foreground font-semibold">/mois</span>}
                   </div>
-                  {Number(plan.price) > 0 && Number(plan.annual_discount_pct) > 0 && (
-                    <p className="mt-2 text-xs font-bold text-emerald-600">
-                      -{plan.annual_discount_pct}% en annuel
-                    </p>
-                  )}
                 </div>
 
                 <ul className="space-y-3 mb-8">
-                  <li className="flex items-start gap-3">
-                    <CheckCircle2 className="h-5 w-5 text-emerald-500 shrink-0 mt-0.5" />
-                    <span className="text-sm">{plan.talent_limit == null ? "Talents illimités" : `Jusqu'à ${plan.talent_limit} talents`}</span>
-                  </li>
-                  {(PLAN_DETAILS[plan.name] || features).map((feature) => (
+                  {(PLAN_DETAILS[plan.name] || []).map((feature) => (
                     <li key={feature} className="flex items-start gap-3">
                       <CheckCircle2 className="h-5 w-5 text-emerald-500 shrink-0 mt-0.5" />
                       <span className="text-sm">{feature}</span>
