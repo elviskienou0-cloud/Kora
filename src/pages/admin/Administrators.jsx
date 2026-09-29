@@ -16,13 +16,16 @@ import { supabase } from "@/lib/supabase"
 
 const PERMISSIONS = [
   ["users.read", "Voir les utilisateurs"],
+  ["users.manage", "Gérer les utilisateurs"],
   ["managers.read", "Voir les managers"],
   ["clients.read", "Voir les clients"],
   ["talents.read", "Voir les talents"],
+  ["talents.manage", "Modérer les talents"],
   ["requests.read", "Voir les demandes"],
   ["projects.read", "Voir les projets"],
   ["messages.read", "Accéder aux messages"],
-  ["moderation.read", "Modération"],
+  ["moderation.read", "Voir la modération"],
+  ["moderation.manage", "Traiter les signalements"],
   ["payments.read", "Voir les paiements"],
   ["payments.validate", "Valider / rejeter les paiements"],
   ["subscriptions.read", "Voir les abonnements"],
