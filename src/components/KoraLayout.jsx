@@ -35,6 +35,7 @@ import {
   Monitor,
 } from "lucide-react"
 import { useAuth } from "@/lib/AuthContext.jsx"
+import { supabase } from "@/lib/supabase"
 import useIsMobile from "@/hooks/use-mobile.jsx"
 import { cn } from "@/lib/utils.js"
 import AnnouncementTicker from "@/components/AnnouncementTicker.jsx"
@@ -158,9 +159,42 @@ export default function KoraLayout() {
   const roleLabels = getRoleLabels(t)
   const [sidebarOpen, setSidebarOpen] = useState(false)
   const [menuOpen, setMenuOpen] = useState(false)
+  const [adminAccess, setAdminAccess] = useState(null)
 
   const role = user?.role
-  const menu = menuItems[role] || menuItems.client
+
+  useEffect(() => {
+    let mounted = true
+    if (role === "admin") {
+      supabase.rpc("get_my_admin_access").then(({ data }) => {
+        if (mounted && data) setAdminAccess(data)
+      })
+    } else {
+      setAdminAccess(null)
+    }
+    return () => { mounted = false }
+  }, [role])
+
+  const permissionMap = {
+    users: "users.read",
+    managers: "managers.read",
+    clients: "users.read",
+    talents: "talents.read",
+    requests: "requests.read",
+    projects: "projects.read",
+    messages: "messages.read",
+    payments: "payments.read",
+    subscriptions: "subscriptions.read",
+    announcements: "announcements.write",
+    moderation: "moderation.read",
+    logs: "logs.read",
+    settings: "settings.read",
+  }
+
+  const rawMenu = menuItems[role] || menuItems.client
+  const menu = role === "admin" && adminAccess?.access_level === "associate"
+    ? rawMenu.filter((item) => item.view === "dashboard" || Boolean(adminAccess?.permissions?.["*"] || adminAccess?.permissions?.[permissionMap[item.view]]))
+    : rawMenu
   const roleInfo = roleLabels[role] || roleLabels.client
   const homeHref = role === "admin"
     ? "/admin"
