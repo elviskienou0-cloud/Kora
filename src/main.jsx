@@ -5,6 +5,7 @@ import { QueryClientProvider } from "@tanstack/react-query"
 import { I18nProvider } from "@/i18n/kora-i18n.jsx"
 import App from "./App.jsx"
 import { AuthProvider } from "@/lib/AuthContext.jsx"
+import { ThemeProvider } from "@/lib/ThemeContext.jsx"
 import { queryClient } from "@/lib/queryClient.js"
 import "./index.css"
 
@@ -14,11 +15,13 @@ ReactDOM.createRoot(
   <React.StrictMode>
     <QueryClientProvider client={queryClient}>
       <I18nProvider>
-        <AuthProvider>
-          <BrowserRouter>
-            <App />
-          </BrowserRouter>
-        </AuthProvider>
+        <ThemeProvider>
+          <AuthProvider>
+            <BrowserRouter>
+              <App />
+            </BrowserRouter>
+          </AuthProvider>
+        </ThemeProvider>
       </I18nProvider>
     </QueryClientProvider>
   </React.StrictMode>
