@@ -135,6 +135,7 @@ function getMenuItems(t) {
       { label: "Modération", href: "/admin?view=moderation", icon: ShieldCheck, view: "moderation" },
       { label: "Logs", href: "/admin?view=logs", icon: ScrollText, view: "logs" },
       { label: "Paramètres", href: "/admin?view=settings", icon: Settings, view: "settings" },
+      { label: "Admins & associés", href: "/admin?view=administrators", icon: UserCog, view: "administrators", superAdminOnly: true },
     ],
   }
 }
@@ -193,8 +194,8 @@ export default function KoraLayout() {
 
   const rawMenu = menuItems[role] || menuItems.client
   const menu = role === "admin" && adminAccess?.access_level === "associate"
-    ? rawMenu.filter((item) => item.view === "dashboard" || Boolean(adminAccess?.permissions?.["*"] || adminAccess?.permissions?.[permissionMap[item.view]]))
-    : rawMenu
+    ? rawMenu.filter((item) => !item.superAdminOnly && (item.view === "dashboard" || Boolean(adminAccess?.permissions?.["*"] || adminAccess?.permissions?.[permissionMap[item.view]])))
+    : rawMenu.filter((item) => !item.superAdminOnly || adminAccess?.access_level === "super_admin")
   const roleInfo = roleLabels[role] || roleLabels.client
   const homeHref = role === "admin"
     ? "/admin"
