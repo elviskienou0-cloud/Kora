@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useState } from "react"
+import { useSearchParams } from "react-router-dom"
 import { Edit3, Loader2, RefreshCw, Search, ShieldAlert, ShieldCheck, Trash2 } from "lucide-react"
 import { toast } from "sonner"
 
@@ -15,7 +16,10 @@ function dateFR(value) { return value ? new Date(value).toLocaleDateString("fr-F
 
 export default function AdminUsers() {
   const [users, setUsers] = useState([])
-  const [search, setSearch] = useState("")
+  const [searchParams] = useSearchParams()
+  const urlQuery = searchParams.get("q") || ""
+  const [search, setSearch] = useState(urlQuery)
+  useEffect(() => { setSearch(urlQuery) }, [urlQuery])
   const [page, setPage] = useState(1)
   const [totalPages, setTotalPages] = useState(1)
   const [loading, setLoading] = useState(true)

@@ -24,6 +24,12 @@ import {
   AlertTriangle,
   WalletCards,
   Sparkles,
+  Megaphone,
+  UserCog,
+  UserCheck,
+  ContactRound,
+  ScrollText,
+  ClipboardList,
 } from "lucide-react"
 import { useAuth } from "@/lib/AuthContext.jsx"
 import useIsMobile from "@/hooks/use-mobile.jsx"
@@ -110,72 +116,20 @@ function getMenuItems(t) {
     ],
 
     admin: [
-      {
-        label: t("navigation.dashboard"),
-        href: "/admin",
-        icon: LayoutDashboard,
-        view: "dashboard",
-      },
-      {
-        label: t("navigation.users"),
-        href: "/admin?view=users",
-        icon: Users,
-        view: "users",
-      },
-      {
-        label: t("navigation.talents"),
-        href: "/admin?view=talents",
-        icon: Sparkles,
-        view: "talents",
-      },
-      {
-        label: t("navigation.projects"),
-        href: "/admin?view=projects",
-        icon: BriefcaseBusiness,
-        view: "projects",
-      },
-      {
-        label: t("navigation.requests"),
-        href: "/admin?view=requests",
-        icon: FileText,
-        view: "requests",
-      },
-      {
-        label: t("navigation.messages"),
-        href: "/admin?view=messages",
-        icon: MessageCircle,
-        view: "messages",
-      },
-      {
-        label: t("navigation.moderation"),
-        href: "/admin?view=moderation",
-        icon: AlertTriangle,
-        view: "moderation",
-      },
-      {
-        label: t("navigation.payments"),
-        href: "/admin?view=payments",
-        icon: WalletCards,
-        view: "payments",
-      },
-      {
-        label: t("navigation.subscription"),
-        href: "/admin?view=subscriptions",
-        icon: CreditCard,
-        view: "subscriptions",
-      },
-      {
-        label: t("navigation.logs"),
-        href: "/admin?view=logs",
-        icon: FileText,
-        view: "logs",
-      },
-      {
-        label: t("navigation.settings"),
-        href: "/admin?view=settings",
-        icon: Settings,
-        view: "settings",
-      },
+      { label: "Tableau de bord", href: "/admin", icon: LayoutDashboard, view: "dashboard" },
+      { label: "Utilisateurs", href: "/admin?view=users", icon: Users, view: "users" },
+      { label: "Managers", href: "/admin?view=managers", icon: UserCog, view: "managers" },
+      { label: "Clients", href: "/admin?view=clients", icon: UserCheck, view: "clients" },
+      { label: "Talents", href: "/admin?view=talents", icon: ContactRound, view: "talents" },
+      { label: "Demandes", href: "/admin?view=requests", icon: ClipboardList, view: "requests" },
+      { label: "Projets", href: "/admin?view=projects", icon: BriefcaseBusiness, view: "projects" },
+      { label: "Messages", href: "/admin?view=messages", icon: MessageCircle, view: "messages" },
+      { label: "Paiements", href: "/admin?view=payments", icon: WalletCards, view: "payments" },
+      { label: "Abonnements", href: "/admin?view=subscriptions", icon: CreditCard, view: "subscriptions" },
+      { label: "Annonces", href: "/admin?view=announcements", icon: Megaphone, view: "announcements" },
+      { label: "Modération", href: "/admin?view=moderation", icon: ShieldCheck, view: "moderation" },
+      { label: "Logs", href: "/admin?view=logs", icon: ScrollText, view: "logs" },
+      { label: "Paramètres", href: "/admin?view=settings", icon: Settings, view: "settings" },
     ],
   }
 }
@@ -261,6 +215,16 @@ export default function KoraLayout() {
           ))}
         </ul>
       </nav>
+
+      {role === "admin" && (
+        <div className="p-3">
+          <div className="rounded-2xl border border-gold/30 bg-gradient-to-br from-gold/20 via-transparent to-transparent p-4 text-center">
+            <img src={koraLogo} alt="" className="mx-auto mb-2 h-10 w-10 rounded-xl" />
+            <p className="text-lg font-black tracking-tight">KORA</p>
+            <p className="mt-1 text-[11px] leading-snug text-muted-foreground">Connecter les talents africains aux opportunités du monde.</p>
+          </div>
+        </div>
+      )}
 
       {role !== "admin" && (
         <div className="p-3 border-t border-sidebar-border">
@@ -408,10 +372,29 @@ export default function KoraLayout() {
                   </svg>
                 </button>
               )}
-              <div className="hidden sm:block text-sm font-medium text-muted-foreground shrink-0">
-                {role === "admin" ? t("admin.administration") : "KORA"}
-              </div>
-              <AnnouncementTicker />
+              {role === "admin" ? (
+                <form
+                  className="relative hidden w-[min(420px,40vw)] sm:block"
+                  onSubmit={(e) => {
+                    e.preventDefault()
+                    const q = new FormData(e.currentTarget).get("q")?.toString().trim() || ""
+                    navigate(`/admin?view=users${q ? `&q=${encodeURIComponent(q)}` : ""}`)
+                  }}
+                >
+                  <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+                  <input
+                    name="q"
+                    type="search"
+                    placeholder="Rechercher un utilisateur…"
+                    className="h-10 w-full rounded-xl border border-border bg-card pl-10 pr-3 text-sm outline-none focus:border-gold/60"
+                  />
+                </form>
+              ) : (
+                <>
+                  <div className="hidden sm:block text-sm font-medium text-muted-foreground shrink-0">KORA</div>
+                  <AnnouncementTicker />
+                </>
+              )}
             </div>
 
             <div className="flex items-center gap-2">
