@@ -22,15 +22,6 @@ const DAYS_FR = {
   Sun: "Dim",
 }
 
-function generateData() {
-  const days = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"]
-  const baseValues = [12, 19, 15, 28, 32, 41, 38]
-  return days.map((d, i) => ({
-    name: DAYS_FR[d],
-    value: baseValues[i] + Math.round(Math.random() * 6),
-  }))
-}
-
 const CustomTooltip = ({ active, payload, label }) => {
   if (active && payload && payload.length) {
     return (
@@ -46,9 +37,9 @@ const CustomTooltip = ({ active, payload, label }) => {
 }
 
 export default function WeeklyChart({ data, title = "Activité hebdo", subtitle }) {
-  const chartData = useMemo(() => data || generateData(), [data])
+  const chartData = useMemo(() => (Array.isArray(data) ? data : []), [data])
   const total = chartData.reduce((s, d) => s + d.value, 0)
-  const avg = Math.round(total / chartData.length)
+  const avg = chartData.length ? Math.round(total / chartData.length) : 0
   const lastGrowth = chartData.length > 1
     ? Math.round(
         ((chartData[chartData.length - 1].value - chartData[chartData.length - 2].value) /

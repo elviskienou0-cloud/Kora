@@ -1,0 +1,9 @@
+# KORA — configuration des Edge Functions.
+# admin-users : vérifie lui-même que l'appelant est admin (voir index.ts) ; le JWT reste exigé.
+[functions.admin-users]
+verify_jwt = true
+
+# Le webhook de paiement est appelé par le prestataire (pas de JWT Supabase) :
+# l'authenticité repose sur la signature HMAC vérifiée dans index.ts.
+[functions.payment-webhook]
+verify_jwt = false
