@@ -43,6 +43,7 @@ import AdminPayments from "@/pages/admin/Payments.jsx"
 import AdminLogs from "@/pages/admin/Logs.jsx"
 import AdminAnnouncements from "@/pages/admin/Announcements.jsx"
 import AdminSettings from "@/pages/admin/Settings.jsx"
+import AdminAssociateDashboard from "@/pages/admin/AdminAssociateDashboard.jsx"
 
 const VIEW_LABELS = {
   dashboard: "Tableau de bord",
@@ -70,6 +71,7 @@ export default function AdminPanel() {
   const authUserId = user?.authId || user?.id
 
   const [refreshing, setRefreshing] = useState(false)
+  const [adminAccessLevel, setAdminAccessLevel] = useState("super_admin")
 
   const getViewFromUrl = useCallback(() => {
     const params = new URLSearchParams(location.search)
@@ -91,6 +93,13 @@ export default function AdminPanel() {
 
   useEffect(() => {
     if (!authUserId) return
+
+    let mounted = true
+    supabase.rpc("get_my_admin_access").then(({ data, error }) => {
+      if (!mounted) return
+      // Before the hierarchy migration exists, preserve the current CEO/admin behavior.
+      if (!error && data?.access_level) setAdminAccessLevel(data.access_level)
+    })
 
     const tables = [
       "profiles",
@@ -120,6 +129,7 @@ export default function AdminPanel() {
     channel.subscribe()
 
     return () => {
+      mounted = false
       supabase.removeChannel(channel)
     }
   }, [authUserId])
@@ -167,6 +177,10 @@ export default function AdminPanel() {
       default:
         return <AdminDashboardView onNavigate={goTo} />
     }
+  }
+
+  if (adminAccessLevel === "associate") {
+    return <AdminAssociateDashboard />
   }
 
   if (view === "dashboard") {
