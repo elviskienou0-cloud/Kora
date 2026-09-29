@@ -44,6 +44,7 @@ import AdminLogs from "@/pages/admin/Logs.jsx"
 import AdminAnnouncements from "@/pages/admin/Announcements.jsx"
 import AdminSettings from "@/pages/admin/Settings.jsx"
 import AdminAssociateDashboard from "@/pages/admin/AdminAssociateDashboard.jsx"
+import AdminAdministrators from "@/pages/admin/Administrators.jsx"
 
 const VIEW_LABELS = {
   dashboard: "Tableau de bord",
@@ -60,6 +61,7 @@ const VIEW_LABELS = {
   logs: "Logs",
   announcements: "Annonces",
   settings: "Paramètres administration",
+  administrators: "Admins & associés",
 }
 
 export default function AdminPanel() {
@@ -173,6 +175,8 @@ export default function AdminPanel() {
         return <AdminAnnouncements />
       case "settings":
         return <AdminSettings />
+      case "administrators":
+        return <AdminAdministrators />
       case "dashboard":
       default:
         return <AdminDashboardView onNavigate={goTo} />
