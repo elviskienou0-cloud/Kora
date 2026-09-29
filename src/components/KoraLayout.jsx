@@ -30,12 +30,16 @@ import {
   ContactRound,
   ScrollText,
   ClipboardList,
+  Sun,
+  Moon,
+  Monitor,
 } from "lucide-react"
 import { useAuth } from "@/lib/AuthContext.jsx"
 import useIsMobile from "@/hooks/use-mobile.jsx"
 import { cn } from "@/lib/utils.js"
 import AnnouncementTicker from "@/components/AnnouncementTicker.jsx"
 import koraLogo from "@/assets/kora-logo.svg"
+import { useTheme } from "@/lib/ThemeContext.jsx"
 
 function getMenuItems(t) {
   return {
@@ -149,6 +153,7 @@ export default function KoraLayout() {
   const location = useLocation()
   const isMobile = useIsMobile()
   const { t } = useI18n()
+  const { theme, setTheme } = useTheme()
   const menuItems = getMenuItems(t)
   const roleLabels = getRoleLabels(t)
   const [sidebarOpen, setSidebarOpen] = useState(false)
@@ -399,6 +404,33 @@ export default function KoraLayout() {
 
             <div className="flex items-center gap-2">
               <LanguageSwitcher compact />
+              <button
+                type="button"
+                onClick={() => setTheme(theme === "light" ? "dark" : theme === "dark" ? "system" : "light")}
+                className="p-2 rounded-lg hover:bg-accent transition-colors"
+                aria-label={
+                  theme === "light"
+                    ? "Passer en mode sombre"
+                    : theme === "dark"
+                    ? "Utiliser le thème système"
+                    : "Passer en mode clair"
+                }
+                title={
+                  theme === "light"
+                    ? "Clair"
+                    : theme === "dark"
+                    ? "Sombre"
+                    : "Système"
+                }
+              >
+                {theme === "light" ? (
+                  <Sun className="h-5 w-5" />
+                ) : theme === "dark" ? (
+                  <Moon className="h-5 w-5" />
+                ) : (
+                  <Monitor className="h-5 w-5" />
+                )}
+              </button>
               {role !== "admin" && (
                 <button
                   onClick={() => navigate("/messages")}
