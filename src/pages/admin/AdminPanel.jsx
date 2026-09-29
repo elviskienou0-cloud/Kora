@@ -42,6 +42,7 @@ import AdminSubscriptions from "@/pages/admin/Subscriptions.jsx"
 import AdminPayments from "@/pages/admin/Payments.jsx"
 import AdminLogs from "@/pages/admin/Logs.jsx"
 import AdminAnnouncements from "@/pages/admin/Announcements.jsx"
+import AdminSettings from "@/pages/admin/Settings.jsx"
 
 const VIEW_LABELS = {
   dashboard: "Tableau de bord",
@@ -161,19 +162,7 @@ export default function AdminPanel() {
       case "announcements":
         return <AdminAnnouncements />
       case "settings":
-        return (
-          <Card className="border-border/60">
-            <CardContent className="space-y-4 p-6">
-              <div>
-                <p className="font-black">Paramètres administration</p>
-                <p className="mt-1 text-sm text-muted-foreground">Les réglages de sécurité et de configuration administrateur sont gérés depuis Supabase et l’environnement de déploiement.</p>
-              </div>
-              <div className="rounded-xl border bg-muted/30 p-4 text-sm text-muted-foreground">
-                Session administrateur active. Aucun réglage manager n’est affiché dans cet espace.
-              </div>
-            </CardContent>
-          </Card>
-        )
+        return <AdminSettings />
       case "dashboard":
       default:
         return <AdminDashboardView onNavigate={goTo} />
