@@ -200,7 +200,7 @@ export default function Categories() {
       </div>
 
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-24 space-y-14">
-        <motion.section initial="hidden" whileInView="visible" viewport={{ once: true }} variants={stagger}>
+        <motion.section initial="hidden" animate="visible" variants={stagger}>
           <div className="flex flex-col sm:flex-row sm:items-end justify-between mb-6 gap-4">
             <div>
               <h2 className="text-2xl font-black tracking-tight">Toutes les catégories</h2>
@@ -267,7 +267,7 @@ export default function Categories() {
           </div>
         </motion.section>
 
-        <motion.section initial="hidden" whileInView="visible" viewport={{ once: true, margin: "-80px" }} variants={stagger} className="space-y-6">
+        <motion.section initial="hidden" animate="visible" variants={stagger} className="space-y-6">
           <div className="flex items-end justify-between flex-wrap gap-4">
             <div>
               {activeCategory ? (

@@ -275,7 +275,7 @@ export default function Home() {
           </motion.div>
         </motion.section>
 
-        <motion.section initial="hidden" whileInView="visible" viewport={{ once: true }} variants={stagger}>
+        <motion.section initial="hidden" animate="visible" variants={stagger}>
           <div className="flex items-end justify-between mb-6">
             <div>
               <h2 className="text-2xl font-black tracking-tight">Votre tableau de bord</h2>
@@ -304,7 +304,7 @@ export default function Home() {
           </div>
         </motion.section>
 
-        <motion.section initial="hidden" whileInView="visible" viewport={{ once: true, margin: "-80px" }} variants={stagger} className="space-y-6">
+        <motion.section initial="hidden" animate="visible" variants={stagger} className="space-y-6">
           <div className="flex items-end justify-between flex-wrap gap-4">
             <div>
               <Badge variant="gold" className="mb-2 px-3 py-1 text-xs font-bold">Sélection KORA</Badge>
@@ -375,7 +375,7 @@ export default function Home() {
           </div>
         </motion.section>
 
-        <motion.section initial="hidden" whileInView="visible" viewport={{ once: true, margin: "-80px" }} variants={stagger}>
+        <motion.section initial="hidden" animate="visible" variants={stagger}>
           <div className="grid grid-cols-1">
             <motion.div variants={fadeInUp} custom={0}>
               <Card className="h-full overflow-hidden relative">

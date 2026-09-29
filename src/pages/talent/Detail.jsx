@@ -370,7 +370,7 @@ export default function TalentDetail() {
         <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           <div className="lg:col-span-2 space-y-6">
             <Card className="overflow-hidden border-border/60">
-              <div className="relative h-36 overflow-hidden bg-gradient-to-br from-gold/30 via-amber-400/20 to-violet-400/20">
+              <div className="relative h-44 sm:h-56 lg:h-64 overflow-hidden bg-gradient-to-br from-gold/30 via-amber-400/20 to-violet-400/20">
                 {talent.cover_url ? (
                   <img
                     src={talent.cover_url}
