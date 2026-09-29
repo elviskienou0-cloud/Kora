@@ -77,9 +77,100 @@ Deno.serve(async (req) => {
     }
 
     const action = typeof payload.action === "string" ? payload.action.trim().toLowerCase() : ""
-    const userId = typeof payload.user_id === "string" ? payload.user_id.trim() : ""
 
     if (!action) return jsonResponse({ error: "Action manquante." }, 400)
+
+    if (action === "invite") {
+      const email = typeof payload.email === "string" ? payload.email.trim().toLowerCase() : ""
+      const message = typeof payload.message === "string" ? payload.message.trim() : ""
+      const accessLevel = payload.access_level === "super_admin" ? "super_admin" : "associate"
+      const permissions = payload.permissions && typeof payload.permissions === "object"
+        ? payload.permissions
+        : {}
+      const maxUsers = payload.max_users === null || payload.max_users === undefined || payload.max_users === ""
+        ? null
+        : Number(payload.max_users)
+      const maxPaymentValidations = payload.max_payment_validations === null || payload.max_payment_validations === undefined || payload.max_payment_validations === ""
+        ? null
+        : Number(payload.max_payment_validations)
+      const accessExpiresAt = typeof payload.access_expires_at === "string" && payload.access_expires_at
+        ? payload.access_expires_at
+        : null
+      const redirectTo = typeof payload.redirect_to === "string" && payload.redirect_to
+        ? payload.redirect_to
+        : undefined
+
+      if (!email || !email.includes("@")) {
+        return jsonResponse({ error: "Adresse email invalide." }, 400)
+      }
+
+      if (accessLevel === "super_admin") {
+        return jsonResponse({ error: "La création d'un Super Admin doit rester une action CEO protégée." }, 403)
+      }
+
+      if (!Number.isFinite(maxUsers ?? 0) && maxUsers !== null) {
+        return jsonResponse({ error: "Limite utilisateurs invalide." }, 400)
+      }
+
+      if (!Number.isFinite(maxPaymentValidations ?? 0) && maxPaymentValidations !== null) {
+        return jsonResponse({ error: "Limite de validations invalide." }, 400)
+      }
+
+      const { data: isSuperAdmin, error: accessError } = await callerClient.rpc("is_super_admin")
+      if (accessError || isSuperAdmin !== true) {
+        return jsonResponse({ error: "Seul le Super Admin peut inviter un administrateur." }, 403)
+      }
+
+      const { data: invitedUser, error: inviteError } = await adminClient.auth.admin.inviteUserByEmail(email, {
+        redirectTo,
+        data: {
+          kora_invitation_message: message,
+          kora_admin_invitation: true,
+        },
+      })
+
+      if (inviteError || !invitedUser?.user) {
+        return jsonResponse({
+          error: inviteError?.message || "Impossible d'envoyer l'invitation.",
+        }, 400)
+      }
+
+      const invitationId = crypto.randomUUID()
+
+      const { data: invitation, error: registerError } = await callerClient.rpc(
+        "register_admin_invitation",
+        {
+          p_invitation_id: invitationId,
+          p_invited_user_id: invitedUser.user.id,
+          p_email: email,
+          p_message: message || null,
+          p_access_level: accessLevel,
+          p_permissions: permissions,
+          p_max_users: maxUsers,
+          p_max_payment_validations: maxPaymentValidations,
+          p_access_expires_at: accessExpiresAt,
+          p_scope: {},
+        },
+      )
+
+      if (registerError) {
+        await adminClient.auth.admin.deleteUser(invitedUser.user.id, true)
+        return jsonResponse({
+          error: registerError.message,
+        }, 400)
+      }
+
+      return jsonResponse({
+        ok: true,
+        action: "invite",
+        invitation,
+        invited_user_id: invitedUser.user.id,
+        message: "Invitation administrateur envoyée.",
+      })
+    }
+
+    const userId = typeof payload.user_id === "string" ? payload.user_id.trim() : ""
+
     if (!userId) return jsonResponse({ error: "Utilisateur manquant." }, 400)
     if (userId === callerId) return jsonResponse({ error: "Cette action n'est pas autorisée sur votre propre compte." }, 409)
     if (action !== "delete") return jsonResponse({ error: `Action inconnue : ${action}` }, 400)
