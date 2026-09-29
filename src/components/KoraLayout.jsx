@@ -195,7 +195,7 @@ export default function KoraLayout() {
   const rawMenu = menuItems[role] || menuItems.client
   const menu = role === "admin" && adminAccess?.access_level === "associate"
     ? rawMenu.filter((item) => !item.superAdminOnly && (item.view === "dashboard" || Boolean(adminAccess?.permissions?.["*"] || adminAccess?.permissions?.[permissionMap[item.view]])))
-    : rawMenu.filter((item) => !item.superAdminOnly || adminAccess?.access_level === "super_admin")
+    : rawMenu.filter((item) => !item.superAdminOnly || adminAccess?.access_level !== "associate")
   const roleInfo = roleLabels[role] || roleLabels.client
   const homeHref = role === "admin"
     ? "/admin"
