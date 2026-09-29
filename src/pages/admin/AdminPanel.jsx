@@ -73,7 +73,7 @@ export default function AdminPanel() {
   const authUserId = user?.authId || user?.id
 
   const [refreshing, setRefreshing] = useState(false)
-  const [adminAccessLevel, setAdminAccessLevel] = useState("super_admin")
+  const [adminAccess, setAdminAccess] = useState(null)
 
   const getViewFromUrl = useCallback(() => {
     const params = new URLSearchParams(location.search)
@@ -100,7 +100,7 @@ export default function AdminPanel() {
     supabase.rpc("get_my_admin_access").then(({ data, error }) => {
       if (!mounted) return
       // Before the hierarchy migration exists, preserve the current CEO/admin behavior.
-      if (!error && data?.access_level) setAdminAccessLevel(data.access_level)
+      if (!error && data?.access_level) setAdminAccess(data)
     })
 
     const tables = [
@@ -183,7 +183,34 @@ export default function AdminPanel() {
     }
   }
 
-  if (adminAccessLevel === "associate") {
+  const associatePermissionByView = {
+    users: "users.read",
+    managers: "managers.read",
+    clients: "clients.read",
+    talents: "talents.read",
+    requests: "requests.read",
+    projects: "projects.read",
+    messages: "messages.read",
+    moderation: "moderation.read",
+    payments: "payments.read",
+    subscriptions: "subscriptions.read",
+    announcements: "announcements.write",
+    logs: "logs.read",
+    settings: "settings.read",
+  }
+
+  if (adminAccess?.access_level === "associate") {
+    const permission = associatePermissionByView[view]
+    const allowed = view === "dashboard" || Boolean(
+      adminAccess?.permissions?.["*"] || adminAccess?.permissions?.[permission]
+    )
+
+    if (!allowed) {
+      return <AdminAssociateDashboard />
+    }
+  }
+
+  if (adminAccess?.access_level === "associate" && view === "dashboard") {
     return <AdminAssociateDashboard />
   }
 
