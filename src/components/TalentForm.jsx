@@ -300,7 +300,7 @@ export default function TalentForm({
         </FieldWrap>
         <FieldWrap label="Photo de couverture" icon={ImageIcon} hint="Image affichée en haut du profil">
           <div className="overflow-hidden rounded-xl border border-border bg-card">
-            <div className="h-24 bg-muted/40">{coverPreview ? <img src={coverPreview} alt="Aperçu" className="h-full w-full object-cover" /> : null}</div>
+            <div className="h-40 bg-muted/40">{coverPreview ? <img src={coverPreview} alt="Aperçu" className="h-full w-full object-cover" /> : null}</div>
             <div className="p-3"><input type="file" accept="image/*" className="block w-full text-sm" disabled={disabled || isSubmitting} onChange={(e) => handleProfileImage(setCoverFile, setCoverPreview, e.target.files?.[0])} /></div>
           </div>
         </FieldWrap>

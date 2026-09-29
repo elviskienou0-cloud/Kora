@@ -615,10 +615,10 @@ function TalentEditor({
                   <img
                     src={initialValues.coverUrl}
                     alt="Couverture actuelle du talent"
-                    className="h-24 w-full rounded-2xl object-cover border border-border shadow-sm"
+                    className="h-40 w-full rounded-2xl object-cover border border-border shadow-sm"
                   />
                 ) : (
-                  <div className="h-24 w-full rounded-2xl border border-dashed border-border bg-background flex items-center justify-center text-xs text-muted-foreground">
+                  <div className="h-40 w-full rounded-2xl border border-dashed border-border bg-background flex items-center justify-center text-xs text-muted-foreground">
                     Aucune couverture
                   </div>
                 )}
