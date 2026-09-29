@@ -16,12 +16,13 @@ const DEFAULTS = {
   maintenance_mode: false,
   registrations_enabled: true,
   talent_auto_publish: false,
+  default_theme: "system",
 }
 
 const SECTIONS = [
   { title: "Général", description: "Informations publiques de la plateforme.", keys: ["site_name", "site_tagline", "support_email", "contact_email", "currency"] },
   { title: "Business", description: "Paramètres appliqués aux transactions KORA.", keys: ["commission_rate"] },
-  { title: "Plateforme", description: "Contrôles opérationnels de KORA.", keys: ["maintenance_mode", "registrations_enabled", "talent_auto_publish"] },
+  { title: "Plateforme", description: "Contrôles opérationnels de KORA.", keys: ["maintenance_mode", "registrations_enabled", "talent_auto_publish", "default_theme"] },
 ]
 
 const LABELS = {
@@ -34,6 +35,7 @@ const LABELS = {
   maintenance_mode: "Mode maintenance",
   registrations_enabled: "Nouvelles inscriptions",
   talent_auto_publish: "Publication automatique des talents",
+  default_theme: "Thème par défaut",
 }
 
 const DESCRIPTION = {
@@ -41,12 +43,14 @@ const DESCRIPTION = {
   maintenance_mode: "Active temporairement le mode maintenance.",
   registrations_enabled: "Autorise ou bloque les nouvelles inscriptions.",
   talent_auto_publish: "Contrôle la publication automatique des nouveaux talents.",
+  default_theme: "Thème appliqué aux nouveaux visiteurs et utilisateurs sans préférence locale.",
 }
 
 function parseValue(key, value) {
   if (value === undefined || value === null) return DEFAULTS[key]
   if (key === "commission_rate") return Number(value)
   if (["maintenance_mode", "registrations_enabled", "talent_auto_publish"].includes(key)) return Boolean(value)
+  if (key === "default_theme") return ["light", "dark", "system"].includes(value) ? value : "system"
   return String(value)
 }
 
@@ -178,6 +182,16 @@ export default function AdminSettings() {
                             >
                               <span className={`absolute top-1 h-6 w-6 rounded-full bg-background shadow transition-transform ${value ? "translate-x-7" : "translate-x-1"}`} />
                             </button>
+                          ) : key === "default_theme" ? (
+                            <select
+                              value={value}
+                              onChange={(event) => updateLocal(key, event.target.value)}
+                              className="h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm sm:w-64"
+                            >
+                              <option value="system">🌓 Système</option>
+                              <option value="light">☀️ Clair</option>
+                              <option value="dark">🌙 Sombre</option>
+                            </select>
                           ) : (
                             <Input
                               type={isNumber ? "number" : key.includes("email") ? "email" : "text"}
