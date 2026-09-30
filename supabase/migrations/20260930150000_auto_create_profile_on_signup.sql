@@ -33,17 +33,16 @@ begin
     'Utilisateur KORA'
   ));
 
-  insert into public.profiles (
-    id,
-    name,
-    role
-  )
-  values (
-    new.id,
-    v_name,
-    v_role
-  )
-  on conflict (id) do nothing;
+  insert into public.profiles (id, name, role)
+  values (new.id, v_name, v_role)
+  on conflict (id) do update
+    set name = excluded.name,
+        role = case
+          when public.profiles.role in ('admin', 'superadmin')
+            then public.profiles.role
+          else excluded.role
+        end,
+        updated_at = now();
 
   return new;
 end;
@@ -54,8 +53,8 @@ revoke all on function public.handle_new_user() from public, anon, authenticated
 drop trigger if exists on_auth_user_created on auth.users;
 
 create trigger on_auth_user_created
-  after insert on auth.users
-  for each row
-  execute function public.handle_new_user();
+after insert on auth.users
+for each row
+execute function public.handle_new_user();
 
 commit;
