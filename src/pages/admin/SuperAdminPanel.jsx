@@ -610,7 +610,7 @@ export default function SuperAdminPanel() {
                   size="sm"
                   className="gap-2"
                   onClick={() => {
-                    window.location.href = "/admin"
+                    window.location.href = "/admin?view=administrators"
                   }}
                 >
                   <UserPlus className="h-4 w-4" />
@@ -694,7 +694,7 @@ export default function SuperAdminPanel() {
                         size="icon"
                         title="Voir le profil"
                         onClick={() => {
-                          window.location.href = `/admin/users/${admin.id}`
+                          window.location.href = `/admin?view=administrators&admin=${encodeURIComponent(admin.id)}`
                         }}
                       >
                         <MoreHorizontal className="h-4 w-4" />
@@ -803,14 +803,14 @@ export default function SuperAdminPanel() {
               icon={Shield}
               title="Gestion des admins"
               description="Créer, modifier ou désactiver un admin"
-              href="/admin"
+              href="/admin?view=administrators"
             />
 
             <QuickAction
               icon={Users}
               title="Utilisateurs"
               description="Consulter les comptes KORA"
-              href="/admin"
+              href="/admin?view=users"
             />
 
             <QuickAction
