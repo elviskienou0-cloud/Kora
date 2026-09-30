@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from "react"
+import { useSearchParams } from "react-router-dom"
 import {
   Loader2,
   Mail,
@@ -64,9 +65,10 @@ async function readFunctionError(error, data) {
 }
 
 export default function AdminAdministrators() {
+  const [searchParams, setSearchParams] = useSearchParams()
   const [admins, setAdmins] = useState([])
   const [invitations, setInvitations] = useState([])
-  const [selectedId, setSelectedId] = useState("")
+  const [selectedId, setSelectedId] = useState(() => searchParams.get("admin") || "")
   const [draft, setDraft] = useState(null)
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)
@@ -122,7 +124,11 @@ export default function AdminAdministrators() {
       setInvitations(invitationsResult.data || [])
     }
 
-    if (!selectedId && adminsResult.data?.[0]?.user_id) {
+    const requestedAdminId = searchParams.get("admin")
+    const requestedAdminExists = adminsResult.data?.some((item) => item.user_id === requestedAdminId)
+    if (requestedAdminExists && requestedAdminId !== selectedId) {
+      setSelectedId(requestedAdminId)
+    } else if (!selectedId && adminsResult.data?.[0]?.user_id) {
       setSelectedId(adminsResult.data[0].user_id)
     }
 
@@ -132,6 +138,14 @@ export default function AdminAdministrators() {
   useEffect(() => {
     load()
   }, [])
+
+  const selectAdmin = (userId) => {
+    setSelectedId(userId)
+    const next = new URLSearchParams(searchParams)
+    next.set("view", "administrators")
+    next.set("admin", userId)
+    setSearchParams(next, { replace: true })
+  }
 
   useEffect(() => {
     if (!selected) {
@@ -478,7 +492,7 @@ export default function AdminAdministrators() {
               <button
                 key={admin.user_id}
                 type="button"
-                onClick={() => setSelectedId(admin.user_id)}
+                onClick={() => selectAdmin(admin.user_id)}
                 className={`w-full rounded-xl border p-3 text-left transition ${
                   selectedId === admin.user_id
                     ? "border-gold/60 bg-accent"
