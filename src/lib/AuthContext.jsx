@@ -22,18 +22,50 @@ const ALL_ROLES = [
 ]
 
 function isValidRole(role) {
-  return ALL_ROLES.includes(role)
+  return ALL_ROLES.includes(String(role || "").trim().toLowerCase())
 }
 
 function normalizeProfile(profile) {
   if (!profile) return null
 
-  if (!isValidRole(profile.role)) {
+  const normalizedRole = String(profile.role || "").trim().toLowerCase()
+
+  if (!isValidRole(normalizedRole)) {
     console.error("Rôle KORA invalide :", profile.role)
     return null
   }
 
-  return profile
+  return {
+    ...profile,
+    role: normalizedRole,
+  }
+}
+
+function getAuthErrorMessage(error) {
+  const message = String(error?.message || "").trim()
+  const lower = message.toLowerCase()
+
+  if (!message) {
+    return "Connexion impossible. Vérifiez votre connexion internet et la configuration Supabase."
+  }
+
+  if (lower.includes("invalid login credentials") || lower.includes("invalid credentials")) {
+    return "Email ou mot de passe incorrect."
+  }
+
+  if (lower.includes("email not confirmed") || lower.includes("email_not_confirmed")) {
+    return "Votre adresse email n'est pas encore confirmée."
+  }
+
+  if (lower.includes("failed to fetch") || lower.includes("networkerror")) {
+    return "Impossible de joindre Supabase. Vérifiez VITE_SUPABASE_URL et la clé publique."
+  }
+
+  if (lower.includes("apikey") || lower.includes("api key") || lower.includes("jwt")) {
+    return "La configuration de la clé Supabase est incorrecte."
+  }
+
+  return message
 }
 
 async function fetchProfile(userId) {
@@ -46,11 +78,15 @@ async function fetchProfile(userId) {
     .maybeSingle()
 
   if (error) {
-    console.error(
-      "Erreur chargement profil :",
-      error.message
+    console.error("Erreur chargement profil KORA :", {
+      message: error.message,
+      code: error.code,
+      details: error.details,
+      hint: error.hint,
+    })
+    throw new Error(
+      "Impossible de charger votre profil KORA. Vérifiez les règles d'accès Supabase."
     )
-    return null
   }
 
   return normalizeProfile(data)
@@ -89,11 +125,12 @@ export function AuthProvider({ children }) {
         })
 
       if (error) {
-        throw new Error(
-          error.message === "Invalid login credentials"
-            ? "Identifiants incorrects."
-            : error.message
-        )
+        console.error("KORA Supabase signInWithPassword :", {
+          message: error.message,
+          status: error.status,
+          code: error.code,
+        })
+        throw new Error(getAuthErrorMessage(error))
       }
 
       if (!data?.user) {
