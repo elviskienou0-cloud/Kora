@@ -418,14 +418,3 @@ export function useAuth() {
   return context
 }
 
-La correction principale est bien :
-
-const ALL_ROLES = [
-  "client",
-  "manager",
-  "admin",
-  "superadmin",
-]
-
-
-`PUBLIC_ROLES` reste volontairement limité à `client` et `manager`.
