@@ -157,7 +157,7 @@ export default function ManagerSubscription() {
         </div>
         <Badge variant="outline" className="w-fit gap-1.5 border-gold/30 bg-gold/10 text-gold-dark">
           <Crown className="h-3.5 w-3.5" />
-          {subscription?.plan_name || (currentPlanId === "BUSINESS" ? "Premium" : currentPlanId === "PRO" ? "Pro" : "Gratuit")}
+          {subscription?.plan_name || (currentPlanId === "BUSINESS" ? "Business" : currentPlanId === "PRO" ? "Pro" : "Gratuit")}
         </Badge>
       </div>
 
