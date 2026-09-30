@@ -159,8 +159,8 @@ export default function Landing() {
     .map((plan) => ({
       ...plan,
       description:
-        plan.name === "Essai"
-          ? "Pour découvrir KORA"
+        plan.name === "Gratuit"
+          ? "Pour découvrir KORA gratuitement"
           : plan.name === "Pro"
             ? "Pour développer votre activité"
             : "Pour développer votre activité sur KORA",
