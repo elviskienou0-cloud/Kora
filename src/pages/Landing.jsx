@@ -153,7 +153,7 @@ export default function Landing() {
     }).format(price)
   }
 
-  const planCards = ["Essai", "Pro", "Business"]
+  const planCards = ["Gratuit", "Pro", "Business"]
     .map((planName) => publicPlans.find((plan) => plan.name === planName))
     .filter(Boolean)
     .map((plan) => ({
