@@ -52,6 +52,15 @@ function formatDate(value) {
   }).format(new Date(value))
 }
 
+async function readFunctionError(error, data) {
+  if (data?.error) return data.error
+  try {
+    const body = await error?.context?.json?.()
+    if (body?.error) return body.error
+  } catch { /* corps illisible */ }
+  return error?.message || "Impossible d'envoyer l'invitation."
+}
+
 export default function AdminAdministrators() {
   const [admins, setAdmins] = useState([])
   const [invitations, setInvitations] = useState([])
@@ -61,6 +70,7 @@ export default function AdminAdministrators() {
   const [saving, setSaving] = useState(false)
   const [inviting, setInviting] = useState(false)
   const [showInvite, setShowInvite] = useState(false)
+  const [inviteMessage, setInviteMessage] = useState(null)
   const [message, setMessage] = useState("")
 
   const [inviteForm, setInviteForm] = useState({
@@ -194,11 +204,12 @@ export default function AdminAdministrators() {
 
   const inviteAdmin = async () => {
     if (!inviteForm.email.trim()) {
-      setMessage("Veuillez saisir une adresse email.")
+      setInviteMessage({ type: "error", text: "Veuillez saisir une adresse email." })
       return
     }
 
     setInviting(true)
+    setInviteMessage(null)
     setMessage("")
 
     const { data, error } = await supabase.functions.invoke("admin-users", {
@@ -224,7 +235,7 @@ export default function AdminAdministrators() {
     })
 
     if (error || data?.error) {
-      setMessage(data?.error || error?.message || "Impossible d'envoyer l'invitation.")
+      setInviteMessage({ type: "error", text: await readFunctionError(error, data) })
       setInviting(false)
       return
     }
@@ -244,6 +255,7 @@ export default function AdminAdministrators() {
       max_payment_validations: "",
       access_expires_at: "",
     })
+    setInviteMessage(null)
     setShowInvite(false)
     await load()
     setInviting(false)
@@ -416,6 +428,22 @@ export default function AdminAdministrators() {
             </div>
 
             <div className="flex flex-wrap gap-3">
+              {inviteMessage && (
+
+                <div
+
+                  role="alert"
+
+                  className={`rounded-xl border p-3 text-sm ${inviteMessage.type === "error" ? "border-red-500/40 bg-red-500/10 text-red-700 dark:text-red-300" : "border-emerald-500/40 bg-emerald-500/10"}`}
+
+                >
+
+                  {inviteMessage.text}
+
+                </div>
+
+              )}
+
               <Button onClick={inviteAdmin} disabled={inviting} className="gap-2">
                 {inviting ? (
                   <Loader2 className="h-4 w-4 animate-spin" />

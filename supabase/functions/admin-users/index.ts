@@ -129,6 +129,13 @@ Deno.serve(async (req) => {
         },
       })
 
+      if (inviteError && (inviteError.code === "email_exists" || inviteError.status === 422)) {
+        return jsonResponse({
+          error: "Cette adresse email a déjà un compte KORA. Une invitation ne peut être envoyée qu'à une nouvelle adresse : utilisez un autre email.",
+          code: "email_exists",
+        }, 409)
+      }
+
       if (inviteError || !invitedUser?.user) {
         return jsonResponse({
           error: inviteError?.message || "Impossible d'envoyer l'invitation.",
