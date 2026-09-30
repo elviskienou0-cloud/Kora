@@ -62,7 +62,7 @@ Deno.serve(async (req) => {
       .maybeSingle()
 
     if (profileError) throw profileError
-    if (!callerProfile || callerProfile.role !== "admin") {
+    if (!callerProfile || !["admin", "superadmin"].includes(callerProfile.role)) {
       return jsonResponse({ error: "Accès administrateur requis." }, 403)
     }
     if (callerProfile.is_suspended === true) {
@@ -190,8 +190,17 @@ Deno.serve(async (req) => {
 
     if (targetError) throw targetError
     if (!targetProfile) return jsonResponse({ error: "Utilisateur introuvable." }, 404)
-    if (targetProfile.role === "admin") {
-      return jsonResponse({ error: "La suppression d'un autre administrateur est bloquée." }, 403)
+    if (targetProfile.role === "admin" || targetProfile.role === "superadmin") {
+      return jsonResponse({ error: "La suppression d'un administrateur est bloquée depuis cette action." }, 403)
+    }
+
+    const { data: canManageUsers, error: permissionError } = await callerClient.rpc(
+      "admin_has_permission",
+      { p_permission: "users.manage" },
+    )
+
+    if (permissionError || canManageUsers !== true) {
+      return jsonResponse({ error: "Permission users.manage requise." }, 403)
     }
 
     const { error: auditError } = await adminClient.from("admin_audit_logs").insert({
