@@ -88,6 +88,12 @@ export default function ManagerSubscription() {
 
   const currentPlanId = String(subscription?.plan_id || subscription?.plan || "FREE").toUpperCase()
   const currentIsActive = ["trialing", "active"].includes(subscription?.status)
+  const freeTrialExpired =
+    String(subscription?.plan_id || subscription?.plan || "").toUpperCase() === "FREE" &&
+    Boolean(
+      subscription?.current_period_end &&
+      new Date(subscription.current_period_end).getTime() <= Date.now()
+    )
 
   const activateFree = async () => {
     setLoadingPlan("FREE")
@@ -189,8 +195,15 @@ export default function ManagerSubscription() {
         {plans.map((plan) => {
           const id = String(plan.id).toUpperCase()
           const isCurrent = currentPlanId === id && currentIsActive
+          const isExpiredFree = id === "FREE" && freeTrialExpired
           const price = Number(plan.price || 0)
-          const buttonLabel = isCurrent ? "Forfait actif" : id === "FREE" ? "Utiliser gratuitement" : `Choisir ${plan.name}`
+          const buttonLabel = isCurrent
+            ? "Forfait actif"
+            : isExpiredFree
+              ? "Essai terminé"
+              : id === "FREE"
+                ? "Utiliser gratuitement"
+                : `Choisir ${plan.name}`
 
           return (
             <Card key={plan.id} className={`h-full border-border/60 ${isCurrent ? "border-gold/50 shadow-xl shadow-gold/10" : ""}`}>
@@ -223,7 +236,11 @@ export default function ManagerSubscription() {
                   ))}
                 </div>
 
-                <Button className="w-full gap-2" disabled={isCurrent || loadingPlan === plan.id} onClick={() => requestPayment(plan)}>
+                <Button
+                  className="w-full gap-2"
+                  disabled={isCurrent || isExpiredFree || loadingPlan === plan.id}
+                  onClick={() => requestPayment(plan)}
+                >
                   {loadingPlan === plan.id ? <Loader2 className="h-4 w-4 animate-spin" /> : <CreditCard className="h-4 w-4" />}
                   {buttonLabel}
                 </Button>
