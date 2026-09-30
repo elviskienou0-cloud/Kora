@@ -192,13 +192,22 @@ export function AuthProvider({ children }) {
     }
 
     const cleanEmail = String(email || "").trim().toLowerCase()
+    const cleanFirstName = String(firstName || "").trim()
+    const cleanLastName = String(lastName || "").trim()
 
     if (!cleanEmail || !password) {
       throw new Error("L'email et le mot de passe sont obligatoires.")
     }
 
-    const name =
-      `${firstName || ""} ${lastName || ""}`.trim() || cleanEmail
+    if (password.length < 6) {
+      throw new Error("Le mot de passe doit contenir au moins 6 caractères.")
+    }
+
+    if (!cleanFirstName || !cleanLastName) {
+      throw new Error("Le prénom et le nom sont obligatoires.")
+    }
+
+    const name = `${cleanFirstName} ${cleanLastName}`.trim()
 
     const { data, error } = await supabase.auth.signUp({
       email: cleanEmail,
@@ -206,19 +215,24 @@ export function AuthProvider({ children }) {
       options: {
         data: {
           name,
-          first_name: firstName || "",
-          last_name: lastName || "",
+          first_name: cleanFirstName,
+          last_name: cleanLastName,
           role: normalizedRole,
         },
       },
     })
 
     if (error) {
+      console.error("KORA Supabase signUp :", {
+        message: error.message,
+        status: error.status,
+        code: error.code,
+      })
       throw new Error(getAuthErrorMessage(error))
     }
 
     if (!data?.user) {
-      throw new Error("Impossible de créer le compte.")
+      throw new Error("Supabase n'a retourné aucun utilisateur après l'inscription.")
     }
 
     if (!data.session) {
@@ -228,16 +242,39 @@ export function AuthProvider({ children }) {
       }
     }
 
-    const profile = await fetchProfile(data.user.id)
+    let profile = null
+
+    for (let attempt = 0; attempt < 5; attempt += 1) {
+      profile = await fetchProfile(data.user.id)
+
+      if (profile) break
+
+      await new Promise((resolve) => {
+        setTimeout(resolve, 250)
+      })
+    }
 
     if (!profile) {
       await supabase.auth.signOut()
       throw new Error(
-        "Le compte a été créé mais son profil KORA est introuvable."
+        "Votre compte a été créé, mais votre profil KORA n'a pas pu être créé automatiquement. Vérifiez le trigger Supabase on_auth_user_created."
+      )
+    }
+
+    if (!PUBLIC_ROLES.includes(profile.role)) {
+      await supabase.auth.signOut()
+      throw new Error(
+        "Le rôle du compte est invalide. Contactez l'administration KORA."
       )
     }
 
     const fullUser = buildUser(profile, data.user)
+
+    if (!fullUser) {
+      await supabase.auth.signOut()
+      throw new Error("Impossible de finaliser votre session KORA.")
+    }
+
     setUser(fullUser)
 
     return fullUser
