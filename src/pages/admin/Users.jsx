@@ -49,7 +49,10 @@ export default function AdminUsers() {
       toast.success("Utilisateur mis à jour ✅")
       setEditing(null)
       await load()
-    } catch (error) { toast.error(error?.message || "Impossible de modifier l'utilisateur.") }
+    } catch (error) {
+      console.error("KORA admin update user:", error)
+      toast.error(error?.message || "Impossible de modifier l'utilisateur.")
+    }
     finally { setSaving(false) }
   }
 
@@ -57,7 +60,10 @@ export default function AdminUsers() {
     if (!window.confirm(`Supprimer définitivement ${user.name || "cet utilisateur"} ?`)) return
     setSaving(true)
     try { await deleteAdminUser(user.id); toast.success("Utilisateur supprimé ✅"); await load() }
-    catch (error) { toast.error(error?.message || "Impossible de supprimer l'utilisateur.") }
+    catch (error) {
+      console.error("KORA admin delete user:", error)
+      toast.error(error?.message || "Impossible de supprimer l'utilisateur.")
+    }
     finally { setSaving(false) }
   }
 
