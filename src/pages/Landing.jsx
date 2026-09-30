@@ -627,7 +627,7 @@ export default function Landing() {
                         variant={plan.highlighted ? "default" : "outline"}
                         onClick={() => navigate("/register")}
                       >
-                        {plan.name === "Pro" ? "Choisir Pro" : plan.name === "Business" ? "Activer Business" : "Commencer"} <ArrowRight className="h-4 w-4" />
+                        {plan.name === "Pro" ? "Choisir Pro" : plan.name === "Business" ? "Activer Business" : "Commencer gratuitement"} <ArrowRight className="h-4 w-4" />
                       </Button>
                     </CardContent>
                   </Card>
