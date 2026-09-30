@@ -39,17 +39,44 @@ export default function Register() {
     event.preventDefault()
     setError("")
     setSuccess("")
+
+    if (!form.firstName.trim() || !form.lastName.trim()) {
+      setError("Le prénom et le nom sont obligatoires.")
+      return
+    }
+
+    if (!form.email.trim()) {
+      setError("L'adresse email est obligatoire.")
+      return
+    }
+
+    if (form.password.length < 6) {
+      setError("Le mot de passe doit contenir au moins 6 caractères.")
+      return
+    }
+
     setLoading(true)
 
     try {
-      const result = await register(form)
+      const result = await register({
+        ...form,
+        firstName: form.firstName.trim(),
+        lastName: form.lastName.trim(),
+        email: form.email.trim().toLowerCase(),
+      })
 
       if (result?.pendingEmailConfirmation) {
-        setSuccess(`Compte créé. Vérifiez votre adresse email : ${result.email}`)
+        setSuccess(
+          `Compte créé. Vérifiez votre adresse email : ${result.email}`
+        )
         return
       }
 
-      navigate(result?.role === "manager" ? "/manager/dashboard" : "/client/dashboard", { replace: true })
+      if (result?.role === "manager") {
+        navigate("/manager/dashboard", { replace: true })
+      } else {
+        navigate("/client/dashboard", { replace: true })
+      }
     } catch (err) {
       setError(err?.message || "Impossible de créer le compte.")
     } finally {
