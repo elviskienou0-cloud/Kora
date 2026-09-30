@@ -57,7 +57,9 @@ async function readFunctionError(error, data) {
   try {
     const body = await error?.context?.json?.()
     if (body?.error) return body.error
-  } catch { /* corps illisible */ }
+  } catch {
+    /* corps illisible */
+  }
   return error?.message || "Impossible d'envoyer l'invitation."
 }
 
@@ -427,23 +429,20 @@ export default function AdminAdministrators() {
               </label>
             </div>
 
+            {inviteMessage && (
+              <div
+                role="alert"
+                className={`rounded-xl border p-3 text-sm ${
+                  inviteMessage.type === "error"
+                    ? "border-red-500/40 bg-red-500/10 text-red-700 dark:text-red-300"
+                    : "border-emerald-500/40 bg-emerald-500/10"
+                }`}
+              >
+                {inviteMessage.text}
+              </div>
+            )}
+
             <div className="flex flex-wrap gap-3">
-              {inviteMessage && (
-
-                <div
-
-                  role="alert"
-
-                  className={`rounded-xl border p-3 text-sm ${inviteMessage.type === "error" ? "border-red-500/40 bg-red-500/10 text-red-700 dark:text-red-300" : "border-emerald-500/40 bg-emerald-500/10"}`}
-
-                >
-
-                  {inviteMessage.text}
-
-                </div>
-
-              )}
-
               <Button onClick={inviteAdmin} disabled={inviting} className="gap-2">
                 {inviting ? (
                   <Loader2 className="h-4 w-4 animate-spin" />
