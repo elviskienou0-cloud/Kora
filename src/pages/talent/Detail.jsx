@@ -1,7 +1,7 @@
 // @ts-nocheck
 
 import { useEffect, useMemo, useState } from "react"
-import { useNavigate, useParams } from "react-router-dom"
+import { useNavigate, useParams, useSearchParams } from "react-router-dom"
 import { motion } from "framer-motion"
 import { toast } from "sonner"
 import {
@@ -65,6 +65,7 @@ function isImage(item) {
 export default function TalentDetail() {
   const { id } = useParams()
   const navigate = useNavigate()
+  const [searchParams, setSearchParams] = useSearchParams()
   const { user, isAuthenticated } = useAuth()
   const authUserId = user?.authId || user?.id
 
@@ -290,6 +291,13 @@ export default function TalentDetail() {
     window.open(target, "_blank", "noopener,noreferrer,width=720,height=680")
     setShowShareMenu(false)
   }
+
+  useEffect(() => {
+    if (searchParams.get("contact") === "1" && talent && manager?.id) {
+      setSearchParams({}, { replace: true })
+      handleContact()
+    }
+  }, [searchParams, talent, manager])
 
   const handleContact = async () => {
     if (!isAuthenticated || !authUserId) {
