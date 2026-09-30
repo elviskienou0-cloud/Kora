@@ -128,6 +128,7 @@ function getMenuItems(t) {
       { label: "Clients", href: "/admin?view=clients", icon: Users },
       { label: "Talents", href: "/admin?view=talents", icon: ContactRound },
       { label: "Demandes", href: "/admin?view=requests", icon: ClipboardList },
+      { label: "Messages", href: "/admin?view=messages", icon: MessageCircle },
       { label: "Projets", href: "/admin?view=projects", icon: BriefcaseBusiness },
       { label: "Paiements", href: "/admin?view=payments", icon: WalletCards },
       { label: "Abonnements", href: "/admin?view=subscriptions", icon: CreditCard },
