@@ -153,7 +153,7 @@ export default function ManagerSubscription() {
         <div>
           <p className="text-xs font-bold uppercase tracking-[0.18em] text-gold">Compte manager</p>
           <h1 className="text-2xl font-black tracking-tight">Abonnement & facturation</h1>
-          <p className="text-sm text-muted-foreground">Choisissez votre formule. Les paiements Pro et Premium sont validés manuellement par KORA.</p>
+          <p className="text-sm text-muted-foreground">Choisissez votre formule. Les paiements Pro et Business sont validés manuellement par KORA.</p>
         </div>
         <Badge variant="outline" className="w-fit gap-1.5 border-gold/30 bg-gold/10 text-gold-dark">
           <Crown className="h-3.5 w-3.5" />
