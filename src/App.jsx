@@ -1,3 +1,4 @@
+
 import { Routes, Route, Navigate } from "react-router-dom"
 import { AnimatePresence } from "framer-motion"
 
@@ -73,10 +74,11 @@ import ManagerSettings from "@/pages/manager/Settings.jsx"
 import ManagerNotifications from "@/pages/manager/Notifications.jsx"
 
 // =========================
-// ADMIN
+// ADMIN / SUPERADMIN
 // =========================
 
 import AdminPanel from "@/pages/admin/AdminPanel.jsx"
+import SuperAdminPanel from "@/pages/admin/SuperAdminPanel.jsx"
 
 
 export default function App() {
@@ -403,6 +405,20 @@ export default function App() {
               element={
                 <RoleGuard allowedRoles={["admin"]}>
                   <AdminPanel />
+                </RoleGuard>
+              }
+            />
+
+
+            {/* =====================
+                SUPERADMIN / CEO
+            ====================== */}
+
+            <Route
+              path="/superadmin"
+              element={
+                <RoleGuard allowedRoles={["superadmin"]}>
+                  <SuperAdminPanel />
                 </RoleGuard>
               }
             />
