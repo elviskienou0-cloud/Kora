@@ -1,4 +1,3 @@
-
 import { useState } from "react"
 import { Link, useNavigate } from "react-router-dom"
 import { motion } from "framer-motion"
@@ -8,7 +7,12 @@ import { Mail, Lock, Eye, EyeOff, ArrowRight } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import { Card, CardContent, CardHeader, CardDescription } from "@/components/ui/card"
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardDescription,
+} from "@/components/ui/card"
 
 import { useAuth } from "@/lib/AuthContext"
 import { APP_PARAMS } from "@/lib/app-params"
@@ -26,7 +30,9 @@ export default function Login() {
   const handleSubmit = async (event) => {
     event.preventDefault()
 
-    if (!email.trim() || !password) {
+    const cleanEmail = email.trim().toLowerCase()
+
+    if (!cleanEmail || !password) {
       toast.error("Veuillez remplir tous les champs.")
       return
     }
@@ -35,7 +41,7 @@ export default function Login() {
 
     try {
       const connectedUser = await login({
-        email: email.trim(),
+        email: cleanEmail,
         password,
       })
 
@@ -54,8 +60,12 @@ export default function Login() {
 
       navigate(destination, { replace: true })
     } catch (error) {
-      toast.error("Erreur de connexion", {
-        description: error?.message || "Identifiants incorrects.",
+      console.error("KORA Login :", error)
+
+      toast.error("Connexion impossible", {
+        description:
+          error?.message ||
+          "Email ou mot de passe incorrect.",
       })
     } finally {
       setIsLoading(false)
@@ -171,7 +181,7 @@ export default function Login() {
                     onChange={(event) => setPassword(event.target.value)}
                     className="pl-11 pr-11"
                     autoComplete="current-password"
-                    disabled={isLoading}
+                    disabled={loading}
                     required
                   />
 
@@ -222,7 +232,7 @@ export default function Login() {
             </form>
 
             <p className="text-center text-sm text-muted-foreground">
-              Pas encore de compte ?{" "}
+              Pas encore de compte?{" "}
               <Link
                 to="/register"
                 className="font-semibold text-gold-dark hover:underline"
@@ -241,6 +251,3 @@ export default function Login() {
     </div>
   )
 }
-
-
-
