@@ -8,12 +8,12 @@ import { supabase } from "@/lib/supabase"
 import { formatCurrency } from "@/lib/utils"
 
 const PLAN_DETAILS = {
-  Essai: [
-    "30 jours gratuits",
+  Gratuit: [
     "1 talent maximum",
-    "Outils professionnels",
-    "Gestion du profil et des demandes",
-    "0 % de commission",
+    "Profil manager et outils essentiels",
+    "Gestion des demandes",
+    "Accès gratuit",
+    "Sans paiement",
   ],
   Pro: [
     "Jusqu'à 3 talents",
