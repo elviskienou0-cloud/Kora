@@ -3,7 +3,7 @@ import { useAuth } from "@/lib/AuthContext.jsx"
 import { Loader2 } from "lucide-react"
 import { cn } from "@/lib/utils.js"
 
-const VALID_ROLES = ["client", "manager", "admin"]
+const VALID_ROLES = ["client", "manager", "admin", "superadmin"]
 
 export default function RoleGuard({ allowedRoles = [], children }) {
   const { user, isLoading } = useAuth()
@@ -30,18 +30,23 @@ export default function RoleGuard({ allowedRoles = [], children }) {
   }
 
   // Vérifie que les rôles demandés par la route sont eux-mêmes valides
-  const safeAllowedRoles = allowedRoles.filter((role) =>
-    VALID_ROLES.includes(role)
-  )
+  const safeAllowedRoles = allowedRoles
+    .map((role) => String(role || "").trim().toLowerCase())
+    .filter((role) => VALID_ROLES.includes(role))
 
   // Le rôle réel de l'utilisateur doit être valide
-  if (!VALID_ROLES.includes(user.role)) {
+  const currentRole = String(user.role || "").trim().toLowerCase()
+
+  if (!VALID_ROLES.includes(currentRole)) {
     return <Navigate to="/home" replace />
   }
 
   // L'utilisateur n'a pas le rôle autorisé
-  if (!safeAllowedRoles.includes(user.role)) {
-    return <Navigate to="/home" replace />
+  if (!safeAllowedRoles.includes(currentRole)) {
+    if (currentRole === "superadmin") return <Navigate to="/superadmin" replace />
+    if (currentRole === "admin") return <Navigate to="/admin" replace />
+    if (currentRole === "manager") return <Navigate to="/manager/dashboard" replace />
+    return <Navigate to="/client/dashboard" replace />
   }
 
   return children ?? <Outlet />
