@@ -120,6 +120,23 @@ function getMenuItems(t) {
       },
     ],
 
+    superadmin: [
+      { label: "Dashboard CEO", href: "/superadmin", icon: Crown },
+      { label: "Administrateurs", href: "/admin?view=administrators", icon: UserCog },
+      { label: "Utilisateurs", href: "/admin?view=users", icon: Users },
+      { label: "Managers", href: "/admin?view=managers", icon: UserCheck },
+      { label: "Clients", href: "/admin?view=clients", icon: Users },
+      { label: "Talents", href: "/admin?view=talents", icon: ContactRound },
+      { label: "Demandes", href: "/admin?view=requests", icon: ClipboardList },
+      { label: "Projets", href: "/admin?view=projects", icon: BriefcaseBusiness },
+      { label: "Paiements", href: "/admin?view=payments", icon: WalletCards },
+      { label: "Abonnements", href: "/admin?view=subscriptions", icon: CreditCard },
+      { label: "Annonces", href: "/admin?view=announcements", icon: Megaphone },
+      { label: "Modération", href: "/admin?view=moderation", icon: ShieldCheck },
+      { label: "Logs", href: "/admin?view=logs", icon: ScrollText },
+      { label: "Paramètres", href: "/admin?view=settings", icon: Settings },
+    ],
+
     admin: [
       { label: "Tableau de bord", href: "/admin", icon: LayoutDashboard, view: "dashboard" },
       { label: "Utilisateurs", href: "/admin?view=users", icon: Users, view: "users" },
@@ -146,6 +163,7 @@ function getRoleLabels(t) {
     manager: { label: t("account.manager"), badge: "bg-gold" },
     talent: { label: t("account.talent"), badge: "bg-purple-500" },
     admin: { label: t("account.admin"), badge: "bg-red-500" },
+    superadmin: { label: "SuperAdmin / CEO", badge: "bg-gold" },
   }
 }
 
@@ -197,7 +215,9 @@ export default function KoraLayout() {
     ? rawMenu.filter((item) => !item.superAdminOnly && (item.view === "dashboard" || Boolean(adminAccess?.permissions?.["*"] || adminAccess?.permissions?.[permissionMap[item.view]])))
     : rawMenu.filter((item) => !item.superAdminOnly || adminAccess?.access_level !== "associate")
   const roleInfo = roleLabels[role] || roleLabels.client
-  const homeHref = role === "admin"
+  const homeHref = role === "superadmin"
+    ? "/superadmin"
+    : role === "admin"
     ? "/admin"
     : role === "manager"
     ? "/manager/dashboard"
@@ -256,7 +276,7 @@ export default function KoraLayout() {
         </ul>
       </nav>
 
-      {role === "admin" && (
+      {(role === "admin" || role === "superadmin") && (
         <div className="p-3">
           <div className="rounded-2xl border border-gold/30 bg-gradient-to-br from-gold/20 via-transparent to-transparent p-4 text-center">
             <img src={koraLogo} alt="" className="mx-auto mb-2 h-10 w-10 rounded-xl" />
@@ -266,7 +286,7 @@ export default function KoraLayout() {
         </div>
       )}
 
-      {role !== "admin" && (
+      {role !== "admin" && role !== "superadmin" && (
         <div className="p-3 border-t border-sidebar-border">
           <div className="rounded-xl bg-sidebar-accent/50 p-3 mb-3">
             <div className="flex items-center gap-2 mb-1">
@@ -319,7 +339,7 @@ export default function KoraLayout() {
                     setMenuOpen(false)
                     if (role === "client") navigate("/client/profile")
                     else if (role === "manager") navigate("/manager/settings")
-                    else if (role === "admin") navigate("/admin?view=settings")
+                    else if (role === "admin" || role === "superadmin") navigate("/admin?view=settings")
                     else navigate("/home")
                   }}
                   className="w-full flex items-center gap-2 px-3 py-2 rounded-lg text-sm text-sidebar-foreground/70 hover:bg-sidebar-accent/50 hover:text-sidebar-foreground transition-colors"
@@ -335,7 +355,7 @@ export default function KoraLayout() {
                     setMenuOpen(false)
                     if (role === "client") navigate("/client/settings")
                     else if (role === "manager") navigate("/manager/settings")
-                    else if (role === "admin") navigate("/admin?view=settings")
+                    else if (role === "admin" || role === "superadmin") navigate("/admin?view=settings")
                     else navigate("/home")
                   }}
                   className="w-full flex items-center gap-2 px-3 py-2 rounded-lg text-sm text-sidebar-foreground/70 hover:bg-sidebar-accent/50 hover:text-sidebar-foreground transition-colors"
@@ -412,7 +432,7 @@ export default function KoraLayout() {
                   </svg>
                 </button>
               )}
-              {role === "admin" ? (
+              {role === "admin" || role === "superadmin" ? (
                 <form
                   className="relative hidden w-[min(420px,40vw)] sm:block"
                   onSubmit={(e) => {
@@ -466,7 +486,7 @@ export default function KoraLayout() {
                   <Monitor className="h-5 w-5" />
                 )}
               </button>
-              {role !== "admin" && (
+              {role !== "admin" && role !== "superadmin" && (
                 <button
                   onClick={() => navigate("/messages")}
                   className="p-2 rounded-lg hover:bg-accent transition-colors"
