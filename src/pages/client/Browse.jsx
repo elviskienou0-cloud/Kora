@@ -1529,7 +1529,7 @@ export default function ClientBrowse() {
                               size="sm"
                               onClick={() =>
                                 navigate(
-                                  `/talent/${talent.id}`
+                                  `/talent/${talent.id}?contact=1`
                                 )
                               }
                               className="h-9 bg-foreground text-background hover:bg-foreground/90 shadow-sm"
