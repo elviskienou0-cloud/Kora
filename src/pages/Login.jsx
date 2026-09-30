@@ -136,7 +136,7 @@ export default function Login() {
                     onChange={(event) => setEmail(event.target.value)}
                     className="pl-11"
                     autoComplete="email"
-                    disabled={isLoading}
+                    disabled={loading}
                     required
                   />
                 </div>
