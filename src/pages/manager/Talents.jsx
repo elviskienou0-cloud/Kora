@@ -761,6 +761,7 @@ export default function ManagerTalents() {
   const [actionLoading, setActionLoading] = useState(null)
   const [saving, setSaving] = useState(false)
   const [editingTalent, setEditingTalent] = useState(null)
+  const [subscription, setSubscription] = useState(null)
 
   const loadTalents = async () => {
     if (!managerId) {
@@ -772,6 +773,13 @@ export default function ManagerTalents() {
     setLoading(true)
 
     try {
+      const { data: subscriptionRows, error: subscriptionError } =
+        await supabase.rpc("get_my_subscription")
+
+      if (!subscriptionError) {
+        setSubscription(subscriptionRows?.[0] || null)
+      }
+
       const { data, error } = await supabase
         .from("talent_profiles")
         .select(`
@@ -1223,6 +1231,32 @@ export default function ManagerTalents() {
 
   const pendingCount = talents.filter((talent) => talent.status === "pending").length
   const publishedCount = talents.filter((talent) => talent.status === "published").length
+
+  const currentPlanId = String(
+    subscription?.plan_id || subscription?.plan || "FREE"
+  ).toUpperCase()
+
+  const isSubscriptionExpired =
+    ["expired", "cancelled", "canceled"].includes(
+      String(subscription?.status || "").toLowerCase()
+    ) ||
+    Boolean(
+      subscription?.current_period_end &&
+      new Date(subscription.current_period_end).getTime() <= Date.now()
+    )
+
+  const talentLimit =
+    currentPlanId === "BUSINESS"
+      ? null
+      : currentPlanId === "PRO"
+        ? 3
+        : 1
+
+  const talentLimitReached =
+    talentLimit !== null && talents.length >= talentLimit
+
+  const canCreateTalent =
+    !isSubscriptionExpired && !talentLimitReached
   const ratedTalents = talents.filter((talent) => talent.ratingValue > 0)
   const averageRating = ratedTalents.length
     ? (
@@ -1243,10 +1277,44 @@ export default function ManagerTalents() {
           </p>
         </div>
 
-        <Button className="gap-2" onClick={openCreate} disabled={!!editingTalent}>
-          <Plus className="h-4 w-4" />
-          Créer un talent
-        </Button>
+        <div className="flex flex-col items-stretch gap-2 sm:flex-row sm:items-center">
+          <div className="rounded-xl border border-border/60 bg-card px-3 py-2 text-xs">
+            <span className="font-bold">
+              {currentPlanId === "BUSINESS" ? "Business" : currentPlanId === "PRO" ? "Pro" : "Gratuit"}
+            </span>
+            <span className="mx-1 text-muted-foreground">•</span>
+            <span className={cn(
+              "font-semibold",
+              isSubscriptionExpired || talentLimitReached ? "text-destructive" : "text-muted-foreground"
+            )}>
+              {isSubscriptionExpired
+                ? "Abonnement expiré"
+                : talentLimit === null
+                  ? `${talents.length} talent(s) • illimité`
+                  : `${talents.length}/${talentLimit} talent(s)`}
+            </span>
+          </div>
+
+          <Button
+            className="gap-2"
+            onClick={openCreate}
+            disabled={!!editingTalent || !canCreateTalent}
+            title={
+              isSubscriptionExpired
+                ? "Votre abonnement est expiré. Choisissez Pro ou Business."
+                : talentLimitReached
+                  ? "Limite de talents atteinte pour votre forfait."
+                  : undefined
+            }
+          >
+            <Plus className="h-4 w-4" />
+            {isSubscriptionExpired
+              ? "Abonnement requis"
+              : talentLimitReached
+                ? "Limite atteinte"
+                : "Créer un talent"}
+          </Button>
+        </div>
       </div>
 
       {editingTalent ? (
