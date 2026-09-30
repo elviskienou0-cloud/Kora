@@ -24,6 +24,7 @@ import {
 import { cn } from "@/lib/utils.js"
 import { supabase } from "@/lib/supabase"
 import FileUpload from "@/components/FileUpload.jsx"
+import { APP_PARAMS } from "@/lib/app-params"
 
 const talentSchema = z.object({
   displayName: z.string().min(2, "Le nom doit contenir au moins 2 caractères").max(100),
@@ -47,6 +48,15 @@ const DEFAULT_SKILLS = [
 
 const getCategoryLabel = (category) => category?.name || category?.slug || "Catégorie"
 
+const normalizeCategory = (value) => String(value || "")
+  .trim()
+  .toLowerCase()
+  .normalize("NFD")
+  .replace(/[\u0300-\u036f]/g, "")
+  .replace(/&/g, "et")
+  .replace(/[^a-z0-9]+/g, "-")
+  .replace(/^-+|-+$/g, "")
+
 function createLocalId() {
   if (typeof crypto !== "undefined" && typeof crypto.randomUUID === "function") {
     return crypto.randomUUID()
@@ -68,8 +78,6 @@ export default function TalentForm({
   const [coverFile, setCoverFile] = useState(null)
   const [avatarPreview, setAvatarPreview] = useState(initialValues?.avatar_url || "")
   const [coverPreview, setCoverPreview] = useState(initialValues?.cover_url || "")
-  const [customCategory, setCustomCategory] = useState("")
-  const [addingCategory, setAddingCategory] = useState(false)
   const [portfolioLinks, setPortfolioLinks] = useState([
     { id: createLocalId(), title: "", url: "" },
   ])
@@ -142,7 +150,23 @@ export default function TalentForm({
         toast.error("Impossible de charger les catégories")
         setCategories([])
       } else {
-        setCategories(data || [])
+        // Afficher uniquement les 11 catégories officielles KORA,
+        // dans le même ordre que la page /categories.
+        const dbCategories = data || []
+        const ordered = APP_PARAMS.categories
+          .map((official) => {
+            const wanted = normalizeCategory(official.id)
+            const match = dbCategories.find((item) =>
+              normalizeCategory(item.slug) === wanted ||
+              normalizeCategory(item.name) === normalizeCategory(official.name)
+            )
+            return match
+              ? { ...match, name: official.name, slug: official.id, icon: official.icon }
+              : null
+          })
+          .filter(Boolean)
+
+        setCategories(ordered)
       }
       setCategoryLoading(false)
     }
@@ -153,25 +177,7 @@ export default function TalentForm({
     }
   }, [])
 
-  const addCustomCategory = async () => {
-    const name = customCategory.trim()
-    if (!name) return
-    const slug = name.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "")
-    if (!slug) return toast.error("Nom de métier invalide.")
-    setAddingCategory(true)
-    try {
-      const existing = categories.find((item) => String(item.name || "").trim().toLowerCase() === name.toLowerCase())
-      if (existing) { setValue("category", existing.id, { shouldValidate: true }); setCustomCategory(""); return }
-      const { data, error } = await supabase.from("categories").insert({ name, slug }).select("id, slug, name").single()
-      if (error) throw error
-      setCategories((current) => [...current, data].sort((a, b) => String(a.name).localeCompare(String(b.name), "fr")))
-      setValue("category", data.id, { shouldValidate: true })
-      setCustomCategory("")
-      toast.success(`Métier « ${name} » ajouté.`)
-    } catch (error) {
-      toast.error(error?.message || "Impossible d'ajouter ce métier.")
-    } finally { setAddingCategory(false) }
-  }
+
 
   const handleProfileImage = (setter, previewSetter, file) => {
     if (!file) return
@@ -225,8 +231,8 @@ export default function TalentForm({
 
     onSubmit?.({
       ...data,
-      // Le métier et la catégorie sont désormais un seul champ dans l'interface.
-      // On conserve `title` pour rester compatible avec la structure actuelle de la base.
+      // La catégorie officielle KORA est aussi conservée dans `title`
+      // pour rester compatible avec la structure actuelle de la base.
       title: getCategoryLabel(selectedCategory),
       portfolioFiles,
       portfolioLinks: normalizedLinks,
@@ -275,17 +281,16 @@ export default function TalentForm({
           <input type="text" placeholder="Ex: Marie Koné" className={inputClass(!!errors.displayName)} {...register("displayName")} disabled={disabled || isSubmitting} />
         </FieldWrap>
 
-        <FieldWrap label="Métier" icon={Briefcase} error={errors.category?.message} required>
-          <select className={cn(inputClass(!!errors.category), "appearance-none pr-10")} {...register("category")} disabled={disabled || isSubmitting || categoryLoading || addingCategory}>
-            <option value="">{categoryLoading ? "Chargement…" : "Sélectionnez un métier…"}</option>
+        <FieldWrap label="Catégorie" icon={Briefcase} error={errors.category?.message} required>
+          <select className={cn(inputClass(!!errors.category), "appearance-none pr-10")} {...register("category")} disabled={disabled || isSubmitting || categoryLoading}>
+            <option value="">{categoryLoading ? "Chargement…" : "Sélectionnez une catégorie…"}</option>
             {categories.map((category) => (
               <option key={category.id} value={category.id}>{getCategoryLabel(category)}</option>
             ))}
           </select>
-          <div className="mt-2 flex gap-2">
-            <input value={customCategory} onChange={(e) => setCustomCategory(e.target.value)} onKeyDown={(e) => { if (e.key === "Enter") { e.preventDefault(); addCustomCategory() } }} placeholder="Ou ajouter un métier personnalisé" className={inputClass(false)} disabled={disabled || isSubmitting || addingCategory} />
-            <button type="button" onClick={addCustomCategory} disabled={disabled || isSubmitting || addingCategory || !customCategory.trim()} className="rounded-xl border border-border px-3 text-sm font-medium hover:border-gold/40">{addingCategory ? "…" : "+ Ajouter"}</button>
-          </div>
+          <p className="mt-2 text-xs text-muted-foreground">
+            Les catégories officielles KORA sont les mêmes que celles de la page <strong>/categories</strong>.
+          </p>
         </FieldWrap>
       </div>
 
