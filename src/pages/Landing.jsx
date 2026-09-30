@@ -166,7 +166,7 @@ export default function Landing() {
             : "Pour développer votre activité sur KORA",
       featureList: PLAN_DETAILS[plan.name] || [],
       highlighted: plan.name === "Pro",
-      period: plan.name === "Pro" ? "/ mois" : "",
+      period: plan.name === "Gratuit" ? "" : "/ mois",
     }))
 
   const features = [
