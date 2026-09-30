@@ -403,7 +403,7 @@ export default function App() {
             <Route
               path="/admin"
               element={
-                <RoleGuard allowedRoles={["admin"]}>
+                <RoleGuard allowedRoles={["admin", "superadmin"]}>
                   <AdminPanel />
                 </RoleGuard>
               }
