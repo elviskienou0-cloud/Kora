@@ -23,7 +23,7 @@ set name = 'Pro',
 where id = 'PRO';
 
 update public.plans
-set name = 'Premium',
+set name = 'Business',
     price = 5000,
     currency = 'XOF',
     duration_months = 1,
