@@ -253,19 +253,80 @@ Deno.serve(async (req) => {
         target_role: targetProfile.role,
         previous_status: targetProfile.is_suspended ? "suspended" : "active",
         source: "admin-users-edge-function",
+        deletion_mode: "complete",
       },
     })
 
     if (auditError) throw auditError
 
-    const { error: deleteError } = await adminClient.auth.admin.deleteUser(userId, true)
-    if (deleteError) throw deleteError
+    // Supabase Auth refuse de supprimer un utilisateur qui possède encore
+    // des objets Storage. On supprime donc d'abord tous ses objets via
+    // l'API Storage (et non directement via storage.objects).
+    const { data: ownedObjects, error: storageListError } = await adminClient
+      .from("storage.objects")
+      .select("bucket_id, name")
+      .eq("owner_id", userId)
+
+    if (storageListError) {
+      throw new Error(`Impossible de vérifier les fichiers Storage de l'utilisateur : ${storageListError.message}`)
+    }
+
+    const storageObjects = Array.isArray(ownedObjects) ? ownedObjects : []
+    const storageByBucket = new Map<string, string[]>()
+
+    for (const object of storageObjects) {
+      if (!object?.bucket_id || !object?.name) continue
+      const bucket = String(object.bucket_id)
+      const name = String(object.name)
+      const current = storageByBucket.get(bucket) || []
+      current.push(name)
+      storageByBucket.set(bucket, current)
+    }
+
+    for (const [bucket, names] of storageByBucket.entries()) {
+      for (let i = 0; i < names.length; i += 1000) {
+        const batch = names.slice(i, i + 1000)
+        const { error: storageDeleteError } = await adminClient.storage
+          .from(bucket)
+          .remove(batch)
+
+        if (storageDeleteError) {
+          throw new Error(`Impossible de supprimer les fichiers Storage (${bucket}) : ${storageDeleteError.message}`)
+        }
+      }
+    }
+
+    // Nettoyage transactionnel des données publiques liées au compte.
+    // La RPC découvre automatiquement les FK vers profiles.id et supprime
+    // les lignes dépendantes, tout en conservant les logs d'audit.
+    const { data: cleanupData, error: cleanupError } = await adminClient.rpc(
+      "admin_delete_user_data",
+      { p_user_id: userId },
+    )
+
+    if (cleanupError) {
+      throw new Error(`Nettoyage des données utilisateur impossible : ${cleanupError.message}`)
+    }
+
+    if (!cleanupData?.ok) {
+      throw new Error(cleanupData?.error || "Le nettoyage des données utilisateur a échoué.")
+    }
+
+    // Suppression définitive du compte Auth. shouldSoftDelete=true permet
+    // d'éviter une réutilisation simple de l'identité tout en supprimant
+    // l'accès, mais le profil public a déjà été nettoyé par la RPC.
+    const { error: deleteError } = await adminClient.auth.admin.deleteUser(userId, false)
+    if (deleteError) {
+      throw new Error(`Données KORA nettoyées, mais le compte Auth n'a pas pu être supprimé : ${deleteError.message}`)
+    }
 
     return jsonResponse({
       ok: true,
       action: "delete",
       deleted_user_id: userId,
-      message: "Utilisateur supprimé avec succès.",
+      deleted_rows: cleanupData.deleted_rows ?? 0,
+      deleted_storage_objects: storageObjects.length,
+      message: "Utilisateur, profil, données liées, fichiers Storage et compte Auth supprimés avec succès.",
     })
   } catch (error) {
     console.error("Erreur Edge Function admin-users:", error)
