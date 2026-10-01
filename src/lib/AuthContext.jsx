@@ -10,6 +10,7 @@ import {
   supabase,
   consumeSessionFailure,
   isAuthError,
+  markSessionFailure,
 } from "@/lib/supabase"
 
 const AuthContext = createContext(null)
@@ -165,6 +166,10 @@ async function fetchProfile(userId) {
       hint: error.hint,
     })
 
+    if (isAuthError(error)) {
+      throw error
+    }
+
     throw new Error(
       "Impossible de charger votre profil KORA. Vérifiez les règles d'accès Supabase."
     )
@@ -195,6 +200,7 @@ export function AuthProvider({ children }) {
         ? "SESSION_EXPIRED"
         : "SESSION_INVALID"
 
+    markSessionFailure(reason)
     setUser(null)
     setSession(null)
     setAuthError(
@@ -280,7 +286,7 @@ export function AuthProvider({ children }) {
       const fullUser = buildUser(profile, data.user)
 
       if (!fullUser) {
-        await supabase.auth.signOut()
+        await supabase.auth.signOut({ scope: "local" })
 
         throw new Error(
           "Impossible de finaliser votre session KORA."
@@ -310,7 +316,7 @@ export function AuthProvider({ children }) {
           "Connexion réussie, mais impossible de charger votre profil KORA."
       )
     }
-  }, [])
+  }, [handleInvalidSession])
 
   const register = useCallback(
     async ({
@@ -422,7 +428,7 @@ export function AuthProvider({ children }) {
       }
 
       if (!profile) {
-        await supabase.auth.signOut()
+        await supabase.auth.signOut({ scope: "local" })
 
         throw new Error(
           "Votre compte a été créé, mais votre profil KORA n'a pas pu être créé automatiquement. Vérifiez le trigger Supabase on_auth_user_created."
@@ -528,7 +534,7 @@ export function AuthProvider({ children }) {
 
       return updatedUser
     },
-    [user]
+    [handleInvalidSession, user]
   )
 
   useEffect(() => {
