@@ -2,13 +2,50 @@ import { Navigate, Outlet } from "react-router-dom"
 import { useAuth } from "@/lib/AuthContext.jsx"
 import { Loader2 } from "lucide-react"
 import { cn } from "@/lib/utils.js"
+import { supabase } from "@/lib/supabase"
 
 const VALID_ROLES = ["client", "manager", "admin", "superadmin"]
 
 export default function RoleGuard({ allowedRoles = [], children }) {
   const { user, isLoading } = useAuth()
+  const [subscriptionCheck, setSubscriptionCheck] = useState({ loading: false, expired: false })
 
-  if (isLoading) {
+  useEffect(() => {
+    let cancelled = false
+
+    async function checkManagerSubscription() {
+      const currentRole = String(user?.role || "").trim().toLowerCase()
+      const path = window.location.pathname
+
+      if (!user || currentRole !== "manager" || path === "/manager/subscription" || path === "/subscription-expired") {
+        setSubscriptionCheck({ loading: false, expired: false })
+        return
+      }
+
+      setSubscriptionCheck({ loading: true, expired: false })
+
+      try {
+        const { data, error } = await supabase.rpc("get_my_subscription")
+        if (error) throw error
+
+        const sub = Array.isArray(data) ? data[0] : data
+        const active = ["trialing", "active"].includes(String(sub?.status || "").toLowerCase())
+        const end = sub?.current_period_end ? new Date(sub.current_period_end).getTime() : 0
+        const expired = !active || !end || end <= Date.now()
+
+        if (!cancelled) setSubscriptionCheck({ loading: false, expired })
+      } catch (error) {
+        console.error("KORA subscription guard:", error)
+        // En cas d'erreur de lecture, ne pas bloquer un utilisateur actif.
+        if (!cancelled) setSubscriptionCheck({ loading: false, expired: false })
+      }
+    }
+
+    checkManagerSubscription()
+    return () => { cancelled = true }
+  }, [user?.authId, user?.role, window.location.pathname])
+
+  if (isLoading || subscriptionCheck.loading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-background">
         <div className="flex flex-col items-center gap-3">
@@ -22,6 +59,11 @@ export default function RoleGuard({ allowedRoles = [], children }) {
         </div>
       </div>
     )
+  }
+
+  // Un manager expiré est maintenu sur la page de réabonnement.
+  if (user?.role === "manager" && subscriptionCheck.expired && window.location.pathname !== "/subscription-expired") {
+    return <Navigate to="/subscription-expired" replace />
   }
 
   // Aucun utilisateur authentifié
