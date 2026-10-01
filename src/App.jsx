@@ -72,6 +72,7 @@ import ManagerRequestDetail from "@/pages/manager/RequestDetail.jsx"
 import ManagerSubscription from "@/pages/manager/Subscription.jsx"
 import ManagerSettings from "@/pages/manager/Settings.jsx"
 import ManagerNotifications from "@/pages/manager/Notifications.jsx"
+import SubscriptionExpired from "@/pages/manager/SubscriptionExpired.jsx"
 
 // =========================
 // ADMIN / SUPERADMIN
@@ -178,6 +179,17 @@ export default function App() {
             element={<OAuthConsent />}
           />
 
+
+          <Route
+            path="/subscription-expired"
+            element={
+              <ProtectedRoute>
+                <RoleGuard allowedRoles={["manager"]}>
+                  <SubscriptionExpired />
+                </RoleGuard>
+              </ProtectedRoute>
+            }
+          />
 
           {/* =====================================================
               PROTECTED APPLICATION
