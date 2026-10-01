@@ -194,13 +194,38 @@ Deno.serve(async (req) => {
       return jsonResponse({ error: "La suppression d'un administrateur est bloquée depuis cette action." }, 403)
     }
 
-    const { data: canManageUsers, error: permissionError } = await callerClient.rpc(
-      "admin_has_permission",
-      { p_permission: "users.manage" },
-    )
+    // Le Super Admin a tous les droits. Un admin associé doit avoir
+    // explicitement la permission users.manage.
+    const { data: isSuperAdmin, error: superAdminError } = await callerClient.rpc("is_super_admin")
 
-    if (permissionError || canManageUsers !== true) {
-      return jsonResponse({ error: "Permission users.manage requise." }, 403)
+    if (superAdminError) {
+      console.error("admin-users: erreur is_super_admin", superAdminError)
+      return jsonResponse({
+        error: "Impossible de vérifier les droits administrateur.",
+        details: superAdminError.message,
+      }, 500)
+    }
+
+    if (isSuperAdmin !== true) {
+      const { data: canManageUsers, error: permissionError } = await callerClient.rpc(
+        "admin_has_permission",
+        { p_permission: "users.manage" },
+      )
+
+      if (permissionError) {
+        console.error("admin-users: erreur users.manage", permissionError)
+        return jsonResponse({
+          error: "Impossible de vérifier la permission users.manage.",
+          details: permissionError.message,
+        }, 500)
+      }
+
+      if (canManageUsers !== true) {
+        return jsonResponse({
+          error: "Permission users.manage requise pour cet administrateur.",
+          code: "MISSING_PERMISSION",
+        }, 403)
+      }
     }
 
     const { error: auditError } = await adminClient.from("admin_audit_logs").insert({
