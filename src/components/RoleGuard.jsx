@@ -3,12 +3,17 @@ import { useEffect, useState } from "react"
 import { useAuth } from "@/lib/AuthContext.jsx"
 import { Loader2 } from "lucide-react"
 import { cn } from "@/lib/utils.js"
-import { supabase } from "@/lib/supabase"
+import { supabase, isAuthError } from "@/lib/supabase"
 
 const VALID_ROLES = ["client", "manager", "admin", "superadmin"]
 
 export default function RoleGuard({ allowedRoles = [], children }) {
-  const { user, isLoading } = useAuth()
+  const {
+    user,
+    session,
+    isLoading,
+    handleInvalidSession,
+  } = useAuth()
   const location = useLocation()
   const [subscriptionCheck, setSubscriptionCheck] = useState({ loading: false, expired: false })
 
@@ -19,7 +24,7 @@ export default function RoleGuard({ allowedRoles = [], children }) {
       const currentRole = String(user?.role || "").trim().toLowerCase()
       const path = location.pathname
 
-      if (!user || currentRole !== "manager" || path === "/manager/subscription" || path === "/subscription-expired") {
+      if (!user || !session || currentRole !== "manager" || path === "/manager/subscription" || path === "/subscription-expired") {
         setSubscriptionCheck({ loading: false, expired: false })
         return
       }
@@ -28,7 +33,13 @@ export default function RoleGuard({ allowedRoles = [], children }) {
 
       try {
         const { data, error } = await supabase.rpc("get_my_subscription")
-        if (error) throw error
+        if (error) {
+          if (isAuthError(error)) {
+            await handleInvalidSession("invalid")
+            return
+          }
+          throw error
+        }
 
         const sub = Array.isArray(data) ? data[0] : data
         const active = ["trialing", "active"].includes(String(sub?.status || "").toLowerCase())
@@ -45,7 +56,13 @@ export default function RoleGuard({ allowedRoles = [], children }) {
 
     checkManagerSubscription()
     return () => { cancelled = true }
-  }, [user?.authId, user?.role, location.pathname])
+  }, [
+    user?.authId,
+    user?.role,
+    session?.access_token,
+    location.pathname,
+    handleInvalidSession,
+  ])
 
   if (isLoading || subscriptionCheck.loading) {
     return (
@@ -69,7 +86,7 @@ export default function RoleGuard({ allowedRoles = [], children }) {
   }
 
   // Aucun utilisateur authentifié
-  if (!user) {
+  if (!user || !session) {
     return <Navigate to="/login" replace />
   }
 
