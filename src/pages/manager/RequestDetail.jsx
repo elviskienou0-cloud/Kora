@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from "react"
+import { useCallback, useEffect, useRef, useState } from "react"
 import { Link, useNavigate, useParams } from "react-router-dom"
 import {
   ArrowLeft,
@@ -68,6 +68,7 @@ export default function ManagerRequestDetail() {
   const [loading, setLoading] = useState(true)
   const [processing, setProcessing] = useState(false)
   const [reply, setReply] = useState("")
+  const statusActionLock = useRef(false)
 
   const load = useCallback(async () => {
     if (!id || !managerId) return
@@ -145,18 +146,30 @@ export default function ManagerRequestDetail() {
   }
 
   const handleStatus = async (status) => {
-    if (!request) return
+    if (!request || statusActionLock.current || processing) return
+
+    const currentStatus = String(request.status || "").toLowerCase()
+    if (!["pending", "open"].includes(currentStatus)) {
+      toast.info(currentStatus === "accepted" ? "Cette demande est déjà acceptée." : "Cette demande a déjà été traitée.")
+      return
+    }
+
     const label = status === "accepted" ? "accepter" : "refuser"
     if (!window.confirm(`Voulez-vous ${label} cette demande ?`)) return
 
+    // Verrou synchrone : empêche un double-clic rapide de lancer deux RPC.
+    statusActionLock.current = true
     setProcessing(true)
+
     try {
       await updateRequestStatus(request.id, status)
       toast.success(status === "accepted" ? "Demande acceptée." : "Demande refusée.")
       await load()
     } catch (error) {
+      console.error("Erreur update_request_status :", error)
       toast.error(error?.message || "Impossible de traiter la demande.")
     } finally {
+      statusActionLock.current = false
       setProcessing(false)
     }
   }
