@@ -43,8 +43,22 @@ export async function deleteAdminUser(userId) {
   const { data, error } = await supabase.functions.invoke("admin-users", {
     body: { action: "delete", user_id: userId },
   })
-  if (error) throw error
-  if (data?.error) throw new Error(data.error)
+
+  if (error) {
+    let message = error.message || "Impossible de supprimer l'utilisateur."
+    try {
+      const body = await error.context?.json?.()
+      if (body?.error) message = body.error
+    } catch {
+      // Réponse non JSON
+    }
+    throw new Error(message)
+  }
+
+  if (!data?.ok) {
+    throw new Error(data?.error || "La suppression n'a pas été effectuée.")
+  }
+
   return data
 }
 
