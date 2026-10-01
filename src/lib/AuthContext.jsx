@@ -309,7 +309,7 @@ export function AuthProvider({ children }) {
         error
       )
 
-      await supabase.auth.signOut()
+      await supabase.auth.signOut({ scope: "local" })
 
       throw new Error(
         error?.message ||
@@ -436,7 +436,7 @@ export function AuthProvider({ children }) {
       }
 
       if (!PUBLIC_ROLES.includes(profile.role)) {
-        await supabase.auth.signOut()
+        await supabase.auth.signOut({ scope: "local" })
 
         throw new Error(
           "Le rôle du compte est invalide. Contactez l'administration KORA."
@@ -449,7 +449,7 @@ export function AuthProvider({ children }) {
       )
 
       if (!fullUser) {
-        await supabase.auth.signOut()
+        await supabase.auth.signOut({ scope: "local" })
 
         throw new Error(
           "Impossible de finaliser votre session KORA."
