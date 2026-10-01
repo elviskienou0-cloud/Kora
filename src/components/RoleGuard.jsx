@@ -1,4 +1,5 @@
-import { Navigate, Outlet } from "react-router-dom"
+import { Navigate, Outlet, useLocation } from "react-router-dom"
+import { useEffect, useState } from "react"
 import { useAuth } from "@/lib/AuthContext.jsx"
 import { Loader2 } from "lucide-react"
 import { cn } from "@/lib/utils.js"
@@ -8,6 +9,7 @@ const VALID_ROLES = ["client", "manager", "admin", "superadmin"]
 
 export default function RoleGuard({ allowedRoles = [], children }) {
   const { user, isLoading } = useAuth()
+  const location = useLocation()
   const [subscriptionCheck, setSubscriptionCheck] = useState({ loading: false, expired: false })
 
   useEffect(() => {
@@ -15,7 +17,7 @@ export default function RoleGuard({ allowedRoles = [], children }) {
 
     async function checkManagerSubscription() {
       const currentRole = String(user?.role || "").trim().toLowerCase()
-      const path = window.location.pathname
+      const path = location.pathname
 
       if (!user || currentRole !== "manager" || path === "/manager/subscription" || path === "/subscription-expired") {
         setSubscriptionCheck({ loading: false, expired: false })
@@ -43,7 +45,7 @@ export default function RoleGuard({ allowedRoles = [], children }) {
 
     checkManagerSubscription()
     return () => { cancelled = true }
-  }, [user?.authId, user?.role, window.location.pathname])
+  }, [user?.authId, user?.role, location.pathname])
 
   if (isLoading || subscriptionCheck.loading) {
     return (
@@ -62,7 +64,7 @@ export default function RoleGuard({ allowedRoles = [], children }) {
   }
 
   // Un manager expiré est maintenu sur la page de réabonnement.
-  if (user?.role === "manager" && subscriptionCheck.expired && window.location.pathname !== "/subscription-expired") {
+  if (user?.role === "manager" && subscriptionCheck.expired && location.pathname !== "/subscription-expired") {
     return <Navigate to="/subscription-expired" replace />
   }
 
