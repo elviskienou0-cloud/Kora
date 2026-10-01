@@ -180,6 +180,7 @@ export default function KoraLayout() {
   const [sidebarOpen, setSidebarOpen] = useState(false)
   const [menuOpen, setMenuOpen] = useState(false)
   const [adminAccess, setAdminAccess] = useState(null)
+  const [onlineCount, setOnlineCount] = useState(0)
 
   const role = user?.role
 
@@ -223,6 +224,47 @@ export default function KoraLayout() {
     : role === "manager"
     ? "/manager/dashboard"
     : "/home"
+
+  useEffect(() => {
+    if (!user?.id) return
+
+    let mounted = true
+
+    const touchPresence = async () => {
+      await supabase.rpc("touch_presence")
+    }
+
+    touchPresence()
+
+    const heartbeat = window.setInterval(touchPresence, 30000)
+
+    return () => {
+      mounted = false
+      window.clearInterval(heartbeat)
+    }
+  }, [user?.id])
+
+  useEffect(() => {
+    if (role !== "admin" && role !== "superadmin") {
+      setOnlineCount(0)
+      return
+    }
+
+    let mounted = true
+
+    const loadOnlineCount = async () => {
+      const { data, error } = await supabase.rpc("get_online_user_count")
+      if (mounted && !error) setOnlineCount(Number(data || 0))
+    }
+
+    loadOnlineCount()
+    const interval = window.setInterval(loadOnlineCount, 30000)
+
+    return () => {
+      mounted = false
+      window.clearInterval(interval)
+    }
+  }, [role])
 
   const handleLogout = async () => {
     await logout()
@@ -459,6 +501,20 @@ export default function KoraLayout() {
             </div>
 
             <div className="flex items-center gap-2">
+              {(role === "admin" || role === "superadmin") && (
+                <div
+                  className="hidden sm:flex items-center gap-2 rounded-xl border border-border bg-card px-3 py-2"
+                  title="Utilisateurs actifs au cours des 2 dernières minutes"
+                  aria-label={`${onlineCount} utilisateurs en ligne`}
+                >
+                  <span className="relative flex h-2.5 w-2.5">
+                    <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-500 opacity-60" />
+                    <span className="relative inline-flex h-2.5 w-2.5 rounded-full bg-emerald-500" />
+                  </span>
+                  <span className="text-sm font-semibold tabular-nums">{onlineCount}</span>
+                  <span className="text-xs text-muted-foreground">en ligne</span>
+                </div>
+              )}
               <LanguageSwitcher compact />
               <button
                 type="button"
