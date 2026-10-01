@@ -201,15 +201,24 @@ Deno.serve(async (req) => {
     if (targetError) throw targetError
     if (!targetProfile) return jsonResponse({ error: "Utilisateur introuvable." }, 404)
     const targetRole = normalizeAdminRole(targetProfile.role)
-    if (targetRole === "admin" || targetRole === "superadmin") {
-      return jsonResponse({ error: "La suppression d'un administrateur est bloquée depuis cette action." }, 403)
+
+    // Règle CEO :
+    // - le Super Admin (CEO) peut supprimer un client, manager ou administrateur associé ;
+    // - un administrateur associé peut supprimer les utilisateurs ordinaires uniquement
+    //   s'il possède users.manage ;
+    // - aucun compte ne peut supprimer un autre Super Admin ;
+    // - un administrateur associé ne peut jamais supprimer un autre administrateur.
+    const isSuperAdmin = callerRole === "superadmin"
+    const targetIsAdmin = targetRole === "admin"
+    const targetIsSuperAdmin = targetRole === "superadmin"
+
+    if (targetIsSuperAdmin) {
+      return jsonResponse({ error: "Un Super Admin/CEO ne peut pas être supprimé depuis cette interface." }, 403)
     }
 
-    // Le Super Admin a tous les droits. Un admin associé doit avoir
-    // explicitement la permission users.manage.
-    // Le Super Admin est autorisé par son rôle de profil. Pour un admin
-    // associé, la permission users.manage reste obligatoire.
-    const isSuperAdmin = callerRole === "superadmin"
+    if (targetIsAdmin && !isSuperAdmin) {
+      return jsonResponse({ error: "Seul le Super Admin (CEO) peut supprimer un autre administrateur." }, 403)
+    }
 
     if (!isSuperAdmin) {
       const { data: canManageUsers, error: permissionError } = await callerClient.rpc(
