@@ -6,7 +6,11 @@ import {
   useCallback,
 } from "react"
 
-import { supabase } from "@/lib/supabase"
+import {
+  supabase,
+  consumeSessionFailure,
+  isAuthError,
+} from "@/lib/supabase"
 
 const AuthContext = createContext(null)
 
@@ -156,6 +160,7 @@ async function fetchProfile(userId) {
     console.error("Erreur chargement profil KORA :", {
       message: error.message,
       code: error.code,
+      status: error.status,
       details: error.details,
       hint: error.hint,
     })
@@ -180,7 +185,31 @@ function buildUser(profile, authUser) {
 
 export function AuthProvider({ children }) {
   const [user, setUser] = useState(null)
-  const [isLoading, setIsLoading] = useState(true)
+  const [session, setSession] = useState(null)
+  const [authStatus, setAuthStatus] = useState("INITIALIZING")
+  const [authError, setAuthError] = useState(null)
+
+  const handleInvalidSession = useCallback(async (reason = "invalid") => {
+    const status =
+      reason === "expired"
+        ? "SESSION_EXPIRED"
+        : "SESSION_INVALID"
+
+    setUser(null)
+    setSession(null)
+    setAuthError(
+      reason === "expired"
+        ? "Votre session a expiré. Veuillez vous reconnecter."
+        : "Votre session n'est plus valide. Veuillez vous reconnecter."
+    )
+    setAuthStatus(status)
+
+    try {
+      await supabase.auth.signOut({ scope: "local" })
+    } catch {
+      // L'état local reste invalide.
+    }
+  }, [])
 
   const login = useCallback(async ({ email, password }) => {
     const cleanEmail = String(email || "")
@@ -226,6 +255,12 @@ export function AuthProvider({ children }) {
       )
     }
 
+    if (!data?.session || !data?.user) {
+      throw new Error(
+        "Supabase n'a retourné aucune session après la connexion."
+      )
+    }
+
     if (!data?.user) {
       throw new Error(
         "Supabase n'a retourné aucun utilisateur après la connexion."
@@ -236,8 +271,7 @@ export function AuthProvider({ children }) {
       const profile = await fetchProfile(data.user.id)
 
       if (!profile) {
-        await supabase.auth.signOut()
-
+        await handleInvalidSession("invalid")
         throw new Error(
           "Connexion réussie, mais votre profil KORA est introuvable ou votre rôle n'est pas autorisé."
         )
@@ -253,7 +287,10 @@ export function AuthProvider({ children }) {
         )
       }
 
+      setSession(data.session)
       setUser(fullUser)
+      setAuthError(null)
+      setAuthStatus("AUTHENTICATED")
 
       return fullUser
     } catch (error) {
@@ -413,7 +450,10 @@ export function AuthProvider({ children }) {
         )
       }
 
+      setSession(data.session)
       setUser(fullUser)
+      setAuthError(null)
+      setAuthStatus("AUTHENTICATED")
 
       return fullUser
     },
@@ -422,13 +462,18 @@ export function AuthProvider({ children }) {
 
   const logout = useCallback(async () => {
     const { error } =
-      await supabase.auth.signOut()
+      await supabase.auth.signOut({
+        scope: "local",
+      })
 
     if (error) {
       throw new Error(error.message)
     }
 
     setUser(null)
+    setSession(null)
+    setAuthError(null)
+    setAuthStatus("UNAUTHENTICATED")
   }, [])
 
   const updateUser = useCallback(
@@ -454,6 +499,13 @@ export function AuthProvider({ children }) {
         .single()
 
       if (error) {
+        if (isAuthError(error)) {
+          await handleInvalidSession("invalid")
+          throw new Error(
+            "Votre session n'est plus valide. Veuillez vous reconnecter."
+          )
+        }
+
         throw new Error(error.message)
       }
 
@@ -482,98 +534,130 @@ export function AuthProvider({ children }) {
   useEffect(() => {
     let mounted = true
 
-    async function loadSession(session) {
+    async function loadSession(nextSession, event = "INITIAL_SESSION") {
       if (!mounted) return
 
-      if (!session?.user) {
+      if (!nextSession?.user) {
+        const failureReason = consumeSessionFailure()
+
         setUser(null)
-        setIsLoading(false)
+        setSession(null)
+        setAuthError(
+          failureReason === "expired"
+            ? "Votre session a expiré. Veuillez vous reconnecter."
+            : failureReason === "invalid"
+            ? "Votre session n'est plus valide. Veuillez vous reconnecter."
+            : null
+        )
+        setAuthStatus(
+          failureReason === "expired"
+            ? "SESSION_EXPIRED"
+            : failureReason === "invalid"
+            ? "SESSION_INVALID"
+            : "UNAUTHENTICATED"
+        )
         return
       }
 
+      setSession(nextSession)
+      setAuthError(null)
+      setAuthStatus(
+        event === "TOKEN_REFRESHED"
+          ? "REFRESHING"
+          : "INITIALIZING"
+      )
+
       try {
-        const profile = await fetchProfile(
-          session.user.id
-        )
+        const {
+          data: { user: verifiedUser },
+          error: userError,
+        } = await supabase.auth.getUser()
+
+        if (userError || !verifiedUser) {
+          if (isAuthError(userError)) {
+            await handleInvalidSession("invalid")
+            return
+          }
+
+          throw userError || new Error("Utilisateur introuvable.")
+        }
+
+        const profile = await fetchProfile(verifiedUser.id)
 
         if (!mounted) return
 
         if (!profile) {
-          await supabase.auth.signOut()
-          setUser(null)
+          await handleInvalidSession("invalid")
           return
         }
 
-        setUser(
-          buildUser(profile, session.user)
-        )
+        const fullUser = buildUser(profile, verifiedUser)
+
+        if (!fullUser) {
+          await handleInvalidSession("invalid")
+          return
+        }
+
+        setSession(nextSession)
+        setUser(fullUser)
+        setAuthError(null)
+        setAuthStatus("AUTHENTICATED")
       } catch (error) {
         console.error(
-          "Erreur synchronisation profil KORA :",
+          "Erreur synchronisation session KORA :",
           error
         )
 
-        if (mounted) {
-          setUser(null)
+        if (isAuthError(error)) {
+          await handleInvalidSession("invalid")
+          return
         }
-      } finally {
-        if (mounted) {
-          setIsLoading(false)
-        }
-      }
-    }
-
-    async function initializeAuth() {
-      try {
-        const {
-          data: { session },
-          error,
-        } = await supabase.auth.getSession()
-
-        if (error) {
-          throw error
-        }
-
-        await loadSession(session)
-      } catch (error) {
-        console.error(
-          "Erreur initialisation authentification KORA :",
-          error?.message || error
-        )
 
         if (mounted) {
           setUser(null)
-          setIsLoading(false)
+          setSession(null)
+          setAuthError(
+            error?.message ||
+              "Impossible de synchroniser votre session KORA."
+          )
+          setAuthStatus("AUTH_ERROR")
         }
       }
     }
-
-    initializeAuth()
 
     const {
       data: { subscription },
     } = supabase.auth.onAuthStateChange(
-      (event, session) => {
+      (event, nextSession) => {
         if (!mounted) return
 
-        if (
-          event === "SIGNED_OUT" ||
-          !session?.user
-        ) {
-          setUser(null)
-          setIsLoading(false)
-          return
-        }
+        setTimeout(() => {
+          if (!mounted) return
 
-        if (
-          event === "SIGNED_IN" ||
-          event === "TOKEN_REFRESHED" ||
-          event === "USER_UPDATED"
-        ) {
-          setTimeout(() => {
-            void loadSession(session)
-          }, 0)
-        }
+          if (event === "SIGNED_OUT") {
+            void loadSession(null, event)
+            return
+          }
+
+          if (
+            event === "INITIAL_SESSION" ||
+            event === "SIGNED_IN" ||
+            event === "TOKEN_REFRESHED" ||
+            event === "USER_UPDATED"
+          ) {
+            void loadSession(nextSession, event)
+            return
+          }
+
+          if (event === "PASSWORD_RECOVERY") {
+            setSession(nextSession || null)
+            setAuthStatus(
+              nextSession
+                ? "AUTHENTICATED"
+                : "UNAUTHENTICATED"
+            )
+          }
+        }, 0)
       }
     )
 
@@ -581,16 +665,24 @@ export function AuthProvider({ children }) {
       mounted = false
       subscription.unsubscribe()
     }
-  }, [])
+  }, [handleInvalidSession])
 
   const value = {
     user,
-    isLoading,
-    isAuthenticated: Boolean(user),
+    session,
+    authStatus,
+    authError,
+    isLoading:
+      authStatus === "INITIALIZING" ||
+      authStatus === "REFRESHING",
+    isAuthenticated:
+      authStatus === "AUTHENTICATED" &&
+      Boolean(user && session),
     login,
     register,
     logout,
     updateUser,
+    handleInvalidSession,
   }
 
   return (
