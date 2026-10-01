@@ -39,33 +39,75 @@ function normalizeProfile(profile) {
   }
 }
 
-function getAuthErrorMessage(error) {
+function getAuthErrorMessage(error, action = "login") {
   const message = String(error?.message || "").trim()
   const lower = message.toLowerCase()
-
-  if (!message) {
-    return "Connexion impossible. Vérifiez votre connexion internet et la configuration Supabase."
-  }
+  const code = String(error?.code || "").trim().toLowerCase()
+  const status = Number(error?.status || 0)
 
   if (
+    code === "invalid_credentials" ||
     lower.includes("invalid login credentials") ||
     lower.includes("invalid credentials")
   ) {
-    return "Email ou mot de passe incorrect. Si vous avez oublié votre mot de passe, utilisez « Mot de passe oublié ? »."
+    return action === "register"
+      ? "Impossible de créer ce compte avec ces identifiants. Vérifiez l'adresse email et réessayez."
+      : "Email ou mot de passe incorrect. Si vous avez oublié votre mot de passe, utilisez « Mot de passe oublié ? »."
   }
 
   if (
+    code === "email_not_confirmed" ||
     lower.includes("email not confirmed") ||
     lower.includes("email_not_confirmed")
   ) {
-    return "Votre adresse email n'est pas encore confirmée."
+    return "Votre adresse email n'est pas encore confirmée. Vérifiez votre boîte mail ou utilisez le renvoi de confirmation."
+  }
+
+  if (
+    code === "user_banned" ||
+    lower.includes("user is banned") ||
+    lower.includes("banned")
+  ) {
+    return "Ce compte est temporairement bloqué. Contactez l'administration KORA."
+  }
+
+  if (
+    code === "over_request_rate_limit" ||
+    lower.includes("rate limit") ||
+    lower.includes("too many requests")
+  ) {
+    return "Trop de tentatives. Attendez quelques minutes avant de réessayer."
+  }
+
+  if (
+    code === "weak_password" ||
+    lower.includes("password should be at least") ||
+    lower.includes("password is too weak")
+  ) {
+    return "Le mot de passe est trop faible. Utilisez au moins 6 caractères."
+  }
+
+  if (
+    code === "signup_disabled" ||
+    lower.includes("signups not allowed") ||
+    lower.includes("signup is disabled")
+  ) {
+    return "Les inscriptions sont temporairement désactivées sur KORA."
+  }
+
+  if (
+    code === "email_provider_disabled" ||
+    lower.includes("email provider")
+  ) {
+    return "La connexion par email est temporairement indisponible. Vérifiez la configuration Supabase."
   }
 
   if (
     lower.includes("failed to fetch") ||
-    lower.includes("networkerror")
+    lower.includes("networkerror") ||
+    lower.includes("network error")
   ) {
-    return "Impossible de joindre Supabase. Vérifiez votre connexion et la configuration KORA."
+    return "Impossible de joindre Supabase. Vérifiez votre connexion internet puis réessayez."
   }
 
   if (
@@ -73,7 +115,17 @@ function getAuthErrorMessage(error) {
     lower.includes("api key") ||
     lower.includes("jwt")
   ) {
-    return "La configuration de la connexion Supabase est incorrecte."
+    return "La configuration de la connexion Supabase est incorrecte. Vérifiez les variables VITE_SUPABASE_URL et VITE_SUPABASE_PUBLISHABLE_KEY."
+  }
+
+  if (action === "register" && status === 422) {
+    return "Les informations d'inscription sont invalides. Vérifiez l'email et les informations saisies."
+  }
+
+  if (!message) {
+    return action === "register"
+      ? "Impossible de créer le compte. Vérifiez les informations saisies puis réessayez."
+      : "Connexion impossible. Vérifiez votre connexion internet et la configuration Supabase."
   }
 
   return message
@@ -125,6 +177,14 @@ export function AuthProvider({ children }) {
       throw new Error("Veuillez renseigner votre email et votre mot de passe.")
     }
 
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(cleanEmail)) {
+      throw new Error("Veuillez saisir une adresse email valide.")
+    }
+
+    if (password.length < 6) {
+      throw new Error("Le mot de passe doit contenir au moins 6 caractères.")
+    }
+
     const { data, error } = await supabase.auth.signInWithPassword({
       email: cleanEmail,
       password,
@@ -136,7 +196,7 @@ export function AuthProvider({ children }) {
         status: error.status,
         code: error.code,
       })
-      throw new Error(getAuthErrorMessage(error))
+      throw new Error(getAuthErrorMessage(error, "login"))
     }
 
     if (!data?.user) {
@@ -228,7 +288,7 @@ export function AuthProvider({ children }) {
         status: error.status,
         code: error.code,
       })
-      throw new Error(getAuthErrorMessage(error))
+      throw new Error(getAuthErrorMessage(error, "register"))
     }
 
     if (!data?.user) {
