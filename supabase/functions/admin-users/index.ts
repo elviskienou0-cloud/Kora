@@ -116,8 +116,10 @@ Deno.serve(async (req) => {
         return jsonResponse({ error: "Limite de validations invalide." }, 400)
       }
 
-      const { data: isSuperAdmin, error: accessError } = await callerClient.rpc("is_super_admin")
-      if (accessError || isSuperAdmin !== true) {
+      // Le rôle du profil est la source de vérité pour distinguer le CEO
+      // (superadmin) d'un administrateur associé. On évite ici de dépendre
+      // de is_super_admin() pour le contrôle d'entrée de l'Edge Function.
+      if (callerProfile.role !== "superadmin") {
         return jsonResponse({ error: "Seul le Super Admin peut inviter un administrateur." }, 403)
       }
 
@@ -196,17 +198,11 @@ Deno.serve(async (req) => {
 
     // Le Super Admin a tous les droits. Un admin associé doit avoir
     // explicitement la permission users.manage.
-    const { data: isSuperAdmin, error: superAdminError } = await callerClient.rpc("is_super_admin")
+    // Le Super Admin est autorisé par son rôle de profil. Pour un admin
+    // associé, la permission users.manage reste obligatoire.
+    const isSuperAdmin = callerProfile.role === "superadmin"
 
-    if (superAdminError) {
-      console.error("admin-users: erreur is_super_admin", superAdminError)
-      return jsonResponse({
-        error: "Impossible de vérifier les droits administrateur.",
-        details: superAdminError.message,
-      }, 500)
-    }
-
-    if (isSuperAdmin !== true) {
+    if (!isSuperAdmin) {
       const { data: canManageUsers, error: permissionError } = await callerClient.rpc(
         "admin_has_permission",
         { p_permission: "users.manage" },
