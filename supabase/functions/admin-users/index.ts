@@ -4,335 +4,648 @@ type JsonRecord = Record<string, unknown>
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
-  "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
+  "Access-Control-Allow-Headers":
+    "authorization, x-client-info, apikey, content-type",
   "Access-Control-Allow-Methods": "POST, OPTIONS",
   "Content-Type": "application/json",
 }
 
 function jsonResponse(body: JsonRecord, status = 200) {
-  return new Response(JSON.stringify(body), { status, headers: corsHeaders })
+  return new Response(JSON.stringify(body), {
+    status,
+    headers: corsHeaders,
+  })
 }
 
 function normalizeAdminRole(role: unknown) {
-  const value = typeof role === "string" ? role.trim().toLowerCase() : ""
-  if (value === "superadmin" || value === "super_admin" || value === "super-admin") return "superadmin"
+  const value =
+    typeof role === "string" ? role.trim().toLowerCase() : ""
+
+  if (
+    value === "superadmin" ||
+    value === "super_admin" ||
+    value === "super-admin"
+  ) {
+    return "superadmin"
+  }
+
   if (value === "admin") return "admin"
+
   return value
 }
 
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") {
-    return new Response("ok", { status: 200, headers: corsHeaders })
+    return new Response("ok", {
+      status: 200,
+      headers: corsHeaders,
+    })
   }
 
   if (req.method !== "POST") {
-    return jsonResponse({ error: "Méthode non autorisée." }, 405)
+    return jsonResponse(
+      { error: "Méthode non autorisée." },
+      405,
+    )
   }
 
   try {
     const supabaseUrl = Deno.env.get("SUPABASE_URL")
     const anonKey = Deno.env.get("SUPABASE_ANON_KEY")
-    const serviceRoleKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")
+    const serviceRoleKey = Deno.env.get(
+      "SUPABASE_SERVICE_ROLE_KEY",
+    )
 
     if (!supabaseUrl || !anonKey || !serviceRoleKey) {
-      return jsonResponse({ error: "Variables Supabase Edge Function manquantes." }, 500)
+      return jsonResponse(
+        {
+          error:
+            "Variables Supabase Edge Function manquantes.",
+        },
+        500,
+      )
     }
 
-    const authHeader = req.headers.get("Authorization") || ""
-    const accessToken = authHeader.replace(/^Bearer\s+/i, "").trim()
+    const authHeader =
+      req.headers.get("Authorization") || ""
+
+    const accessToken = authHeader
+      .replace(/^Bearer\s+/i, "")
+      .trim()
 
     if (!accessToken) {
-      return jsonResponse({ error: "Authorization manquante." }, 401)
+      return jsonResponse(
+        { error: "Authorization manquante." },
+        401,
+      )
     }
 
-    const callerClient = createClient(supabaseUrl, anonKey, {
-      global: { headers: { Authorization: `Bearer ${accessToken}` } },
-      auth: { autoRefreshToken: false, persistSession: false },
-    })
+    const callerClient = createClient(
+      supabaseUrl,
+      anonKey,
+      {
+        global: {
+          headers: {
+            Authorization: `Bearer ${accessToken}`,
+          },
+        },
+        auth: {
+          autoRefreshToken: false,
+          persistSession: false,
+        },
+      },
+    )
 
-    const { data: callerData, error: callerError } = await callerClient.auth.getUser(accessToken)
+    const { data: callerData, error: callerError } =
+      await callerClient.auth.getUser(accessToken)
 
     if (callerError || !callerData?.user) {
-      return jsonResponse({ error: "Session invalide ou expirée." }, 401)
+      return jsonResponse(
+        { error: "Session invalide ou expirée." },
+        401,
+      )
     }
 
     const callerId = callerData.user.id
 
-    const adminClient = createClient(supabaseUrl, serviceRoleKey, {
-      auth: { autoRefreshToken: false, persistSession: false },
-    })
+    const adminClient = createClient(
+      supabaseUrl,
+      serviceRoleKey,
+      {
+        auth: {
+          autoRefreshToken: false,
+          persistSession: false,
+        },
+      },
+    )
 
-    const { data: callerProfile, error: profileError } = await adminClient
+    const {
+      data: callerProfile,
+      error: profileError,
+    } = await adminClient
       .from("profiles")
-      .select("id, name, role, is_suspended")
+      .select(
+        "id, name, role, is_suspended",
+      )
       .eq("id", callerId)
       .maybeSingle()
 
-    if (profileError) throw profileError
-    const callerRole = normalizeAdminRole(callerProfile?.role)
-    if (!callerProfile || !["admin", "superadmin"].includes(callerRole)) {
-      return jsonResponse({ error: "Accès administrateur requis." }, 403)
+    if (profileError) {
+      throw profileError
     }
+
+    const callerRole = normalizeAdminRole(
+      callerProfile?.role,
+    )
+
+    if (
+      !callerProfile ||
+      !["admin", "superadmin"].includes(
+        callerRole,
+      )
+    ) {
+      return jsonResponse(
+        {
+          error:
+            "Accès administrateur requis.",
+        },
+        403,
+      )
+    }
+
     if (callerProfile.is_suspended === true) {
-      return jsonResponse({ error: "Compte administrateur suspendu." }, 403)
+      return jsonResponse(
+        {
+          error:
+            "Compte administrateur suspendu.",
+        },
+        403,
+      )
     }
 
     let payload: JsonRecord
+
     try {
       payload = await req.json()
     } catch {
-      return jsonResponse({ error: "Corps de requête JSON invalide." }, 400)
+      return jsonResponse(
+        {
+          error:
+            "Corps de requête JSON invalide.",
+        },
+        400,
+      )
     }
 
-    const action = typeof payload.action === "string" ? payload.action.trim().toLowerCase() : ""
+    const action =
+      typeof payload.action === "string"
+        ? payload.action.trim().toLowerCase()
+        : ""
 
-    if (!action) return jsonResponse({ error: "Action manquante." }, 400)
+    if (!action) {
+      return jsonResponse(
+        { error: "Action manquante." },
+        400,
+      )
+    }
+
+    // ==========================================================
+    // INVITATION ADMIN
+    // ==========================================================
 
     if (action === "invite") {
-      const email = typeof payload.email === "string" ? payload.email.trim().toLowerCase() : ""
-      const message = typeof payload.message === "string" ? payload.message.trim() : ""
-      const accessLevel = payload.access_level === "super_admin" ? "super_admin" : "associate"
-      const permissions = payload.permissions && typeof payload.permissions === "object"
-        ? payload.permissions
-        : {}
-      const maxUsers = payload.max_users === null || payload.max_users === undefined || payload.max_users === ""
-        ? null
-        : Number(payload.max_users)
-      const maxPaymentValidations = payload.max_payment_validations === null || payload.max_payment_validations === undefined || payload.max_payment_validations === ""
-        ? null
-        : Number(payload.max_payment_validations)
-      const accessExpiresAt = typeof payload.access_expires_at === "string" && payload.access_expires_at
-        ? payload.access_expires_at
-        : null
-      const redirectTo = typeof payload.redirect_to === "string" && payload.redirect_to
-        ? payload.redirect_to
-        : undefined
+      const email =
+        typeof payload.email === "string"
+          ? payload.email.trim().toLowerCase()
+          : ""
+
+      const message =
+        typeof payload.message === "string"
+          ? payload.message.trim()
+          : ""
+
+      const accessLevel =
+        payload.access_level === "super_admin"
+          ? "super_admin"
+          : "associate"
+
+      const permissions =
+        payload.permissions &&
+        typeof payload.permissions === "object"
+          ? payload.permissions
+          : {}
+
+      const maxUsers =
+        payload.max_users === null ||
+        payload.max_users === undefined ||
+        payload.max_users === ""
+          ? null
+          : Number(payload.max_users)
+
+      const maxPaymentValidations =
+        payload.max_payment_validations === null ||
+        payload.max_payment_validations === undefined ||
+        payload.max_payment_validations === ""
+          ? null
+          : Number(payload.max_payment_validations)
+
+      const accessExpiresAt =
+        typeof payload.access_expires_at ===
+          "string" &&
+        payload.access_expires_at
+          ? payload.access_expires_at
+          : null
+
+      const redirectTo =
+        typeof payload.redirect_to === "string" &&
+        payload.redirect_to
+          ? payload.redirect_to
+          : undefined
 
       if (!email || !email.includes("@")) {
-        return jsonResponse({ error: "Adresse email invalide." }, 400)
+        return jsonResponse(
+          {
+            error:
+              "Adresse email invalide.",
+          },
+          400,
+        )
       }
 
       if (accessLevel === "super_admin") {
-        return jsonResponse({ error: "La création d'un Super Admin doit rester une action CEO protégée." }, 403)
+        return jsonResponse(
+          {
+            error:
+              "La création d'un Super Admin doit rester une action CEO protégée.",
+          },
+          403,
+        )
       }
 
-      if (!Number.isFinite(maxUsers ?? 0) && maxUsers !== null) {
-        return jsonResponse({ error: "Limite utilisateurs invalide." }, 400)
+      if (
+        (!Number.isFinite(maxUsers ?? 0) &&
+          maxUsers !== null)
+      ) {
+        return jsonResponse(
+          {
+            error:
+              "Limite utilisateurs invalide.",
+          },
+          400,
+        )
       }
 
-      if (!Number.isFinite(maxPaymentValidations ?? 0) && maxPaymentValidations !== null) {
-        return jsonResponse({ error: "Limite de validations invalide." }, 400)
+      if (
+        (!Number.isFinite(
+          maxPaymentValidations ?? 0,
+        ) &&
+          maxPaymentValidations !== null)
+      ) {
+        return jsonResponse(
+          {
+            error:
+              "Limite de validations invalide.",
+          },
+          400,
+        )
       }
 
-      // Le rôle du profil est la source de vérité pour distinguer le CEO
-      // (superadmin) d'un administrateur associé. On évite ici de dépendre
-      // de is_super_admin() pour le contrôle d'entrée de l'Edge Function.
       if (callerRole !== "superadmin") {
-        return jsonResponse({ error: "Seul le Super Admin peut inviter un administrateur." }, 403)
+        return jsonResponse(
+          {
+            error:
+              "Seul le Super Admin peut inviter un administrateur.",
+          },
+          403,
+        )
       }
 
-      const { data: invitedUser, error: inviteError } = await adminClient.auth.admin.inviteUserByEmail(email, {
-        redirectTo,
-        data: {
-          kora_invitation_message: message,
-          kora_admin_invitation: true,
-        },
-      })
+      const {
+        data: invitedUser,
+        error: inviteError,
+      } =
+        await adminClient.auth.admin.inviteUserByEmail(
+          email,
+          {
+            redirectTo,
+            data: {
+              kora_invitation_message: message,
+              kora_admin_invitation: true,
+            },
+          },
+        )
 
-      if (inviteError && (inviteError.code === "email_exists" || inviteError.status === 422)) {
-        return jsonResponse({
-          error: "Cette adresse email a déjà un compte KORA. Une invitation ne peut être envoyée qu'à une nouvelle adresse : utilisez un autre email.",
-          code: "email_exists",
-        }, 409)
+      if (
+        inviteError &&
+        (inviteError.code === "email_exists" ||
+          inviteError.status === 422)
+      ) {
+        return jsonResponse(
+          {
+            error:
+              "Cette adresse email a déjà un compte KORA. Une invitation ne peut être envoyée qu'à une nouvelle adresse : utilisez un autre email.",
+            code: "email_exists",
+          },
+          409,
+        )
       }
 
-      if (inviteError || !invitedUser?.user) {
-        return jsonResponse({
-          error: inviteError?.message || "Impossible d'envoyer l'invitation.",
-        }, 400)
+      if (
+        inviteError ||
+        !invitedUser?.user
+      ) {
+        return jsonResponse(
+          {
+            error:
+              inviteError?.message ||
+              "Impossible d'envoyer l'invitation.",
+          },
+          400,
+        )
       }
 
-      const invitationId = crypto.randomUUID()
+      const invitationId =
+        crypto.randomUUID()
 
-      const { data: invitation, error: registerError } = await callerClient.rpc(
+      const {
+        data: invitation,
+        error: registerError,
+      } = await callerClient.rpc(
         "register_admin_invitation",
         {
           p_invitation_id: invitationId,
-          p_invited_user_id: invitedUser.user.id,
+          p_invited_user_id:
+            invitedUser.user.id,
           p_email: email,
           p_message: message || null,
           p_access_level: accessLevel,
           p_permissions: permissions,
           p_max_users: maxUsers,
-          p_max_payment_validations: maxPaymentValidations,
-          p_access_expires_at: accessExpiresAt,
+          p_max_payment_validations:
+            maxPaymentValidations,
+          p_access_expires_at:
+            accessExpiresAt,
           p_scope: {},
         },
       )
 
       if (registerError) {
-        await adminClient.auth.admin.deleteUser(invitedUser.user.id, true)
-        return jsonResponse({
-          error: registerError.message,
-        }, 400)
+        await adminClient.auth.admin.deleteUser(
+          invitedUser.user.id,
+          true,
+        )
+
+        return jsonResponse(
+          {
+            error:
+              registerError.message,
+          },
+          400,
+        )
       }
 
       return jsonResponse({
         ok: true,
         action: "invite",
         invitation,
-        invited_user_id: invitedUser.user.id,
-        message: "Invitation administrateur envoyée.",
+        invited_user_id:
+          invitedUser.user.id,
+        message:
+          "Invitation administrateur envoyée.",
       })
     }
 
-    const userId = typeof payload.user_id === "string" ? payload.user_id.trim() : ""
+    // ==========================================================
+    // SUPPRESSION UTILISATEUR
+    // ==========================================================
 
-    if (!userId) return jsonResponse({ error: "Utilisateur manquant." }, 400)
-    if (userId === callerId) return jsonResponse({ error: "Cette action n'est pas autorisée sur votre propre compte." }, 409)
-    if (action !== "delete") return jsonResponse({ error: `Action inconnue : ${action}` }, 400)
+    const userId =
+      typeof payload.user_id === "string"
+        ? payload.user_id.trim()
+        : ""
 
-    const { data: targetProfile, error: targetError } = await adminClient
+    if (!userId) {
+      return jsonResponse(
+        {
+          error:
+            "Utilisateur manquant.",
+        },
+        400,
+      )
+    }
+
+    if (userId === callerId) {
+      return jsonResponse(
+        {
+          error:
+            "Cette action n'est pas autorisée sur votre propre compte.",
+        },
+        409,
+      )
+    }
+
+    if (action !== "delete") {
+      return jsonResponse(
+        {
+          error:
+            `Action inconnue : ${action}`,
+        },
+        400,
+      )
+    }
+
+    const {
+      data: targetProfile,
+      error: targetError,
+    } = await adminClient
       .from("profiles")
-      .select("id, name, role, is_suspended, suspended_reason")
+      .select(
+        "id, name, role, is_suspended, suspended_reason",
+      )
       .eq("id", userId)
       .maybeSingle()
 
-    if (targetError) throw targetError
-    if (!targetProfile) return jsonResponse({ error: "Utilisateur introuvable." }, 404)
-    const targetRole = normalizeAdminRole(targetProfile.role)
+    if (targetError) {
+      throw targetError
+    }
 
-    // Règle CEO :
-    // - le Super Admin (CEO) peut supprimer un client, manager ou administrateur associé ;
-    // - un administrateur associé peut supprimer les utilisateurs ordinaires uniquement
-    //   s'il possède users.manage ;
-    // - aucun compte ne peut supprimer un autre Super Admin ;
-    // - un administrateur associé ne peut jamais supprimer un autre administrateur.
-    const isSuperAdmin = callerRole === "superadmin"
-    const targetIsAdmin = targetRole === "admin"
-    const targetIsSuperAdmin = targetRole === "superadmin"
+    if (!targetProfile) {
+      return jsonResponse(
+        {
+          error:
+            "Utilisateur introuvable.",
+        },
+        404,
+      )
+    }
 
+    const targetRole = normalizeAdminRole(
+      targetProfile.role,
+    )
+
+    const isSuperAdmin =
+      callerRole === "superadmin"
+
+    const targetIsAdmin =
+      targetRole === "admin"
+
+    const targetIsSuperAdmin =
+      targetRole === "superadmin"
+
+    // Protection absolue du CEO
     if (targetIsSuperAdmin) {
-      return jsonResponse({ error: "Un Super Admin/CEO ne peut pas être supprimé depuis cette interface." }, 403)
+      return jsonResponse(
+        {
+          error:
+            "Un Super Admin/CEO ne peut pas être supprimé depuis cette interface.",
+        },
+        403,
+      )
     }
 
-    if (targetIsAdmin && !isSuperAdmin) {
-      return jsonResponse({ error: "Seul le Super Admin (CEO) peut supprimer un autre administrateur." }, 403)
+    // Seul le CEO peut supprimer un autre admin
+    if (
+      targetIsAdmin &&
+      !isSuperAdmin
+    ) {
+      return jsonResponse(
+        {
+          error:
+            "Seul le Super Admin (CEO) peut supprimer un autre administrateur.",
+        },
+        403,
+      )
     }
 
+    // Les admins associés doivent avoir users.manage
     if (!isSuperAdmin) {
-      const { data: canManageUsers, error: permissionError } = await callerClient.rpc(
+      const {
+        data: canManageUsers,
+        error: permissionError,
+      } = await callerClient.rpc(
         "admin_has_permission",
-        { p_permission: "users.manage" },
+        {
+          p_permission:
+            "users.manage",
+        },
       )
 
       if (permissionError) {
-        console.error("admin-users: erreur users.manage", permissionError)
-        return jsonResponse({
-          error: "Impossible de vérifier la permission users.manage.",
-          details: permissionError.message,
-        }, 500)
+        console.error(
+          "admin-users: erreur users.manage",
+          permissionError,
+        )
+
+        return jsonResponse(
+          {
+            error:
+              "Impossible de vérifier la permission users.manage.",
+            details:
+              permissionError.message,
+          },
+          500,
+        )
       }
 
       if (canManageUsers !== true) {
-        return jsonResponse({
-          error: "Permission users.manage requise pour cet administrateur.",
-          code: "MISSING_PERMISSION",
-        }, 403)
+        return jsonResponse(
+          {
+            error:
+              "Permission users.manage requise pour cet administrateur.",
+            code:
+              "MISSING_PERMISSION",
+          },
+          403,
+        )
       }
     }
 
-    const { error: auditError } = await adminClient.from("admin_audit_logs").insert({
-      actor_id: callerId,
-      action: "user.delete",
-      entity_type: "profile",
-      entity_id: userId,
-      target_user_id: userId,
-      metadata: {
-        target_name: targetProfile.name,
-        target_role: targetProfile.role,
-        previous_status: targetProfile.is_suspended ? "suspended" : "active",
-        source: "admin-users-edge-function",
-        deletion_mode: "complete",
-      },
-    })
+    // ==========================================================
+    // AUDIT AVANT SUPPRESSION
+    // ==========================================================
 
-    if (auditError) throw auditError
+    const {
+      error: auditError,
+    } = await adminClient
+      .from("admin_audit_logs")
+      .insert({
+        actor_id: callerId,
+        action: "user.delete",
+        entity_type: "profile",
+        entity_id: userId,
+        target_user_id: userId,
+        metadata: {
+          target_name:
+            targetProfile.name,
+          target_role:
+            targetProfile.role,
+          previous_status:
+            targetProfile.is_suspended
+              ? "suspended"
+              : "active",
+          source:
+            "admin-users-edge-function",
+          deletion_mode:
+            "complete",
+        },
+      })
 
-    // Supabase Auth refuse de supprimer un utilisateur qui possède encore
-    // des objets Storage. On supprime donc d'abord tous ses objets via
-    // l'API Storage (et non directement via storage.objects).
-    const { data: ownedObjects, error: storageListError } = await adminClient
-      .from("storage.objects")
-      .select("bucket_id, name")
-      .eq("owner_id", userId)
-
-    if (storageListError) {
-      throw new Error(`Impossible de vérifier les fichiers Storage de l'utilisateur : ${storageListError.message}`)
+    if (auditError) {
+      throw auditError
     }
 
-    const storageObjects = Array.isArray(ownedObjects) ? ownedObjects : []
-    const storageByBucket = new Map<string, string[]>()
+    // ==========================================================
+    // SUPPRESSION DES DONNÉES PUBLIQUES
+    // ==========================================================
 
-    for (const object of storageObjects) {
-      if (!object?.bucket_id || !object?.name) continue
-      const bucket = String(object.bucket_id)
-      const name = String(object.name)
-      const current = storageByBucket.get(bucket) || []
-      current.push(name)
-      storageByBucket.set(bucket, current)
-    }
-
-    for (const [bucket, names] of storageByBucket.entries()) {
-      for (let i = 0; i < names.length; i += 1000) {
-        const batch = names.slice(i, i + 1000)
-        const { error: storageDeleteError } = await adminClient.storage
-          .from(bucket)
-          .remove(batch)
-
-        if (storageDeleteError) {
-          throw new Error(`Impossible de supprimer les fichiers Storage (${bucket}) : ${storageDeleteError.message}`)
-        }
-      }
-    }
-
-    // Nettoyage transactionnel des données publiques liées au compte.
-    // La RPC découvre automatiquement les FK vers profiles.id et supprime
-    // les lignes dépendantes, tout en conservant les logs d'audit.
-    const { data: cleanupData, error: cleanupError } = await adminClient.rpc(
+    const {
+      data: cleanupData,
+      error: cleanupError,
+    } = await adminClient.rpc(
       "admin_delete_user_data",
-      { p_user_id: userId },
+      {
+        p_user_id: userId,
+      },
     )
 
     if (cleanupError) {
-      throw new Error(`Nettoyage des données utilisateur impossible : ${cleanupError.message}`)
+      throw new Error(
+        `Nettoyage des données utilisateur impossible : ${cleanupError.message}`,
+      )
     }
 
     if (!cleanupData?.ok) {
-      throw new Error(cleanupData?.error || "Le nettoyage des données utilisateur a échoué.")
+      throw new Error(
+        cleanupData?.error ||
+          "Le nettoyage des données utilisateur a échoué.",
+      )
     }
 
-    // Suppression définitive du compte Auth. shouldSoftDelete=true permet
-    // d'éviter une réutilisation simple de l'identité tout en supprimant
-    // l'accès, mais le profil public a déjà été nettoyé par la RPC.
-    const { error: deleteError } = await adminClient.auth.admin.deleteUser(userId, false)
+    // ==========================================================
+    // SUPPRESSION DU COMPTE AUTH
+    // ==========================================================
+
+    const {
+      error: deleteError,
+    } =
+      await adminClient.auth.admin.deleteUser(
+        userId,
+        false,
+      )
+
     if (deleteError) {
-      throw new Error(`Données KORA nettoyées, mais le compte Auth n'a pas pu être supprimé : ${deleteError.message}`)
+      throw new Error(
+        `Données KORA nettoyées, mais le compte Auth n'a pas pu être supprimé : ${deleteError.message}`,
+      )
     }
 
     return jsonResponse({
       ok: true,
       action: "delete",
       deleted_user_id: userId,
-      deleted_rows: cleanupData.deleted_rows ?? 0,
-      deleted_storage_objects: storageObjects.length,
-      message: "Utilisateur, profil, données liées, fichiers Storage et compte Auth supprimés avec succès.",
+      deleted_rows:
+        cleanupData.deleted_rows ?? 0,
+      deleted_storage_objects: 0,
+      storage_cleanup:
+        "non effectué automatiquement",
+      message:
+        "Utilisateur, profil, données liées et compte Auth supprimés avec succès.",
     })
   } catch (error) {
-    console.error("Erreur Edge Function admin-users:", error)
-    return jsonResponse({
-      ok: false,
-      error: error instanceof Error ? error.message : "Erreur serveur.",
-    }, 500)
+    console.error(
+      "Erreur Edge Function admin-users:",
+      error,
+    )
+
+    return jsonResponse(
+      {
+        ok: false,
+        error:
+          error instanceof Error
+            ? error.message
+            : "Erreur serveur.",
+      },
+      500,
+    )
   }
 })

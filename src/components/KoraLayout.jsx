@@ -1,6 +1,12 @@
 import { LanguageSwitcher, useI18n } from "@/i18n/kora-i18n.jsx"
 import { useEffect, useState } from "react"
-import { Outlet, NavLink, Link, useNavigate, useLocation } from "react-router-dom"
+import {
+  Outlet,
+  NavLink,
+  Link,
+  useNavigate,
+  useLocation,
+} from "react-router-dom"
 import { motion, AnimatePresence } from "framer-motion"
 import {
   Home,
@@ -21,11 +27,6 @@ import {
   ChevronDown,
   Crown,
   BriefcaseBusiness,
-  AlertTriangle,
-  WalletCards,
-  Sparkles,
-  Megaphone,
-  UserCog,
   UserCheck,
   ContactRound,
   ScrollText,
@@ -33,6 +34,9 @@ import {
   Sun,
   Moon,
   Monitor,
+  UserCog,
+  WalletCards,
+  Megaphone,
 } from "lucide-react"
 import { useAuth } from "@/lib/AuthContext.jsx"
 import { supabase } from "@/lib/supabase"
@@ -121,50 +125,201 @@ function getMenuItems(t) {
     ],
 
     superadmin: [
-      { label: "Dashboard CEO", href: "/superadmin", icon: Crown },
-      { label: "Administrateurs", href: "/admin?view=administrators", icon: UserCog },
-      { label: "Utilisateurs", href: "/admin?view=users", icon: Users },
-      { label: "Managers", href: "/admin?view=managers", icon: UserCheck },
-      { label: "Clients", href: "/admin?view=clients", icon: Users },
-      { label: "Talents", href: "/admin?view=talents", icon: ContactRound },
-      { label: "Demandes", href: "/admin?view=requests", icon: ClipboardList },
-      { label: "Messages", href: "/admin?view=messages", icon: MessageCircle },
-      { label: "Projets", href: "/admin?view=projects", icon: BriefcaseBusiness },
-      { label: "Paiements", href: "/admin?view=payments", icon: WalletCards },
-      { label: "Abonnements", href: "/admin?view=subscriptions", icon: CreditCard },
-      { label: "Annonces", href: "/admin?view=announcements", icon: Megaphone },
-      { label: "Modération", href: "/admin?view=moderation", icon: ShieldCheck },
-      { label: "Logs", href: "/admin?view=logs", icon: ScrollText },
-      { label: "Paramètres", href: "/admin?view=settings", icon: Settings },
+      {
+        label: "Dashboard CEO",
+        href: "/superadmin",
+        icon: Crown,
+      },
+      {
+        label: "Administrateurs",
+        href: "/admin?view=administrators",
+        icon: UserCog,
+      },
+      {
+        label: "Utilisateurs",
+        href: "/admin?view=users",
+        icon: Users,
+      },
+      {
+        label: "Managers",
+        href: "/admin?view=managers",
+        icon: UserCheck,
+      },
+      {
+        label: "Clients",
+        href: "/admin?view=clients",
+        icon: Users,
+      },
+      {
+        label: "Talents",
+        href: "/admin?view=talents",
+        icon: ContactRound,
+      },
+      {
+        label: "Demandes",
+        href: "/admin?view=requests",
+        icon: ClipboardList,
+      },
+      {
+        label: "Messages",
+        href: "/admin?view=messages",
+        icon: MessageCircle,
+      },
+      {
+        label: "Projets",
+        href: "/admin?view=projects",
+        icon: BriefcaseBusiness,
+      },
+      {
+        label: "Paiements",
+        href: "/admin?view=payments",
+        icon: WalletCards,
+      },
+      {
+        label: "Abonnements",
+        href: "/admin?view=subscriptions",
+        icon: CreditCard,
+      },
+      {
+        label: "Annonces",
+        href: "/admin?view=announcements",
+        icon: Megaphone,
+      },
+      {
+        label: "Modération",
+        href: "/admin?view=moderation",
+        icon: ShieldCheck,
+      },
+      {
+        label: "Logs",
+        href: "/admin?view=logs",
+        icon: ScrollText,
+      },
+      {
+        label: "Paramètres",
+        href: "/admin?view=settings",
+        icon: Settings,
+      },
     ],
 
     admin: [
-      { label: "Tableau de bord", href: "/admin", icon: LayoutDashboard, view: "dashboard" },
-      { label: "Utilisateurs", href: "/admin?view=users", icon: Users, view: "users" },
-      { label: "Managers", href: "/admin?view=managers", icon: UserCog, view: "managers" },
-      { label: "Clients", href: "/admin?view=clients", icon: UserCheck, view: "clients" },
-      { label: "Talents", href: "/admin?view=talents", icon: ContactRound, view: "talents" },
-      { label: "Demandes", href: "/admin?view=requests", icon: ClipboardList, view: "requests" },
-      { label: "Projets", href: "/admin?view=projects", icon: BriefcaseBusiness, view: "projects" },
-      { label: "Messages", href: "/admin?view=messages", icon: MessageCircle, view: "messages" },
-      { label: "Paiements", href: "/admin?view=payments", icon: WalletCards, view: "payments" },
-      { label: "Abonnements", href: "/admin?view=subscriptions", icon: CreditCard, view: "subscriptions" },
-      { label: "Annonces", href: "/admin?view=announcements", icon: Megaphone, view: "announcements" },
-      { label: "Modération", href: "/admin?view=moderation", icon: ShieldCheck, view: "moderation" },
-      { label: "Logs", href: "/admin?view=logs", icon: ScrollText, view: "logs" },
-      { label: "Paramètres", href: "/admin?view=settings", icon: Settings, view: "settings" },
-      { label: "Admins & associés", href: "/admin?view=administrators", icon: UserCog, view: "administrators", superAdminOnly: true },
+      {
+        label: "Tableau de bord",
+        href: "/admin",
+        icon: LayoutDashboard,
+        view: "dashboard",
+      },
+      {
+        label: "Utilisateurs",
+        href: "/admin?view=users",
+        icon: Users,
+        view: "users",
+      },
+      {
+        label: "Managers",
+        href: "/admin?view=managers",
+        icon: UserCog,
+        view: "managers",
+      },
+      {
+        label: "Clients",
+        href: "/admin?view=clients",
+        icon: UserCheck,
+        view: "clients",
+      },
+      {
+        label: "Talents",
+        href: "/admin?view=talents",
+        icon: ContactRound,
+        view: "talents",
+      },
+      {
+        label: "Demandes",
+        href: "/admin?view=requests",
+        icon: ClipboardList,
+        view: "requests",
+      },
+      {
+        label: "Projets",
+        href: "/admin?view=projects",
+        icon: BriefcaseBusiness,
+        view: "projects",
+      },
+      {
+        label: "Messages",
+        href: "/admin?view=messages",
+        icon: MessageCircle,
+        view: "messages",
+      },
+      {
+        label: "Paiements",
+        href: "/admin?view=payments",
+        icon: WalletCards,
+        view: "payments",
+      },
+      {
+        label: "Abonnements",
+        href: "/admin?view=subscriptions",
+        icon: CreditCard,
+        view: "subscriptions",
+      },
+      {
+        label: "Annonces",
+        href: "/admin?view=announcements",
+        icon: Megaphone,
+        view: "announcements",
+      },
+      {
+        label: "Modération",
+        href: "/admin?view=moderation",
+        icon: ShieldCheck,
+        view: "moderation",
+      },
+      {
+        label: "Logs",
+        href: "/admin?view=logs",
+        icon: ScrollText,
+        view: "logs",
+      },
+      {
+        label: "Paramètres",
+        href: "/admin?view=settings",
+        icon: Settings,
+        view: "settings",
+      },
+      {
+        label: "Admins & associés",
+        href: "/admin?view=administrators",
+        icon: UserCog,
+        view: "administrators",
+        superAdminOnly: true,
+      },
     ],
   }
 }
 
 function getRoleLabels(t) {
   return {
-    client: { label: t("account.client"), badge: "bg-emerald-500" },
-    manager: { label: t("account.manager"), badge: "bg-gold" },
-    talent: { label: t("account.talent"), badge: "bg-purple-500" },
-    admin: { label: t("account.admin"), badge: "bg-red-500" },
-    superadmin: { label: "SuperAdmin / CEO", badge: "bg-gold" },
+    client: {
+      label: t("account.client"),
+      badge: "bg-emerald-500",
+    },
+    manager: {
+      label: t("account.manager"),
+      badge: "bg-gold",
+    },
+    talent: {
+      label: t("account.talent"),
+      badge: "bg-purple-500",
+    },
+    admin: {
+      label: t("account.admin"),
+      badge: "bg-red-500",
+    },
+    superadmin: {
+      label: "SuperAdmin / CEO",
+      badge: "bg-gold",
+    },
   }
 }
 
@@ -175,28 +330,57 @@ export default function KoraLayout() {
   const isMobile = useIsMobile()
   const { t } = useI18n()
   const { theme, setTheme } = useTheme()
+
   const menuItems = getMenuItems(t)
   const roleLabels = getRoleLabels(t)
+
   const [sidebarOpen, setSidebarOpen] = useState(false)
   const [menuOpen, setMenuOpen] = useState(false)
   const [adminAccess, setAdminAccess] = useState(null)
+
+  // Présence en ligne
   const [onlineCount, setOnlineCount] = useState(0)
   const [onlineUsers, setOnlineUsers] = useState([])
   const [onlineMenuOpen, setOnlineMenuOpen] = useState(false)
 
   const role = user?.role
 
+  // ==========================================================
+  // CHARGEMENT DES DROITS ADMIN
+  // ==========================================================
+
   useEffect(() => {
     let mounted = true
+
     if (role === "admin") {
-      supabase.rpc("get_my_admin_access").then(({ data }) => {
-        if (mounted && data) setAdminAccess(data)
+      supabase.rpc("get_my_admin_access").then(({ data, error }) => {
+        if (!mounted) return
+
+        if (error) {
+          console.error(
+            "[KORA] Erreur récupération des droits admin :",
+            error
+          )
+          setAdminAccess(null)
+          return
+        }
+
+        if (data) {
+          setAdminAccess(data)
+        }
       })
     } else {
       setAdminAccess(null)
     }
-    return () => { mounted = false }
+
+    return () => {
+      mounted = false
+    }
   }, [role])
+
+  // ==========================================================
+  // PERMISSIONS ADMIN
+  // ==========================================================
 
   const permissionMap = {
     users: "users.read",
@@ -215,76 +399,196 @@ export default function KoraLayout() {
   }
 
   const rawMenu = menuItems[role] || menuItems.client
-  const menu = role === "admin" && adminAccess?.access_level === "associate"
-    ? rawMenu.filter((item) => !item.superAdminOnly && (item.view === "dashboard" || Boolean(adminAccess?.permissions?.["*"] || adminAccess?.permissions?.[permissionMap[item.view]])))
-    : rawMenu.filter((item) => !item.superAdminOnly || adminAccess?.access_level !== "associate")
+
+  const menu =
+    role === "admin" &&
+    adminAccess?.access_level === "associate"
+      ? rawMenu.filter(
+          (item) =>
+            !item.superAdminOnly &&
+            (
+              item.view === "dashboard" ||
+              Boolean(
+                adminAccess?.permissions?.["*"] ||
+                adminAccess?.permissions?.[permissionMap[item.view]]
+              )
+            )
+        )
+      : rawMenu.filter(
+          (item) =>
+            !item.superAdminOnly ||
+            adminAccess?.access_level !== "associate"
+        )
+
   const roleInfo = roleLabels[role] || roleLabels.client
-  const homeHref = role === "superadmin"
-    ? "/superadmin"
-    : role === "admin"
-    ? "/admin"
-    : role === "manager"
-    ? "/manager/dashboard"
-    : "/home"
+
+  const homeHref =
+    role === "superadmin"
+      ? "/superadmin"
+      : role === "admin"
+        ? "/admin"
+        : role === "manager"
+          ? "/manager/dashboard"
+          : "/home"
+
+  // ==========================================================
+  // PRÉSENCE UTILISATEUR — HEARTBEAT
+  // ==========================================================
 
   useEffect(() => {
     if (!user?.id) return
 
-    let mounted = true
+    let cancelled = false
+    let heartbeatTimer = null
 
     const touchPresence = async () => {
-      await supabase.rpc("touch_presence")
+      try {
+        const { error } = await supabase.rpc("touch_presence")
+
+        if (cancelled) return
+
+        if (error) {
+          console.error(
+            "[KORA] Impossible de mettre à jour la présence :",
+            error
+          )
+        }
+      } catch (error) {
+        if (cancelled) return
+
+        console.error(
+          "[KORA] Erreur heartbeat présence :",
+          error
+        )
+      }
     }
 
+    // Premier heartbeat immédiatement
     touchPresence()
 
-    const heartbeat = window.setInterval(touchPresence, 30000)
+    // Puis toutes les 30 secondes
+    heartbeatTimer = window.setInterval(() => {
+      if (!cancelled) {
+        touchPresence()
+      }
+    }, 30000)
 
     return () => {
-      mounted = false
-      window.clearInterval(heartbeat)
+      cancelled = true
+
+      if (heartbeatTimer) {
+        window.clearInterval(heartbeatTimer)
+      }
     }
   }, [user?.id])
+
+  // ==========================================================
+  // UTILISATEURS EN LIGNE
+  //
+  // UNE SEULE SOURCE DE VÉRITÉ :
+  // get_online_users()
+  //
+  // Le compteur est calculé avec onlineUsers.length.
+  // Cela évite que le compteur et la liste affichent
+  // des nombres différents.
+  // ==========================================================
 
   useEffect(() => {
     if (role !== "admin" && role !== "superadmin") {
       setOnlineCount(0)
+      setOnlineUsers([])
+      setOnlineMenuOpen(false)
       return
     }
 
-    let mounted = true
+    let cancelled = false
+    let refreshTimer = null
 
-    const loadOnlineCount = async () => {
-      const [{ data: countData, error: countError }, { data: usersData, error: usersError }] = await Promise.all([
-        supabase.rpc("get_online_user_count"),
-        supabase.rpc("get_online_users"),
-      ])
-      if (!mounted) return
-      if (!countError) setOnlineCount(Number(countData || 0))
-      if (!usersError) setOnlineUsers(Array.isArray(usersData) ? usersData : [])
+    const loadOnlineUsers = async () => {
+      try {
+        const { data, error } = await supabase.rpc(
+          "get_online_users"
+        )
+
+        if (cancelled) return
+
+        if (error) {
+          console.error(
+            "[KORA] Erreur récupération utilisateurs en ligne :",
+            error
+          )
+
+          setOnlineUsers([])
+          setOnlineCount(0)
+          return
+        }
+
+        const users = Array.isArray(data) ? data : []
+
+        setOnlineUsers(users)
+        setOnlineCount(users.length)
+      } catch (error) {
+        if (cancelled) return
+
+        console.error(
+          "[KORA] Erreur compteur utilisateurs en ligne :",
+          error
+        )
+
+        setOnlineUsers([])
+        setOnlineCount(0)
+      }
     }
 
-    loadOnlineCount()
-    const interval = window.setInterval(loadOnlineCount, 30000)
+    // Chargement immédiat
+    loadOnlineUsers()
+
+    // Actualisation toutes les 30 secondes
+    refreshTimer = window.setInterval(
+      loadOnlineUsers,
+      30000
+    )
 
     return () => {
-      mounted = false
-      window.clearInterval(interval)
+      cancelled = true
+
+      if (refreshTimer) {
+        window.clearInterval(refreshTimer)
+      }
     }
   }, [role])
 
+  // ==========================================================
+  // LOGOUT
+  // ==========================================================
+
   const handleLogout = async () => {
-    await logout()
-    navigate("/")
+    try {
+      await logout()
+    } finally {
+      navigate("/")
+    }
   }
+
+  // ==========================================================
+  // SIDEBAR
+  // ==========================================================
 
   const SidebarContent = () => (
     <aside className="flex flex-col h-full">
       <div className="p-5 border-b border-sidebar-border">
-        <Link to={homeHref} className="flex items-center gap-2 group">
+        <Link
+          to={homeHref}
+          className="flex items-center gap-2 group"
+        >
           <div className="w-10 h-10 rounded-xl overflow-hidden shadow-sm ring-1 ring-border group-hover:ring-gold/40 transition-all">
-            <img src={koraLogo} alt="KORA" className="w-full h-full object-cover" />
+            <img
+              src={koraLogo}
+              alt="KORA"
+              className="w-full h-full object-cover"
+            />
           </div>
+
           <span className="text-xl font-bold font-display tracking-tight text-foreground">
             KORA
           </span>
@@ -298,12 +602,23 @@ export default function KoraLayout() {
               <NavLink
                 to={item.href}
                 end
-                onClick={() => isMobile && setSidebarOpen(false)}
+                onClick={() => {
+                  if (isMobile) {
+                    setSidebarOpen(false)
+                  }
+                }}
                 className={({ isActive }) => {
-                  const currentView = new URLSearchParams(location.search).get("view") || "dashboard"
-                  const active = role === "admin"
-                    ? currentView === (item.view || "dashboard")
-                    : isActive
+                  const currentView =
+                    new URLSearchParams(
+                      location.search
+                    ).get("view") || "dashboard"
+
+                  const active =
+                    role === "admin"
+                      ? currentView ===
+                        (item.view || "dashboard")
+                      : isActive
+
                   return cn(
                     "flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all duration-200 group",
                     active
@@ -318,7 +633,9 @@ export default function KoraLayout() {
                     "text-sidebar-foreground/70 group-hover:text-gold"
                   )}
                 />
+
                 <span>{item.label}</span>
+
                 <ChevronRight className="ml-auto h-4 w-4 opacity-0 -translate-x-2 group-hover:opacity-100 group-hover:translate-x-0 transition-all duration-200 text-gold" />
               </NavLink>
             </li>
@@ -329,9 +646,19 @@ export default function KoraLayout() {
       {(role === "admin" || role === "superadmin") && (
         <div className="p-3">
           <div className="rounded-2xl border border-gold/30 bg-gradient-to-br from-gold/20 via-transparent to-transparent p-4 text-center">
-            <img src={koraLogo} alt="" className="mx-auto mb-2 h-10 w-10 rounded-xl" />
-            <p className="text-lg font-black tracking-tight">KORA</p>
-            <p className="mt-1 text-[11px] leading-snug text-muted-foreground">Connecter les talents africains aux opportunités du monde.</p>
+            <img
+              src={koraLogo}
+              alt=""
+              className="mx-auto mb-2 h-10 w-10 rounded-xl"
+            />
+
+            <p className="text-lg font-black tracking-tight">
+              KORA
+            </p>
+
+            <p className="mt-1 text-[11px] leading-snug text-muted-foreground">
+              Connecter les talents africains aux opportunités du monde.
+            </p>
           </div>
         </div>
       )}
@@ -341,11 +668,16 @@ export default function KoraLayout() {
           <div className="rounded-xl bg-sidebar-accent/50 p-3 mb-3">
             <div className="flex items-center gap-2 mb-1">
               <Crown className="h-4 w-4 text-gold" />
-              <span className="text-xs font-semibold">{t("premium.title")}</span>
+
+              <span className="text-xs font-semibold">
+                {t("premium.title")}
+              </span>
             </div>
+
             <p className="text-[11px] text-muted-foreground mb-2">
               {t("premium.description")}
             </p>
+
             <button className="w-full py-1.5 rounded-lg gold-gradient text-white text-xs font-medium hover:opacity-90 transition-opacity">
               {t("premium.button")}
             </button>
@@ -362,24 +694,48 @@ export default function KoraLayout() {
             <div className="w-9 h-9 rounded-full gold-gradient flex items-center justify-center text-white text-sm font-semibold">
               {user?.name?.charAt(0)?.toUpperCase() || "U"}
             </div>
-            <div className={cn(
-              "absolute -bottom-0.5 -right-0.5 w-3.5 h-3.5 rounded-full border-2 border-sidebar-background",
-              roleInfo.badge
-            )} />
+
+            <div
+              className={cn(
+                "absolute -bottom-0.5 -right-0.5 w-3.5 h-3.5 rounded-full border-2 border-sidebar-background",
+                roleInfo.badge
+              )}
+            />
           </div>
+
           <div className="flex-1 min-w-0">
-            <p className="text-sm font-medium truncate">{user?.name || t("account.name")}</p>
-            <p className="text-xs text-muted-foreground truncate">{roleInfo.label}</p>
+            <p className="text-sm font-medium truncate">
+              {user?.name || t("account.name")}
+            </p>
+
+            <p className="text-xs text-muted-foreground truncate">
+              {roleInfo.label}
+            </p>
           </div>
-          <ChevronDown className={cn("h-4 w-4 text-muted-foreground transition-transform", menuOpen && "rotate-180")} />
+
+          <ChevronDown
+            className={cn(
+              "h-4 w-4 text-muted-foreground transition-transform",
+              menuOpen && "rotate-180"
+            )}
+          />
         </div>
 
         <AnimatePresence>
           {menuOpen && (
             <motion.ul
-              initial={{ opacity: 0, height: 0 }}
-              animate={{ opacity: 1, height: "auto" }}
-              exit={{ opacity: 0, height: 0 }}
+              initial={{
+                opacity: 0,
+                height: 0,
+              }}
+              animate={{
+                opacity: 1,
+                height: "auto",
+              }}
+              exit={{
+                opacity: 0,
+                height: 0,
+              }}
               className="overflow-hidden mt-2 space-y-0.5"
             >
               <li>
@@ -387,40 +743,70 @@ export default function KoraLayout() {
                   type="button"
                   onClick={() => {
                     setMenuOpen(false)
-                    if (role === "client") navigate("/client/profile")
-                    else if (role === "manager") navigate("/manager/settings")
-                    else if (role === "admin" || role === "superadmin") navigate("/admin?view=settings")
-                    else navigate("/home")
+
+                    if (role === "client") {
+                      navigate("/client/profile")
+                    } else if (role === "manager") {
+                      navigate("/manager/settings")
+                    } else if (
+                      role === "admin" ||
+                      role === "superadmin"
+                    ) {
+                      navigate("/admin?view=settings")
+                    } else {
+                      navigate("/home")
+                    }
                   }}
                   className="w-full flex items-center gap-2 px-3 py-2 rounded-lg text-sm text-sidebar-foreground/70 hover:bg-sidebar-accent/50 hover:text-sidebar-foreground transition-colors"
                 >
                   <User className="h-4 w-4" />
-                  <span>{t("account.profile")}</span>
+
+                  <span>
+                    {t("account.profile")}
+                  </span>
                 </button>
               </li>
+
               <li>
                 <button
                   type="button"
                   onClick={() => {
                     setMenuOpen(false)
-                    if (role === "client") navigate("/client/settings")
-                    else if (role === "manager") navigate("/manager/settings")
-                    else if (role === "admin" || role === "superadmin") navigate("/admin?view=settings")
-                    else navigate("/home")
+
+                    if (role === "client") {
+                      navigate("/client/settings")
+                    } else if (role === "manager") {
+                      navigate("/manager/settings")
+                    } else if (
+                      role === "admin" ||
+                      role === "superadmin"
+                    ) {
+                      navigate("/admin?view=settings")
+                    } else {
+                      navigate("/home")
+                    }
                   }}
                   className="w-full flex items-center gap-2 px-3 py-2 rounded-lg text-sm text-sidebar-foreground/70 hover:bg-sidebar-accent/50 hover:text-sidebar-foreground transition-colors"
                 >
                   <Settings className="h-4 w-4" />
-                  <span>{t("navigation.settings")}</span>
+
+                  <span>
+                    {t("navigation.settings")}
+                  </span>
                 </button>
               </li>
+
               <li>
                 <button
+                  type="button"
                   onClick={handleLogout}
                   className="w-full flex items-center gap-2 px-3 py-2 rounded-lg text-sm text-destructive hover:bg-destructive/10 transition-colors"
                 >
                   <LogOut className="h-4 w-4" />
-                  <span>{t("account.logout")}</span>
+
+                  <span>
+                    {t("account.logout")}
+                  </span>
                 </button>
               </li>
             </motion.ul>
@@ -429,6 +815,10 @@ export default function KoraLayout() {
       </div>
     </aside>
   )
+
+  // ==========================================================
+  // RENDER
+  // ==========================================================
 
   return (
     <div className="min-h-screen bg-background flex">
@@ -448,19 +838,26 @@ export default function KoraLayout() {
               onClick={() => setSidebarOpen(false)}
               className="fixed inset-0 z-40 bg-black/50 backdrop-blur-sm"
             />
+
             <motion.aside
               initial={{ x: "-100%" }}
               animate={{ x: 0 }}
               exit={{ x: "-100%" }}
-              transition={{ type: "spring", damping: 25, stiffness: 200 }}
+              transition={{
+                type: "spring",
+                damping: 25,
+                stiffness: 200,
+              }}
               className="fixed inset-y-0 left-0 z-50 w-72 bg-sidebar border-r border-sidebar-border"
             >
               <button
                 onClick={() => setSidebarOpen(false)}
                 className="absolute top-4 right-4 p-2 rounded-lg hover:bg-sidebar-accent/50 transition-colors"
+                aria-label="Fermer le menu"
               >
                 <X className="h-5 w-5" />
               </button>
+
               <SidebarContent />
             </motion.aside>
           </>
@@ -475,23 +872,41 @@ export default function KoraLayout() {
                 <button
                   onClick={() => setSidebarOpen(true)}
                   className="p-2 rounded-lg hover:bg-accent hover:text-accent-foreground transition-colors"
-                  aria-label={t("common.details")}
+                  aria-label="Ouvrir le menu"
                 >
-                  <svg viewBox="0 0 24 24" className="h-5 w-5 fill-none stroke-current stroke-2" aria-hidden="true">
+                  <svg
+                    viewBox="0 0 24 24"
+                    className="h-5 w-5 fill-none stroke-current stroke-2"
+                    aria-hidden="true"
+                  >
                     <path d="M4 6h16M4 12h16M4 18h16" />
                   </svg>
                 </button>
               )}
+
               {role === "admin" || role === "superadmin" ? (
                 <form
                   className="relative hidden w-[min(420px,40vw)] sm:block"
                   onSubmit={(e) => {
                     e.preventDefault()
-                    const q = new FormData(e.currentTarget).get("q")?.toString().trim() || ""
-                    navigate(`/admin?view=users${q ? `&q=${encodeURIComponent(q)}` : ""}`)
+
+                    const q =
+                      new FormData(e.currentTarget)
+                        .get("q")
+                        ?.toString()
+                        .trim() || ""
+
+                    navigate(
+                      `/admin?view=users${
+                        q
+                          ? `&q=${encodeURIComponent(q)}`
+                          : ""
+                      }`
+                    )
                   }}
                 >
                   <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+
                   <input
                     name="q"
                     type="search"
@@ -501,48 +916,126 @@ export default function KoraLayout() {
                 </form>
               ) : (
                 <>
-                  <div className="hidden sm:block text-sm font-medium text-muted-foreground shrink-0">KORA</div>
+                  <div className="hidden sm:block text-sm font-medium text-muted-foreground shrink-0">
+                    KORA
+                  </div>
+
                   <AnnouncementTicker />
                 </>
               )}
             </div>
 
             <div className="flex items-center gap-2">
+              {/* ==================================================
+                  COMPTEUR UTILISATEURS EN LIGNE
+                  ================================================== */}
+
               {(role === "admin" || role === "superadmin") && (
                 <div className="relative hidden sm:block">
-                  <button type="button" onClick={() => setOnlineMenuOpen((open) => !open)} className="flex items-center gap-2 rounded-xl border border-border bg-card px-3 py-2 hover:bg-accent transition-colors" title="Voir les utilisateurs en ligne" aria-expanded={onlineMenuOpen} aria-haspopup="true">
-                    <span className="relative flex h-2.5 w-2.5"><span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-500 opacity-60" /><span className="relative inline-flex h-2.5 w-2.5 rounded-full bg-emerald-500" /></span>
-                    <span className="text-sm font-semibold tabular-nums">{onlineCount}</span>
-                    <span className="text-xs text-muted-foreground">en ligne</span>
+                  <button
+                    type="button"
+                    onClick={() =>
+                      setOnlineMenuOpen(
+                        (open) => !open
+                      )
+                    }
+                    className="flex items-center gap-2 rounded-xl border border-border bg-card px-3 py-2 hover:bg-accent transition-colors"
+                    title="Voir les utilisateurs en ligne"
+                    aria-expanded={onlineMenuOpen}
+                    aria-haspopup="true"
+                  >
+                    <span className="relative flex h-2.5 w-2.5">
+                      <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-500 opacity-60" />
+
+                      <span className="relative inline-flex h-2.5 w-2.5 rounded-full bg-emerald-500" />
+                    </span>
+
+                    <span className="text-sm font-semibold tabular-nums">
+                      {onlineCount}
+                    </span>
+
+                    <span className="text-xs text-muted-foreground">
+                      en ligne
+                    </span>
                   </button>
+
                   <AnimatePresence>
-                    {onlineMenuOpen && <motion.div initial={{ opacity: 0, y: -6 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -6 }} className="absolute right-0 top-full mt-2 z-50 w-64 rounded-xl border border-border bg-card p-2 shadow-xl">
-                      <p className="px-2 py-1.5 text-xs font-semibold text-muted-foreground">Utilisateurs en ligne</p>
-                      <div className="max-h-64 overflow-y-auto">
-                        {onlineUsers.length > 0 ? onlineUsers.map((onlineUser) => <div key={onlineUser.id} className="flex items-center gap-2 rounded-lg px-2 py-2 text-sm"><span className="h-2 w-2 shrink-0 rounded-full bg-emerald-500" /><span className="truncate">{onlineUser.name || "Utilisateur"}</span></div>) : <p className="px-2 py-3 text-sm text-muted-foreground">Aucun utilisateur en ligne.</p>}
-                      </div>
-                    </motion.div>}
+                    {onlineMenuOpen && (
+                      <motion.div
+                        initial={{
+                          opacity: 0,
+                          y: -6,
+                        }}
+                        animate={{
+                          opacity: 1,
+                          y: 0,
+                        }}
+                        exit={{
+                          opacity: 0,
+                          y: -6,
+                        }}
+                        className="absolute right-0 top-full mt-2 z-50 w-64 rounded-xl border border-border bg-card p-2 shadow-xl"
+                      >
+                        <p className="px-2 py-1.5 text-xs font-semibold text-muted-foreground">
+                          Utilisateurs en ligne
+                        </p>
+
+                        <div className="max-h-64 overflow-y-auto">
+                          {onlineUsers.length > 0 ? (
+                            onlineUsers.map(
+                              (onlineUser) => (
+                                <div
+                                  key={onlineUser.id}
+                                  className="flex items-center gap-2 rounded-lg px-2 py-2 text-sm"
+                                >
+                                  <span className="h-2 w-2 shrink-0 rounded-full bg-emerald-500" />
+
+                                  <span className="truncate">
+                                    {onlineUser.name ||
+                                      "Utilisateur"}
+                                  </span>
+                                </div>
+                              )
+                            )
+                          ) : (
+                            <p className="px-2 py-3 text-sm text-muted-foreground">
+                              Aucun utilisateur en ligne.
+                            </p>
+                          )}
+                        </div>
+                      </motion.div>
+                    )}
                   </AnimatePresence>
                 </div>
               )}
+
               <LanguageSwitcher compact />
+
               <button
                 type="button"
-                onClick={() => setTheme(theme === "light" ? "dark" : theme === "dark" ? "system" : "light")}
+                onClick={() =>
+                  setTheme(
+                    theme === "light"
+                      ? "dark"
+                      : theme === "dark"
+                        ? "system"
+                        : "light"
+                  )
+                }
                 className="p-2 rounded-lg hover:bg-accent transition-colors"
                 aria-label={
                   theme === "light"
                     ? "Passer en mode sombre"
                     : theme === "dark"
-                    ? "Utiliser le thème système"
-                    : "Passer en mode clair"
+                      ? "Utiliser le thème système"
+                      : "Passer en mode clair"
                 }
                 title={
                   theme === "light"
                     ? "Clair"
                     : theme === "dark"
-                    ? "Sombre"
-                    : "Système"
+                      ? "Sombre"
+                      : "Système"
                 }
               >
                 {theme === "light" ? (
@@ -553,19 +1046,33 @@ export default function KoraLayout() {
                   <Monitor className="h-5 w-5" />
                 )}
               </button>
-              {role !== "admin" && role !== "superadmin" && (
-                <button
-                  onClick={() => navigate("/messages")}
-                  className="p-2 rounded-lg hover:bg-accent transition-colors"
-                  aria-label={t("navigation.messages")}
-                >
-                  <MessageCircle className="h-5 w-5" />
-                </button>
-              )}
+
+              {role !== "admin" &&
+                role !== "superadmin" && (
+                  <button
+                    type="button"
+                    onClick={() =>
+                      navigate("/messages")
+                    }
+                    className="p-2 rounded-lg hover:bg-accent transition-colors"
+                    aria-label={t(
+                      "navigation.messages"
+                    )}
+                  >
+                    <MessageCircle className="h-5 w-5" />
+                  </button>
+                )}
+
               <div className="h-8 w-px bg-border mx-1" />
+
               <div className="text-right hidden sm:block">
-                <p className="text-sm font-semibold leading-none">{user?.name || t("account.name")}</p>
-                <p className="text-[11px] text-gold-dark mt-1">{roleInfo.label}</p>
+                <p className="text-sm font-semibold leading-none">
+                  {user?.name || t("account.name")}
+                </p>
+
+                <p className="text-[11px] text-gold-dark mt-1">
+                  {roleInfo.label}
+                </p>
               </div>
             </div>
           </div>
