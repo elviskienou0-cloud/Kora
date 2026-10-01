@@ -13,6 +13,13 @@ function jsonResponse(body: JsonRecord, status = 200) {
   return new Response(JSON.stringify(body), { status, headers: corsHeaders })
 }
 
+function normalizeAdminRole(role: unknown) {
+  const value = typeof role === "string" ? role.trim().toLowerCase() : ""
+  if (value === "superadmin" || value === "super_admin" || value === "super-admin") return "superadmin"
+  if (value === "admin") return "admin"
+  return value
+}
+
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") {
     return new Response("ok", { status: 200, headers: corsHeaders })
@@ -62,7 +69,8 @@ Deno.serve(async (req) => {
       .maybeSingle()
 
     if (profileError) throw profileError
-    if (!callerProfile || !["admin", "superadmin"].includes(callerProfile.role)) {
+    const callerRole = normalizeAdminRole(callerProfile?.role)
+    if (!callerProfile || !["admin", "superadmin"].includes(callerRole)) {
       return jsonResponse({ error: "Accès administrateur requis." }, 403)
     }
     if (callerProfile.is_suspended === true) {
@@ -119,7 +127,7 @@ Deno.serve(async (req) => {
       // Le rôle du profil est la source de vérité pour distinguer le CEO
       // (superadmin) d'un administrateur associé. On évite ici de dépendre
       // de is_super_admin() pour le contrôle d'entrée de l'Edge Function.
-      if (callerProfile.role !== "superadmin") {
+      if (callerRole !== "superadmin") {
         return jsonResponse({ error: "Seul le Super Admin peut inviter un administrateur." }, 403)
       }
 
@@ -192,7 +200,8 @@ Deno.serve(async (req) => {
 
     if (targetError) throw targetError
     if (!targetProfile) return jsonResponse({ error: "Utilisateur introuvable." }, 404)
-    if (targetProfile.role === "admin" || targetProfile.role === "superadmin") {
+    const targetRole = normalizeAdminRole(targetProfile.role)
+    if (targetRole === "admin" || targetRole === "superadmin") {
       return jsonResponse({ error: "La suppression d'un administrateur est bloquée depuis cette action." }, 403)
     }
 
@@ -200,7 +209,7 @@ Deno.serve(async (req) => {
     // explicitement la permission users.manage.
     // Le Super Admin est autorisé par son rôle de profil. Pour un admin
     // associé, la permission users.manage reste obligatoire.
-    const isSuperAdmin = callerProfile.role === "superadmin"
+    const isSuperAdmin = callerRole === "superadmin"
 
     if (!isSuperAdmin) {
       const { data: canManageUsers, error: permissionError } = await callerClient.rpc(
