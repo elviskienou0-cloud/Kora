@@ -103,6 +103,7 @@ using (
 );
 
 drop policy if exists talent_public_select on public.talent_profiles;
+drop policy if exists talent_public_select_anon on public.talent_profiles;
 create policy talent_public_select_anon
 on public.talent_profiles
 for select to anon
@@ -111,6 +112,7 @@ using (
   and is_visible = true
 );
 
+drop policy if exists talent_authenticated_select on public.talent_profiles;
 create policy talent_authenticated_select
 on public.talent_profiles
 for select to authenticated
@@ -130,26 +132,31 @@ using (
 );
 
 drop policy if exists announcements_public_select on public.announcements;
+drop policy if exists announcements_public_select_anon on public.announcements;
 create policy announcements_public_select_anon
 on public.announcements
 for select to anon
 using (is_published = true);
+drop policy if exists announcements_public_select_authenticated on public.announcements;
 create policy announcements_public_select_authenticated
 on public.announcements
 for select to authenticated
 using (is_published = true or is_admin());
 
 drop policy if exists app_settings_select on public.app_settings;
+drop policy if exists app_settings_select_anon on public.app_settings;
 create policy app_settings_select_anon
 on public.app_settings
 for select to anon
 using (is_public = true);
+drop policy if exists app_settings_select_authenticated on public.app_settings;
 create policy app_settings_select_authenticated
 on public.app_settings
 for select to authenticated
 using (is_public = true or is_admin());
 
 drop policy if exists talent_skills_public_select on public.talent_profile_skills;
+drop policy if exists talent_skills_public_select_anon on public.talent_profile_skills;
 create policy talent_skills_public_select_anon
 on public.talent_profile_skills
 for select to anon
@@ -161,6 +168,7 @@ using (
       and tp.is_visible = true
   )
 );
+drop policy if exists talent_skills_public_select_authenticated on public.talent_profile_skills;
 create policy talent_skills_public_select_authenticated
 on public.talent_profile_skills
 for select to authenticated
@@ -177,6 +185,7 @@ using (
 );
 
 drop policy if exists portfolio_public_select on public.portfolio_items;
+drop policy if exists portfolio_public_select_anon on public.portfolio_items;
 create policy portfolio_public_select_anon
 on public.portfolio_items
 for select to anon
@@ -188,6 +197,7 @@ using (
       and tp.is_visible = true
   )
 );
+drop policy if exists portfolio_public_select_authenticated on public.portfolio_items;
 create policy portfolio_public_select_authenticated
 on public.portfolio_items
 for select to authenticated
