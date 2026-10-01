@@ -35,6 +35,12 @@ export default function RoleGuard({ allowedRoles = [], children }) {
         const { data, error } = await supabase.rpc("get_my_subscription")
         if (error) {
           if (isAuthError(error)) {
+            if (!cancelled) {
+              setSubscriptionCheck({
+                loading: false,
+                expired: false,
+              })
+            }
             await handleInvalidSession("invalid")
             return
           }
