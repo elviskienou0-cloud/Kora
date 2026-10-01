@@ -181,6 +181,8 @@ export default function KoraLayout() {
   const [menuOpen, setMenuOpen] = useState(false)
   const [adminAccess, setAdminAccess] = useState(null)
   const [onlineCount, setOnlineCount] = useState(0)
+  const [onlineUsers, setOnlineUsers] = useState([])
+  const [onlineMenuOpen, setOnlineMenuOpen] = useState(false)
 
   const role = user?.role
 
@@ -253,8 +255,13 @@ export default function KoraLayout() {
     let mounted = true
 
     const loadOnlineCount = async () => {
-      const { data, error } = await supabase.rpc("get_online_user_count")
-      if (mounted && !error) setOnlineCount(Number(data || 0))
+      const [{ data: countData, error: countError }, { data: usersData, error: usersError }] = await Promise.all([
+        supabase.rpc("get_online_user_count"),
+        supabase.rpc("get_online_users"),
+      ])
+      if (!mounted) return
+      if (!countError) setOnlineCount(Number(countData || 0))
+      if (!usersError) setOnlineUsers(Array.isArray(usersData) ? usersData : [])
     }
 
     loadOnlineCount()
@@ -502,17 +509,20 @@ export default function KoraLayout() {
 
             <div className="flex items-center gap-2">
               {(role === "admin" || role === "superadmin") && (
-                <div
-                  className="hidden sm:flex items-center gap-2 rounded-xl border border-border bg-card px-3 py-2"
-                  title="Utilisateurs actifs au cours des 2 dernières minutes"
-                  aria-label={`${onlineCount} utilisateurs en ligne`}
-                >
-                  <span className="relative flex h-2.5 w-2.5">
-                    <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-500 opacity-60" />
-                    <span className="relative inline-flex h-2.5 w-2.5 rounded-full bg-emerald-500" />
-                  </span>
-                  <span className="text-sm font-semibold tabular-nums">{onlineCount}</span>
-                  <span className="text-xs text-muted-foreground">en ligne</span>
+                <div className="relative hidden sm:block">
+                  <button type="button" onClick={() => setOnlineMenuOpen((open) => !open)} className="flex items-center gap-2 rounded-xl border border-border bg-card px-3 py-2 hover:bg-accent transition-colors" title="Voir les utilisateurs en ligne" aria-expanded={onlineMenuOpen} aria-haspopup="true">
+                    <span className="relative flex h-2.5 w-2.5"><span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-500 opacity-60" /><span className="relative inline-flex h-2.5 w-2.5 rounded-full bg-emerald-500" /></span>
+                    <span className="text-sm font-semibold tabular-nums">{onlineCount}</span>
+                    <span className="text-xs text-muted-foreground">en ligne</span>
+                  </button>
+                  <AnimatePresence>
+                    {onlineMenuOpen && <motion.div initial={{ opacity: 0, y: -6 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -6 }} className="absolute right-0 top-full mt-2 z-50 w-64 rounded-xl border border-border bg-card p-2 shadow-xl">
+                      <p className="px-2 py-1.5 text-xs font-semibold text-muted-foreground">Utilisateurs en ligne</p>
+                      <div className="max-h-64 overflow-y-auto">
+                        {onlineUsers.length > 0 ? onlineUsers.map((onlineUser) => <div key={onlineUser.id} className="flex items-center gap-2 rounded-lg px-2 py-2 text-sm"><span className="h-2 w-2 shrink-0 rounded-full bg-emerald-500" /><span className="truncate">{onlineUser.name || "Utilisateur"}</span></div>) : <p className="px-2 py-3 text-sm text-muted-foreground">Aucun utilisateur en ligne.</p>}
+                      </div>
+                    </motion.div>}
+                  </AnimatePresence>
                 </div>
               )}
               <LanguageSwitcher compact />
