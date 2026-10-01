@@ -20,13 +20,17 @@ const ALL_ROLES = [
 ]
 
 function isValidRole(role) {
-  return ALL_ROLES.includes(String(role || "").trim().toLowerCase())
+  return ALL_ROLES.includes(
+    String(role || "").trim().toLowerCase()
+  )
 }
 
 function normalizeProfile(profile) {
   if (!profile) return null
 
-  const normalizedRole = String(profile.role || "").trim().toLowerCase()
+  const normalizedRole = String(profile.role || "")
+    .trim()
+    .toLowerCase()
 
   if (!isValidRole(normalizedRole)) {
     console.error("Rôle KORA invalide :", profile.role)
@@ -131,6 +135,14 @@ function getAuthErrorMessage(error, action = "login") {
   return message
 }
 
+/**
+ * Version publique de la traduction des erreurs Auth.
+ * Peut être utilisée par d'autres composants de KORA.
+ */
+export function describeAuthError(error) {
+  return getAuthErrorMessage(error, "login")
+}
+
 async function fetchProfile(userId) {
   if (!userId) return null
 
@@ -171,36 +183,53 @@ export function AuthProvider({ children }) {
   const [isLoading, setIsLoading] = useState(true)
 
   const login = useCallback(async ({ email, password }) => {
-    const cleanEmail = String(email || "").trim().toLowerCase()
+    const cleanEmail = String(email || "")
+      .trim()
+      .toLowerCase()
 
     if (!cleanEmail || !password) {
-      throw new Error("Veuillez renseigner votre email et votre mot de passe.")
+      throw new Error(
+        "Veuillez renseigner votre email et votre mot de passe."
+      )
     }
 
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(cleanEmail)) {
-      throw new Error("Veuillez saisir une adresse email valide.")
+      throw new Error(
+        "Veuillez saisir une adresse email valide."
+      )
     }
 
     if (password.length < 6) {
-      throw new Error("Le mot de passe doit contenir au moins 6 caractères.")
+      throw new Error(
+        "Le mot de passe doit contenir au moins 6 caractères."
+      )
     }
 
-    const { data, error } = await supabase.auth.signInWithPassword({
-      email: cleanEmail,
-      password,
-    })
+    const { data, error } =
+      await supabase.auth.signInWithPassword({
+        email: cleanEmail,
+        password,
+      })
 
     if (error) {
-      console.error("KORA Supabase signInWithPassword :", {
-        message: error.message,
-        status: error.status,
-        code: error.code,
-      })
-      throw new Error(getAuthErrorMessage(error, "login"))
+      console.error(
+        "KORA Supabase signInWithPassword :",
+        {
+          message: error.message,
+          status: error.status,
+          code: error.code,
+        }
+      )
+
+      throw new Error(
+        getAuthErrorMessage(error, "login")
+      )
     }
 
     if (!data?.user) {
-      throw new Error("Supabase n'a retourné aucun utilisateur après la connexion.")
+      throw new Error(
+        "Supabase n'a retourné aucun utilisateur après la connexion."
+      )
     }
 
     try {
@@ -208,6 +237,7 @@ export function AuthProvider({ children }) {
 
       if (!profile) {
         await supabase.auth.signOut()
+
         throw new Error(
           "Connexion réussie, mais votre profil KORA est introuvable ou votre rôle n'est pas autorisé."
         )
@@ -217,18 +247,27 @@ export function AuthProvider({ children }) {
 
       if (!fullUser) {
         await supabase.auth.signOut()
-        throw new Error("Impossible de finaliser votre session KORA.")
+
+        throw new Error(
+          "Impossible de finaliser votre session KORA."
+        )
       }
 
       setUser(fullUser)
+
       return fullUser
     } catch (error) {
       if (error?.message?.includes("profil KORA")) {
         throw error
       }
 
-      console.error("Erreur finalisation connexion KORA :", error)
+      console.error(
+        "Erreur finalisation connexion KORA :",
+        error
+      )
+
       await supabase.auth.signOut()
+
       throw new Error(
         error?.message ||
           "Connexion réussie, mais impossible de charger votre profil KORA."
@@ -236,112 +275,154 @@ export function AuthProvider({ children }) {
     }
   }, [])
 
-  const register = useCallback(async ({
-    email,
-    password,
-    firstName,
-    lastName,
-    role,
-  }) => {
-    const normalizedRole = String(role || "").trim().toLowerCase()
-
-    if (!PUBLIC_ROLES.includes(normalizedRole)) {
-      throw new Error(
-        "Type de compte invalide. Choisissez Client ou Manager."
-      )
-    }
-
-    const cleanEmail = String(email || "").trim().toLowerCase()
-    const cleanFirstName = String(firstName || "").trim()
-    const cleanLastName = String(lastName || "").trim()
-
-    if (!cleanEmail || !password) {
-      throw new Error("L'email et le mot de passe sont obligatoires.")
-    }
-
-    if (password.length < 6) {
-      throw new Error("Le mot de passe doit contenir au moins 6 caractères.")
-    }
-
-    if (!cleanFirstName || !cleanLastName) {
-      throw new Error("Le prénom et le nom sont obligatoires.")
-    }
-
-    const name = `${cleanFirstName} ${cleanLastName}`.trim()
-
-    const { data, error } = await supabase.auth.signUp({
-      email: cleanEmail,
+  const register = useCallback(
+    async ({
+      email,
       password,
-      options: {
-        data: {
-          name,
-          first_name: cleanFirstName,
-          last_name: cleanLastName,
-          role: normalizedRole,
-        },
-      },
-    })
+      firstName,
+      lastName,
+      role,
+    }) => {
+      const normalizedRole = String(role || "")
+        .trim()
+        .toLowerCase()
 
-    if (error) {
-      console.error("KORA Supabase signUp :", {
-        message: error.message,
-        status: error.status,
-        code: error.code,
-      })
-      throw new Error(getAuthErrorMessage(error, "register"))
-    }
-
-    if (!data?.user) {
-      throw new Error("Supabase n'a retourné aucun utilisateur après l'inscription.")
-    }
-
-    if (!data.session) {
-      return {
-        pendingEmailConfirmation: true,
-        email: cleanEmail,
+      if (!PUBLIC_ROLES.includes(normalizedRole)) {
+        throw new Error(
+          "Type de compte invalide. Choisissez Client ou Manager."
+        )
       }
-    }
 
-    let profile = null
+      const cleanEmail = String(email || "")
+        .trim()
+        .toLowerCase()
 
-    for (let attempt = 0; attempt < 5; attempt += 1) {
-      profile = await fetchProfile(data.user.id)
+      const cleanFirstName = String(firstName || "").trim()
+      const cleanLastName = String(lastName || "").trim()
 
-      if (profile) break
+      if (!cleanEmail || !password) {
+        throw new Error(
+          "L'email et le mot de passe sont obligatoires."
+        )
+      }
 
-      await new Promise((resolve) => {
-        setTimeout(resolve, 250)
-      })
-    }
+      if (
+        !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(
+          cleanEmail
+        )
+      ) {
+        throw new Error(
+          "Veuillez saisir une adresse email valide."
+        )
+      }
 
-    if (!profile) {
-      await supabase.auth.signOut()
-      throw new Error(
-        "Votre compte a été créé, mais votre profil KORA n'a pas pu être créé automatiquement. Vérifiez le trigger Supabase on_auth_user_created."
+      if (password.length < 6) {
+        throw new Error(
+          "Le mot de passe doit contenir au moins 6 caractères."
+        )
+      }
+
+      if (!cleanFirstName || !cleanLastName) {
+        throw new Error(
+          "Le prénom et le nom sont obligatoires."
+        )
+      }
+
+      const name =
+        `${cleanFirstName} ${cleanLastName}`.trim()
+
+      const { data, error } =
+        await supabase.auth.signUp({
+          email: cleanEmail,
+          password,
+          options: {
+            data: {
+              name,
+              first_name: cleanFirstName,
+              last_name: cleanLastName,
+              role: normalizedRole,
+            },
+          },
+        })
+
+      if (error) {
+        console.error("KORA Supabase signUp :", {
+          message: error.message,
+          status: error.status,
+          code: error.code,
+        })
+
+        throw new Error(
+          getAuthErrorMessage(error, "register")
+        )
+      }
+
+      if (!data?.user) {
+        throw new Error(
+          "Supabase n'a retourné aucun utilisateur après l'inscription."
+        )
+      }
+
+      if (!data.session) {
+        return {
+          pendingEmailConfirmation: true,
+          email: cleanEmail,
+        }
+      }
+
+      let profile = null
+
+      for (let attempt = 0; attempt < 5; attempt += 1) {
+        profile = await fetchProfile(data.user.id)
+
+        if (profile) {
+          break
+        }
+
+        await new Promise((resolve) => {
+          setTimeout(resolve, 250)
+        })
+      }
+
+      if (!profile) {
+        await supabase.auth.signOut()
+
+        throw new Error(
+          "Votre compte a été créé, mais votre profil KORA n'a pas pu être créé automatiquement. Vérifiez le trigger Supabase on_auth_user_created."
+        )
+      }
+
+      if (!PUBLIC_ROLES.includes(profile.role)) {
+        await supabase.auth.signOut()
+
+        throw new Error(
+          "Le rôle du compte est invalide. Contactez l'administration KORA."
+        )
+      }
+
+      const fullUser = buildUser(
+        profile,
+        data.user
       )
-    }
 
-    if (!PUBLIC_ROLES.includes(profile.role)) {
-      await supabase.auth.signOut()
-      throw new Error(
-        "Le rôle du compte est invalide. Contactez l'administration KORA."
-      )
-    }
+      if (!fullUser) {
+        await supabase.auth.signOut()
 
-    const fullUser = buildUser(profile, data.user)
+        throw new Error(
+          "Impossible de finaliser votre session KORA."
+        )
+      }
 
-    if (!fullUser) {
-      await supabase.auth.signOut()
-      throw new Error("Impossible de finaliser votre session KORA.")
-    }
+      setUser(fullUser)
 
-    setUser(fullUser)
-
-    return fullUser
-  }, [])
+      return fullUser
+    },
+    []
+  )
 
   const logout = useCallback(async () => {
-    const { error } = await supabase.auth.signOut()
+    const { error } =
+      await supabase.auth.signOut()
 
     if (error) {
       throw new Error(error.message)
@@ -376,10 +457,13 @@ export function AuthProvider({ children }) {
         throw new Error(error.message)
       }
 
-      const normalizedProfile = normalizeProfile(data)
+      const normalizedProfile =
+        normalizeProfile(data)
 
       if (!normalizedProfile) {
-        throw new Error("Le profil retourné contient un rôle invalide.")
+        throw new Error(
+          "Le profil retourné contient un rôle invalide."
+        )
       }
 
       const updatedUser = {
@@ -389,6 +473,7 @@ export function AuthProvider({ children }) {
       }
 
       setUser(updatedUser)
+
       return updatedUser
     },
     [user]
@@ -407,7 +492,9 @@ export function AuthProvider({ children }) {
       }
 
       try {
-        const profile = await fetchProfile(session.user.id)
+        const profile = await fetchProfile(
+          session.user.id
+        )
 
         if (!mounted) return
 
@@ -417,9 +504,15 @@ export function AuthProvider({ children }) {
           return
         }
 
-        setUser(buildUser(profile, session.user))
+        setUser(
+          buildUser(profile, session.user)
+        )
       } catch (error) {
-        console.error("Erreur synchronisation profil KORA :", error)
+        console.error(
+          "Erreur synchronisation profil KORA :",
+          error
+        )
+
         if (mounted) {
           setUser(null)
         }
@@ -437,7 +530,9 @@ export function AuthProvider({ children }) {
           error,
         } = await supabase.auth.getSession()
 
-        if (error) throw error
+        if (error) {
+          throw error
+        }
 
         await loadSession(session)
       } catch (error) {
@@ -457,25 +552,30 @@ export function AuthProvider({ children }) {
 
     const {
       data: { subscription },
-    } = supabase.auth.onAuthStateChange((event, session) => {
-      if (!mounted) return
+    } = supabase.auth.onAuthStateChange(
+      (event, session) => {
+        if (!mounted) return
 
-      if (event === "SIGNED_OUT" || !session?.user) {
-        setUser(null)
-        setIsLoading(false)
-        return
-      }
+        if (
+          event === "SIGNED_OUT" ||
+          !session?.user
+        ) {
+          setUser(null)
+          setIsLoading(false)
+          return
+        }
 
-      if (
-        event === "SIGNED_IN" ||
-        event === "TOKEN_REFRESHED" ||
-        event === "USER_UPDATED"
-      ) {
-        setTimeout(() => {
-          void loadSession(session)
-        }, 0)
+        if (
+          event === "SIGNED_IN" ||
+          event === "TOKEN_REFRESHED" ||
+          event === "USER_UPDATED"
+        ) {
+          setTimeout(() => {
+            void loadSession(session)
+          }, 0)
+        }
       }
-    })
+    )
 
     return () => {
       mounted = false
@@ -504,7 +604,9 @@ export function useAuth() {
   const context = useContext(AuthContext)
 
   if (!context) {
-    throw new Error("useAuth must be used within AuthProvider")
+    throw new Error(
+      "useAuth must be used within AuthProvider"
+    )
   }
 
   return context
