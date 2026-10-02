@@ -565,13 +565,24 @@ export function AuthProvider({ children }) {
         return
       }
 
+      // Un renouvellement de token Supabase peut se produire lorsque
+      // l'onglet redevient actif. Ce n'est pas un rechargement de KORA.
+      // On conserve immédiatement l'interface et la page courante au lieu
+      // d'afficher l'écran global "Chargement..." pour tous les rôles.
       setSession(nextSession)
       setAuthError(null)
-      setAuthStatus(
-        event === "TOKEN_REFRESHED"
-          ? "REFRESHING"
-          : "INITIALIZING"
-      )
+
+      if (event === "TOKEN_REFRESHED") {
+        setAuthStatus("AUTHENTICATED")
+
+        // Le token a été renouvelé sans changement d'utilisateur.
+        // Il est inutile de recharger le profil et de remonter toute
+        // l'application simplement parce que l'utilisateur revient sur
+        // l'onglet KORA.
+        return
+      }
+
+      setAuthStatus("INITIALIZING")
 
       try {
         const {
