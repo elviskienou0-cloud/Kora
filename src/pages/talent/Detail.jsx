@@ -155,6 +155,7 @@ export default function TalentDetail() {
             category_id,
             city,
             daily_rate,
+            show_daily_rate,
             currency,
             rating,
             reviews_count,
@@ -480,7 +481,21 @@ export default function TalentDetail() {
               <div className="absolute top-0 left-0 right-0 h-1 gold-gradient" />
               <CardContent className="p-6 space-y-5">
                 <div className="flex items-baseline justify-between gap-4">
-                  <div><p className="text-xs font-bold uppercase tracking-wider text-muted-foreground mb-0.5">Tarif journalier</p><p className="text-3xl font-black gold-text-gradient">{formatCurrency(talent.daily_rate, talent.currency || "XOF")}</p></div>
+                  <div>
+                    {talent.show_daily_rate && talent.daily_rate !== null && talent.daily_rate !== undefined && talent.daily_rate !== "" ? (
+                      <>
+                        <p className="text-xs font-bold uppercase tracking-wider text-muted-foreground mb-0.5">Cachet</p>
+                        <p className="text-3xl font-black gold-text-gradient">
+                          {formatCurrency(talent.daily_rate, talent.currency || "XOF")}
+                        </p>
+                      </>
+                    ) : (
+                      <div>
+                        <p className="text-xs font-bold uppercase tracking-wider text-muted-foreground mb-0.5">Cachet</p>
+                        <p className="text-sm font-semibold text-muted-foreground">Sur demande</p>
+                      </div>
+                    )}
+                  </div>
                   <Badge className={talent.available ? "bg-emerald-500/10 text-emerald-600 border-emerald-500/20" : "bg-muted text-muted-foreground"}>{talent.available ? "Disponible" : "Indisponible"}</Badge>
                 </div>
                 <Separator />
