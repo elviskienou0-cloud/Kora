@@ -234,7 +234,7 @@ export default function ManagerRequestDetail() {
     label: request.status || "—",
     className: "bg-muted text-muted-foreground",
   }
-  const talentName = [talent?.first_name, talent?.last_name].filter(Boolean).join(" ") || "Talent"
+  const talentName = [talent?.first_name, talent?.last_name].filter(Boolean).join(" ") || "Talent non associé"
   const isPending = ["pending", "open"].includes(String(request.status).toLowerCase())
   const isAccepted = String(request.status).toLowerCase() === "accepted"
   const projectStatus = String(project?.status || "").toLowerCase()
@@ -261,6 +261,7 @@ export default function ManagerRequestDetail() {
               <p className="text-lg font-bold">{talentName}</p>
               {talent?.title && <p className="mt-1 text-sm text-muted-foreground">{talent.title}</p>}
               {talent?.city && <p className="mt-1 text-sm text-muted-foreground">{talent.city}</p>}
+              {!talent?.id && <p className="mt-2 text-sm text-muted-foreground">Cette demande historique ne contient pas de talent associé. Les informations de la demande restent accessibles.</p>}
               {talent?.id && <Button variant="outline" size="sm" className="mt-4" asChild><Link to={`/talent/${talent.id}`}>Voir la fiche talent</Link></Button>}
             </CardContent>
           </Card>
