@@ -568,6 +568,7 @@ export function AuthProvider({ children }) {
       }
 
       setUser(updatedUser)
+      writeCachedUser(updatedUser)
 
       return updatedUser
     },
