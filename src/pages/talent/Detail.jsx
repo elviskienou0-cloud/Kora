@@ -327,6 +327,20 @@ export default function TalentDetail() {
       const conversationId = typeof data === "string" ? data : data?.conversation_id || data?.[0]?.conversation_id
       if (!conversationId) throw new Error("Conversation introuvable.")
 
+      // Une conversation ouverte depuis une fiche Talent porte le nom d’artiste.
+      // On utilise la donnée réelle du profil, sans créer de nom fictif.
+      const artistName = talentName.trim()
+      if (artistName) {
+        const { error: titleError } = await supabase
+          .from("conversations")
+          .update({ title: artistName })
+          .eq("id", conversationId)
+
+        if (titleError) {
+          console.warn("Impossible d’enregistrer le nom d’artiste de la conversation :", titleError)
+        }
+      }
+
       navigate(`/messages?conversation=${conversationId}`)
     } catch (error) {
       console.error("Erreur contact manager :", error)
