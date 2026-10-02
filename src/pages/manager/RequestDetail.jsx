@@ -68,6 +68,7 @@ export default function ManagerRequestDetail() {
   const [loading, setLoading] = useState(true)
   const [processing, setProcessing] = useState(false)
   const [reply, setReply] = useState("")
+  const [planAccess, setPlanAccess] = useState(null)
   const statusActionLock = useRef(false)
 
   const load = useCallback(async () => {
@@ -94,7 +95,7 @@ export default function ManagerRequestDetail() {
         return
       }
 
-      const [projectResult, talentResult, clientResult] = await Promise.all([
+      const [projectResult, talentResult, clientResult, planResult] = await Promise.all([
         requestData.project_id
           ? supabase
               .from("projects")
@@ -112,16 +113,19 @@ export default function ManagerRequestDetail() {
           .select("id, name, avatar, role")
           .eq("id", requestData.client_id)
           .maybeSingle(),
+        supabase.rpc("get_my_manager_plan_access"),
       ])
 
       if (projectResult.error) throw projectResult.error
       if (talentResult.error) throw talentResult.error
       if (clientResult.error) throw clientResult.error
+      if (planResult.error) throw planResult.error
 
       setRequest(requestData)
       setProject(projectResult.data || null)
       setTalent(talentResult.data || null)
       setClient(clientResult.data || null)
+      setPlanAccess(planResult.data || null)
     } catch (error) {
       console.error("Erreur chargement demande manager :", error)
       toast.error(error?.message || "Impossible de charger la demande.")
@@ -176,6 +180,10 @@ export default function ManagerRequestDetail() {
 
   const handleProjectStatus = async (nextStatus) => {
     if (!project?.id) return
+    if (!canManageProjects) {
+      toast.info("La gestion des projets est disponible à partir du plan Pro.")
+      return
+    }
     const labels = { active: "réactiver", completed: "terminer", cancelled: "annuler" }
     if (!window.confirm(`Voulez-vous ${labels[nextStatus] || "modifier"} ce projet ?`)) return
 
@@ -228,6 +236,7 @@ export default function ManagerRequestDetail() {
   const isPending = ["pending", "open"].includes(String(request.status).toLowerCase())
   const isAccepted = String(request.status).toLowerCase() === "accepted"
   const projectStatus = String(project?.status || "").toLowerCase()
+  const canManageProjects = Boolean(planAccess?.can_manage_projects)
 
   return (
     <div className="min-h-[70vh] bg-gradient-to-br from-accent/20 via-background to-background p-4 md:p-8">
@@ -303,14 +312,20 @@ export default function ManagerRequestDetail() {
                   <p className="text-sm text-muted-foreground mt-1">Statut : {project.status || "—"}</p>
                 </div>
                 <div className="flex flex-wrap gap-2">
-                  {isAccepted && projectStatus === "pending" && (
+                  {isAccepted && canManageProjects && projectStatus === "pending" && (
                     <Button onClick={() => handleProjectStatus("active")} disabled={processing}><Check className="mr-2 h-4 w-4" /> Activer</Button>
                   )}
-                  {isAccepted && projectStatus === "active" && (
+                  {isAccepted && canManageProjects && projectStatus === "active" && (
                     <Button onClick={() => handleProjectStatus("completed")} disabled={processing} className="bg-emerald-600 text-white hover:bg-emerald-700"><CheckCircle2 className="mr-2 h-4 w-4" /> Marquer terminé</Button>
                   )}
-                  {isAccepted && !["completed", "cancelled"].includes(projectStatus) && (
+                  {isAccepted && canManageProjects && !["completed", "cancelled"].includes(projectStatus) && (
                     <Button variant="outline" onClick={() => handleProjectStatus("cancelled")} disabled={processing} className="text-red-600"><XCircle className="mr-2 h-4 w-4" /> Annuler</Button>
+                  )}
+                  {isAccepted && !canManageProjects && (
+                    <div className="rounded-xl border border-gold/20 bg-gold/5 px-4 py-3 text-sm text-muted-foreground">
+                      La gestion du statut des projets est réservée aux plans <strong className="text-foreground">Pro</strong> et <strong className="text-foreground">Business</strong>.
+                      <Link to="/manager/subscription" className="ml-1 font-bold text-gold-dark hover:underline">Voir les offres</Link>
+                    </div>
                   )}
                 </div>
               </div>
