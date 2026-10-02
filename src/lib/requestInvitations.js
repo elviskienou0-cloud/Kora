@@ -73,7 +73,7 @@ export async function updateManagerProjectStatus(projectId, status) {
     throw new Error("Statut de projet invalide")
   }
 
-  const { data, error } = await supabase.rpc("manager_update_project_status", {
+  const { data, error } = await supabase.rpc("manager_update_project_status_v2", {
     p_project_id: projectId,
     p_status: status,
   })
