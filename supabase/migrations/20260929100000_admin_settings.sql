@@ -32,8 +32,8 @@ insert into public.app_settings (key, value, description, is_public)
 values
   ('site_name', '"KORA"', 'Nom public de la plateforme', true),
   ('site_tagline', '"La plateforme des talents africains"', 'Slogan public', true),
-  ('support_email', '"support@kora.africa"', 'Adresse support', true),
-  ('contact_email', '"hello@kora.africa"', 'Adresse de contact', true),
+  ('support_email', '"kora.support2@gmail.com"', 'Adresse support', true),
+  ('contact_email', '"kora.contact1@gmail.com"', 'Adresse de contact', true),
   ('currency', '"XOF"', 'Devise principale', true),
   ('commission_rate', '5', 'Commission KORA en pourcentage sur les transactions Business', true),
   ('maintenance_mode', 'false', 'Active le mode maintenance', true),
