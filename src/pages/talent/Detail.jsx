@@ -327,18 +327,19 @@ export default function TalentDetail() {
       const conversationId = typeof data === "string" ? data : data?.conversation_id || data?.[0]?.conversation_id
       if (!conversationId) throw new Error("Conversation introuvable.")
 
-      // Une conversation ouverte depuis une fiche Talent porte le nom d’artiste.
-      // On utilise la donnée réelle du profil, sans créer de nom fictif.
+      // Une conversation ouverte depuis une fiche Talent porte le nom réel de l’artiste.
+      // Le titre est enregistré côté serveur avec un contrôle d’accès sur la conversation.
       const artistName = talentName.trim()
       if (artistName) {
-        const { error: titleError } = await supabase
-          .from("conversations")
-          .update({ title: artistName })
-          .eq("id", conversationId)
+        const { error: titleError } = await supabase.rpc(
+          "set_conversation_title",
+          {
+            p_conversation_id: conversationId,
+            p_title: artistName,
+          }
+        )
 
-        if (titleError) {
-          console.warn("Impossible d’enregistrer le nom d’artiste de la conversation :", titleError)
-        }
+        if (titleError) throw titleError
       }
 
       navigate(`/messages?conversation=${conversationId}`)
