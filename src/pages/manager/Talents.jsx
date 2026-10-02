@@ -875,8 +875,19 @@ export default function ManagerTalents() {
   }
 
   useEffect(() => {
-    if (!managerId) return
-    restoreTalentsCache()
+    if (!managerId) {
+      setLoading(false)
+      return
+    }
+
+    const restored = restoreTalentsCache()
+
+    // La page ne doit jamais rester bloquée sur "Chargement..." simplement
+    // parce qu'aucun cache n'existe. Le chargement réel reste volontaire
+    // (après création/modification ou via l'action explicite prévue).
+    if (!restored) {
+      setLoading(false)
+    }
   }, [managerId])
 
   const buildFormData = (talent) => ({
