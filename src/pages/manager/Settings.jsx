@@ -54,6 +54,7 @@ export default function ManagerSettings() {
   const [uploadingImage, setUploadingImage] = useState(null)
   const [preferences, setPreferences] = useState(DEFAULT_PREFERENCES)
   const [passwords, setPasswords] = useState({ old: "", next: "", confirm: "" })
+  const [planAccess, setPlanAccess] = useState(null)
 
   useEffect(() => {
     let mounted = true
@@ -61,12 +62,16 @@ export default function ManagerSettings() {
       if (!userId) { setLoading(false); return }
       setLoading(true)
       try {
-        const { data, error } = await supabase
-          .from("profiles")
-          .select("id, name, role, avatar, cover_url, phone, city, company, bio, preferences")
-          .eq("id", userId)
-          .maybeSingle()
+        const [{ data, error }, { data: accessData, error: accessError }] = await Promise.all([
+          supabase
+            .from("profiles")
+            .select("id, name, role, avatar, cover_url, phone, city, company, bio, preferences")
+            .eq("id", userId)
+            .maybeSingle(),
+          supabase.rpc("get_my_manager_plan_access"),
+        ])
         if (error) throw error
+        if (accessError) throw accessError
         if (!mounted) return
         const p = mergePreferences(data?.preferences)
         setProfile({
@@ -80,6 +85,7 @@ export default function ManagerSettings() {
           cover_url: data?.cover_url || "",
         })
         setPreferences(p)
+        setPlanAccess(accessData || null)
         setLanguage(p.language)
         setTheme(p.theme)
       } catch (error) {
@@ -199,7 +205,7 @@ export default function ManagerSettings() {
 
         <div className="space-y-6">
           {tab === "profile" && <Card><CardHeader><CardTitle>Informations du profil</CardTitle><CardDescription>Modifiez vos informations enregistrées dans Supabase.</CardDescription></CardHeader><CardContent className="space-y-5">
-            <div className="space-y-4"><div className="relative h-44 sm:h-52 rounded-2xl overflow-hidden border bg-muted">{profile.cover_url ? <img src={profile.cover_url} alt="Couverture" className="w-full h-full object-cover" /> : <div className="w-full h-full flex items-center justify-center text-muted-foreground"><ImageIcon className="h-8 w-8" /></div>}<label className="absolute right-3 bottom-3 inline-flex items-center gap-2 rounded-lg bg-black/70 text-white px-3 py-2 text-xs font-bold cursor-pointer"><Camera className="h-4 w-4" />{uploadingImage === "cover" ? "Envoi…" : "Changer la couverture"}<input type="file" accept="image/jpeg,image/png,image/webp,image/gif" className="hidden" disabled={!!uploadingImage} onChange={(e) => { const f=e.target.files?.[0]; if(f) uploadImage(f,"cover"); e.target.value="" }} /></label></div><div className="flex items-center gap-4"><div className="relative h-20 w-20 shrink-0">{profile.avatar ? <img src={profile.avatar} alt="Profil" className="h-20 w-20 rounded-full object-cover border-4 border-background shadow" /> : <div className="h-20 w-20 rounded-full gold-gradient text-white flex items-center justify-center text-xl font-black">{initials(profile.name)}</div>}<label className="absolute -right-1 -bottom-1 h-8 w-8 rounded-full bg-gold text-white flex items-center justify-center cursor-pointer border-2 border-background"><Camera className="h-4 w-4" /><input type="file" accept="image/jpeg,image/png,image/webp,image/gif" className="hidden" disabled={!!uploadingImage} onChange={(e) => { const f=e.target.files?.[0]; if(f) uploadImage(f,"avatar"); e.target.value="" }} /></label></div><div><div className="font-black">{profile.name || "Manager KORA"}</div><Badge variant="outline">Manager</Badge></div></div></div>
+            <div className="space-y-4"><div className="relative h-44 sm:h-52 rounded-2xl overflow-hidden border bg-muted">{profile.cover_url ? <img src={profile.cover_url} alt="Couverture" className="w-full h-full object-cover" /> : <div className="w-full h-full flex items-center justify-center text-muted-foreground"><ImageIcon className="h-8 w-8" /></div>}<label className="absolute right-3 bottom-3 inline-flex items-center gap-2 rounded-lg bg-black/70 text-white px-3 py-2 text-xs font-bold cursor-pointer"><Camera className="h-4 w-4" />{uploadingImage === "cover" ? "Envoi…" : "Changer la couverture"}<input type="file" accept="image/jpeg,image/png,image/webp,image/gif" className="hidden" disabled={!!uploadingImage} onChange={(e) => { const f=e.target.files?.[0]; if(f) uploadImage(f,"cover"); e.target.value="" }} /></label></div><div className="flex items-center gap-4"><div className="relative h-20 w-20 shrink-0">{profile.avatar ? <img src={profile.avatar} alt="Profil" className="h-20 w-20 rounded-full object-cover border-4 border-background shadow" /> : <div className="h-20 w-20 rounded-full gold-gradient text-white flex items-center justify-center text-xl font-black">{initials(profile.name)}</div>}<label className="absolute -right-1 -bottom-1 h-8 w-8 rounded-full bg-gold text-white flex items-center justify-center cursor-pointer border-2 border-background"><Camera className="h-4 w-4" /><input type="file" accept="image/jpeg,image/png,image/webp,image/gif" className="hidden" disabled={!!uploadingImage} onChange={(e) => { const f=e.target.files?.[0]; if(f) uploadImage(f,"avatar"); e.target.value="" }} /></label></div><div><div className="font-black">{profile.name || "Manager KORA"}</div><div className="mt-1 flex flex-wrap gap-2"><Badge variant="outline">Manager</Badge>{planAccess?.business_badge && <Badge className="bg-gold text-white">Business</Badge>}</div></div></div></div>
             <div className="grid gap-4 md:grid-cols-2">
               <div className="space-y-2 md:col-span-2"><Label>Nom complet</Label><Input value={profile.name} onChange={(e) => setProfile((p) => ({ ...p, name: e.target.value }))} /></div>
               <div className="space-y-2"><Label>Email</Label><Input value={profile.email} disabled readOnly /></div>
