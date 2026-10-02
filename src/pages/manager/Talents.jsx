@@ -11,6 +11,7 @@ import {
   ShieldCheck,
   UserPlus,
   Award,
+  Banknote,
   UserCheck,
   Clock,
   X,
@@ -183,6 +184,8 @@ function TalentEditor({
     bio: initialValues?.bio || "",
     skills: initialValues?.skills || [],
     available: initialValues?.available !== false,
+    dailyRate: initialValues?.dailyRate ?? "",
+    showDailyRate: initialValues?.showDailyRate === true,
   })
   const [avatarFile, setAvatarFile] = useState(null)
   const [coverFile, setCoverFile] = useState(null)
@@ -533,6 +536,78 @@ function TalentEditor({
             </p>
           </div>
 
+          <div className="rounded-2xl border border-border/60 bg-card p-4">
+            <div className="flex items-start gap-3">
+              <Banknote className="mt-0.5 h-5 w-5 text-gold" />
+              <div className="flex-1">
+                <p className="font-bold">Cachet de l’artiste</p>
+                <p className="mt-1 text-sm text-muted-foreground">
+                  Facultatif. Renseignez le montant en FCFA si vous souhaitez le proposer aux clients.
+                </p>
+              </div>
+            </div>
+
+            <div className="mt-4 grid gap-4 sm:grid-cols-2">
+              <Field label="Montant du cachet (FCFA)" icon={Banknote}>
+                <input
+                  type="number"
+                  min="0"
+                  step="1"
+                  inputMode="numeric"
+                  value={form.dailyRate}
+                  onChange={(e) => {
+                    const value = e.target.value
+                    if (value === "" || /^\d+$/.test(value)) {
+                      updateField("dailyRate", value)
+                    }
+                  }}
+                  placeholder="Ex. 150000"
+                  disabled={saving}
+                  className="w-full rounded-xl border border-border bg-background px-4 py-2.5 text-sm outline-none transition focus:border-gold focus:ring-2 focus:ring-gold/30"
+                />
+                <p className="mt-1 text-xs text-muted-foreground">
+                  Laissez vide si aucun cachet n’est renseigné.
+                </p>
+              </Field>
+
+              <div className="rounded-xl border border-border/60 bg-background p-4">
+                <div className="flex items-start gap-3">
+                  <div className="flex-1">
+                    <p className="text-sm font-bold">Afficher le cachet publiquement</p>
+                    <p className="mt-1 text-xs text-muted-foreground">
+                      Si désactivé, le montant reste enregistré mais n’apparaît pas sur le profil public.
+                    </p>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => updateField("showDailyRate", !form.showDailyRate)}
+                    disabled={saving || form.dailyRate === ""}
+                    className={cn(
+                      "relative h-7 w-12 shrink-0 rounded-full transition-colors",
+                      form.showDailyRate && form.dailyRate !== ""
+                        ? "bg-emerald-500"
+                        : "bg-muted-foreground/30"
+                    )}
+                    aria-pressed={form.showDailyRate && form.dailyRate !== ""}
+                  >
+                    <span
+                      className={cn(
+                        "absolute top-1 h-5 w-5 rounded-full bg-white shadow transition-transform",
+                        form.showDailyRate && form.dailyRate !== "" ? "left-6" : "left-1"
+                      )}
+                    />
+                  </button>
+                </div>
+                <p className={cn(
+                  "mt-3 text-xs font-semibold",
+                  form.showDailyRate && form.dailyRate !== "" ? "text-emerald-600" : "text-muted-foreground"
+                )}>
+                  {form.showDailyRate && form.dailyRate !== "" ? "Visible sur le profil public" : "Non visible publiquement"}
+                </p>
+              </div>
+            </div>
+          </div>
+
           <div className="rounded-2xl border border-gold/20 bg-gold/5 p-4 sm:p-5">
             <div className="mb-4">
               <p className="font-black flex items-center gap-2">
@@ -838,6 +913,8 @@ export default function ManagerTalents() {
           status,
           is_visible,
           currency,
+          daily_rate,
+          show_daily_rate,
           rating,
           reviews_count,
           completed_projects,
@@ -903,6 +980,8 @@ export default function ManagerTalents() {
     bio: talent.bio || "",
     skills: talent.skills || [],
     available: talent.available !== false,
+    dailyRate: talent.daily_rate ?? "",
+    showDailyRate: talent.show_daily_rate === true,
     avatarUrl: talent.avatar_url || "",
     coverUrl: talent.cover_url || "",
     portfolioLinks: talent.portfolioLinks || [],
@@ -919,6 +998,8 @@ export default function ManagerTalents() {
         bio: "",
         skills: [],
         available: true,
+        dailyRate: "",
+        showDailyRate: false,
         avatarUrl: "",
         coverUrl: "",
         portfolioLinks: [],
@@ -944,6 +1025,8 @@ export default function ManagerTalents() {
             category_id,
             country_id,
             city,
+            daily_rate,
+            show_daily_rate,
             available,
             avatar_url,
             cover_url,
@@ -1055,6 +1138,8 @@ export default function ManagerTalents() {
             country_id: country.id,
             city,
             available: !!formData.available,
+            daily_rate: formData.dailyRate === "" ? null : Number(formData.dailyRate),
+            show_daily_rate: formData.showDailyRate === true,
           })
           .eq("id", editingTalent.id)
           .eq("managed_by", managerId)
@@ -1172,6 +1257,22 @@ export default function ManagerTalents() {
             throw mediaUpdateError
           }
         }
+      }
+
+      // Le RPC de création ne gère pas encore le cachet : on l'enregistre
+      // juste après la création. En édition, les mêmes champs sont déjà
+      // enregistrés dans l'UPDATE ci-dessus.
+      if (editingTalent?.mode !== "edit") {
+        const { error: feeUpdateError } = await supabase
+          .from("talent_profiles")
+          .update({
+            daily_rate: formData.dailyRate === "" ? null : Number(formData.dailyRate),
+            show_daily_rate: formData.showDailyRate === true,
+          })
+          .eq("id", talentId)
+          .eq("managed_by", managerId)
+
+        if (feeUpdateError) throw feeUpdateError
       }
 
       if ((formData.portfolioFiles || []).length > 0) {
