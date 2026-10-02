@@ -4,6 +4,7 @@ import {
   useEffect,
   useState,
   useCallback,
+  useRef,
 } from "react"
 
 import {
@@ -193,6 +194,13 @@ export function AuthProvider({ children }) {
   const [session, setSession] = useState(null)
   const [authStatus, setAuthStatus] = useState("INITIALIZING")
   const [authError, setAuthError] = useState(null)
+
+  // Références synchrones utilisées par le listener Supabase sans
+  // recréer l'abonnement à chaque rendu.
+  const userRef = useRef(user)
+  const sessionRef = useRef(session)
+  userRef.current = user
+  sessionRef.current = session
 
   const handleInvalidSession = useCallback(async (reason = "invalid") => {
     const status =
@@ -587,8 +595,8 @@ export function AuthProvider({ children }) {
       // de chargement : la page courante doit rester visible.
       if (
         event === "USER_UPDATED" &&
-        user &&
-        session
+        userRef.current &&
+        sessionRef.current
       ) {
         setAuthStatus("AUTHENTICATED")
         setUser((currentUser) => {
