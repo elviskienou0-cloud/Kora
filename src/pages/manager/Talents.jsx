@@ -317,10 +317,6 @@ function TalentEditor({
       next.displayName = "Indiquez le nom de l’artiste."
     }
 
-    if (!form.title.trim() || form.title.trim().length < 5) {
-      next.title = "Le titre doit contenir au moins 5 caractères."
-    }
-
     if (!form.category) {
       next.category = "Veuillez sélectionner une catégorie."
     }
@@ -983,21 +979,16 @@ export default function ManagerTalents() {
         if (!category) throw new Error("Catégorie introuvable.")
       }
 
-      const nameParts = String(formData.displayName || "")
-        .trim()
-        .split(/\s+/)
-        .filter(Boolean)
+      const artistName = String(formData.displayName || "").trim()
 
-      if (nameParts.length < 2) {
-        throw new Error("Indiquez le prénom et le nom du talent.")
+      if (!artistName) {
+        throw new Error("Indiquez le nom de l’artiste.")
       }
 
-      const firstName = nameParts.join(" ").trim()
+      // KORA accepte désormais un nom d’artiste unique.
+      // On conserve le schéma RPC existant sans imposer prénom + nom.
+      const firstName = artistName
       const lastName = null
-
-      if (!firstName || !lastName) {
-        throw new Error("Le prénom et le nom du talent sont obligatoires.")
-      }
       let talentId = editingTalent?.id
 
       if (editingTalent?.mode === "edit") {
