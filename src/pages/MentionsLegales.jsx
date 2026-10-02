@@ -41,22 +41,22 @@ export default function MentionsLegales() {
 
             <div className="mt-4 rounded-xl bg-gray-50 p-5 dark:bg-gray-900">
               <p>
-                <strong>Nom :</strong> [À compléter]
+                <strong>Nom et prénoms :</strong> KIENOU Elvis
               </p>
               <p>
-                <strong>Forme juridique :</strong> [À compléter]
+                <strong>Statut :</strong> Personne physique
               </p>
               <p>
-                <strong>Adresse :</strong> [À compléter]
+                <strong>Adresse :</strong> Ouagadougou, Burkina Faso
               </p>
               <p>
-                <strong>RCCM :</strong> [À compléter si applicable]
+                <strong>RCCM :</strong> À renseigner si applicable
               </p>
               <p>
-                <strong>IFU :</strong> [À compléter si applicable]
+                <strong>IFU :</strong> À renseigner si applicable
               </p>
               <p>
-                <strong>E-mail :</strong> [À compléter]
+                <strong>E-mail :</strong> kora.contact1@gmail.com
               </p>
             </div>
           </section>
