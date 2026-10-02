@@ -518,17 +518,6 @@ export default function Landing() {
               })}
             </motion.div>
 
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ delay: 0.3 }}
-              className="text-center mt-12"
-            >
-              <Button variant="outline" size="lg" onClick={() => navigate("/categories")} className="gap-2 font-bold">
-                Voir toutes les catégories <ChevronRight className="h-5 w-5" />
-              </Button>
-            </motion.div>
           </div>
         </section>
 
