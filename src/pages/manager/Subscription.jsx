@@ -20,27 +20,26 @@ function formatMoney(value, currency = "XOF") {
 function getPlanDetails(plan) {
   const id = String(plan?.id || "").toUpperCase()
   if (id === "FREE") return [
-    "Jusqu'à 1 talent",
-    "Profil manager et outils essentiels",
+    "1 talent maximum",
+    "Profil talent et portfolio",
+    "Gestion du cachet",
     "Gestion des demandes",
-    "Accès gratuit",
-    "Sans paiement",
+    "Messagerie et notifications",
+    "Gestion de base des talents",
+    "30 jours d'accès gratuit",
   ]
   if (id === "PRO") return [
-    "Jusqu'à 3 talents",
-    "Outils professionnels complets",
-    "Gestion des profils et projets",
-    "Paiement mensuel SasPay",
-    "Validation manuelle par KORA",
+    "3 talents maximum",
+    "Toutes les fonctions du plan Gratuit",
+    "Gestion opérationnelle des projets",
+    "Gestion avancée des demandes",
+    "Profil manager professionnel",
   ]
   if (id === "BUSINESS") return [
     "Talents illimités",
-    "Tous les outils professionnels",
-    "Paiements via KORA",
-    "Suivi des transactions",
-    "5 % uniquement sur les transactions réalisées via KORA",
-    "Paiement mensuel SasPay",
-    "Validation manuelle par KORA",
+    "Toutes les fonctions du plan Pro",
+    "Badge Business sur votre profil",
+    "Organisation sans limite de vos talents",
   ]
   return Array.isArray(plan?.features) ? plan.features : []
 }
@@ -159,7 +158,7 @@ export default function ManagerSubscription() {
         <div>
           <p className="text-xs font-bold uppercase tracking-[0.18em] text-gold">Compte manager</p>
           <h1 className="text-2xl font-black tracking-tight">Abonnement & facturation</h1>
-          <p className="text-sm text-muted-foreground">Choisissez votre formule. Les paiements Pro et Business sont validés manuellement par KORA.</p>
+          <p className="text-sm text-muted-foreground">Choisissez votre formule. Les paiements d’abonnement Pro et Business sont validés manuellement par KORA. Les offres ne comprennent aucun système de paiement ou de commission sur les projets.</p>
         </div>
         <Badge variant="outline" className="w-fit gap-1.5 border-gold/30 bg-gold/10 text-gold-dark">
           <Crown className="h-3.5 w-3.5" />
