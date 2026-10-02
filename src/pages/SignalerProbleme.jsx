@@ -63,7 +63,7 @@ export default function SignalerProbleme() {
             </p>
 
             <a
-              href="mailto:kora.contact@gmail.com"
+              href="mailto:kora.support2@gmail.com"
               className="mt-6 inline-flex items-center gap-2 rounded-xl bg-black px-5 py-3 text-sm font-medium text-white transition hover:opacity-90 dark:bg-white dark:text-black"
             >
               <Mail className="h-4 w-4" />
