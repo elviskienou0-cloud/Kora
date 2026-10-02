@@ -9,8 +9,8 @@ import { supabase } from "@/lib/supabase"
 const DEFAULTS = {
   site_name: "KORA",
   site_tagline: "La plateforme des talents africains",
-  support_email: "support@kora.africa",
-  contact_email: "hello@kora.africa",
+  support_email: "kora.support2@gmail.com",
+  contact_email: "kora.contact1@gmail.com",
   currency: "XOF",
   commission_rate: 5,
   maintenance_mode: false,
