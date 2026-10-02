@@ -60,7 +60,7 @@ export function useConversationsQuery({
       ] = await Promise.all([
         supabase
           .from("conversations")
-          .select("id, created_at")
+          .select("id, title, created_at")
           .in("id", conversationIds),
 
         supabase
@@ -209,6 +209,9 @@ export function useConversationsQuery({
 
           return {
             id: conversationId,
+            title:
+              conversation?.title ||
+              null,
             created_at:
               conversation?.created_at ||
               null,
