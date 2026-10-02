@@ -94,8 +94,10 @@ begin
     return v_conversation_id;
   end if;
 
-  -- Compatibilité avec les conversations créées avant l'association talent_id.
-  -- On ne rattache automatiquement qu'une correspondance de titre unique.
+  -- Compatibilité avec les anciennes conversations sans talent_id.
+  -- 1) Si le titre correspond déjà au nom du talent, on la rattache.
+  -- 2) Si le client et le manager n'ont qu'une seule ancienne conversation
+  --    sans talent_id, on peut l'identifier sans ambiguïté et la réutiliser.
   if v_talent_name is not null then
     select c.id
     into v_conversation_id
@@ -125,6 +127,37 @@ begin
 
       return v_conversation_id;
     end if;
+  end if;
+
+  -- Ancienne conversation dont le titre était générique (ex. "Discussion").
+  -- On ne la réutilise que s'il n'existe qu'une seule conversation
+  -- non liée à un talent entre ces deux utilisateurs.
+  select min(c.id)
+  into v_conversation_id
+  from public.conversations c
+  join public.conversation_participants cp_me
+    on cp_me.conversation_id = c.id
+   and cp_me.user_id = v_me
+  join public.conversation_participants cp_other
+    on cp_other.conversation_id = c.id
+   and cp_other.user_id = p_other_user_id
+  where c.talent_id is null
+    and (
+      select count(*)
+      from public.conversation_participants cp
+      where cp.conversation_id = c.id
+    ) = 2
+  having count(*) = 1;
+
+  if v_conversation_id is not null then
+    update public.conversations
+    set
+      talent_id = p_talent_id,
+      title = left(coalesce(v_talent_name, 'Conversation'), 200),
+      updated_at = now()
+    where id = v_conversation_id;
+
+    return v_conversation_id;
   end if;
 
   insert into public.conversations (talent_id, title)
