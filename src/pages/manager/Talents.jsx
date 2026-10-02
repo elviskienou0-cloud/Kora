@@ -882,11 +882,13 @@ export default function ManagerTalents() {
 
     const restored = restoreTalentsCache()
 
-    // La page ne doit jamais rester bloquée sur "Chargement..." simplement
-    // parce qu'aucun cache n'existe. Le chargement réel reste volontaire
-    // (après création/modification ou via l'action explicite prévue).
+    // S'il existe déjà un cache, on l'affiche sans refaire de requête.
+    // Sans cache (première ouverture ou cache expiré), on charge une seule
+    // fois les talents depuis Supabase. Les navigations suivantes ne
+    // déclenchent pas de nouveau chargement automatique tant qu'un cache
+    // valide est disponible.
     if (!restored) {
-      setLoading(false)
+      void loadTalents()
     }
   }, [managerId])
 
