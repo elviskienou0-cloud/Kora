@@ -876,26 +876,7 @@ export default function ManagerTalents() {
 
   useEffect(() => {
     if (!managerId) return
-
-    const restored = restoreTalentsCache()
-    loadTalents({ background: restored })
-  }, [managerId])
-
-  useEffect(() => {
-    if (!managerId) return undefined
-
-    const channel = supabase
-      .channel(`manager-talents-${managerId}`)
-      .on(
-        "postgres_changes",
-        { event: "*", schema: "public", table: "talent_profiles" },
-        () => loadTalents({ background: true })
-      )
-      .subscribe()
-
-    return () => {
-      supabase.removeChannel(channel)
-    }
+    restoreTalentsCache()
   }, [managerId])
 
   const buildFormData = (talent) => ({
