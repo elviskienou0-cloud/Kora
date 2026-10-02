@@ -20,7 +20,6 @@ import {
   Eye,
   Save,
   User,
-  Briefcase,
   MapPin,
   FileText,
   CalendarDays,
@@ -423,19 +422,6 @@ function TalentEditor({
               />
             </Field>
 
-            <Field
-              label="Titre professionnel"
-              icon={Briefcase}
-              required
-              error={errors.title}
-            >
-              <Input
-                value={form.title}
-                onChange={(e) => updateField("title", e.target.value)}
-                placeholder="Ex. Designer UI/UX"
-                disabled={saving}
-              />
-            </Field>
           </div>
 
           <div className="grid gap-5 md:grid-cols-2">
