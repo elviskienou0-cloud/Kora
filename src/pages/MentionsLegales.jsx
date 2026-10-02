@@ -24,7 +24,7 @@ export default function MentionsLegales() {
           </h1>
 
           <p className="mt-4 text-sm text-gray-500">
-            Dernière mise à jour : 17 septembre 2026
+            Dernière mise à jour : 2 octobre 2026
           </p>
         </div>
 
@@ -67,7 +67,7 @@ export default function MentionsLegales() {
             </h2>
 
             <p>
-              <strong>Directeur de publication :</strong> [À compléter]
+              <strong>Directeur de publication :</strong> Kienou Elvis
             </p>
           </section>
 
@@ -77,20 +77,31 @@ export default function MentionsLegales() {
             </h2>
 
             <p>
-              Les informations relatives à l'hébergeur de KORA doivent être
-              complétées avec les coordonnées exactes du prestataire utilisé
-              pour l'hébergement de la plateforme.
+              KORA utilise des services cloud distincts pour le déploiement
+              de l'interface et pour ses services backend.
             </p>
 
             <div className="mt-4 rounded-xl bg-gray-50 p-5 dark:bg-gray-900">
               <p>
-                <strong>Hébergeur :</strong> [À compléter]
+                <strong>Déploiement de l'interface :</strong> Vercel Inc.
               </p>
               <p>
-                <strong>Adresse :</strong> [À compléter]
+                <strong>Adresse :</strong> 440 N Barranca Ave #4133,
+                Covina, CA 91723, États-Unis
               </p>
               <p>
-                <strong>Site web :</strong> [À compléter]
+                <strong>Site web :</strong> vercel.com
+              </p>
+              <p className="mt-4">
+                <strong>Services backend, base de données et authentification :</strong>{" "}
+                Supabase Pte. Ltd.
+              </p>
+              <p>
+                <strong>Adresse :</strong> 65 Chulia Street #38-02/03,
+                OCBC Centre, Singapore 049513
+              </p>
+              <p>
+                <strong>Site web :</strong> supabase.com
               </p>
             </div>
           </section>
