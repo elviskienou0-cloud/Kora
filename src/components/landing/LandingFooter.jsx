@@ -66,7 +66,7 @@ export default function LandingFooter() {
 
               <div className="flex items-start gap-3 text-muted-foreground">
                 <Mail className="h-4 w-4 mt-0.5 text-gold shrink-0" />
-                <span>kora.contact@gmail.com</span>
+                <span>kora.contact1@gmail.com</span>
               </div>
 
               <div className="flex items-start gap-3 text-muted-foreground">
