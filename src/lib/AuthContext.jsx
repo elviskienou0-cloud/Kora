@@ -582,6 +582,29 @@ export function AuthProvider({ children }) {
         return
       }
 
+      // Une mise à jour du compte peut arriver sans changement de session.
+      // Si KORA est déjà authentifié, ne repassons jamais par l'écran global
+      // de chargement : la page courante doit rester visible.
+      if (
+        event === "USER_UPDATED" &&
+        user &&
+        session
+      ) {
+        setAuthStatus("AUTHENTICATED")
+        setUser((currentUser) => {
+          if (!currentUser) return currentUser
+
+          return {
+            ...currentUser,
+            email:
+              nextSession.user.email ||
+              currentUser.email ||
+              "",
+          }
+        })
+        return
+      }
+
       setAuthStatus("INITIALIZING")
 
       try {
