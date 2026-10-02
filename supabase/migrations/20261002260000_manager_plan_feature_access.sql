@@ -25,8 +25,8 @@ set features = jsonb_build_array(
   '3 talents maximum',
   'Toutes les fonctions du plan Gratuit',
   'Gestion opérationnelle des projets',
-  'Gestion avancée des demandes',
-  'Gestion professionnelle du profil manager'
+  'Gestion des demandes',
+  'Profil manager'
 ),
 updated_at = now()
 where id = 'PRO';
