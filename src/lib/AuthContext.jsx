@@ -16,6 +16,31 @@ import {
 
 const AuthContext = createContext(null)
 
+const AUTH_USER_CACHE_KEY = "kora-auth-user-cache"
+
+function readCachedUser() {
+  try {
+    const raw = sessionStorage.getItem(AUTH_USER_CACHE_KEY)
+    if (!raw) return null
+    const cached = JSON.parse(raw)
+    return cached && cached.authId ? cached : null
+  } catch {
+    return null
+  }
+}
+
+function writeCachedUser(value) {
+  try {
+    if (value) {
+      sessionStorage.setItem(AUTH_USER_CACHE_KEY, JSON.stringify(value))
+    } else {
+      sessionStorage.removeItem(AUTH_USER_CACHE_KEY)
+    }
+  } catch {
+    // Le cache est seulement une optimisation d'affichage.
+  }
+}
+
 const PUBLIC_ROLES = ["client", "manager"]
 
 const ALL_ROLES = [
@@ -190,7 +215,7 @@ function buildUser(profile, authUser) {
 }
 
 export function AuthProvider({ children }) {
-  const [user, setUser] = useState(null)
+  const [user, setUser] = useState(() => readCachedUser())
   const [session, setSession] = useState(null)
   const [authStatus, setAuthStatus] = useState("INITIALIZING")
   const [authError, setAuthError] = useState(null)
@@ -210,6 +235,7 @@ export function AuthProvider({ children }) {
 
     markSessionFailure(reason)
     setUser(null)
+    writeCachedUser(null)
     setSession(null)
     setAuthError(
       reason === "expired"
@@ -303,6 +329,7 @@ export function AuthProvider({ children }) {
 
       setSession(data.session)
       setUser(fullUser)
+      writeCachedUser(fullUser)
       setAuthError(null)
       setAuthStatus("AUTHENTICATED")
 
@@ -466,6 +493,7 @@ export function AuthProvider({ children }) {
 
       setSession(data.session)
       setUser(fullUser)
+      writeCachedUser(fullUser)
       setAuthError(null)
       setAuthStatus("AUTHENTICATED")
 
@@ -485,6 +513,7 @@ export function AuthProvider({ children }) {
     }
 
     setUser(null)
+    writeCachedUser(null)
     setSession(null)
     setAuthError(null)
     setAuthStatus("UNAUTHENTICATED")
@@ -555,6 +584,7 @@ export function AuthProvider({ children }) {
         const failureReason = consumeSessionFailure()
 
         setUser(null)
+        writeCachedUser(null)
         setSession(null)
         setAuthError(
           failureReason === "expired"
@@ -648,6 +678,7 @@ export function AuthProvider({ children }) {
 
         setSession(nextSession)
         setUser(fullUser)
+        writeCachedUser(fullUser)
         setAuthError(null)
         setAuthStatus("AUTHENTICATED")
       } catch (error) {
@@ -663,6 +694,7 @@ export function AuthProvider({ children }) {
 
         if (mounted) {
           setUser(null)
+          writeCachedUser(null)
           setSession(null)
           setAuthError(
             error?.message ||
@@ -724,8 +756,9 @@ export function AuthProvider({ children }) {
       authStatus === "INITIALIZING" ||
       authStatus === "REFRESHING",
     isAuthenticated:
-      authStatus === "AUTHENTICATED" &&
-      Boolean(user && session),
+      Boolean(user) &&
+      (authStatus === "AUTHENTICATED" ||
+        (authStatus === "INITIALIZING" && Boolean(session) === false)),
     login,
     register,
     logout,
