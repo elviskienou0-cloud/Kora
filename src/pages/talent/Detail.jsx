@@ -320,6 +320,7 @@ export default function TalentDetail() {
     try {
       const { data, error } = await supabase.rpc("create_direct_conversation", {
         p_other_user_id: manager.id,
+        p_talent_id: talent.id,
       })
 
       if (error) throw error
@@ -327,21 +328,8 @@ export default function TalentDetail() {
       const conversationId = typeof data === "string" ? data : data?.conversation_id || data?.[0]?.conversation_id
       if (!conversationId) throw new Error("Conversation introuvable.")
 
-      // Une conversation ouverte depuis une fiche Talent porte le nom réel de l’artiste.
-      // Le titre est enregistré côté serveur avec un contrôle d’accès sur la conversation.
-      const artistName = talentName.trim()
-      if (artistName) {
-        const { error: titleError } = await supabase.rpc(
-          "set_conversation_title",
-          {
-            p_conversation_id: conversationId,
-            p_title: artistName,
-          }
-        )
-
-        if (titleError) throw titleError
-      }
-
+      // Le serveur rattache la conversation au talent et réutilise
+      // automatiquement la conversation existante si elle existe déjà.
       navigate(`/messages?conversation=${conversationId}`)
     } catch (error) {
       console.error("Erreur contact manager :", error)
