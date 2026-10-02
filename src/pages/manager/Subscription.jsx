@@ -32,8 +32,8 @@ function getPlanDetails(plan) {
     "3 talents maximum",
     "Toutes les fonctions du plan Gratuit",
     "Gestion opérationnelle des projets",
-    "Gestion avancée des demandes",
-    "Profil manager professionnel",
+    "Gestion des demandes",
+    "Profil manager",
   ]
   if (id === "BUSINESS") return [
     "Talents illimités",
