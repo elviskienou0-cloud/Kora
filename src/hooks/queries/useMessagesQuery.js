@@ -60,7 +60,7 @@ export function useConversationsQuery({
       ] = await Promise.all([
         supabase
           .from("conversations")
-          .select("id, title, created_at")
+          .select("id, title, talent_id, created_at")
           .in("id", conversationIds),
 
         supabase
@@ -121,6 +121,45 @@ export function useConversationsQuery({
         profiles.map((profile) => [
           profile.id,
           profile,
+        ])
+      )
+
+      // Le nom affiché dans Messages doit être celui de l'artiste concerné,
+      // quel que soit le rôle connecté (client, manager, admin ou superadmin).
+      // Les conversations créées depuis une fiche Talent possèdent désormais
+      // un talent_id. On récupère donc le vrai nom du talent depuis la base.
+      const talentIds = [
+        ...new Set(
+          (conversations || [])
+            .map((conversation) => conversation.talent_id)
+            .filter(Boolean)
+        ),
+      ]
+
+      let talents = []
+
+      if (talentIds.length) {
+        const { data, error } = await supabase
+          .from("talent_profiles")
+          .select("id, first_name, last_name")
+          .in("id", talentIds)
+
+        // Le nom enregistré dans conversations.title reste le fallback si
+        // la lecture de talent_profiles est protégée par les RLS.
+        if (!error) {
+          talents = data || []
+        } else {
+          console.warn(
+            "Impossible de charger les noms des talents des conversations :",
+            error
+          )
+        }
+      }
+
+      const talentById = new Map(
+        talents.map((talent) => [
+          talent.id,
+          talent,
         ])
       )
 
@@ -207,10 +246,25 @@ export function useConversationsQuery({
               conversationId
             )
 
+          const talent = conversation?.talent_id
+            ? talentById.get(conversation.talent_id) || null
+            : null
+
+          const talentName = talent
+            ? [talent.first_name, talent.last_name]
+                .filter(Boolean)
+                .join(" ")
+                .trim()
+            : ""
+
           return {
             id: conversationId,
             title:
+              talentName ||
               conversation?.title ||
+              null,
+            talentId:
+              conversation?.talent_id ||
               null,
             created_at:
               conversation?.created_at ||
