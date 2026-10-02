@@ -1,6 +1,5 @@
 
 import { Routes, Route, Navigate } from "react-router-dom"
-import { AnimatePresence } from "framer-motion"
 
 import ScrollToTop from "@/components/ScrollToTop.jsx"
 import PageNotFound from "@/lib/PageNotFound.jsx"
@@ -87,8 +86,7 @@ export default function App() {
     <>
       <ScrollToTop />
 
-      <AnimatePresence mode="wait">
-        <Routes>
+      <Routes>
 
           {/* =====================================================
               PUBLIC ROUTES
@@ -453,7 +451,6 @@ export default function App() {
           />
 
         </Routes>
-      </AnimatePresence>
     </>
   )
 }
