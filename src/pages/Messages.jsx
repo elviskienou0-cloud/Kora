@@ -464,23 +464,92 @@ export default function Messages() {
         throw error
       }
 
-      /*
-       * On invalide plutôt que de conserver
-       * plusieurs sources locales concurrentes.
-       */
-      await queryClient.invalidateQueries({
-        queryKey: [
+      // Afficher immédiatement le message envoyé dans la conversation.
+      // La revalidation Supabase reste en arrière-plan pour confirmer
+      // la donnée sans faire attendre l'interface.
+      queryClient.setQueryData(
+        [
           "messages",
-          conversationId,
+          {
+            conversationId,
+            page: messagePage,
+            pageSize: MESSAGES_PAGE_SIZE,
+          },
         ],
-      })
+        (current) => {
+          if (!current) {
+            return {
+              data: [data],
+              total: 1,
+              totalPages: 1,
+              page: messagePage,
+              pageSize: MESSAGES_PAGE_SIZE,
+            }
+          }
 
-      await queryClient.invalidateQueries({
-        queryKey: ["conversations"],
-      })
+          const alreadyExists = (current.data || []).some(
+            (message) => message.id === data.id
+          )
+
+          if (alreadyExists) {
+            return current
+          }
+
+          return {
+            ...current,
+            data: [...(current.data || []), data],
+            total: Number(current.total || 0) + 1,
+          }
+        }
+      )
+
+      // Mettre aussi à jour immédiatement l'aperçu de la conversation.
+      queryClient.setQueryData(
+        [
+          "conversations",
+          {
+            userId: authUserId,
+            page: conversationPage,
+            pageSize: CONVERSATIONS_PAGE_SIZE,
+          },
+        ],
+        (current) => {
+          if (!current?.data) return current
+
+          return {
+            ...current,
+            data: current.data.map((conversation) =>
+              conversation.id === conversationId
+                ? {
+                    ...conversation,
+                    latestMessage: data,
+                    unreadCount: 0,
+                  }
+                : conversation
+            ),
+          }
+        }
+      )
 
       setMessageText("")
       scrollToBottom()
+
+      // Confirmation silencieuse en arrière-plan.
+      void queryClient.invalidateQueries({
+        queryKey: ["messages", {
+          conversationId,
+          page: messagePage,
+          pageSize: MESSAGES_PAGE_SIZE,
+        }],
+      })
+
+      void queryClient.invalidateQueries({
+        queryKey: ["conversations", {
+          userId: authUserId,
+          page: conversationPage,
+          pageSize: CONVERSATIONS_PAGE_SIZE,
+        }],
+      })
 
       return data
     } catch (error) {
