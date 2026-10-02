@@ -103,11 +103,13 @@ export default function ManagerRequestDetail() {
               .eq("id", requestData.project_id)
               .maybeSingle()
           : Promise.resolve({ data: null, error: null }),
-        supabase
-          .from("talent_profiles")
-          .select("id, first_name, last_name, title, bio, city, daily_rate, currency, rating, reviews_count, verified, available")
-          .eq("id", requestData.talent_id)
-          .maybeSingle(),
+        requestData.talent_id
+          ? supabase
+              .from("talent_profiles")
+              .select("id, first_name, last_name, title, bio, city, daily_rate, currency, rating, reviews_count, verified, available")
+              .eq("id", requestData.talent_id)
+              .maybeSingle()
+          : Promise.resolve({ data: null, error: null }),
         supabase
           .from("profiles")
           .select("id, name, avatar, role")
