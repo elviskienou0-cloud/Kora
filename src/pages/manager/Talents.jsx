@@ -1025,7 +1025,32 @@ export default function ManagerTalents() {
           p_available: !!formData.available,
         })
 
-        if (error) throw error
+        if (error) {
+          // Supabase/PostgREST returns useful diagnostic fields on RPC failures.
+          // Preserve the real backend message instead of collapsing it to "Object".
+          console.error("create_manager_talent RPC error", {
+            code: error.code,
+            message: error.message,
+            details: error.details,
+            hint: error.hint,
+            managerId,
+            categoryId: category.id,
+            countryId: country.id,
+          })
+
+          const backendMessage =
+            error.message ||
+            error.details ||
+            error.hint ||
+            "Erreur inconnue lors de la création du talent."
+
+          throw new Error(backendMessage)
+        }
+
+        if (!data) {
+          throw new Error("Le talent n'a pas été créé : Supabase n'a retourné aucun identifiant.")
+        }
+
         talentId = data
       }
 
