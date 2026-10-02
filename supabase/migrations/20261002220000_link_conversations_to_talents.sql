@@ -36,7 +36,7 @@ declare
   v_me uuid := auth.uid();
   v_conversation_id uuid;
   v_talent_name text;
-  v_existing_count integer;
+  v_manager_id uuid;
 begin
   if v_me is null then
     raise exception 'Connexion requise.';
@@ -59,7 +59,7 @@ begin
     tp.managed_by
   into
     v_talent_name,
-    v_existing_count
+    v_manager_id
   from public.talent_profiles tp
   where tp.id = p_talent_id;
 
@@ -67,7 +67,7 @@ begin
     raise exception 'Talent introuvable.';
   end if;
 
-  if v_existing_count <> p_other_user_id then
+  if v_manager_id <> p_other_user_id then
     raise exception 'Le talent sélectionné n''est pas géré par ce destinataire.';
   end if;
 
