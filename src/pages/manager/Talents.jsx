@@ -756,21 +756,75 @@ export default function ManagerTalents() {
   const [editingTalent, setEditingTalent] = useState(null)
   const [subscription, setSubscription] = useState(null)
 
-  const loadTalents = async () => {
+  const TALENTS_CACHE_TTL = 2 * 60 * 1000
+
+  const getTalentsCacheKey = () =>
+    managerId ? `kora-manager-talents:${managerId}` : null
+
+  const restoreTalentsCache = () => {
+    const key = getTalentsCacheKey()
+    if (!key) return false
+
+    try {
+      const raw = sessionStorage.getItem(key)
+      if (!raw) return false
+
+      const cached = JSON.parse(raw)
+      if (!cached?.savedAt || Date.now() - cached.savedAt > TALENTS_CACHE_TTL) {
+        sessionStorage.removeItem(key)
+        return false
+      }
+
+      if (Array.isArray(cached.talents)) setTalents(cached.talents)
+      if (cached.subscription) setSubscription(cached.subscription)
+      setLoading(false)
+      return true
+    } catch (error) {
+      console.warn("Cache talents invalide :", error)
+      try {
+        sessionStorage.removeItem(key)
+      } catch {}
+      return false
+    }
+  }
+
+  const saveTalentsCache = (nextTalents, nextSubscription) => {
+    const key = getTalentsCacheKey()
+    if (!key) return
+
+    try {
+      sessionStorage.setItem(
+        key,
+        JSON.stringify({
+          savedAt: Date.now(),
+          talents: nextTalents,
+          subscription: nextSubscription || null,
+        })
+      )
+    } catch (error) {
+      console.warn("Impossible de mettre en cache les talents :", error)
+    }
+  }
+
+  const loadTalents = async ({ background = false } = {}) => {
     if (!managerId) {
       setTalents([])
       setLoading(false)
       return
     }
 
-    setLoading(true)
+    if (!background) setLoading(true)
 
     try {
       const { data: subscriptionRows, error: subscriptionError } =
         await supabase.rpc("get_my_subscription")
 
+      const nextSubscription = !subscriptionError
+        ? subscriptionRows?.[0] || null
+        : null
+
       if (!subscriptionError) {
-        setSubscription(subscriptionRows?.[0] || null)
+        setSubscription(nextSubscription)
       }
 
       const { data, error } = await supabase
@@ -801,15 +855,16 @@ export default function ManagerTalents() {
 
       if (error) throw error
 
-      setTalents(
-        (data || []).map((talent) => ({
-          ...talent,
-          name: `${talent.first_name || ""} ${talent.last_name || ""}`.trim(),
-          cat: talent.categories?.name || "Non classé",
-          ratingValue: Number(talent.rating || 0),
-          tasks: Number(talent.completed_projects || 0),
-        }))
-      )
+      const nextTalents = (data || []).map((talent) => ({
+        ...talent,
+        name: `${talent.first_name || ""} ${talent.last_name || ""}`.trim(),
+        cat: talent.categories?.name || "Non classé",
+        ratingValue: Number(talent.rating || 0),
+        tasks: Number(talent.completed_projects || 0),
+      }))
+
+      setTalents(nextTalents)
+      saveTalentsCache(nextTalents, nextSubscription || subscription)
     } catch (error) {
       console.error("Erreur chargement talents :", error)
       toast.error(error?.message || "Impossible de charger vos talents")
@@ -820,7 +875,10 @@ export default function ManagerTalents() {
   }
 
   useEffect(() => {
-    loadTalents()
+    if (!managerId) return
+
+    const restored = restoreTalentsCache()
+    loadTalents({ background: restored })
   }, [managerId])
 
   useEffect(() => {
@@ -831,7 +889,7 @@ export default function ManagerTalents() {
       .on(
         "postgres_changes",
         { event: "*", schema: "public", table: "talent_profiles" },
-        () => loadTalents()
+        () => loadTalents({ background: true })
       )
       .subscribe()
 
