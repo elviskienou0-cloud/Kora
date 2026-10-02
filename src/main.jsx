@@ -7,6 +7,7 @@ import App from "./App.jsx"
 import { AuthProvider } from "@/lib/AuthContext.jsx"
 import { ThemeProvider } from "@/lib/ThemeContext.jsx"
 import FormDraftPersistence from "@/components/FormDraftPersistence.jsx"
+import GlobalI18nBridge from "@/components/GlobalI18nBridge.jsx"
 import { queryClient } from "@/lib/queryClient.js"
 import "./index.css"
 
@@ -20,6 +21,7 @@ ReactDOM.createRoot(
           <AuthProvider>
             <BrowserRouter>
               <FormDraftPersistence />
+              <GlobalI18nBridge />
               <App />
             </BrowserRouter>
           </AuthProvider>
