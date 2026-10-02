@@ -22,7 +22,7 @@ export default function ProtectedRoute({ children }) {
     location.hash,
   ])
 
-  if (isLoading) {
+  if (isLoading && !isAuthenticated) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-background">
         <div className="text-sm text-muted-foreground">
