@@ -621,11 +621,12 @@ export function AuthProvider({ children }) {
         return
       }
 
-      // Une mise à jour du compte peut arriver sans changement de session.
-      // Si KORA est déjà authentifié, ne repassons jamais par l'écran global
-      // de chargement : la page courante doit rester visible.
+      // SIGNED_IN / USER_UPDATED peuvent aussi être émis lorsque
+      // l'onglet redevient actif. Si KORA connaît déjà l'utilisateur,
+      // cette notification ne justifie jamais un écran "Chargement...".
+      // La vérification complète reste réservée au démarrage réel.
       if (
-        event === "USER_UPDATED" &&
+        (event === "SIGNED_IN" || event === "USER_UPDATED") &&
         userRef.current &&
         sessionRef.current
       ) {
@@ -633,13 +634,18 @@ export function AuthProvider({ children }) {
         setUser((currentUser) => {
           if (!currentUser) return currentUser
 
-          return {
+          const nextEmail =
+            nextSession?.user?.email ||
+            currentUser.email ||
+            ""
+
+          const updatedUser = {
             ...currentUser,
-            email:
-              nextSession.user.email ||
-              currentUser.email ||
-              "",
+            email: nextEmail,
           }
+
+          writeCachedUser(updatedUser)
+          return updatedUser
         })
         return
       }
