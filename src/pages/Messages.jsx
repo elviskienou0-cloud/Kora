@@ -37,7 +37,7 @@ const CONVERSATIONS_PAGE_SIZE = 20
 const MESSAGES_PAGE_SIZE = 50
 
 function getProfileName(profile) {
-  if (!profile) return "Discussion"
+  if (!profile) return "Conversation"
 
   return (
     profile.name ||
@@ -53,7 +53,7 @@ function getConversationTitle(conversation) {
 
   return (
     conversation.title ||
-    getProfileName(conversation.profile) ||
+    getProfileName(conversation.participant) ||
     "Conversation"
   )
 }
