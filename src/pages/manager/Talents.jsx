@@ -627,73 +627,83 @@ function TalentEditor({
             </div>
           </div>
 
-          <Field label="Photos / vidéos du portfolio" icon={Video}>
-            <input
-              type="file"
-              multiple
-              accept="image/*,video/*,application/pdf"
-              onChange={handleFileChange}
-              disabled={saving}
-              className="block w-full rounded-xl border border-border bg-background p-3 text-sm"
-            />
-            {portfolioFiles.length > 0 && (
-              <p className="mt-2 text-xs text-muted-foreground">
-                {portfolioFiles.length} fichier(s) sélectionné(s)
-              </p>
-            )}
-          </Field>
+          <Field label="Portfolio" icon={Video} error={errors.portfolioLinks}>
+            <div className="space-y-4 rounded-2xl border border-border/60 bg-card p-4">
+              <div>
+                <p className="text-sm font-semibold">Photos / vidéos</p>
+                <input
+                  type="file"
+                  multiple
+                  accept="image/*,video/*,application/pdf"
+                  onChange={handleFileChange}
+                  disabled={saving}
+                  className="mt-2 block w-full rounded-xl border border-border bg-background p-3 text-sm"
+                />
+                {portfolioFiles.length > 0 && (
+                  <p className="mt-2 text-xs text-muted-foreground">
+                    {portfolioFiles.length} fichier(s) sélectionné(s)
+                  </p>
+                )}
+              </div>
 
-          <Field
-            label="Liens externes"
-            icon={Link2}
-            error={errors.portfolioLinks}
-          >
-            <div className="space-y-3 rounded-2xl border border-border/60 bg-card p-4">
-              {portfolioLinks.map((link) => (
-                <div
-                  key={link.id}
-                  className="grid gap-2 md:grid-cols-[1fr_1.5fr_auto]"
-                >
-                  <Input
-                    value={link.title}
-                    onChange={(e) =>
-                      updateLink(link.id, "title", e.target.value)
-                    }
-                    placeholder="Titre"
-                    disabled={saving}
-                  />
-                  <Input
-                    type="url"
-                    value={link.url}
-                    onChange={(e) =>
-                      updateLink(link.id, "url", e.target.value)
-                    }
-                    placeholder="https://…"
-                    disabled={saving}
-                  />
-                  <Button
-                    type="button"
-                    variant="ghost"
-                    size="icon"
-                    onClick={() => removeLink(link.id)}
-                    disabled={saving}
-                    className="hover:text-destructive"
-                  >
-                    <Trash2 className="h-4 w-4" />
-                  </Button>
+              <div className="border-t border-border/60 pt-3">
+                <p className="mb-2 flex items-center gap-1.5 text-xs font-semibold text-muted-foreground">
+                  <Link2 className="h-3.5 w-3.5" />
+                  Liens du portfolio
+                </p>
+
+                <div className="space-y-2">
+                  {portfolioLinks.map((link) => (
+                    <div
+                      key={link.id}
+                      className="grid gap-2 md:grid-cols-[1fr_1.5fr_auto]"
+                    >
+                      <Input
+                        value={link.title}
+                        onChange={(e) =>
+                          updateLink(link.id, "title", e.target.value)
+                        }
+                        placeholder="Titre du lien"
+                        disabled={saving}
+                        className="h-9 text-xs"
+                      />
+                      <Input
+                        type="url"
+                        value={link.url}
+                        onChange={(e) =>
+                          updateLink(link.id, "url", e.target.value)
+                        }
+                        placeholder="https://…"
+                        disabled={saving}
+                        className="h-9 text-xs"
+                      />
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="icon"
+                        onClick={() => removeLink(link.id)}
+                        disabled={saving}
+                        className="h-9 w-9 hover:text-destructive"
+                        title="Supprimer le lien"
+                      >
+                        <Trash2 className="h-3.5 w-3.5" />
+                      </Button>
+                    </div>
+                  ))}
                 </div>
-              ))}
 
-              <Button
-                type="button"
-                variant="outline"
-                size="sm"
-                onClick={addLink}
-                disabled={saving}
-              >
-                <Plus className="mr-2 h-4 w-4" />
-                Ajouter un lien
-              </Button>
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="sm"
+                  onClick={addLink}
+                  disabled={saving}
+                  className="mt-2 h-8 gap-1.5 px-2 text-xs"
+                >
+                  <Plus className="h-3.5 w-3.5" />
+                  Ajouter un lien
+                </Button>
+              </div>
             </div>
           </Field>
 
