@@ -314,8 +314,8 @@ function TalentEditor({
 
     const displayNameParts = form.displayName.trim().split(/\s+/).filter(Boolean)
 
-    if (displayNameParts.length < 2) {
-      next.displayName = "Indiquez le prénom et le nom du talent."
+    if (!displayNameParts.length) {
+      next.displayName = "Indiquez le nom de l’artiste."
     }
 
     if (!form.title.trim() || form.title.trim().length < 5) {
@@ -370,7 +370,6 @@ function TalentEditor({
     await onSave({
       ...form,
       displayName: form.displayName.trim(),
-      title: form.title.trim(),
       location: form.location.trim(),
       bio: form.bio.trim(),
       avatarFile,
@@ -411,7 +410,7 @@ function TalentEditor({
         <form onSubmit={submit} className="space-y-6">
           <div className="grid gap-5 md:grid-cols-2">
             <Field
-              label="Prénom et nom"
+              label="Nom de l’artiste"
               icon={User}
               required
               error={errors.displayName}
@@ -997,8 +996,8 @@ export default function ManagerTalents() {
         throw new Error("Indiquez le prénom et le nom du talent.")
       }
 
-      const firstName = nameParts.shift()
-      const lastName = nameParts.join(" ").trim()
+      const firstName = nameParts.join(" ").trim()
+      const lastName = null
 
       if (!firstName || !lastName) {
         throw new Error("Le prénom et le nom du talent sont obligatoires.")
@@ -1011,7 +1010,7 @@ export default function ManagerTalents() {
           .update({
             first_name: firstName,
             last_name: lastName,
-            title: formData.title,
+            title: null,
             bio: formData.bio,
             category_id: category.id,
             country_id: country.id,
@@ -1027,7 +1026,7 @@ export default function ManagerTalents() {
           p_managed_by: managerId,
           p_first_name: firstName,
           p_last_name: lastName,
-          p_title: formData.title,
+          p_title: null,
           p_bio: formData.bio,
           p_category_id: category.id,
           p_country_id: country.id,
