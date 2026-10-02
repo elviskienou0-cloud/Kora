@@ -312,8 +312,10 @@ function TalentEditor({
   const validate = () => {
     const next = {}
 
-    if (!form.displayName.trim() || form.displayName.trim().length < 2) {
-      next.displayName = "Le nom doit contenir au moins 2 caractères."
+    const displayNameParts = form.displayName.trim().split(/\s+/).filter(Boolean)
+
+    if (displayNameParts.length < 2) {
+      next.displayName = "Indiquez le prénom et le nom du talent."
     }
 
     if (!form.title.trim() || form.title.trim().length < 5) {
@@ -409,7 +411,7 @@ function TalentEditor({
         <form onSubmit={submit} className="space-y-6">
           <div className="grid gap-5 md:grid-cols-2">
             <Field
-              label="Nom d'affichage"
+              label="Prénom et nom"
               icon={User}
               required
               error={errors.displayName}
@@ -991,8 +993,16 @@ export default function ManagerTalents() {
         .split(/\s+/)
         .filter(Boolean)
 
-      const firstName = nameParts.shift() || "Talent"
-      const lastName = nameParts.join(" ")
+      if (nameParts.length < 2) {
+        throw new Error("Indiquez le prénom et le nom du talent.")
+      }
+
+      const firstName = nameParts.shift()
+      const lastName = nameParts.join(" ").trim()
+
+      if (!firstName || !lastName) {
+        throw new Error("Le prénom et le nom du talent sont obligatoires.")
+      }
       let talentId = editingTalent?.id
 
       if (editingTalent?.mode === "edit") {
