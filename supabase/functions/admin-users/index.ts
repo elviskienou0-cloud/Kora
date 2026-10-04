@@ -52,9 +52,36 @@ Deno.serve(async (req) => {
   try {
     const supabaseUrl = Deno.env.get("SUPABASE_URL")
     const anonKey = Deno.env.get("SUPABASE_ANON_KEY")
-    const serviceRoleKey = Deno.env.get(
-      "KORA_SUPABASE_SECRET_KEY",
-    )
+    // Supabase's current secret API keys are injected into Edge Functions
+    // through SUPABASE_SECRET_KEYS as a JSON dictionary. Prefer the platform
+    // managed secret key instead of duplicating it into a custom environment
+    // variable. Keep the custom variable only as a backward-compatible fallback.
+    const secretKeysRaw = Deno.env.get("SUPABASE_SECRET_KEYS")
+    let platformSecretKey = ""
+
+    if (secretKeysRaw) {
+      try {
+        const secretKeys = JSON.parse(secretKeysRaw)
+        if (
+          secretKeys &&
+          typeof secretKeys === "object" &&
+          typeof secretKeys.default === "string"
+        ) {
+          platformSecretKey = secretKeys.default
+        }
+      } catch (error) {
+        console.error(
+          "admin-users: SUPABASE_SECRET_KEYS invalide",
+          error,
+        )
+      }
+    }
+
+    const serviceRoleKey =
+      platformSecretKey ||
+      Deno.env.get("KORA_SUPABASE_SECRET_KEY") ||
+      Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ||
+      ""
 
     if (!supabaseUrl || !anonKey || !serviceRoleKey) {
       return jsonResponse(
