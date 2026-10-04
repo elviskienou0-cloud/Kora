@@ -7,6 +7,12 @@ import { supabase, isAuthError } from "@/lib/supabase"
 
 const VALID_ROLES = ["client", "manager", "admin", "superadmin"]
 
+const INITIAL_SUBSCRIPTION_CHECK = {
+  loading: false,
+  expired: false,
+  error: null,
+}
+
 export default function RoleGuard({ allowedRoles = [], children }) {
   const {
     user,
@@ -15,7 +21,7 @@ export default function RoleGuard({ allowedRoles = [], children }) {
     handleInvalidSession,
   } = useAuth()
   const location = useLocation()
-  const [subscriptionCheck, setSubscriptionCheck] = useState({ loading: false, expired: false })
+  const [subscriptionCheck, setSubscriptionCheck] = useState(INITIAL_SUBSCRIPTION_CHECK)
 
   useEffect(() => {
     let cancelled = false
@@ -25,21 +31,19 @@ export default function RoleGuard({ allowedRoles = [], children }) {
       const path = location.pathname
 
       if (!user || !session || currentRole !== "manager" || path === "/manager/subscription" || path === "/subscription-expired") {
-        setSubscriptionCheck({ loading: false, expired: false })
+        setSubscriptionCheck(INITIAL_SUBSCRIPTION_CHECK)
         return
       }
 
-      setSubscriptionCheck({ loading: true, expired: false })
+      setSubscriptionCheck({ loading: true, expired: false, error: null })
 
       try {
         const { data, error } = await supabase.rpc("get_my_subscription")
+
         if (error) {
           if (isAuthError(error)) {
             if (!cancelled) {
-              setSubscriptionCheck({
-                loading: false,
-                expired: false,
-              })
+              setSubscriptionCheck(INITIAL_SUBSCRIPTION_CHECK)
             }
             await handleInvalidSession("invalid")
             return
@@ -52,11 +56,21 @@ export default function RoleGuard({ allowedRoles = [], children }) {
         const end = sub?.current_period_end ? new Date(sub.current_period_end).getTime() : 0
         const expired = !active || !end || end <= Date.now()
 
-        if (!cancelled) setSubscriptionCheck({ loading: false, expired })
+        if (!cancelled) {
+          setSubscriptionCheck({ loading: false, expired, error: null })
+        }
       } catch (error) {
         console.error("KORA subscription guard:", error)
-        // En cas d'erreur de lecture, ne pas bloquer un utilisateur actif.
-        if (!cancelled) setSubscriptionCheck({ loading: false, expired: false })
+
+        // Fail closed: une erreur de vérification ne doit jamais donner
+        // implicitement accès aux fonctionnalités réservées aux abonnés actifs.
+        if (!cancelled) {
+          setSubscriptionCheck({
+            loading: false,
+            expired: false,
+            error: "Impossible de vérifier votre abonnement. Réessayez.",
+          })
+        }
       }
     }
 
@@ -86,6 +100,26 @@ export default function RoleGuard({ allowedRoles = [], children }) {
     )
   }
 
+  if (subscriptionCheck.error) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-background px-6">
+        <div className="w-full max-w-md rounded-2xl border border-border bg-card p-6 text-center shadow-sm">
+          <h1 className="text-lg font-semibold">Vérification de l'abonnement</h1>
+          <p className="mt-2 text-sm text-muted-foreground">
+            {subscriptionCheck.error}
+          </p>
+          <button
+            type="button"
+            onClick={() => window.location.reload()}
+            className="mt-5 inline-flex h-10 items-center justify-center rounded-xl bg-primary px-5 text-sm font-semibold text-primary-foreground transition-opacity hover:opacity-90"
+          >
+            Réessayer
+          </button>
+        </div>
+      </div>
+    )
+  }
+
   // Un manager expiré est maintenu sur la page de réabonnement.
   if (user?.role === "manager" && subscriptionCheck.expired && location.pathname !== "/subscription-expired") {
     return <Navigate to="/subscription-expired" replace />
@@ -96,19 +130,16 @@ export default function RoleGuard({ allowedRoles = [], children }) {
     return <Navigate to="/login" replace />
   }
 
-  // Vérifie que les rôles demandés par la route sont eux-mêmes valides
   const safeAllowedRoles = allowedRoles
     .map((role) => String(role || "").trim().toLowerCase())
     .filter((role) => VALID_ROLES.includes(role))
 
-  // Le rôle réel de l'utilisateur doit être valide
   const currentRole = String(user.role || "").trim().toLowerCase()
 
   if (!VALID_ROLES.includes(currentRole)) {
     return <Navigate to="/home" replace />
   }
 
-  // L'utilisateur n'a pas le rôle autorisé
   if (!safeAllowedRoles.includes(currentRole)) {
     if (currentRole === "superadmin") return <Navigate to="/superadmin" replace />
     if (currentRole === "admin") return <Navigate to="/admin" replace />
