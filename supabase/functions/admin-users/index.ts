@@ -581,7 +581,7 @@ Deno.serve(async (req) => {
     const {
       data: cleanupData,
       error: cleanupError,
-    } = await adminClient.rpc(
+    } = await callerClient.rpc(
       "admin_delete_user_data",
       {
         p_user_id: userId,
