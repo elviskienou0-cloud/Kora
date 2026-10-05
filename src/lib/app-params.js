@@ -2,8 +2,8 @@ export const APP_PARAMS = {
   name: "KORA",
   tagline: "La plateforme des talents africains",
   description: "KORA connecte les talents africains exceptionnels avec les opportunités qui les méritent, en Afrique et au-delà.",
-  supportEmail: "support@kora.africa",
-  contactEmail: "hello@kora.africa",
+  supportEmail: "kora.contact1@gmail.com",
+  contactEmail: "kora.contact1@gmail.com",
   socials: {
     twitter: "https://twitter.com/kora_africa",
     linkedin: "https://linkedin.com/company/kora-africa",
