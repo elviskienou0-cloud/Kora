@@ -29,9 +29,11 @@ import OAuthConsent from "@/pages/OAuthConsent.jsx"
 import Conditions from "@/pages/Conditions.jsx"
 import Confidentialite from "@/pages/Confidentialite.jsx"
 import Cookies from "@/pages/Cookies.jsx"
+import Cgv from "@/pages/Cgv.jsx"
 import MentionsLegales from "@/pages/MentionsLegales.jsx"
 import FAQ from "@/pages/FAQ.jsx"
 import Contact from "@/pages/Contact.jsx"
+import DataRights from "@/pages/DataRights.jsx"
 import SignalerProbleme from "@/pages/SignalerProbleme.jsx"
 
 // =========================
@@ -128,6 +130,11 @@ export default function App() {
           />
 
           <Route
+            path="/cgv"
+            element={<Cgv />}
+          />
+
+          <Route
             path="/mentions-legales"
             element={<MentionsLegales />}
           />
@@ -208,6 +215,15 @@ export default function App() {
             <Route
               path="/home"
               element={<Home />}
+            />
+
+            <Route
+              path="/mes-donnees"
+              element={
+                <RoleGuard allowedRoles={["client", "manager"]}>
+                  <DataRights />
+                </RoleGuard>
+              }
             />
 
 

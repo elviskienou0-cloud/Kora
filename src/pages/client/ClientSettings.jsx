@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react"
+import { Link } from "react-router-dom"
 import { motion } from "framer-motion"
 import { Bell, Globe, Lock, Palette, Save, User, Camera, Image as ImageIcon } from "lucide-react"
 import { toast } from "sonner"
@@ -98,6 +99,8 @@ export default function ClientSettings({ initialTab = "profile" }) {
         preferences: { language, theme, notifications: preferences },
       }).eq("id", authUserId)
       if (error) throw error
+      const { error: consentError } = await supabase.rpc("set_my_marketing_consent", { p_enabled: Boolean(preferences.marketing) })
+      if (consentError) throw consentError
       toast.success("Préférences enregistrées ✅")
     } catch (error) {
       console.error("Erreur préférences client :", error)
@@ -129,7 +132,7 @@ export default function ClientSettings({ initialTab = "profile" }) {
 
   return (
     <div className="space-y-6">
-      <div><h1 className="text-2xl font-black tracking-tight">Paramètres</h1><p className="text-sm text-muted-foreground">Gérez votre profil, vos préférences et la sécurité.</p></div>
+      <div><h1 className="text-2xl font-black tracking-tight">Paramètres</h1><p className="text-sm text-muted-foreground">Gérez votre profil, vos préférences et la sécurité.</p></div><div className="mt-3"><Link to="/mes-donnees" className="text-sm font-semibold text-gold-dark hover:underline">Gérer mes données personnelles →</Link></div>
       <div className="grid gap-6 lg:grid-cols-[220px_1fr]">
         <Card className="h-fit border-border/60"><CardContent className="p-2"><nav className="space-y-1">
           {TABS.map(([id, label, Icon]) => <button type="button" key={id} onClick={() => setTab(id)} className={cn("w-full flex items-center gap-3 rounded-xl px-3 py-2.5 text-left text-sm font-bold", tab === id ? "bg-gold/10 text-gold-dark" : "text-muted-foreground hover:bg-accent hover:text-foreground")}><Icon className="h-4 w-4" />{label}</button>)}
