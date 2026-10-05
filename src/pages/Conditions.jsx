@@ -179,7 +179,7 @@ export default function Conditions() {
 
           <section>
             <h2 className="text-2xl font-semibold text-foreground mb-4">
-              9. Propriété intellectuelle
+              10. Propriété intellectuelle
             </h2>
 
             <p>
@@ -197,7 +197,7 @@ export default function Conditions() {
 
           <section>
             <h2 className="text-2xl font-semibold text-foreground mb-4">
-              10. Suspension ou limitation
+              11. Suspension ou limitation
             </h2>
 
             <p>
@@ -210,7 +210,7 @@ export default function Conditions() {
 
           <section>
             <h2 className="text-2xl font-semibold text-foreground mb-4">
-              11. Données personnelles
+              12. Données personnelles
             </h2>
 
             <p>
@@ -230,7 +230,7 @@ export default function Conditions() {
 
           <section>
             <h2 className="text-2xl font-semibold text-foreground mb-4">
-              12. Modification des conditions
+              13. Modification des conditions
             </h2>
 
             <p>
@@ -243,7 +243,7 @@ export default function Conditions() {
 
           <section>
             <h2 className="text-2xl font-semibold text-foreground mb-4">
-              13. Contact
+              14. Contact
             </h2>
 
             <p>
