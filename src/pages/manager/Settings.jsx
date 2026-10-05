@@ -143,6 +143,8 @@ export default function ManagerSettings() {
     try {
       const normalized = mergePreferences({ ...preferences, language, theme })
       const { error } = await supabase.from("profiles").update({ preferences: normalized }).eq("id", userId)
+      const { error: consentError } = await supabase.rpc("set_my_marketing_consent", { p_enabled: Boolean(normalized.notifications?.marketing) })
+      if (consentError) throw consentError
       if (error) throw error
       setPreferences(normalized)
       toast.success(t("settings.success.preferences"))
