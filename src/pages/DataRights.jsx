@@ -7,71 +7,225 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { supabase } from "@/lib/supabase"
 import { useAuth } from "@/lib/AuthContext"
 
+const LABELS = {
+  profile: "Profil",
+  user_consents: "Consentements",
+}
+
+function labelFor(key) {
+  if (LABELS[key]) return LABELS[key]
+  return key
+    .replace(/__([a-z_]+)$/i, " ($1)")
+    .replace(/_/g, " ")
+    .replace(/\b\w/g, (letter) => letter.toUpperCase())
+}
+
 export default function DataRights() {
   const { user, logout } = useAuth()
   const navigate = useNavigate()
   const userId = user?.authId || user?.id
-  const [profile, setProfile] = useState(null)
-  const [consents, setConsents] = useState([])
+  const [exportedData, setExportedData] = useState(null)
   const [loading, setLoading] = useState(true)
   const [deleting, setDeleting] = useState(false)
 
   useEffect(() => {
     let mounted = true
+
     async function load() {
       if (!userId) return
-      const [{ data: profileData, error: profileError }, { data: consentData, error: consentError }] = await Promise.all([
-        supabase.from("profiles").select("id,name,role,phone,city,company,bio,avatar,cover_url,preferences,created_at,updated_at").eq("id", userId).maybeSingle(),
-        supabase.from("user_consents").select("consent_type,consent_given,policy_version,source,granted_at,revoked_at").eq("user_id", userId).order("created_at", { ascending: false }),
-      ])
+
+      const { data, error } = await supabase.rpc("export_my_data")
+
       if (!mounted) return
-      if (profileError) toast.error(profileError.message)
-      else setProfile(profileData)
-      if (consentError) toast.error(consentError.message)
-      else setConsents(consentData || [])
+
+      if (error) {
+        toast.error(error.message)
+      } else {
+        setExportedData(data || null)
+      }
+
       setLoading(false)
     }
+
     load()
-    return () => { mounted = false }
+    return () => {
+      mounted = false
+    }
   }, [userId])
 
   const downloadData = () => {
-    const payload = { profile, consents, exported_at: new Date().toISOString() }
-    const blob = new Blob([JSON.stringify(payload, null, 2)], { type: "application/json" })
+    if (!exportedData) return
+
+    const payload = {
+      ...exportedData,
+      exported_at: exportedData.exported_at || new Date().toISOString(),
+    }
+
+    const blob = new Blob(
+      [JSON.stringify(payload, null, 2)],
+      { type: "application/json;charset=utf-8" }
+    )
+
     const url = URL.createObjectURL(blob)
-    const a = document.createElement("a")
-    a.href = url
-    a.download = "kora-mes-donnees.json"
-    a.click()
+    const anchor = document.createElement("a")
+    anchor.href = url
+    anchor.download = "kora-mes-donnees.json"
+    document.body.appendChild(anchor)
+    anchor.click()
+    anchor.remove()
     URL.revokeObjectURL(url)
   }
 
   const deleteAccount = async () => {
-    if (!window.confirm("La suppression de votre compte est définitive. Les informations pouvant être légalement conservées pourront être anonymisées. Continuer ?")) return
+    const confirmed = window.confirm(
+      "La suppression de votre compte est définitive. Vos données et médias liés seront supprimés, sauf les informations qui doivent légalement être conservées ou anonymisées. Continuer ?"
+    )
+
+    if (!confirmed) return
+
     setDeleting(true)
+
     try {
-      const { error } = await supabase.rpc("delete_my_account")
+      const { data, error } = await supabase.functions.invoke(
+        "delete-account",
+        { body: {} }
+      )
+
       if (error) throw error
+      if (!data?.ok) {
+        throw new Error(
+          data?.error || "La suppression du compte a échoué."
+        )
+      }
+
       await supabase.auth.signOut({ scope: "local" })
       await logout?.()
       navigate("/", { replace: true })
     } catch (error) {
-      toast.error(error?.message || "Impossible de supprimer le compte.")
-    } finally { setDeleting(false) }
+      toast.error(
+        error?.message ||
+          "Impossible de supprimer le compte."
+      )
+    } finally {
+      setDeleting(false)
+    }
   }
 
-  if (loading) return <div className="min-h-[60vh] flex items-center justify-center"><Loader2 className="h-7 w-7 animate-spin" /></div>
+  if (loading) {
+    return (
+      <div className="min-h-[60vh] flex items-center justify-center">
+        <Loader2 className="h-7 w-7 animate-spin" />
+      </div>
+    )
+  }
+
+  const sections = Object.entries(exportedData || {})
+    .filter(([key]) => key !== "exported_at")
 
   return (
     <div className="space-y-6 max-w-4xl">
-      <Link to="/home" className="inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground"><ArrowLeft className="h-4 w-4" />Retour</Link>
-      <div><h1 className="text-2xl font-black">Mes données personnelles</h1><p className="text-sm text-muted-foreground">Consultez les informations principales de votre compte et gérez vos droits.</p></div>
-      <Card><CardHeader><CardTitle className="flex items-center gap-2"><ShieldCheck className="h-5 w-5" />Vos informations</CardTitle><CardDescription>Les informations affichées proviennent directement de votre profil KORA.</CardDescription></CardHeader><CardContent className="space-y-3 text-sm">
-        {profile ? Object.entries(profile).filter(([key]) => !["preferences","avatar","cover_url"].includes(key)).map(([key,value]) => <div key={key} className="flex flex-col gap-1 rounded-lg border p-3"><span className="text-xs text-muted-foreground">{key}</span><span className="break-words">{typeof value === "object" ? JSON.stringify(value) : String(value ?? "—")}</span></div>) : <p>Aucune donnée de profil trouvée.</p>}
-      </CardContent></Card>
-      <Card><CardHeader><CardTitle>Consentements</CardTitle><CardDescription>Historique des choix enregistrés pour les CGU, la confidentialité et le marketing.</CardDescription></CardHeader><CardContent className="space-y-2">{consents.map((item) => <div key={item.consent_type + item.granted_at} className="rounded-lg border p-3 text-sm"><strong>{item.consent_type}</strong> — {item.consent_given ? "accordé" : "refusé"} — version {item.policy_version} — {new Date(item.granted_at).toLocaleString("fr-FR")}</div>)}{!consents.length && <p className="text-sm text-muted-foreground">Aucun consentement enregistré.</p>}</CardContent></Card>
-      <Card><CardHeader><CardTitle>Actions</CardTitle><CardDescription>Vous pouvez récupérer une copie des informations principales ou demander la suppression de votre compte.</CardDescription></CardHeader><CardContent className="flex flex-wrap gap-3"><Button variant="outline" onClick={downloadData} disabled={!profile}><Download className="mr-2 h-4 w-4" />Télécharger mes données</Button><Button variant="destructive" onClick={deleteAccount} disabled={deleting}>{deleting ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Trash2 className="mr-2 h-4 w-4" />}Supprimer mon compte</Button></CardContent></Card>
-      <p className="text-sm text-muted-foreground">Pour une demande qui n'est pas automatisée ici (rectification, opposition ou demande complémentaire), contactez <a className="underline" href="mailto:kora.contact1@gmail.com">kora.contact1@gmail.com</a>.</p>
+      <Link
+        to="/home"
+        className="inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground"
+      >
+        <ArrowLeft className="h-4 w-4" />
+        Retour
+      </Link>
+
+      <div>
+        <h1 className="text-2xl font-black">
+          Mes données personnelles
+        </h1>
+        <p className="text-sm text-muted-foreground">
+          Consultez et exportez les données actuellement associées à votre
+          compte KORA.
+        </p>
+      </div>
+
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <ShieldCheck className="h-5 w-5" />
+            Données associées à votre compte
+          </CardTitle>
+          <CardDescription>
+            L'export inclut le profil, les consentements et les données métier
+            directement ou indirectement rattachées à votre compte.
+          </CardDescription>
+        </CardHeader>
+
+        <CardContent className="space-y-3 text-sm">
+          {sections.length ? (
+            sections.map(([key, value]) => (
+              <div
+                key={key}
+                className="rounded-lg border p-3"
+              >
+                <div className="mb-2 flex items-center justify-between gap-3">
+                  <span className="font-semibold">
+                    {labelFor(key)}
+                  </span>
+                  <span className="text-xs text-muted-foreground">
+                    {Array.isArray(value)
+                      ? `${value.length} élément(s)`
+                      : "1 élément"}
+                  </span>
+                </div>
+                <pre className="max-h-48 overflow-auto whitespace-pre-wrap break-words text-xs text-muted-foreground">
+                  {JSON.stringify(value, null, 2)}
+                </pre>
+              </div>
+            ))
+          ) : (
+            <p>Aucune donnée exportable n'a été trouvée.</p>
+          )}
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardHeader>
+          <CardTitle>Actions</CardTitle>
+          <CardDescription>
+            Vous pouvez télécharger une copie structurée de vos données ou
+            demander la suppression complète du compte.
+          </CardDescription>
+        </CardHeader>
+
+        <CardContent className="flex flex-wrap gap-3">
+          <Button
+            variant="outline"
+            onClick={downloadData}
+            disabled={!exportedData}
+          >
+            <Download className="mr-2 h-4 w-4" />
+            Télécharger mes données
+          </Button>
+
+          <Button
+            variant="destructive"
+            onClick={deleteAccount}
+            disabled={deleting}
+          >
+            {deleting ? (
+              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+            ) : (
+              <Trash2 className="mr-2 h-4 w-4" />
+            )}
+            Supprimer mon compte
+          </Button>
+        </CardContent>
+      </Card>
+
+      <p className="text-sm text-muted-foreground">
+        Pour une demande qui n'est pas automatisée ici (rectification,
+        opposition ou demande complémentaire), contactez{" "}
+        <a
+          className="underline"
+          href="mailto:kora.contact1@gmail.com"
+        >
+          kora.contact1@gmail.com
+        </a>.
+      </p>
     </div>
   )
 }
