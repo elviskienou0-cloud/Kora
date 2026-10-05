@@ -31,6 +31,7 @@ const FOOTER_LINKS = {
     { label: "Conditions d'utilisation", href: "/conditions" },
     { label: "Politique de confidentialité", href: "/confidentialite" },
     { label: "Cookies", href: "/cookies" },
+    { label: "CGV", href: "/cgv" },
     { label: "Mentions légales", href: "/mentions-legales" },
   ],
 }
