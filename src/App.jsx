@@ -33,6 +33,7 @@ import Cgv from "@/pages/Cgv.jsx"
 import MentionsLegales from "@/pages/MentionsLegales.jsx"
 import FAQ from "@/pages/FAQ.jsx"
 import Contact from "@/pages/Contact.jsx"
+import DataRights from "@/pages/DataRights.jsx"
 import SignalerProbleme from "@/pages/SignalerProbleme.jsx"
 
 // =========================
@@ -214,6 +215,15 @@ export default function App() {
             <Route
               path="/home"
               element={<Home />}
+            />
+
+            <Route
+              path="/mes-donnees"
+              element={
+                <RoleGuard allowedRoles={["client", "manager"]}>
+                  <DataRights />
+                </RoleGuard>
+              }
             />
 
 
