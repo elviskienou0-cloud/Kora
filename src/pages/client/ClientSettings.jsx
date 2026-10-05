@@ -98,6 +98,8 @@ export default function ClientSettings({ initialTab = "profile" }) {
         preferences: { language, theme, notifications: preferences },
       }).eq("id", authUserId)
       if (error) throw error
+      const { error: consentError } = await supabase.rpc("set_my_marketing_consent", { p_enabled: Boolean(preferences.marketing) })
+      if (consentError) throw consentError
       toast.success("Préférences enregistrées ✅")
     } catch (error) {
       console.error("Erreur préférences client :", error)
