@@ -35,6 +35,7 @@ import FAQ from "@/pages/FAQ.jsx"
 import Contact from "@/pages/Contact.jsx"
 import DataRights from "@/pages/DataRights.jsx"
 import SignalerProbleme from "@/pages/SignalerProbleme.jsx"
+import CookieConsent from "@/components/CookieConsent.jsx"
 
 // =========================
 // APPLICATION
@@ -87,6 +88,7 @@ export default function App() {
   return (
     <>
       <ScrollToTop />
+      <CookieConsent />
 
       <Routes>
 
