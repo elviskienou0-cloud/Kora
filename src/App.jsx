@@ -29,6 +29,7 @@ import OAuthConsent from "@/pages/OAuthConsent.jsx"
 import Conditions from "@/pages/Conditions.jsx"
 import Confidentialite from "@/pages/Confidentialite.jsx"
 import Cookies from "@/pages/Cookies.jsx"
+import Cgv from "@/pages/Cgv.jsx"
 import MentionsLegales from "@/pages/MentionsLegales.jsx"
 import FAQ from "@/pages/FAQ.jsx"
 import Contact from "@/pages/Contact.jsx"
@@ -125,6 +126,11 @@ export default function App() {
           <Route
             path="/cookies"
             element={<Cookies />}
+          />
+
+          <Route
+            path="/cgv"
+            element={<Cgv />}
           />
 
           <Route
