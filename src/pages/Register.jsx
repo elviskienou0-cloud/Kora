@@ -70,6 +70,9 @@ export default function Register() {
         firstName: form.firstName.trim(),
         lastName: form.lastName.trim(),
         email: form.email.trim().toLowerCase(),
+        acceptedTerms,
+        acceptedPrivacy: acceptedTerms,
+        marketingConsent,
       })
 
       if (result?.pendingEmailConfirmation) {
