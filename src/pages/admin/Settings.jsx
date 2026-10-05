@@ -12,7 +12,6 @@ const DEFAULTS = {
   support_email: "kora.support2@gmail.com",
   contact_email: "kora.contact1@gmail.com",
   currency: "XOF",
-  commission_rate: 5,
   maintenance_mode: false,
   registrations_enabled: true,
   talent_auto_publish: false,
@@ -21,7 +20,6 @@ const DEFAULTS = {
 
 const SECTIONS = [
   { title: "Général", description: "Informations publiques de la plateforme.", keys: ["site_name", "site_tagline", "support_email", "contact_email", "currency"] },
-  { title: "Business", description: "Paramètres appliqués aux transactions KORA.", keys: ["commission_rate"] },
   { title: "Plateforme", description: "Contrôles opérationnels de KORA.", keys: ["maintenance_mode", "registrations_enabled", "talent_auto_publish", "default_theme"] },
 ]
 
@@ -31,7 +29,6 @@ const LABELS = {
   support_email: "Email support",
   contact_email: "Email de contact",
   currency: "Devise",
-  commission_rate: "Commission KORA (%)",
   maintenance_mode: "Mode maintenance",
   registrations_enabled: "Nouvelles inscriptions",
   talent_auto_publish: "Publication automatique des talents",
@@ -39,7 +36,6 @@ const LABELS = {
 }
 
 const DESCRIPTION = {
-  commission_rate: "Taux utilisé automatiquement pour calculer la commission sur les transactions KORA.",
   maintenance_mode: "Active temporairement le mode maintenance.",
   registrations_enabled: "Autorise ou bloque les nouvelles inscriptions.",
   talent_auto_publish: "Contrôle la publication automatique des nouveaux talents.",
@@ -48,7 +44,6 @@ const DESCRIPTION = {
 
 function parseValue(key, value) {
   if (value === undefined || value === null) return DEFAULTS[key]
-  if (key === "commission_rate") return Number(value)
   if (["maintenance_mode", "registrations_enabled", "talent_auto_publish"].includes(key)) return Boolean(value)
   if (key === "default_theme") return ["light", "dark", "system"].includes(value) ? value : "system"
   return String(value)
@@ -90,13 +85,6 @@ export default function AdminSettings() {
     setSaved("")
     try {
       let value = settings[key]
-      if (key === "commission_rate") {
-        value = Number(value)
-        if (!Number.isFinite(value) || value < 0 || value > 100) {
-          throw new Error("La commission doit être comprise entre 0 et 100%.")
-        }
-      }
-
       const { error: rpcError } = await supabase.rpc("update_kora_setting", {
         p_key: key,
         p_value: value,
@@ -160,7 +148,7 @@ export default function AdminSettings() {
                 {section.keys.map((key) => {
                   const value = settings[key]
                   const isBoolean = typeof DEFAULTS[key] === "boolean"
-                  const isNumber = key === "commission_rate"
+                  const isNumber = false
 
                   return (
                     <div key={key} className="rounded-xl border border-border/60 p-4">
@@ -194,12 +182,9 @@ export default function AdminSettings() {
                             </select>
                           ) : (
                             <Input
-                              type={isNumber ? "number" : key.includes("email") ? "email" : "text"}
-                              min={isNumber ? 0 : undefined}
-                              max={isNumber ? 100 : undefined}
-                              step={isNumber ? 0.1 : undefined}
+                              type={key.includes("email") ? "email" : "text"}
                               value={value ?? ""}
-                              onChange={(event) => updateLocal(key, isNumber ? event.target.value : event.target.value)}
+                              onChange={(event) => updateLocal(key, event.target.value)}
                               className="w-full sm:w-64"
                             />
                           )}
