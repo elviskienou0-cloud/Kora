@@ -164,7 +164,7 @@ Deno.serve(async (req) => {
     const storageObjects = await removeUserStorage(adminClient, userId)
 
     const { data: cleanup, error: cleanupError } =
-      await adminClient.rpc("delete_my_account_v2")
+      await adminClient.rpc("delete_user_data_v3", { p_user_id: userId })
 
     if (cleanupError) {
       throw new Error(`Nettoyage des données impossible : ${cleanupError.message}`)
