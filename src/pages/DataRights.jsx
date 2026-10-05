@@ -21,7 +21,7 @@ export default function DataRights() {
     async function load() {
       if (!userId) return
       const [{ data: profileData, error: profileError }, { data: consentData, error: consentError }] = await Promise.all([
-        supabase.from("profiles").select("id,name,role,phone,city,company,bio,email,avatar,cover_url,preferences,created_at,updated_at").eq("id", userId).maybeSingle(),
+        supabase.from("profiles").select("id,name,role,phone,city,company,bio,avatar,cover_url,preferences,created_at,updated_at").eq("id", userId).maybeSingle(),
         supabase.from("user_consents").select("consent_type,consent_given,policy_version,source,granted_at,revoked_at").eq("user_id", userId).order("created_at", { ascending: false }),
       ])
       if (!mounted) return
