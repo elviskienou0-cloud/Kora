@@ -6,179 +6,18 @@ export default function MentionsLegales() {
   return (
     <div className="min-h-screen bg-white text-gray-900 dark:bg-gray-950 dark:text-white">
       <main className="mx-auto max-w-4xl px-6 py-16">
-        <Link
-          to="/"
-          className="mb-8 inline-flex items-center gap-2 text-sm text-gray-500 transition hover:text-gray-900 dark:hover:text-white"
-        >
-          <ArrowLeft className="h-4 w-4" />
-          Retour à l'accueil
-        </Link>
-
-        <div className="mb-10">
-          <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-xl bg-gray-100 dark:bg-gray-900">
-            <Scale className="h-6 w-6" />
-          </div>
-
-          <h1 className="text-4xl font-bold tracking-tight">
-            Mentions légales
-          </h1>
-
-          <p className="mt-4 text-sm text-gray-500">
-            Dernière mise à jour : 2 octobre 2026
-          </p>
-        </div>
-
+        <Link to="/" className="mb-8 inline-flex items-center gap-2 text-sm text-gray-500 hover:text-gray-900 dark:hover:text-white"><ArrowLeft className="h-4 w-4" />Retour à l'accueil</Link>
+        <div className="mb-10"><div className="mb-4 flex h-12 w-12 items-center justify-center rounded-xl bg-gray-100 dark:bg-gray-900"><Scale className="h-6 w-6" /></div><h1 className="text-4xl font-bold tracking-tight">Mentions légales</h1><p className="mt-4 text-sm text-gray-500">Dernière mise à jour : 5 octobre 2026</p></div>
         <div className="space-y-10 leading-7 text-gray-700 dark:text-gray-300">
-          <section>
-            <h2 className="mb-3 text-2xl font-semibold text-gray-900 dark:text-white">
-              1. Éditeur du site
-            </h2>
-
-            <p>
-              La plateforme KORA est éditée par l'entité légalement
-              responsable de l'exploitation du service.
-            </p>
-
-            <div className="mt-4 rounded-xl bg-gray-50 p-5 dark:bg-gray-900">
-              <p>
-                <strong>Nom et prénoms :</strong> KIENOU Elvis
-              </p>
-              <p>
-                <strong>Statut :</strong> Personne physique
-              </p>
-              <p>
-                <strong>Adresse :</strong> Ouagadougou, Burkina Faso
-              </p>
-              <p>
-                <strong>RCCM :</strong> À renseigner si applicable
-              </p>
-              <p>
-                <strong>IFU :</strong> À renseigner si applicable
-              </p>
-              <p>
-                <strong>E-mail :</strong> kora.contact1@gmail.com
-              </p>
-            </div>
-          </section>
-
-          <section>
-            <h2 className="mb-3 text-2xl font-semibold text-gray-900 dark:text-white">
-              2. Directeur de publication
-            </h2>
-
-            <p>
-              <strong>Directeur de publication :</strong> Kienou Elvis
-            </p>
-          </section>
-
-          <section>
-            <h2 className="mb-3 text-2xl font-semibold text-gray-900 dark:text-white">
-              3. Hébergement
-            </h2>
-
-            <p>
-              KORA utilise des services cloud distincts pour le déploiement
-              de l'interface et pour ses services backend.
-            </p>
-
-            <div className="mt-4 rounded-xl bg-gray-50 p-5 dark:bg-gray-900">
-              <p>
-                <strong>Déploiement de l'interface :</strong> Vercel Inc.
-              </p>
-              <p>
-                <strong>Adresse :</strong> 440 N Barranca Ave #4133,
-                Covina, CA 91723, États-Unis
-              </p>
-              <p>
-                <strong>Site web :</strong> vercel.com
-              </p>
-              <p className="mt-4">
-                <strong>Services backend, base de données et authentification :</strong>{" "}
-                Supabase Pte. Ltd.
-              </p>
-              <p>
-                <strong>Adresse :</strong> 65 Chulia Street #38-02/03,
-                OCBC Centre, Singapore 049513
-              </p>
-              <p>
-                <strong>Site web :</strong> supabase.com
-              </p>
-            </div>
-          </section>
-
-          <section>
-            <h2 className="mb-3 text-2xl font-semibold text-gray-900 dark:text-white">
-              4. Propriété intellectuelle
-            </h2>
-
-            <p>
-              Sauf indication contraire, les éléments composant KORA,
-              notamment le nom, le logo, les interfaces, les textes, les
-              éléments graphiques et les logiciels, sont protégés par les
-              règles applicables en matière de propriété intellectuelle.
-            </p>
-          </section>
-
-          <section>
-            <h2 className="mb-3 text-2xl font-semibold text-gray-900 dark:text-white">
-              5. Responsabilité
-            </h2>
-
-            <p>
-              KORA met en œuvre des moyens raisonnables pour assurer la
-              disponibilité et la sécurité du service. Toutefois, aucune
-              plateforme en ligne ne peut garantir une disponibilité
-              permanente ou l'absence totale d'erreurs, d'interruptions ou de
-              problèmes de sécurité.
-            </p>
-          </section>
-
-          <section>
-            <h2 className="mb-3 text-2xl font-semibold text-gray-900 dark:text-white">
-              6. Contenu des utilisateurs
-            </h2>
-
-            <p>
-              Les utilisateurs restent responsables des informations,
-              photographies, vidéos, portfolios et autres contenus qu'ils
-              publient sur KORA et doivent disposer des droits nécessaires
-              pour les utiliser.
-            </p>
-          </section>
-
-          <section>
-            <h2 className="mb-3 text-2xl font-semibold text-gray-900 dark:text-white">
-              7. Liens externes
-            </h2>
-
-            <p>
-              KORA peut contenir des liens vers des services ou sites
-              externes. KORA n'est pas responsable du contenu, de la
-              disponibilité ou des pratiques de ces services externes.
-            </p>
-          </section>
-
-          <section>
-            <h2 className="mb-3 text-2xl font-semibold text-gray-900 dark:text-white">
-              8. Contact
-            </h2>
-
-            <p>
-              Pour toute question concernant les présentes mentions légales,
-              vous pouvez contacter KORA.
-            </p>
-
-            <Link
-              to="/contact"
-              className="mt-4 inline-flex font-medium underline underline-offset-4"
-            >
-              Contacter KORA
-            </Link>
-          </section>
+          <section><h2 className="mb-3 text-2xl font-semibold text-gray-900 dark:text-white">1. Éditeur</h2><p>KORA est exploité par <strong>Kienou Elvis Dan Aurèle</strong>, personne physique établie à Ouagadougou, Burkina Faso.</p><div className="mt-4 rounded-xl bg-gray-50 p-5 dark:bg-gray-900"><p><strong>Adresse :</strong> Ouagadougou, Burkina Faso</p><p><strong>Téléphone professionnel :</strong> +226 70 27 18 10</p><p><strong>E-mail :</strong> kora.contact1@gmail.com</p><p><strong>RCCM :</strong> Non communiqué à ce stade.</p><p><strong>IFU :</strong> Non communiqué à ce stade.</p></div></section>
+          <section><h2 className="mb-3 text-2xl font-semibold text-gray-900 dark:text-white">2. Directeur de publication</h2><p><strong>Directeur de publication :</strong> Kienou Elvis Dan Aurèle.</p></section>
+          <section><h2 className="mb-3 text-2xl font-semibold text-gray-900 dark:text-white">3. Hébergement et services techniques</h2><p>KORA utilise Vercel pour le déploiement de l'interface et Supabase pour l'authentification, la base de données, le stockage et certains services backend. Ces prestataires peuvent traiter des données depuis l'étranger.</p><div className="mt-4 rounded-xl bg-gray-50 p-5 dark:bg-gray-900"><p><strong>Déploiement :</strong> Vercel Inc.</p><p><strong>Backend / base / authentification :</strong> Supabase Pte. Ltd.</p></div></section>
+          <section><h2 className="mb-3 text-2xl font-semibold text-gray-900 dark:text-white">4. Propriété intellectuelle</h2><p>Le nom KORA, son logo, ses interfaces, textes, éléments graphiques et logiciels sont protégés par les règles applicables. Les contenus publiés par les utilisateurs restent sous leur responsabilité et selon leurs droits.</p></section>
+          <section><h2 className="mb-3 text-2xl font-semibold text-gray-900 dark:text-white">5. Responsabilité</h2><p>KORA facilite la mise en relation entre clients et managers/talents. KORA ne se substitue pas aux parties dans leurs négociations ou prestations et ne garantit pas l'exécution d'une prestation conclue entre utilisateurs.</p></section>
+          <section><h2 className="mb-3 text-2xl font-semibold text-gray-900 dark:text-white">6. Signalement et abus</h2><p>Les utilisateurs peuvent signaler les faux profils, tentatives d'arnaque ou autres comportements abusifs via les moyens de signalement prévus par KORA. Les administrateurs et superadministrateurs peuvent prendre les mesures nécessaires conformément aux CGU.</p></section>
+          <section><h2 className="mb-3 text-2xl font-semibold text-gray-900 dark:text-white">7. Contact</h2><p>Pour toute question : <a className="underline" href="mailto:kora.contact1@gmail.com">kora.contact1@gmail.com</a>.</p><Link to="/contact" className="mt-4 inline-flex font-medium underline">Contacter KORA</Link></section>
         </div>
-      </main>
-
-      <LandingFooter />
+      </main><LandingFooter />
     </div>
   )
 }
