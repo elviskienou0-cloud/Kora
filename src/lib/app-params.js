@@ -25,8 +25,8 @@ export const APP_PARAMS = {
   ],
   plans: {
     trial: { name: "Essai", price: 0, period: "30 jours", talentLimit: 1, commissionPct: 0 },
-    pro: { name: "Pro", price: 3000, period: "/mois", talentLimit: 3, commissionPct: 0 },
-    business: { name: "Business", price: 0, period: "", talentLimit: null, commissionPct: 5 },
+    pro: { name: "Pro", price: 2500, period: "/mois", talentLimit: 3, commissionPct: 0 },
+    business: { name: "Business", price: 5000, period: "/mois", talentLimit: null, commissionPct: 0 },
   },
 }
 export default APP_PARAMS
