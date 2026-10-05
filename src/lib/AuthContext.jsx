@@ -360,6 +360,9 @@ export function AuthProvider({ children }) {
       firstName,
       lastName,
       role,
+      acceptedTerms = false,
+      acceptedPrivacy = false,
+      marketingConsent = false,
     }) => {
       const normalizedRole = String(role || "")
         .trim()
@@ -419,6 +422,9 @@ export function AuthProvider({ children }) {
               first_name: cleanFirstName,
               last_name: cleanLastName,
               role: normalizedRole,
+              accepted_terms: Boolean(acceptedTerms),
+              accepted_privacy: Boolean(acceptedPrivacy),
+              marketing_consent: Boolean(marketingConsent),
             },
           },
         })
