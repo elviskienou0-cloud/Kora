@@ -10,6 +10,14 @@ import { useAuth } from "@/lib/AuthContext"
 const LABELS = {
   profile: "Profil",
   user_consents: "Consentements",
+  auth_account: "Compte de connexion",
+  auth_identities: "Identités de connexion",
+  storage_objects: "Fichiers Storage",
+  activity_logs: "Historique d’activité",
+  conversation_participants: "Conversations",
+  manager_talent_invitations: "Invitations de talents",
+  admin_access_profile: "Profil d’accès",
+  admin_invitations_received: "Invitations administratives reçues",
 }
 
 function labelFor(key) {
@@ -149,8 +157,11 @@ export default function DataRights() {
             Données associées à votre compte
           </CardTitle>
           <CardDescription>
-            L'export inclut le profil, les consentements et les données métier
-            directement ou indirectement rattachées à votre compte.
+            L'export inclut vos informations de connexion utiles, votre profil,
+            vos consentements, vos données métier dont vous êtes propriétaire
+            ou auteur, ainsi que le manifeste de vos fichiers Storage. Les
+            références administratives d'autres données ne sont pas exportées
+            comme si elles vous appartenaient.
           </CardDescription>
         </CardHeader>
 
@@ -217,8 +228,9 @@ export default function DataRights() {
       </Card>
 
       <p className="text-sm text-muted-foreground">
-        Pour une demande qui n'est pas automatisée ici (rectification,
-        opposition ou demande complémentaire), contactez{" "}
+        Les fichiers eux-mêmes restent dans Supabase Storage : l'export JSON
+        contient leur chemin et leurs métadonnées. Pour une demande qui n'est
+        pas automatisée ici (rectification, opposition ou demande complémentaire), contactez{" "}
         <a
           className="underline"
           href="mailto:kora.contact1@gmail.com"
