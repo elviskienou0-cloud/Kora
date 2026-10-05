@@ -29,6 +29,8 @@ export default function Register() {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState("")
   const [success, setSuccess] = useState("")
+  const [acceptedTerms, setAcceptedTerms] = useState(false)
+  const [marketingConsent, setMarketingConsent] = useState(false)
 
   function handleChange(event) {
     const { name, value } = event.target
@@ -47,6 +49,11 @@ export default function Register() {
 
     if (!form.email.trim()) {
       setError("L'adresse email est obligatoire.")
+      return
+    }
+
+    if (!acceptedTerms) {
+      setError("Vous devez accepter les Conditions d'utilisation et la Politique de confidentialité.")
       return
     }
 
@@ -191,6 +198,17 @@ export default function Register() {
                   </select>
                 </div>
 
+                <div className="space-y-3 rounded-xl border border-border bg-muted/30 p-4 text-sm">
+                  <label className="flex items-start gap-3">
+                    <input type="checkbox" checked={acceptedTerms} onChange={(e) => setAcceptedTerms(e.target.checked)} className="mt-1" />
+                    <span>J'accepte les <Link to="/conditions" className="font-semibold text-gold-dark hover:underline">Conditions d'utilisation</Link> et reconnais avoir lu la <Link to="/confidentialite" className="font-semibold text-gold-dark hover:underline">Politique de confidentialité</Link>.</span>
+                  </label>
+                  <label className="flex items-start gap-3">
+                    <input type="checkbox" checked={marketingConsent} onChange={(e) => setMarketingConsent(e.target.checked)} className="mt-1" />
+                    <span>Je souhaite recevoir les offres, nouveautés et communications marketing de KORA. Je peux retirer ce choix ultérieurement.</span>
+                  </label>
+                </div>
+
                 <Button type="submit" disabled={loading} className="h-12 w-full gap-2 font-bold">
                   {loading ? "Création du compte..." : "Créer mon compte"}
                   {!loading && <ArrowRight className="h-4 w-4" />}
@@ -207,9 +225,6 @@ export default function Register() {
           </Card>
         </motion.div>
 
-        <p className="mt-6 text-center text-xs text-muted-foreground">
-          En créant votre compte, vous acceptez les Conditions d'utilisation et la Politique de confidentialité.
-        </p>
       </div>
     </main>
   )
