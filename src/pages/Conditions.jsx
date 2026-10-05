@@ -21,7 +21,7 @@ export default function Conditions() {
           </h1>
 
           <p className="text-muted-foreground leading-relaxed">
-            Dernière mise à jour : septembre 2026
+            Dernière mise à jour : 5 octobre 2026
           </p>
         </div>
 
@@ -148,8 +148,7 @@ export default function Conditions() {
             </p>
 
             <p className="mt-4">
-              Les conditions tarifaires applicables sont celles affichées au
-              moment de la souscription. Lorsqu'une validation manuelle du
+              Les conditions tarifaires applicables sont celles affichées au moment de la souscription. Les règles commerciales détaillées figurent dans les CGV de KORA. Lorsqu'une validation manuelle du
               paiement est prévue, l'accès aux fonctionnalités concernées peut
               rester soumis à la confirmation par KORA.
             </p>
@@ -157,7 +156,17 @@ export default function Conditions() {
 
           <section>
             <h2 className="text-2xl font-semibold text-foreground mb-4">
-              8. Disponibilité du service
+              8. Conditions commerciales
+            </h2>
+            <p>
+              Les offres payantes, leurs prix, la période d'essai, les modalités de paiement, l'activation, l'expiration, le remboursement et l'absence de renouvellement automatique sont détaillés dans les Conditions Générales de Vente.
+            </p>
+            <p className="mt-4"><Link to="/cgv" className="text-gold hover:underline">Consulter les CGV</Link></p>
+          </section>
+
+          <section>
+            <h2 className="text-2xl font-semibold text-foreground mb-4">
+              9. Disponibilité du service
             </h2>
 
             <p>
