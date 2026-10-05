@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react"
+import { Link } from "react-router-dom"
 import { toast } from "sonner"
 import { Bell, Globe, Key, Loader2, Lock, Palette, Save, Shield, Trash2, User, Camera, Image as ImageIcon } from "lucide-react"
 
@@ -192,7 +193,7 @@ export default function ManagerSettings() {
 
   return (
     <div className="space-y-6">
-      <div><h1 className="text-2xl font-black">{t("settings.title")}</h1><p className="text-sm text-muted-foreground">{t("settings.subtitle")}</p></div>
+      <div><h1 className="text-2xl font-black">{t("settings.title")}</h1><p className="text-sm text-muted-foreground">{t("settings.subtitle")}</p></div><div className="mt-3"><Link to="/mes-donnees" className="text-sm font-semibold text-gold-dark hover:underline">Gérer mes données personnelles →</Link></div>
       <div className="grid gap-6 lg:grid-cols-[220px_1fr]">
         <Card className="h-fit"><CardContent className="p-2">
           <div className="space-y-1">
