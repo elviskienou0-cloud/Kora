@@ -57,6 +57,42 @@ async function removePrefix(storage, bucket, prefix) {
   return removed
 }
 
+async function removeOwnedStorageObjects(adminClient, userId) {
+  let removed = 0
+  let offset = 0
+
+  while (true) {
+    const { data, error } = await adminClient
+      .from("storage.objects")
+      .select("bucket_id,name")
+      .eq("owner_id", userId)
+      .range(offset, offset + 999)
+
+    if (error) throw error
+
+    const objects = data || []
+    if (!objects.length) break
+
+    const byBucket = new Map()
+    for (const object of objects) {
+      if (!object?.bucket_id || !object?.name) continue
+      if (!byBucket.has(object.bucket_id)) byBucket.set(object.bucket_id, [])
+      byBucket.get(object.bucket_id).push(object.name)
+    }
+
+    for (const [bucket, paths] of byBucket) {
+      const { error: removeError } = await adminClient.storage.from(bucket).remove(paths)
+      if (removeError) throw removeError
+      removed += paths.length
+    }
+
+    if (objects.length < 1000) break
+    offset += objects.length
+  }
+
+  return removed
+}
+
 async function removeUserStorage(adminClient, userId) {
   let removed = 0
 
@@ -161,7 +197,24 @@ Deno.serve(async (req) => {
       }, 403)
     }
 
-    const storageObjects = await removeUserStorage(adminClient, userId)
+    // Supabase refuse la suppression d'un Auth user tant qu'il possède des
+  // objets Storage. On supprime d'abord tous ses objets par l'API Storage,
+  // puis les chemins KORA créés via service role qui peuvent ne pas avoir
+  // owner_id.
+  const ownedStorageObjects = await removeOwnedStorageObjects(adminClient, userId)
+  const prefixedStorageObjects = await removeUserStorage(adminClient, userId)
+  const storageObjects = ownedStorageObjects + prefixedStorageObjects
+
+  const { count: remainingOwnedObjects, error: remainingStorageError } =
+    await adminClient
+      .from("storage.objects")
+      .select("id", { count: "exact", head: true })
+      .eq("owner_id", userId)
+
+  if (remainingStorageError) throw remainingStorageError
+  if ((remainingOwnedObjects || 0) > 0) {
+    throw new Error("Des fichiers Storage appartiennent encore à ce compte.")
+  }
 
     const { data: cleanup, error: cleanupError } =
       await adminClient.rpc("delete_user_data_v3", { p_user_id: userId })
