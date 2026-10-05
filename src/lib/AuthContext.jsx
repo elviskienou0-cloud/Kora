@@ -425,6 +425,7 @@ export function AuthProvider({ children }) {
               accepted_terms: Boolean(acceptedTerms),
               accepted_privacy: Boolean(acceptedPrivacy),
               marketing_consent: Boolean(marketingConsent),
+              kora_public_registration: true,
             },
           },
         })
