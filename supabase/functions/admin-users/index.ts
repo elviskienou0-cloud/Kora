@@ -17,6 +17,60 @@ function jsonResponse(body: JsonRecord, status = 200) {
   })
 }
 
+
+
+async function removePrefix(storage, bucket, prefix) {
+  if (!prefix) return 0
+  let removed = 0
+  let offset = 0
+
+  while (true) {
+    const { data, error } = await storage
+      .from(bucket)
+      .list(prefix.replace(/\/$/, ""), { limit: 1000, offset })
+
+    if (error) {
+      if (/not found|does not exist/i.test(error.message || "")) return removed
+      throw error
+    }
+
+    const items = data || []
+    if (!items.length) break
+
+    const files = []
+    for (const item of items) {
+      if (!item?.name) continue
+      const path = prefix.endsWith("/") ? prefix + item.name : prefix + "/" + item.name
+      if (item.id) {
+        files.push(path)
+      } else {
+        removed += await removePrefix(storage, bucket, path + "/")
+      }
+    }
+
+    if (files.length) {
+      const { error: removeError } = await storage.from(bucket).remove(files)
+      if (removeError) throw removeError
+      removed += files.length
+    }
+
+    if (items.length < 1000) break
+    offset += items.length
+  }
+
+  return removed
+}
+
+async function removeUserStorage(adminClient, userId, talentIds = []) {
+  let removed = 0
+  removed += await removePrefix(adminClient.storage, "profile-media", `${userId}/`)
+  removed += await removePrefix(adminClient.storage, "talent-profile-media", `${userId}/`)
+  for (const talentId of talentIds) {
+    removed += await removePrefix(adminClient.storage, "talent-portfolio", `${talentId}/`)
+  }
+  return removed
+}
+
 function normalizeAdminRole(role: unknown) {
   const value =
     typeof role === "string" ? role.trim().toLowerCase() : ""
@@ -567,6 +621,18 @@ Deno.serve(async (req) => {
       }
     }
 
+    const { data: targetTalents, error: targetTalentsError } = await adminClient
+      .from("talent_profiles")
+      .select("id")
+      .eq("managed_by", userId)
+
+    if (targetTalentsError) {
+      throw targetTalentsError
+    }
+
+    const talentIds = (targetTalents || []).map((row) => row.id).filter(Boolean)
+    const deletedStorageObjects = await removeUserStorage(adminClient, userId, talentIds)
+
     // ==========================================================
     // AUDIT AVANT SUPPRESSION
     // ==========================================================
@@ -652,9 +718,8 @@ Deno.serve(async (req) => {
       deleted_user_id: userId,
       deleted_rows:
         cleanupData.deleted_rows ?? 0,
-      deleted_storage_objects: 0,
-      storage_cleanup:
-        "non effectué automatiquement",
+      deleted_storage_objects: deletedStorageObjects,
+      storage_cleanup: "effectué",
       message:
         "Utilisateur, profil, données liées et compte Auth supprimés avec succès.",
     })
