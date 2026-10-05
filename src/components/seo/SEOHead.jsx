@@ -256,7 +256,7 @@ export default function SEOHead({
         name: "KORA",
         url: SITE_URL,
         logo: DEFAULT_IMAGE,
-        email: "contact@kora.africa",
+        email: "kora.contact1@gmail.com",
       })
     )
 
