@@ -178,8 +178,9 @@ export default function ManagerSettings() {
     if (!window.confirm("La suppression de votre compte est définitive. Continuer ?")) return
     setDeleting(true)
     try {
-      const { error } = await supabase.rpc("delete_my_account")
+      const { data, error } = await supabase.functions.invoke("delete-account", { body: {} })
       if (error) throw error
+      if (!data?.ok) throw new Error(data?.error || "La suppression du compte a échoué.")
       await supabase.auth.signOut({ scope: "local" })
       await logout?.()
       window.location.assign("/")
