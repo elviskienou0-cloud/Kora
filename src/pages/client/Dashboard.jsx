@@ -160,6 +160,7 @@ export default function ClientDashboard() {
     requests: 0,
     accepted: 0,
     favorites: 0,
+    searches: 0,
     spent: 0,
   })
   const [recentRequests, setRecentRequests] = useState([])
@@ -192,8 +193,10 @@ export default function ClientDashboard() {
           requestsResult,
           acceptedResult,
           favoritesResult,
+          searchesResult,
           recentResult,
           talentsResult,
+          transactionsResult,
         ] = await Promise.all([
           supabase
             .from("profiles")
@@ -218,6 +221,12 @@ export default function ClientDashboard() {
             .eq("client_id", user.id),
 
           supabase
+            .from("activity_logs")
+            .select("id", { count: "exact", head: true })
+            .eq("user_id", user.id)
+            .eq("action", "search_talents"),
+
+          supabase
             .from("requests")
             .select("*")
             .eq("client_id", user.id)
@@ -229,24 +238,37 @@ export default function ClientDashboard() {
             .select("*")
             .order("created_at", { ascending: false })
             .limit(3),
+
+          supabase
+            .from("kora_transactions")
+            .select("amount, status")
+            .eq("client_id", user.id),
         ])
 
         if (profileResult.error) throw profileResult.error
         if (requestsResult.error) throw requestsResult.error
         if (acceptedResult.error) throw acceptedResult.error
         if (favoritesResult.error) throw favoritesResult.error
+        if (searchesResult.error) throw searchesResult.error
         if (recentResult.error) throw recentResult.error
         if (talentsResult.error) throw talentsResult.error
+        if (transactionsResult.error) throw transactionsResult.error
 
         if (!mounted) return
 
         setProfile(profileResult.data)
 
+        const paidStatuses = new Set(["paid", "completed", "confirmed", "success", "succeeded"])
+        const totalSpent = (transactionsResult.data || [])
+          .filter((transaction) => paidStatuses.has(String(transaction.status || "").toLowerCase()))
+          .reduce((sum, transaction) => sum + Number(transaction.amount || 0), 0)
+
         setStats({
           requests: requestsResult.count || 0,
           accepted: acceptedResult.count || 0,
           favorites: favoritesResult.count || 0,
-          spent: 0,
+          searches: searchesResult.count || 0,
+          spent: totalSpent,
         })
 
         setRecentRequests(recentResult.data || [])
@@ -340,10 +362,10 @@ export default function ClientDashboard() {
             </div>
           </div>
 
-          <div className="flex items-center gap-3">
+          <div className="flex flex-wrap items-center gap-3">
             <Button
               variant="outline"
-              className="border-gold/50 text-gold-dark hover:bg-gold/10"
+              className="w-full sm:w-auto border-gold/50 text-gold-dark hover:bg-gold/10"
               onClick={() => navigate("/categories")}
             >
               <Search className="mr-2 h-4 w-4" />
@@ -351,7 +373,7 @@ export default function ClientDashboard() {
             </Button>
 
             <Button
-              className="bg-foreground text-background shadow-sm hover:bg-foreground/90"
+              className="w-full sm:w-auto bg-foreground text-background shadow-sm hover:bg-foreground/90"
               onClick={() => navigate("/categories")}
             >
               <Send className="mr-2 h-4 w-4" />
@@ -594,8 +616,8 @@ export default function ClientDashboard() {
                 <ActivityItem
                   icon={Search}
                   label="Recherches"
-                  value="—"
-                  description="Historique bientôt basé sur vos actions réelles"
+                  value={stats.searches}
+                  description="Recherches de talents enregistrées"
                 />
 
                 <ActivityItem
