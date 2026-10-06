@@ -233,7 +233,7 @@ export default function ManagerSettings() {
             <div className="grid gap-4 md:grid-cols-2"><div className="space-y-2"><Label>{t("settings.security.newPassword")}</Label><Input type="password" value={passwords.next} onChange={(e) => setPasswords((p) => ({ ...p, next: e.target.value }))} /></div><div className="space-y-2"><Label>{t("settings.security.confirmPassword")}</Label><Input type="password" value={passwords.confirm} onChange={(e) => setPasswords((p) => ({ ...p, confirm: e.target.value }))} /></div></div>
             <div className="flex justify-end"><Button onClick={changePassword} disabled={savingPassword} className="gap-2">{savingPassword ? <Loader2 className="h-4 w-4 animate-spin" /> : <Key className="h-4 w-4" />} {t("settings.security.update")}</Button></div>
             <Separator />
-            <Button variant="destructive" onClick={deleteAccount} disabled={deleting} className="gap-2"><Trash2 className="h-4 w-4" /> {deleting ? "Suppression…" : t("settings.delete.button")}</Button>
+            <Button variant="destructive" onClick={deleteAccount} disabled={deleting} className="gap-2"><Trash2 className="h-4 w-4" /> {deleting ? t("common.saving") : t("settings.delete.button")}</Button>
           </CardContent></Card>}
 
           {tab === "appearance" && <Card><CardHeader><CardTitle className="flex items-center gap-2"><Palette className="h-5 w-5 text-gold" />{t("settings.appearance.title")}</CardTitle><CardDescription>{t("settings.appearance.description")}</CardDescription></CardHeader><CardContent className="space-y-6">
