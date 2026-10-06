@@ -27,7 +27,7 @@ const fr = {
     yesterday: "Hier", now: "À l'instant", unknown: "Inconnu", notProvided: "Non renseigné",
     noResults: "Aucun résultat", noData: "Aucune donnée", requiredFields: "Veuillez remplir les champs obligatoires.",
     copyLink: "Copier le lien", copied: "Copié ✅", share: "Partager", contact: "Contacter",
-    invite: "Inviter", and: "et", sendInvitation: "Envoyer l'invitation",
+    invite: "Inviter", all: "Tous", clientKora: "Client KORA", noDescription: "Aucune description.", and: "et", sendInvitation: "Envoyer l'invitation",
   },
 
   navigation: {
