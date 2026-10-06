@@ -218,6 +218,15 @@ const fr = {
   manager: {
     dashboard: "Tableau de bord Manager", myTalents: "Mes talents", myRequests: "Demandes", subscription: "Abonnement",
     manageTalent: "Gérez vos talents et leur visibilité.", createTalent: "Créer un talent", pending: "En attente", published: "Publiés", total: "Total", averageRating: "Note moyenne",
+    loading: "Chargement du tableau de bord...", errorLoad: "Impossible de charger les données du tableau de bord.", retry: "Réessayer",
+    manageTalents: "Gérez vos talents et suivez vos demandes.", activeRequests: "Demandes actives", revenue: "Revenus", settledTransactions: "Transactions réglées",
+    requestActivity: "Activité des demandes", requestsLast7Days: "Demandes reçues au cours des 7 derniers jours", quickManagement: "Gestion rapide",
+    quickManagementDescription: "Accédez rapidement à vos talents.", editMyTalents: "Modifier mes talents", talentsManaged: "Les talents que vous gérez actuellement.",
+    manageMyTalents: "Gérer mes talents", searchTalent: "Rechercher un talent...", noTalentFound: "Aucun talent trouvé", noTalent: "Aucun talent",
+    noTalentMatch: "Aucun talent ne correspond à votre recherche.", addTalentHint: "Commencez par ajouter un talent à votre espace manager.",
+    manageTalentLabel: "Gérer le talent", noNotifications: "Aucune notification", recentRequests: "Demandes récentes",
+    recentRequestsDescription: "Les dernières demandes reçues par votre espace.", viewRequests: "Voir les demandes", noRequests: "Aucune demande pour le moment.",
+    open: "Ouvrir", requestNumber: "Demande #{id}", undefinedStatus: "Statut non défini",
   },
 
   admin: {
@@ -335,7 +344,15 @@ const en = {
   home: { searchPlaceholder: "Search for a talent, a service...", welcomeBack: "Welcome back to {name}!", welcomeUser: "Welcome, {name}", clientIntro: "Find the best African talents to grow your project. Let us guide you!", managerIntro: "Manager dashboard: manage your talents, track your projects and optimize your collaborations.", adminIntro: "Administrator dashboard: view the platform global statistics.", realtimeStats: "Key statistics in real time", koraSelection: "KORA Selection", recommendedTalents: "Talents recommended for you", recommendedDescription: "Selected based on your activity and preferences", from: "From", loadingRecommended: "Loading recommended talents...", noPublishedTalents: "No published talent yet.", latestActions: "Latest actions", projectsCompleted: "projects" },
 
   dashboard: { title: "Dashboard", welcome: "Welcome to KORA.", overview: "Overview", recentActivity: "Recent activity", statistics: "Statistics", totalProjects: "Total projects", activeProjects: "Active projects", completedProjects: "Completed projects", pendingRequests: "Pending requests", talents: "Talents", messages: "Messages", notifications: "Notifications", unreadMessages: "Unread messages", noActivity: "No recent activity." },
-  manager: { dashboard: "Manager Dashboard", myTalents: "My talents", myRequests: "Requests", subscription: "Subscription", manageTalent: "Manage your talents and their visibility.", createTalent: "Create talent", pending: "Pending", published: "Published", total: "Total", averageRating: "Average rating" },
+  manager: { dashboard: "Manager Dashboard", myTalents: "My talents", myRequests: "Requests", subscription: "Subscription", manageTalent: "Manage your talents and their visibility.", createTalent: "Create talent", pending: "Pending", published: "Published", total: "Total", averageRating: "Average rating",
+    loading: "Loading dashboard...", errorLoad: "Unable to load dashboard data.", retry: "Retry", manageTalents: "Manage your talents and track your requests.",
+    activeRequests: "Active requests", revenue: "Revenue", settledTransactions: "Settled transactions", requestActivity: "Request activity",
+    requestsLast7Days: "Requests received over the last 7 days", quickManagement: "Quick management", quickManagementDescription: "Quickly access your talents.",
+    editMyTalents: "Edit my talents", talentsManaged: "Talents you currently manage.", manageMyTalents: "Manage my talents", searchTalent: "Search for a talent...",
+    noTalentFound: "No talent found", noTalent: "No talents", noTalentMatch: "No talent matches your search.",
+    addTalentHint: "Start by adding a talent to your manager space.", manageTalentLabel: "Manage talent", noNotifications: "No notifications",
+    recentRequests: "Recent requests", recentRequestsDescription: "The latest requests received in your space.", viewRequests: "View requests",
+    noRequests: "No requests yet.", open: "Open", requestNumber: "Request #{id}", undefinedStatus: "Status not defined" },
   admin: { title: "Administration", dashboard: "Dashboard", controlCenter: "KORA Control Center", dataSource: "All displayed data comes from the available Supabase tables.", users: "Users", clients: "Clients", managers: "Managers", admins: "Administrators", talents: "Talents", publishedTalents: "Published talents", pendingTalents: "Pending talents", projects: "Projects", requests: "Requests", messages: "Messages", conversations: "Conversations", reports: "Reports", moderation: "Moderation", subscriptions: "Subscriptions", payments: "Payments", logs: "Logs", settings: "Administration settings", suspendedUsers: "Suspended users", openProjects: "Open projects", activeProjects: "Active projects", completedProjects: "Completed projects", pendingRequests: "Pending requests", acceptedRequests: "Accepted requests", rejectedRequests: "Rejected requests", pendingReports: "Pending reports", activeSubscriptions: "Active subscriptions", expiredSubscriptions: "Expired subscriptions", pendingPayments: "Pending payments", paidPayments: "Paid payments", failedPayments: "Failed payments", transactions: "Transactions", administration: "Administration" },
   moderation: { title: "Moderation", reports: "Reports", pending: "Pending", reviewed: "Reviewed", resolved: "Resolved", dismissed: "Dismissed", suspend: "Suspend", reactivate: "Reactivate", hide: "Hide", publish: "Publish", reject: "Reject", noReports: "No reports." },
   payments: { title: "Payments", payment: "Payment", payments: "Payments", pending: "Pending", paid: "Paid", failed: "Failed", cancelled: "Cancelled", provider: "Provider", reference: "Reference", amount: "Amount", currency: "Currency", date: "Date", method: "Method", status: "Status", orangeMoney: "Orange Money", moovMoney: "Moov Money", wave: "Wave", card: "Bank card", visa: "Visa", mastercard: "Mastercard" },
