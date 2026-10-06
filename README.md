@@ -147,7 +147,7 @@ Si une table ne contient aucune donnée :
 
 Les avis affichés publiquement doivent provenir de la table `reviews` et être visibles selon les règles prévues par la base.
 
-Aucun témoignage statique de type « Awa K. », « Mohamed T. », « Fatou D. » ou autre utilisateur fictif ne doit être conservé dans le frontend.
+Aucun témoignage statique ou utilisateur de démonstration ne doit être conservé dans le frontend. », « Mohamed T. », « Fatou D. » ou autre utilisateur fictif ne doit être conservé dans le frontend.
 
 ## Vérification des talents
 
