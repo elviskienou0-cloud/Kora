@@ -18,29 +18,17 @@ function formatMoney(value, currency = "XOF") {
   }).format(Number(value || 0))
 }
 
-function getPlanDetails(plan) {
+function getPlanDetails(plan, t) {
   const id = String(plan?.id || "").toUpperCase()
   if (id === "FREE") return [
-    "1 talent maximum",
-    "Profil talent et portfolio",
-    "Gestion du cachet",
-    "Gestion des demandes",
-    "Messagerie et notifications",
-    "Gestion de base des talents",
-    "30 jours d'accès gratuit",
+    t("manager.planFree1"), t("manager.planProfilePortfolio"), t("manager.planFee"), t("manager.planRequests"),
+    t("manager.planMessaging"), t("manager.planBasicTalent"), t("manager.planTrial"),
   ]
   if (id === "PRO") return [
-    "3 talents maximum",
-    "Toutes les fonctions du plan Gratuit",
-    "Gestion opérationnelle des projets",
-    "Gestion des demandes",
-    "Profil manager",
+    t("manager.planPro1"), t("manager.planFreeFeatures"), t("manager.planOperations"), t("manager.planRequests"), t("manager.planManagerProfile"),
   ]
   if (id === "BUSINESS") return [
-    "Talents illimités",
-    "Toutes les fonctions du plan Pro",
-    "Badge Business sur votre profil",
-    "Organisation sans limite de vos talents",
+    t("manager.planBusiness1"), t("manager.planProFeatures"), t("manager.planBusinessBadge"), t("manager.planUnlimited"),
   ]
   return Array.isArray(plan?.features) ? plan.features : []
 }
@@ -101,10 +89,10 @@ export default function ManagerSubscription() {
     try {
       const { error } = await supabase.rpc("activate_free_plan")
       if (error) throw error
-      toast.success("Plan Gratuit activé.")
+      toast.success(t("manager.useFree"))
       await load()
     } catch (error) {
-      toast.error(error?.message || "Impossible d'activer le plan gratuit.")
+      toast.error(error?.message || t("errors.generic"))
     } finally {
       setLoadingPlan(null)
     }
@@ -140,11 +128,11 @@ export default function ManagerSubscription() {
         return
       }
 
-      toast.success("Paiement enregistré. Il doit maintenant être validé par KORA.")
+      toast.success(t("manager.paymentRecorded"))
       await load()
     } catch (error) {
       console.error("Erreur initialisation paiement :", error)
-      toast.error(error?.message || "Impossible d'initialiser le paiement.")
+      toast.error(error?.message || t("errors.generic"))
     } finally {
       setLoadingPlan(null)
     }
@@ -160,7 +148,7 @@ export default function ManagerSubscription() {
         <div>
           <p className="text-xs font-bold uppercase tracking-[0.18em] text-gold">{t("account.manager")}</p>
           <h1 className="text-2xl font-black tracking-tight">{t("subscriptions.title")}</h1>
-          <p className="text-sm text-muted-foreground">{t("manager.choosePlan")} Les offres ne comprennent aucun système de paiement ou de commission sur les projets.</p>
+          <p className="text-sm text-muted-foreground">{t("manager.choosePlan")} </p>
         </div>
         <Badge variant="outline" className="w-fit gap-1.5 border-gold/30 bg-gold/10 text-gold-dark">
           <Crown className="h-3.5 w-3.5" />
@@ -199,12 +187,12 @@ export default function ManagerSubscription() {
           const isExpiredFree = id === "FREE" && freeTrialExpired
           const price = Number(plan.price || 0)
           const buttonLabel = isCurrent
-            ? "Forfait actif"
+            ? t("manager.activePlan")
             : isExpiredFree
-              ? "Essai terminé"
+              ? t("manager.trialEnded")
               : id === "FREE"
-                ? "Utiliser gratuitement"
-                : `Choisir ${plan.name}`
+                ? t("manager.useFree")
+                : t("manager.choosePlanButton", { name: plan.name })
 
           return (
             <Card key={plan.id} className={`h-full border-border/60 ${isCurrent ? "border-gold/50 shadow-xl shadow-gold/10" : ""}`}>
@@ -212,7 +200,7 @@ export default function ManagerSubscription() {
                 <div className="flex items-start justify-between gap-3">
                   <div>
                     <CardTitle className="font-black">{plan.name}</CardTitle>
-                    <CardDescription>{id === "FREE" ? "Sans abonnement payant" : "Abonnement mensuel"}</CardDescription>
+                    <CardDescription>{id === "FREE" ? t("manager.noPaidSubscription") : t("manager.monthlySubscription")}</CardDescription>
                   </div>
                   {isCurrent && <Badge className="bg-gold/10 text-gold-dark border-gold/30">{t("subscriptions.active")}</Badge>}
                 </div>
@@ -229,7 +217,7 @@ export default function ManagerSubscription() {
                 <Separator />
 
                 <div className="space-y-2.5">
-                  {getPlanDetails(plan).map((feature) => (
+                  {getPlanDetails(plan, t).map((feature) => (
                     <div key={feature} className="flex items-start gap-2 text-sm text-muted-foreground">
                       <CheckCircle2 className="h-4 w-4 text-emerald-600 shrink-0 mt-0.5" />
                       <span>{feature}</span>
