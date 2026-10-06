@@ -7,6 +7,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Badge } from "@/components/ui/badge"
 import { Separator } from "@/components/ui/separator"
 import { useAuth } from "@/lib/AuthContext"
+import { useI18n } from "@/i18n/kora-i18n.jsx"
 import { supabase } from "@/lib/supabase"
 
 function formatMoney(value, currency = "XOF") {
@@ -51,6 +52,7 @@ function formatDate(value) {
 }
 
 export default function ManagerSubscription() {
+  const { t } = useI18n()
   const { user } = useAuth()
   const managerId = user?.authId || user?.id
 
@@ -156,8 +158,8 @@ export default function ManagerSubscription() {
     <div className="space-y-8">
       <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
         <div>
-          <p className="text-xs font-bold uppercase tracking-[0.18em] text-gold">Compte manager</p>
-          <h1 className="text-2xl font-black tracking-tight">Abonnement & facturation</h1>
+          <p className="text-xs font-bold uppercase tracking-[0.18em] text-gold">{t("account.manager")}</p>
+          <h1 className="text-2xl font-black tracking-tight">{t("subscriptions.title")}</h1>
           <p className="text-sm text-muted-foreground">Choisissez votre formule. Les paiements d’abonnement Pro et Business sont validés manuellement par KORA. Les offres ne comprennent aucun système de paiement ou de commission sur les projets.</p>
         </div>
         <Badge variant="outline" className="w-fit gap-1.5 border-gold/30 bg-gold/10 text-gold-dark">
@@ -171,7 +173,7 @@ export default function ManagerSubscription() {
           <CardContent className="p-5 flex items-center gap-3">
             <Clock3 className="h-5 w-5 text-amber-600" />
             <div>
-              <p className="font-black">Paiement en attente de validation</p>
+              <p className="font-black">{t("subscriptions.pending")}</p>
               <p className="text-sm text-muted-foreground">Votre paiement a été enregistré. Un administrateur KORA doit le confirmer avant l'activation.</p>
             </div>
           </CardContent>
@@ -183,8 +185,8 @@ export default function ManagerSubscription() {
           <CardContent className="p-5 flex items-center gap-3">
             <Clock3 className="h-5 w-5 text-amber-600" />
             <div>
-              <p className="font-black">Votre abonnement a expiré</p>
-              <p className="text-sm text-muted-foreground">Choisissez un plan pour réactiver votre compte.</p>
+              <p className="font-black">{t("subscriptions.expired")}</p>
+              <p className="text-sm text-muted-foreground">{t("manager.subscription")}</p>
             </div>
           </CardContent>
         </Card>
@@ -212,7 +214,7 @@ export default function ManagerSubscription() {
                     <CardTitle className="font-black">{plan.name}</CardTitle>
                     <CardDescription>{id === "FREE" ? "Sans abonnement payant" : "Abonnement mensuel"}</CardDescription>
                   </div>
-                  {isCurrent && <Badge className="bg-gold/10 text-gold-dark border-gold/30">Actif</Badge>}
+                  {isCurrent && <Badge className="bg-gold/10 text-gold-dark border-gold/30">{t("subscriptions.active")}</Badge>}
                 </div>
               </CardHeader>
 
@@ -258,15 +260,15 @@ export default function ManagerSubscription() {
           <div className="overflow-x-auto">
             <table className="w-full text-sm">
               <thead><tr className="border-b bg-muted/30 text-left">
-                <th className="px-6 py-3 text-xs uppercase tracking-wider text-muted-foreground">Référence</th>
-                <th className="px-6 py-3 text-xs uppercase tracking-wider text-muted-foreground">Prestataire</th>
-                <th className="px-6 py-3 text-xs uppercase tracking-wider text-muted-foreground">Montant</th>
-                <th className="px-6 py-3 text-xs uppercase tracking-wider text-muted-foreground">Statut</th>
-                <th className="px-6 py-3 text-xs uppercase tracking-wider text-muted-foreground">Date</th>
+                <th className="px-6 py-3 text-xs uppercase tracking-wider text-muted-foreground">{t("payments.reference")}</th>
+                <th className="px-6 py-3 text-xs uppercase tracking-wider text-muted-foreground">{t("payments.provider")}</th>
+                <th className="px-6 py-3 text-xs uppercase tracking-wider text-muted-foreground">{t("payments.amount")}</th>
+                <th className="px-6 py-3 text-xs uppercase tracking-wider text-muted-foreground">{t("payments.status")}</th>
+                <th className="px-6 py-3 text-xs uppercase tracking-wider text-muted-foreground">{t("payments.date")}</th>
               </tr></thead>
               <tbody>
                 {payments.length === 0 ? (
-                  <tr><td colSpan={5} className="px-6 py-10 text-center text-muted-foreground">Aucun paiement enregistré.</td></tr>
+                  <tr><td colSpan={5} className="px-6 py-10 text-center text-muted-foreground">{t("common.noData")}</td></tr>
                 ) : payments.map((payment) => (
                   <tr key={payment.id} className="border-b border-border/40">
                     <td className="px-6 py-3.5 font-medium">{payment.reference}</td>
