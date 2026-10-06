@@ -82,6 +82,7 @@ const { user, isLoading: authLoading } = useAuth()
 const [talents, setTalents] = useState([])
 const [requests, setRequests] = useState([])
 const [notifications, setNotifications] = useState([])
+const [revenue, setRevenue] = useState(0)
 
 const [search, setSearch] = useState("")
 const [loading, setLoading] = useState(true)
@@ -112,6 +113,7 @@ async function loadDashboard() {
       talentsResult,
       requestsResult,
       notificationsResult,
+      transactionsResult,
     ] = await Promise.all([
       supabase
         .from("talent_profiles")
@@ -137,6 +139,11 @@ async function loadDashboard() {
           ascending: false,
         })
         .limit(5),
+
+      supabase
+        .from("kora_transactions")
+        .select("manager_amount, amount, status")
+        .eq("manager_id", user.authId),
     ])
 
     if (talentsResult.error) {
@@ -151,11 +158,22 @@ async function loadDashboard() {
       throw notificationsResult.error
     }
 
+    if (transactionsResult.error) {
+      throw transactionsResult.error
+    }
+
     if (cancelled) return
 
     setTalents(talentsResult.data || [])
     setRequests(requestsResult.data || [])
     setNotifications(notificationsResult.data || [])
+
+    const paidStatuses = new Set(["paid", "completed", "confirmed", "success", "succeeded"])
+    const totalRevenue = (transactionsResult.data || [])
+      .filter((transaction) => paidStatuses.has(String(transaction.status || "").toLowerCase()))
+      .reduce((sum, transaction) => sum + Number(transaction.manager_amount ?? transaction.amount ?? 0), 0)
+
+    setRevenue(totalRevenue)
   } catch (err) {
     console.error(
       "Erreur chargement dashboard manager :",
@@ -317,11 +335,15 @@ Tableau de bord </h1>
           </p>
 
           <p className="mt-2 text-2xl font-bold">
-            —
+            {new Intl.NumberFormat("fr-FR", {
+              style: "currency",
+              currency: "XOF",
+              maximumFractionDigits: 0,
+            }).format(revenue)}
           </p>
 
           <p className="mt-1 text-xs text-muted-foreground">
-            Données de paiement non disponibles
+            Transactions réglées
           </p>
         </div>
 
