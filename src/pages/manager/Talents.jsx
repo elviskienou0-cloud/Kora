@@ -44,6 +44,7 @@ import { Avatar, AvatarFallback } from "@/components/ui/avatar"
 import { cn } from "@/lib/utils"
 import { supabase } from "@/lib/supabase"
 import { useAuth } from "@/lib/AuthContext"
+import { useI18n } from "@/i18n/kora-i18n.jsx"
 import {
   addTalentPortfolioLinks,
   deleteTalentPortfolioItems,
@@ -174,6 +175,7 @@ function TalentEditor({
   onSave,
   saving,
 }) {
+  const { t } = useI18n()
   const [categories, setCategories] = useState([])
   const [categoryLoading, setCategoryLoading] = useState(true)
   const [form, setForm] = useState({
@@ -504,7 +506,7 @@ function TalentEditor({
             <div className="flex items-start gap-3">
               <CalendarDays className="mt-0.5 h-5 w-5 text-gold" />
               <div className="flex-1">
-                <p className="font-bold">Disponibilité</p>
+                <p className="font-bold">{t("manager.availabilityLabel")}</p>
                 <p className="mt-1 text-sm text-muted-foreground">
                   Le talent accepte-t-il de nouvelles missions ?
                 </p>
@@ -540,7 +542,7 @@ function TalentEditor({
             <div className="flex items-start gap-3">
               <Banknote className="mt-0.5 h-5 w-5 text-gold" />
               <div className="flex-1">
-                <p className="font-bold">Cachet de l’artiste</p>
+                <p className="font-bold">{t("manager.artistFee")}</p>
                 <p className="mt-1 text-sm text-muted-foreground">
                   Facultatif. Renseignez le montant en FCFA si vous souhaitez le proposer aux clients.
                 </p>
@@ -573,7 +575,7 @@ function TalentEditor({
               <div className="rounded-xl border border-border/60 bg-background p-4">
                 <div className="flex items-start gap-3">
                   <div className="flex-1">
-                    <p className="text-sm font-bold">Afficher le cachet publiquement</p>
+                    <p className="text-sm font-bold">{t("manager.showFeePublicly")}</p>
                     <p className="mt-1 text-xs text-muted-foreground">
                       Si désactivé, le montant reste enregistré mais n’apparaît pas sur le profil public.
                     </p>
@@ -623,8 +625,8 @@ function TalentEditor({
               <div className="space-y-3">
                 <div className="flex items-center justify-between gap-3">
                   <div>
-                    <p className="text-sm font-bold">Photo de profil</p>
-                    <p className="text-xs text-muted-foreground">1 image · JPG, PNG, WebP ou GIF · 5 Mo max.</p>
+                    <p className="text-sm font-bold">{t("manager.profilePhoto")}</p>
+                    <p className="text-xs text-muted-foreground">{t("manager.imageUploadHint")}</p>
                   </div>
                   <span className="rounded-full border border-border bg-background px-2.5 py-1 text-[10px] font-bold">
                     Avatar
@@ -634,7 +636,7 @@ function TalentEditor({
                 {initialValues?.avatarUrl ? (
                   <img
                     src={initialValues.avatarUrl}
-                    alt="Photo actuelle du talent"
+                    alt={t("manager.currentTalentPhoto")}
                     className="h-24 w-24 rounded-2xl object-cover border border-border shadow-sm"
                   />
                 ) : (
@@ -661,8 +663,8 @@ function TalentEditor({
               <div className="space-y-3">
                 <div className="flex items-center justify-between gap-3">
                   <div>
-                    <p className="text-sm font-bold">Photo de couverture</p>
-                    <p className="text-xs text-muted-foreground">1 image · format paysage recommandé · 5 Mo max.</p>
+                    <p className="text-sm font-bold">{t("manager.coverPhoto")}</p>
+                    <p className="text-xs text-muted-foreground">{t("manager.coverUploadHint")}</p>
                   </div>
                   <span className="rounded-full border border-border bg-background px-2.5 py-1 text-[10px] font-bold">
                     Couverture
@@ -701,7 +703,7 @@ function TalentEditor({
           <Field label="Portfolio" icon={Video} error={errors.portfolioLinks}>
             <div className="space-y-4 rounded-2xl border border-border/60 bg-card p-4">
               <div>
-                <p className="text-sm font-semibold">Photos / vidéos</p>
+                <p className="text-sm font-semibold">{t("manager.photosVideos")}</p>
                 <input
                   type="file"
                   multiple
@@ -818,6 +820,7 @@ function Field({ label, icon: Icon, required, error, children }) {
 }
 
 export default function ManagerTalents() {
+  const { t } = useI18n()
   const navigate = useNavigate()
   const { user } = useAuth()
   const managerId = user?.authId || user?.id
@@ -1532,7 +1535,7 @@ export default function ManagerTalents() {
       <Card className="overflow-hidden border-border/60">
         <CardHeader className="flex flex-col gap-4 pb-3 sm:flex-row sm:items-center sm:justify-between">
           <div>
-            <CardTitle className="font-black">Mes talents</CardTitle>
+            <CardTitle className="font-black">{t("manager.myTalents")}</CardTitle>
             <CardDescription>
               Créez, modifiez, publiez ou supprimez les profils que vous gérez.
             </CardDescription>
@@ -1610,7 +1613,7 @@ export default function ManagerTalents() {
                 ) : rows.length === 0 ? (
                   <tr>
                     <td colSpan={6} className="px-6 py-16 text-center">
-                      <p className="text-sm font-semibold">Aucun talent trouvé.</p>
+                      <p className="text-sm font-semibold">{t("manager.noTalentFound")}</p>
                       <p className="mt-1 text-xs text-muted-foreground">
                         Créez votre premier profil avec « Créer un talent ».
                       </p>
@@ -1781,7 +1784,7 @@ export default function ManagerTalents() {
             <UserPlus className="h-7 w-7 text-white" />
           </div>
           <div className="min-w-0 flex-1">
-            <h3 className="mb-1 text-lg font-black">Workflow Manager</h3>
+            <h3 className="mb-1 text-lg font-black">{t("manager.workflow")}</h3>
             <p className="text-sm text-muted-foreground">
               Créez un profil, ajoutez les compétences et le portfolio, puis publiez-le.
             </p>
