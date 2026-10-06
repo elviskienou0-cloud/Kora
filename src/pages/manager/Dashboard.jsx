@@ -11,6 +11,7 @@ RefreshCw,
 } from "lucide-react"
 
 import { useAuth } from "@/lib/AuthContext"
+import { useI18n } from "@/i18n/kora-i18n.jsx"
 import { supabase } from "@/lib/supabase"
 
 import { Button } from "@/components/ui/button"
@@ -78,10 +79,11 @@ return [
 export default function ManagerDashboard() {
 const navigate = useNavigate()
 const { user, isLoading: authLoading } = useAuth()
+const { t } = useI18n()
 
 const [talents, setTalents] = useState([])
 const [requests, setRequests] = useState([])
-const [notifications, setNotifications] = useState([])
+const [notifications, set{t("navigation.notifications")}] = useState([])
 const [revenue, setRevenue] = useState(0)
 
 const [search, setSearch] = useState("")
@@ -166,7 +168,7 @@ async function loadDashboard() {
 
     setTalents(talentsResult.data || [])
     setRequests(requestsResult.data || [])
-    setNotifications(notificationsResult.data || [])
+    set{t("navigation.notifications")}(notificationsResult.data || [])
 
     const paidStatuses = new Set(["paid", "completed", "confirmed", "success", "succeeded"])
     const totalRevenue = (transactionsResult.data || [])
@@ -256,7 +258,7 @@ const weeklyRequests = useMemo(() => {
 }, [requests])
 
 if (authLoading || loading) {
-return ( <div className="flex min-h-[60vh] items-center justify-center"> <div className="flex items-center gap-3 text-muted-foreground"> <RefreshCw className="h-5 w-5 animate-spin" /> <span>Chargement du tableau de bord...</span> </div> </div>
+return ( <div className="flex min-h-[60vh] items-center justify-center"> <div className="flex items-center gap-3 text-muted-foreground"> <RefreshCw className="h-5 w-5 animate-spin" /> <span>{t("manager.loading")}</span> </div> </div>
 )
 }
 
@@ -265,10 +267,10 @@ return null
 }
 
 return ( <div className="min-h-full space-y-8 bg-background p-4 md:p-6"> <div> <h1 className="text-3xl font-bold tracking-tight">
-Tableau de bord </h1>
+{t("manager.dashboard")}</h1>
 
     <p className="mt-2 text-muted-foreground">
-      Gérez vos talents et suivez vos demandes.
+      {t("manager.manageTalents")}
     </p>
   </div>
 
@@ -295,7 +297,7 @@ Tableau de bord </h1>
       <CardContent className="flex items-center justify-between p-6">
         <div>
           <p className="text-sm text-muted-foreground">
-            Mes talents
+            {t("manager.myTalents")}
           </p>
 
           <p className="mt-2 text-3xl font-bold">
@@ -313,7 +315,7 @@ Tableau de bord </h1>
       <CardContent className="flex items-center justify-between p-6">
         <div>
           <p className="text-sm text-muted-foreground">
-            Demandes actives
+            {t("manager.activeRequests")}
           </p>
 
           <p className="mt-2 text-3xl font-bold">
@@ -331,7 +333,7 @@ Tableau de bord </h1>
       <CardContent className="flex items-center justify-between p-6">
         <div>
           <p className="text-sm text-muted-foreground">
-            Revenus
+            {t("manager.revenue")}
           </p>
 
           <p className="mt-2 text-2xl font-bold">
@@ -343,7 +345,7 @@ Tableau de bord </h1>
           </p>
 
           <p className="mt-1 text-xs text-muted-foreground">
-            Transactions réglées
+            {t("manager.settledTransactions")}
           </p>
         </div>
 
@@ -358,16 +360,16 @@ Tableau de bord </h1>
     <div className="lg:col-span-2">
       <WeeklyChart
         data={weeklyRequests}
-        title="Activité des demandes"
-        subtitle="Demandes reçues au cours des 7 derniers jours"
+        title="{t("manager.requestActivity")}"
+        subtitle="{t("manager.requestsLast7Days")}"
       />
     </div>
 
     <Card>
       <CardHeader>
-        <CardTitle>Gestion rapide</CardTitle>
+        <CardTitle>{t("manager.quickManagement")}</CardTitle>
         <p className="text-sm text-muted-foreground">
-          Accédez rapidement à vos talents.
+          {t("manager.quickManagementDescription")}
         </p>
       </CardHeader>
       <CardContent>
@@ -375,7 +377,7 @@ Tableau de bord </h1>
           className="w-full"
           onClick={() => navigate("/manager/talents")}
         >
-          Modifier mes talents
+          {t("manager.editMyTalents")}
           <ArrowRight className="ml-2 h-4 w-4" />
         </Button>
       </CardContent>
@@ -387,17 +389,17 @@ Tableau de bord </h1>
       <CardHeader>
         <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
           <div>
-            <CardTitle>Mes talents</CardTitle>
+            <CardTitle>{t("manager.myTalents")}</CardTitle>
 
             <p className="mt-1 text-sm text-muted-foreground">
-              Les talents que vous gérez actuellement.
+              {t("manager.talentsManaged")}
             </p>
           </div>
 
           <Button
             onClick={() => navigate("/manager/talents")}
           >
-            Gérer mes talents
+            {t("manager.manageMyTalents")}
             <ArrowRight className="ml-2 h-4 w-4" />
           </Button>
         </div>
@@ -412,7 +414,7 @@ Tableau de bord </h1>
             onChange={(event) =>
               setSearch(event.target.value)
             }
-            placeholder="Rechercher un talent..."
+            placeholder="{t("manager.searchTalent")}"
             className="pl-9"
           />
         </div>
@@ -423,14 +425,14 @@ Tableau de bord </h1>
 
             <h3 className="font-semibold">
               {search
-                ? "Aucun talent trouvé"
-                : "Aucun talent"}
+                ? "{t("manager.noTalentFound")}"
+                : "{t("manager.noTalent")}"}
             </h3>
 
             <p className="mt-2 max-w-sm text-sm text-muted-foreground">
               {search
-                ? "Aucun talent ne correspond à votre recherche."
-                : "Commencez par ajouter un talent à votre espace manager."}
+                ? "{t("manager.noTalent")} ne correspond à votre recherche."
+                : "{t("manager.addTalentHint")}"}
             </p>
 
             {!search && (
@@ -489,7 +491,7 @@ Tableau de bord </h1>
                       navigate("/manager/talents")
                     }
                   >
-                    Gérer le talent
+                    {t("manager.manageTalentLabel")}
                   </Button>
                 </CardContent>
               </Card>
@@ -502,7 +504,7 @@ Tableau de bord </h1>
     <Card>
       <CardHeader>
         <div className="flex items-center justify-between">
-          <CardTitle>Notifications</CardTitle>
+          <CardTitle>{t("navigation.notifications")}</CardTitle>
 
           <Bell className="h-5 w-5 text-muted-foreground" />
         </div>
@@ -514,7 +516,7 @@ Tableau de bord </h1>
             <Bell className="mx-auto mb-3 h-8 w-8 text-muted-foreground" />
 
             <p className="text-sm text-muted-foreground">
-              Aucune notification
+              {t("manager.noNotifications")}
             </p>
           </div>
         ) : (
@@ -549,10 +551,10 @@ Tableau de bord </h1>
     <CardHeader>
       <div className="flex items-center justify-between">
         <div>
-          <CardTitle>Demandes récentes</CardTitle>
+          <CardTitle>{t("manager.recentRequests")}</CardTitle>
 
           <p className="mt-1 text-sm text-muted-foreground">
-            Les dernières demandes reçues par votre espace.
+            {t("manager.recentRequestsDescription")}
           </p>
         </div>
 
@@ -562,7 +564,7 @@ Tableau de bord </h1>
             navigate("/manager/requests")
           }
         >
-          Voir les demandes
+          {t("manager.viewRequests")}
           <ArrowRight className="ml-2 h-4 w-4" />
         </Button>
       </div>
@@ -574,7 +576,7 @@ Tableau de bord </h1>
           <ClipboardList className="mx-auto mb-3 h-8 w-8 text-muted-foreground" />
 
           <p className="text-sm text-muted-foreground">
-            Aucune demande pour le moment.
+            {t("manager.noRequests")}
           </p>
         </div>
       ) : (
@@ -590,7 +592,7 @@ Tableau de bord </h1>
                 </p>
 
                 <p className="text-sm text-muted-foreground">
-                  {request.status || "Statut non défini"}
+                  {request.status || "{t("manager.undefinedStatus")}"}
                 </p>
               </div>
 
@@ -601,7 +603,7 @@ Tableau de bord </h1>
                   navigate("/manager/requests")
                 }
               >
-                Ouvrir
+                {t("manager.open")}
                 <ArrowRight className="ml-2 h-4 w-4" />
               </Button>
             </div>
