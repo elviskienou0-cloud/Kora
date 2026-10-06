@@ -8,6 +8,7 @@ import { Input } from "@/components/ui/input"
 import { Badge } from "@/components/ui/badge"
 import { Avatar, AvatarFallback } from "@/components/ui/avatar"
 import { useAuth } from "@/lib/AuthContext"
+import { supabase } from "@/lib/supabase"
 import { APP_PARAMS } from "@/lib/app-params"
 import { getCategoryIcon } from "@/lib/categoryIcons"
 import { cn, formatCurrency } from "@/lib/utils"
@@ -128,10 +129,6 @@ export default function Categories() {
       if (channel) supabase.removeChannel(channel)
     }
   }, [isAuthenticated])
-
-  useEffect(() => {
-    if (!isAuthenticated) navigate("/login", { replace: true })
-  }, [isAuthenticated, navigate])
 
   const filtered = APP_PARAMS.categories.filter((c) =>
     c.name.toLowerCase().includes(search.toLowerCase())
