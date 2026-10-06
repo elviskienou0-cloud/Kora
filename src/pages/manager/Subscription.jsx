@@ -210,7 +210,7 @@ export default function ManagerSubscription() {
                 <div>
                   <div className="flex items-baseline gap-1.5">
                     <span className="text-4xl font-black gold-text-gradient">{formatMoney(price, plan.currency)}</span>
-                    {price > 0 && <span className="text-xs font-bold text-muted-foreground">/ mois</span>}
+                    {price > 0 && <span className="text-xs font-bold text-muted-foreground">{t("manager.perMonth")}</span>}
                   </div>
                 </div>
 
