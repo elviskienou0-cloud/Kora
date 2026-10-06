@@ -41,6 +41,7 @@ function initials(name = "KORA") {
 }
 
 export default function ManagerSettings() {
+  const { t } = useI18n()
   const { user, logout } = useAuth()
   const { t, language, setLanguage, theme, setTheme } = useI18n()
   const userId = user?.authId || user?.id || null
@@ -194,7 +195,7 @@ export default function ManagerSettings() {
 
   return (
     <div className="space-y-6">
-      <div><h1 className="text-2xl font-black">{t("settings.title")}</h1><p className="text-sm text-muted-foreground">{t("settings.subtitle")}</p></div><div className="mt-3"><Link to="/mes-donnees" className="text-sm font-semibold text-gold-dark hover:underline">Gérer mes données personnelles →</Link></div>
+      <div><h1 className="text-2xl font-black">{t("settings.title")}</h1><p className="text-sm text-muted-foreground">{t("settings.subtitle")}</p></div><div className="mt-3"><Link to="/mes-donnees" className="text-sm font-semibold text-gold-dark hover:underline">{t("settings.title")}</Link></div>
       <div className="grid gap-6 lg:grid-cols-[220px_1fr]">
         <Card className="h-fit"><CardContent className="p-2">
           <div className="space-y-1">
@@ -208,16 +209,16 @@ export default function ManagerSettings() {
         </CardContent></Card>
 
         <div className="space-y-6">
-          {tab === "profile" && <Card><CardHeader><CardTitle>Informations du profil</CardTitle><CardDescription>Modifiez vos informations enregistrées dans Supabase.</CardDescription></CardHeader><CardContent className="space-y-5">
+          {tab === "profile" && <Card><CardHeader><CardTitle>{t("settings.profileInfo.title")}</CardTitle><CardDescription>{t("settings.profileInfo.description")}</CardDescription></CardHeader><CardContent className="space-y-5">
             <div className="space-y-4"><div className="relative h-44 sm:h-52 rounded-2xl overflow-hidden border bg-muted">{profile.cover_url ? <img src={profile.cover_url} alt="Couverture" className="w-full h-full object-cover" /> : <div className="w-full h-full flex items-center justify-center text-muted-foreground"><ImageIcon className="h-8 w-8" /></div>}<label className="absolute right-3 bottom-3 inline-flex items-center gap-2 rounded-lg bg-black/70 text-white px-3 py-2 text-xs font-bold cursor-pointer"><Camera className="h-4 w-4" />{uploadingImage === "cover" ? "Envoi…" : "Changer la couverture"}<input type="file" accept="image/jpeg,image/png,image/webp,image/gif" className="hidden" disabled={!!uploadingImage} onChange={(e) => { const f=e.target.files?.[0]; if(f) uploadImage(f,"cover"); e.target.value="" }} /></label></div><div className="flex items-center gap-4"><div className="relative h-20 w-20 shrink-0">{profile.avatar ? <img src={profile.avatar} alt="Profil" className="h-20 w-20 rounded-full object-cover border-4 border-background shadow" /> : <div className="h-20 w-20 rounded-full gold-gradient text-white flex items-center justify-center text-xl font-black">{initials(profile.name)}</div>}<label className="absolute -right-1 -bottom-1 h-8 w-8 rounded-full bg-gold text-white flex items-center justify-center cursor-pointer border-2 border-background"><Camera className="h-4 w-4" /><input type="file" accept="image/jpeg,image/png,image/webp,image/gif" className="hidden" disabled={!!uploadingImage} onChange={(e) => { const f=e.target.files?.[0]; if(f) uploadImage(f,"avatar"); e.target.value="" }} /></label></div><div><div className="font-black">{profile.name || "Manager KORA"}</div><div className="mt-1 flex flex-wrap gap-2"><Badge variant="outline">Manager</Badge>{planAccess?.business_badge && <Badge className="bg-gold text-white">Business</Badge>}</div></div></div></div>
             <div className="grid gap-4 md:grid-cols-2">
-              <div className="space-y-2 md:col-span-2"><Label>Nom complet</Label><Input value={profile.name} onChange={(e) => setProfile((p) => ({ ...p, name: e.target.value }))} /></div>
-              <div className="space-y-2"><Label>Email</Label><Input value={profile.email} disabled readOnly /></div>
-              <div className="space-y-2"><Label>Téléphone</Label><Input value={profile.phone} onChange={(e) => setProfile((p) => ({ ...p, phone: e.target.value }))} /></div>
-              <div className="space-y-2"><Label>Ville</Label><Input value={profile.city} onChange={(e) => setProfile((p) => ({ ...p, city: e.target.value }))} /></div>
-              <div className="space-y-2"><Label>Entreprise</Label><Input value={profile.company} onChange={(e) => setProfile((p) => ({ ...p, company: e.target.value }))} /></div>
+              <div className="space-y-2 md:col-span-2"><Label>{t("account.name")}</Label><Input value={profile.name} onChange={(e) => setProfile((p) => ({ ...p, name: e.target.value }))} /></div>
+              <div className="space-y-2"><Label>{t("account.email")}</Label><Input value={profile.email} disabled readOnly /></div>
+              <div className="space-y-2"><Label>{t("common.contact")}</Label><Input value={profile.phone} onChange={(e) => setProfile((p) => ({ ...p, phone: e.target.value }))} /></div>
+              <div className="space-y-2"><Label>{t("talents.city")}</Label><Input value={profile.city} onChange={(e) => setProfile((p) => ({ ...p, city: e.target.value }))} /></div>
+              <div className="space-y-2"><Label>{t("common.appName")}</Label><Input value={profile.company} onChange={(e) => setProfile((p) => ({ ...p, company: e.target.value }))} /></div>
               
-              <div className="space-y-2 md:col-span-2"><Label>Biographie</Label><Textarea value={profile.bio} onChange={(e) => setProfile((p) => ({ ...p, bio: e.target.value }))} rows={5} maxLength={2000} /></div>
+              <div className="space-y-2 md:col-span-2"><Label>{t("talents.bio")}</Label><Textarea value={profile.bio} onChange={(e) => setProfile((p) => ({ ...p, bio: e.target.value }))} rows={5} maxLength={2000} /></div>
             </div>
             <div className="flex justify-end"><Button onClick={saveProfile} disabled={savingProfile} className="gap-2">{savingProfile ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />} {savingProfile ? t("common.saving") : t("common.save")}</Button></div>
           </CardContent></Card>}
