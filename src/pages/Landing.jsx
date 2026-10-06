@@ -465,7 +465,7 @@ export default function Landing() {
                 custom={1}
                 className="text-4xl sm:text-5xl font-black tracking-tight mb-5"
               >
-                8 catégories,{" "}
+                {APP_PARAMS.categories.length} catégories,{" "}
                 <span className="gold-text-gradient">une communauté en croissance</span>
               </motion.h2>
               <motion.p
