@@ -142,7 +142,7 @@ export default function SubscriptionExpired() {
                     <CardTitle className="font-black">{plan.name}</CardTitle>
                     {business && <Badge className="bg-gold/10 text-gold-dark">{t("common.available")}</Badge>}
                   </div>
-                  <CardDescription>{business ? "Pour les managers qui gèrent plusieurs talents." : "Pour gérer jusqu'à 3 talents."}</CardDescription>
+                  <CardDescription>{business ? {t("manager.expiredMulti")} : {t("manager.expiredThree")}}</CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-5">
                   <div className="text-3xl font-black gold-text-gradient">{money(plan.price, plan.currency)} <span className="text-sm text-muted-foreground">/ mois</span></div>
@@ -155,7 +155,7 @@ export default function SubscriptionExpired() {
                   </div>
                   <Button className="w-full gold-gradient text-primary-foreground" disabled={paying === plan.id} onClick={() => subscribe(plan)}>
                     {paying === plan.id ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <CreditCard className="mr-2 h-4 w-4" />}
-                    {paying === plan.id ? "Préparation..." : "Réabonner"}
+                    {paying === plan.id ? {t("manager.preparing")} : {t("manager.resubscribe")}}
                   </Button>
                 </CardContent>
               </Card>
