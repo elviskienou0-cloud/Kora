@@ -158,7 +158,7 @@ export default function ManagerRequestDetail() {
 
     const currentStatus = String(request.status || "").toLowerCase()
     if (!["pending", "open"].includes(currentStatus)) {
-      toast.info(currentStatus === "accepted" ? "Cette demande est déjà acceptée." : "Cette demande a déjà été traitée.")
+      toast.info(currentStatus === "accepted" ? t("requests.accepted") : t("manager.alreadyProcessed"))
       return
     }
 
@@ -171,7 +171,7 @@ export default function ManagerRequestDetail() {
 
     try {
       await updateRequestStatus(request.id, status)
-      toast.success(status === "accepted" ? "Demande acceptée." : "Demande refusée.")
+      toast.success(status === "accepted" ? t("manager.requestAccepted") : t("manager.requestRejected"))
       await load()
     } catch (error) {
       console.error("Erreur update_request_status :", error)
@@ -194,7 +194,7 @@ export default function ManagerRequestDetail() {
     setProcessing(true)
     try {
       await updateManagerProjectStatus(project.id, nextStatus)
-      toast.success(nextStatus === "completed" ? "Projet marqué comme terminé." : "Statut du projet mis à jour.")
+      toast.success(nextStatus === "completed" ? t("manager.projectCompleted") : t("manager.projectStatusUpdated"))
       await load()
     } catch (error) {
       toast.error(error?.message || "Impossible de modifier le statut du projet.")
@@ -271,7 +271,7 @@ export default function ManagerRequestDetail() {
           <Card className="border-gold/15">
             <CardHeader><CardTitle className="text-base">{t("requests.client")}</CardTitle></CardHeader>
             <CardContent>
-              <p className="text-lg font-bold">{client?.name || "Client KORA"}</p>
+              <p className="text-lg font-bold">{client?.name || t("common.clientKora")}</p>
               <Button variant="outline" size="sm" className="mt-4" onClick={handleMessageClient}><MessageCircle className="mr-2 h-4 w-4" /> {t("manager.clientContact")}</Button>
             </CardContent>
           </Card>
@@ -282,9 +282,9 @@ export default function ManagerRequestDetail() {
           <CardContent className="space-y-5">
             <div className="grid gap-4 md:grid-cols-2">
               <div><p className="text-xs font-semibold uppercase text-muted-foreground">{t("projects.titleLabel")}</p><p className="mt-1 font-bold">{request.title || project?.title || "—"}</p></div>
-              <div><p className="text-xs font-semibold uppercase text-muted-foreground">{t("requestForm.projectType")}</p><p className="mt-1 font-bold">{request.project_type || "Non précisé"}</p></div>
-              <div><p className="text-xs font-semibold uppercase text-muted-foreground">{t("requestForm.budget")}</p><p className="mt-1 font-bold">{request.budget != null ? formatMoney(request.budget, request.currency || "XOF") : "Non précisé"}</p></div>
-              <div><p className="text-xs font-semibold uppercase text-muted-foreground">{t("requestForm.location")}</p><p className="mt-1 font-bold">{request.location || "Non précisé"}</p></div>
+              <div><p className="text-xs font-semibold uppercase text-muted-foreground">{t("requestForm.projectType")}</p><p className="mt-1 font-bold">{request.project_type || t("common.notProvided")}</p></div>
+              <div><p className="text-xs font-semibold uppercase text-muted-foreground">{t("requestForm.budget")}</p><p className="mt-1 font-bold">{request.budget != null ? formatMoney(request.budget, request.currency || "XOF") : t("common.notProvided")}</p></div>
+              <div><p className="text-xs font-semibold uppercase text-muted-foreground">{t("requestForm.location")}</p><p className="mt-1 font-bold">{request.location || t("common.notProvided")}</p></div>
               <div><p className="text-xs font-semibold uppercase text-muted-foreground">{t("requestForm.dateStart")}</p><p className="mt-1 flex items-center gap-2 font-bold"><CalendarDays className="h-4 w-4 text-gold-dark" />{formatDate(request.project_date_start)}{request.project_date_end ? ` → ${formatDate(request.project_date_end)}` : ""}</p></div>
               <div><p className="text-xs font-semibold uppercase text-muted-foreground">{t("requests.received")}</p><p className="mt-1 font-bold">{formatDateTime(request.created_at)}</p></div>
             </div>
@@ -293,7 +293,7 @@ export default function ManagerRequestDetail() {
 
             <div>
               <p className="text-xs font-semibold uppercase text-muted-foreground">{t("requestForm.description")}</p>
-              <p className="mt-2 whitespace-pre-line text-sm leading-7 text-muted-foreground">{request.description || "Aucune description."}</p>
+              <p className="mt-2 whitespace-pre-line text-sm leading-7 text-muted-foreground">{request.description || t("common.noDescription")}</p>
             </div>
 
             {request.additional_info && (
@@ -342,7 +342,7 @@ export default function ManagerRequestDetail() {
           <Card className="border-gold/20">
             <CardHeader><CardTitle>{t("talents.contact")}</CardTitle></CardHeader>
             <CardContent className="space-y-3">
-              <Textarea value={reply} onChange={(event) => setReply(event.target.value)} placeholder="Écrivez votre réponse au client…" rows={4} disabled={processing} />
+              <Textarea value={reply} onChange={(event) => setReply(event.target.value)} placeholder=t("manager.replyPlaceholder") rows={4} disabled={processing} />
               <div className="flex justify-end">
                 <Button onClick={sendReply} disabled={processing || !reply.trim()} className="gap-2"><MessageCircle className="h-4 w-4" /> {t("manager.sendReply")}</Button>
               </div>
@@ -354,7 +354,7 @@ export default function ManagerRequestDetail() {
           <CardContent className="p-5">
             <div className="grid gap-4 sm:grid-cols-3 text-sm">
               <div><p className="text-muted-foreground">{t("requests.request")}</p><p className="font-medium">{request.id}</p></div>
-              <div><p className="text-muted-foreground">{t("requests.project")}</p><p className="font-medium">{project?.id || "Créé avec la demande"}</p></div>
+              <div><p className="text-muted-foreground">{t("requests.project")}</p><p className="font-medium">{project?.id || t("manager.createdWithRequest")}</p></div>
               <div><p className="text-muted-foreground">{t("requests.talent")}</p><p className="font-medium">{talentName}</p></div>
             </div>
             <Separator className="my-5" />
