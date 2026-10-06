@@ -335,7 +335,7 @@ export default function Home() {
                         <div className="flex-1 min-w-0">
                           <div className="flex items-center gap-1.5 mb-0.5">
                             <p className="font-bold truncate">{talent.name}</p>
-                            {t.verified && <Award className="h-3.5 w-3.5 text-blue-500 shrink-0" />}
+                            {talent.verified && <Award className="h-3.5 w-3.5 text-blue-500 shrink-0" />}
                           </div>
                           <p className="text-xs text-muted-foreground flex items-center gap-1"><MapPin className="h-3 w-3" />{talent.country}</p>
                           <div className="flex items-center gap-1 mt-1">
@@ -356,7 +356,7 @@ export default function Home() {
                         {talent.skills.slice(0, 3).map((s) => (
                           <Badge key={s} variant="secondary" className="text-[10px]">{s}</Badge>
                         ))}
-                        {t.skills.length > 3 && <Badge variant="outline" className="text-[10px]">+{talent.skills.length - 3}</Badge>}
+                        {talent.skills.length > 3 && <Badge variant="outline" className="text-[10px]">+{talent.skills.length - 3}</Badge>}
                       </div>
                       <Separator />
                       <div className="flex items-center justify-between">
