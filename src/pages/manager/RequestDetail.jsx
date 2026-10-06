@@ -144,7 +144,7 @@ export default function ManagerRequestDetail() {
   const handleMessageClient = async () => {
     if (!request?.client_id) return
     try {
-      const conversationId = await createDirectConversation(request.client_id)
+      const conversationId = await createDirectConversation(request.client_id, request.talent_id)
       navigate(buildMessagesUrl(conversationId))
     } catch (error) {
       toast.error(error?.message || "Impossible d'ouvrir la conversation")
