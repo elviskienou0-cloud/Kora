@@ -41,7 +41,7 @@ function initialsOf(firstName, lastName) {
   return `${firstName?.[0] || ""}${lastName?.[0] || ""}`.toUpperCase() || "T"
 }
 
-function timeAgo(dateString) {
+function timeAgo(dateString, language) {
   const diffMs = Date.now() - new Date(dateString).getTime()
   const minutes = Math.floor(diffMs / 60000)
   if (minutes < 1) return language === "en" ? "just now" : "à l'instant"
@@ -323,25 +323,25 @@ export default function Home() {
             ) : recommended.length === 0 ? (
               <p className="col-span-full text-sm text-muted-foreground">{t("home.noPublishedTalents")}</p>
             ) : (
-              recommended.map((t, i) => {
+              recommended.map((talent, i) => {
               return (
-                <motion.div key={t.id} variants={fadeInUp} custom={i} whileHover={{ y: -5 }} transition={{ type: "spring", stiffness: 300 }}>
-                  <Card className="h-full cursor-pointer group" onClick={() => navigate(`/talent/${t.id}`)}>
+                <motion.div key={talent.id} variants={fadeInUp} custom={i} whileHover={{ y: -5 }} transition={{ type: "spring", stiffness: 300 }}>
+                  <Card className="h-full cursor-pointer group" onClick={() => navigate(`/talent/${talent.id}`)}>
                     <CardContent className="p-5 space-y-4">
                       <div className="flex items-start gap-3">
                         <Avatar className="h-14 w-14 ring-2 ring-gold/30">
-                          <AvatarFallback className="text-base">{t.avatar}</AvatarFallback>
+                          <AvatarFallback className="text-base">{talent.avatar}</AvatarFallback>
                         </Avatar>
                         <div className="flex-1 min-w-0">
                           <div className="flex items-center gap-1.5 mb-0.5">
-                            <p className="font-bold truncate">{t.name}</p>
+                            <p className="font-bold truncate">{talent.name}</p>
                             {t.verified && <Award className="h-3.5 w-3.5 text-blue-500 shrink-0" />}
                           </div>
-                          <p className="text-xs text-muted-foreground flex items-center gap-1"><MapPin className="h-3 w-3" />{t.country}</p>
+                          <p className="text-xs text-muted-foreground flex items-center gap-1"><MapPin className="h-3 w-3" />{talent.country}</p>
                           <div className="flex items-center gap-1 mt-1">
                             <Star className="h-3 w-3 text-amber-500 fill-amber-500" />
-                            <span className="text-xs font-bold">{t.rating}</span>
-                            <span className="text-[10px] text-muted-foreground">({t.reviews} {t("reviews.reviews")})</span>
+                            <span className="text-xs font-bold">{talent.rating}</span>
+                            <span className="text-[10px] text-muted-foreground">({talent.reviews} {t("reviews.reviews")})</span>
                           </div>
                         </div>
                         <Button variant="ghost" size="icon" className="h-8 w-8 shrink-0 rounded-xl">
@@ -349,23 +349,23 @@ export default function Home() {
                         </Button>
                       </div>
                       <div>
-                        <p className="font-bold text-sm mb-1.5 line-clamp-1">{t.role}</p>
-                        <p className="text-xs text-muted-foreground line-clamp-2 min-h-[2rem]">{t.bio}</p>
+                        <p className="font-bold text-sm mb-1.5 line-clamp-1">{talent.role}</p>
+                        <p className="text-xs text-muted-foreground line-clamp-2 min-h-[2rem]">{talent.bio}</p>
                       </div>
                       <div className="flex flex-wrap gap-1.5">
-                        {t.skills.slice(0, 3).map((s) => (
+                        {talent.skills.slice(0, 3).map((s) => (
                           <Badge key={s} variant="secondary" className="text-[10px]">{s}</Badge>
                         ))}
-                        {t.skills.length > 3 && <Badge variant="outline" className="text-[10px]">+{t.skills.length - 3}</Badge>}
+                        {t.skills.length > 3 && <Badge variant="outline" className="text-[10px]">+{talent.skills.length - 3}</Badge>}
                       </div>
                       <Separator />
                       <div className="flex items-center justify-between">
                         <div>
                           <p className="text-[10px] text-muted-foreground">{t("home.from")}</p>
-                          <p className="text-lg font-black gold-text-gradient">{formatCurrency(t.price)}<span className="text-[10px] font-medium text-muted-foreground ml-1">{language === "en" ? "/day" : "/jour"}</span></p>
+                          <p className="text-lg font-black gold-text-gradient">{formatCurrency(talent.price)}<span className="text-[10px] font-medium text-muted-foreground ml-1">{language === "en" ? "/day" : "/jour"}</span></p>
                         </div>
                         <div className="flex items-center gap-1 text-xs font-semibold text-muted-foreground">
-                          <Briefcase className="h-3.5 w-3.5" /> {t.completed} {t("home.projectsCompleted")}
+                          <Briefcase className="h-3.5 w-3.5" /> {talent.completed} {t("home.projectsCompleted")}
                         </div>
                       </div>
                     </CardContent>
@@ -401,7 +401,7 @@ export default function Home() {
                             <p className="text-sm font-semibold truncate">
                               {a.action}{a.entity_type ? ` · ${a.entity_type}` : ""}
                             </p>
-                            <p className="text-[11px] text-muted-foreground">{timeAgo(a.created_at)}</p>
+                            <p className="text-[11px] text-muted-foreground">{timeAgo(a.created_at, language)}</p>
                           </div>
                         </div>
                       )
