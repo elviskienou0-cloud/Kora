@@ -19,6 +19,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Separator } from "@/components/ui/separator"
 import { Textarea } from "@/components/ui/textarea"
 import { useAuth } from "@/lib/AuthContext"
+import { useI18n } from "@/i18n/kora-i18n.jsx"
 import { supabase } from "@/lib/supabase"
 import { updateManagerProjectStatus, updateRequestStatus } from "@/lib/requestInvitations"
 import { buildMessagesUrl, createDirectConversation } from "@/lib/messaging"
@@ -56,6 +57,7 @@ function formatDateTime(value) {
 }
 
 export default function ManagerRequestDetail() {
+  const { t } = useI18n()
   const { id } = useParams()
   const navigate = useNavigate()
   const { user } = useAuth()
@@ -247,8 +249,8 @@ export default function ManagerRequestDetail() {
           <div className="flex items-center gap-3">
             <Button variant="outline" size="icon" onClick={() => navigate(-1)}><ArrowLeft className="h-4 w-4" /></Button>
             <div>
-              <p className="text-xs font-bold uppercase tracking-[0.18em] text-gold">Demande de collaboration</p>
-              <h1 className="text-2xl font-black tracking-tight">{request.title || "Demande"}</h1>
+              <p className="text-xs font-bold uppercase tracking-[0.18em] text-gold">{t("requestForm.badge")}</p>
+              <h1 className="text-2xl font-black tracking-tight">{request.title || {t("requests.request")}}</h1>
             </div>
           </div>
           <Badge variant="outline" className={status.className}>{status.label}</Badge>
@@ -256,18 +258,18 @@ export default function ManagerRequestDetail() {
 
         <div className="grid gap-4 md:grid-cols-2">
           <Card className="border-gold/15">
-            <CardHeader><CardTitle className="text-base">Talent concerné</CardTitle></CardHeader>
+            <CardHeader><CardTitle className="text-base">{t("requests.talent")}</CardTitle></CardHeader>
             <CardContent>
               <p className="text-lg font-bold">{talentName}</p>
               {talent?.title && <p className="mt-1 text-sm text-muted-foreground">{talent.title}</p>}
               {talent?.city && <p className="mt-1 text-sm text-muted-foreground">{talent.city}</p>}
               {!talent?.id && <p className="mt-2 text-sm text-muted-foreground">Cette demande historique ne contient pas de talent associé. Les informations de la demande restent accessibles.</p>}
-              {talent?.id && <Button variant="outline" size="sm" className="mt-4" asChild><Link to={`/talent/${talent.id}`}>Voir la fiche talent</Link></Button>}
+              {talent?.id && <Button variant="outline" size="sm" className="mt-4" asChild><Link to={`/talent/${talent.id}`}>{t("talents.viewProfile")}</Link></Button>}
             </CardContent>
           </Card>
 
           <Card className="border-gold/15">
-            <CardHeader><CardTitle className="text-base">Client</CardTitle></CardHeader>
+            <CardHeader><CardTitle className="text-base">{t("requests.client")}</CardTitle></CardHeader>
             <CardContent>
               <p className="text-lg font-bold">{client?.name || "Client KORA"}</p>
               <Button variant="outline" size="sm" className="mt-4" onClick={handleMessageClient}><MessageCircle className="mr-2 h-4 w-4" /> Contacter le client</Button>
@@ -279,24 +281,24 @@ export default function ManagerRequestDetail() {
           <CardHeader><CardTitle className="flex items-center gap-2"><BriefcaseBusiness className="h-5 w-5 text-gold" /> Contexte du projet</CardTitle></CardHeader>
           <CardContent className="space-y-5">
             <div className="grid gap-4 md:grid-cols-2">
-              <div><p className="text-xs font-semibold uppercase text-muted-foreground">Titre</p><p className="mt-1 font-bold">{request.title || project?.title || "—"}</p></div>
-              <div><p className="text-xs font-semibold uppercase text-muted-foreground">Type de projet</p><p className="mt-1 font-bold">{request.project_type || "Non précisé"}</p></div>
-              <div><p className="text-xs font-semibold uppercase text-muted-foreground">Budget proposé</p><p className="mt-1 font-bold">{request.budget != null ? formatMoney(request.budget, request.currency || "XOF") : "Non précisé"}</p></div>
-              <div><p className="text-xs font-semibold uppercase text-muted-foreground">Lieu</p><p className="mt-1 font-bold">{request.location || "Non précisé"}</p></div>
-              <div><p className="text-xs font-semibold uppercase text-muted-foreground">Date / période</p><p className="mt-1 flex items-center gap-2 font-bold"><CalendarDays className="h-4 w-4 text-gold-dark" />{formatDate(request.project_date_start)}{request.project_date_end ? ` → ${formatDate(request.project_date_end)}` : ""}</p></div>
-              <div><p className="text-xs font-semibold uppercase text-muted-foreground">Demande reçue</p><p className="mt-1 font-bold">{formatDateTime(request.created_at)}</p></div>
+              <div><p className="text-xs font-semibold uppercase text-muted-foreground">{t("projects.titleLabel")}</p><p className="mt-1 font-bold">{request.title || project?.title || "—"}</p></div>
+              <div><p className="text-xs font-semibold uppercase text-muted-foreground">{t("requestForm.projectType")}</p><p className="mt-1 font-bold">{request.project_type || "Non précisé"}</p></div>
+              <div><p className="text-xs font-semibold uppercase text-muted-foreground">{t("requestForm.budget")}</p><p className="mt-1 font-bold">{request.budget != null ? formatMoney(request.budget, request.currency || "XOF") : "Non précisé"}</p></div>
+              <div><p className="text-xs font-semibold uppercase text-muted-foreground">{t("requestForm.location")}</p><p className="mt-1 font-bold">{request.location || "Non précisé"}</p></div>
+              <div><p className="text-xs font-semibold uppercase text-muted-foreground">{t("requestForm.dateStart")}</p><p className="mt-1 flex items-center gap-2 font-bold"><CalendarDays className="h-4 w-4 text-gold-dark" />{formatDate(request.project_date_start)}{request.project_date_end ? ` → ${formatDate(request.project_date_end)}` : ""}</p></div>
+              <div><p className="text-xs font-semibold uppercase text-muted-foreground">{t("requests.received")}</p><p className="mt-1 font-bold">{formatDateTime(request.created_at)}</p></div>
             </div>
 
             <Separator />
 
             <div>
-              <p className="text-xs font-semibold uppercase text-muted-foreground">Description</p>
+              <p className="text-xs font-semibold uppercase text-muted-foreground">{t("requestForm.description")}</p>
               <p className="mt-2 whitespace-pre-line text-sm leading-7 text-muted-foreground">{request.description || "Aucune description."}</p>
             </div>
 
             {request.additional_info && (
               <div className="rounded-xl bg-accent/30 p-4">
-                <p className="text-xs font-semibold uppercase text-muted-foreground">Informations complémentaires</p>
+                <p className="text-xs font-semibold uppercase text-muted-foreground">{t("requestForm.additionalInfo")}</p>
                 <p className="mt-2 whitespace-pre-line text-sm leading-7 text-muted-foreground">{request.additional_info}</p>
               </div>
             )}
@@ -326,8 +328,8 @@ export default function ManagerRequestDetail() {
                   )}
                   {isAccepted && !canManageProjects && (
                     <div className="rounded-xl border border-gold/20 bg-gold/5 px-4 py-3 text-sm text-muted-foreground">
-                      La gestion du statut des projets est réservée aux plans <strong className="text-foreground">Pro</strong> et <strong className="text-foreground">Business</strong>.
-                      <Link to="/manager/subscription" className="ml-1 font-bold text-gold-dark hover:underline">Voir les offres</Link>
+                      La gestion du statut des projets est réservée aux plans <strong className="text-foreground">{t("subscriptions.plan")}</strong> et <strong className="text-foreground">{t("subscriptions.plan")}</strong>.
+                      <Link to="/manager/subscription" className="ml-1 font-bold text-gold-dark hover:underline">{t("subscriptions.upgrade")}</Link>
                     </div>
                   )}
                 </div>
@@ -338,7 +340,7 @@ export default function ManagerRequestDetail() {
 
         {isAccepted && (
           <Card className="border-gold/20">
-            <CardHeader><CardTitle>Répondre au client</CardTitle></CardHeader>
+            <CardHeader><CardTitle>{t("talents.contact")}</CardTitle></CardHeader>
             <CardContent className="space-y-3">
               <Textarea value={reply} onChange={(event) => setReply(event.target.value)} placeholder="Écrivez votre réponse au client…" rows={4} disabled={processing} />
               <div className="flex justify-end">
@@ -351,13 +353,13 @@ export default function ManagerRequestDetail() {
         <Card className="border-border/60">
           <CardContent className="p-5">
             <div className="grid gap-4 sm:grid-cols-3 text-sm">
-              <div><p className="text-muted-foreground">Demande</p><p className="font-medium">{request.id}</p></div>
-              <div><p className="text-muted-foreground">Projet lié</p><p className="font-medium">{project?.id || "Créé avec la demande"}</p></div>
-              <div><p className="text-muted-foreground">Talent</p><p className="font-medium">{talentName}</p></div>
+              <div><p className="text-muted-foreground">{t("requests.request")}</p><p className="font-medium">{request.id}</p></div>
+              <div><p className="text-muted-foreground">{t("requests.project")}</p><p className="font-medium">{project?.id || "Créé avec la demande"}</p></div>
+              <div><p className="text-muted-foreground">{t("requests.talent")}</p><p className="font-medium">{talentName}</p></div>
             </div>
             <Separator className="my-5" />
             <div className="flex flex-wrap justify-end gap-2">
-              <Button variant="outline" onClick={() => navigate("/manager/requests")}>Retour aux demandes</Button>
+              <Button variant="outline" onClick={() => navigate("/manager/requests")}>{t("common.back")}</Button>
               {isPending && (
                 <>
                   <Button variant="outline" onClick={() => handleStatus("rejected")} disabled={processing} className="text-red-600"><XCircle className="mr-2 h-4 w-4" /> Refuser</Button>
