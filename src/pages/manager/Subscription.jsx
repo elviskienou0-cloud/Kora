@@ -160,7 +160,7 @@ export default function ManagerSubscription() {
         <div>
           <p className="text-xs font-bold uppercase tracking-[0.18em] text-gold">{t("account.manager")}</p>
           <h1 className="text-2xl font-black tracking-tight">{t("subscriptions.title")}</h1>
-          <p className="text-sm text-muted-foreground">Choisissez votre formule. Les paiements d’abonnement Pro et Business sont validés manuellement par KORA. Les offres ne comprennent aucun système de paiement ou de commission sur les projets.</p>
+          <p className="text-sm text-muted-foreground">{t("manager.choosePlan")} Les offres ne comprennent aucun système de paiement ou de commission sur les projets.</p>
         </div>
         <Badge variant="outline" className="w-fit gap-1.5 border-gold/30 bg-gold/10 text-gold-dark">
           <Crown className="h-3.5 w-3.5" />
@@ -174,7 +174,7 @@ export default function ManagerSubscription() {
             <Clock3 className="h-5 w-5 text-amber-600" />
             <div>
               <p className="font-black">{t("subscriptions.pending")}</p>
-              <p className="text-sm text-muted-foreground">Votre paiement a été enregistré. Un administrateur KORA doit le confirmer avant l'activation.</p>
+              <p className="text-sm text-muted-foreground">{t("manager.paymentRecorded")}</p>
             </div>
           </CardContent>
         </Card>
@@ -253,8 +253,8 @@ export default function ManagerSubscription() {
 
       <Card className="border-border/60">
         <CardHeader>
-          <CardTitle className="font-black flex items-center gap-2"><ShieldCheck className="h-5 w-5 text-gold" /> Historique des paiements</CardTitle>
-          <CardDescription>Les paiements SasPay restent en attente jusqu'à leur validation par un administrateur autorisé.</CardDescription>
+          <CardTitle className="font-black flex items-center gap-2"><ShieldCheck className="h-5 w-5 text-gold" /> {t("manager.paymentHistory")}</CardTitle>
+          <CardDescription>{t("manager.saspayPending")}</CardDescription>
         </CardHeader>
         <CardContent className="p-0">
           <div className="overflow-x-auto">
