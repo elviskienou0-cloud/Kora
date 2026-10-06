@@ -29,6 +29,7 @@ import { APP_PARAMS } from "@/lib/app-params"
 import { cn, formatCurrency, truncate } from "@/lib/utils"
 import koraLogo from "@/assets/kora-logo.svg"
 import { useKoraStats } from "@/lib/useKoraStats"
+import { useI18n } from "@/i18n/kora-i18n.jsx"
 
 const fadeInUp = {
   hidden: { opacity: 0, y: 24 },
@@ -43,13 +44,13 @@ function initialsOf(firstName, lastName) {
 function timeAgo(dateString) {
   const diffMs = Date.now() - new Date(dateString).getTime()
   const minutes = Math.floor(diffMs / 60000)
-  if (minutes < 1) return "à l'instant"
-  if (minutes < 60) return `il y a ${minutes} min`
+  if (minutes < 1) return language === "en" ? "just now" : "à l'instant"
+  if (minutes < 60) return language === "en" ? `${minutes} min ago` : `il y a ${minutes} min`
   const hours = Math.floor(minutes / 60)
-  if (hours < 24) return `il y a ${hours}h`
+  if (hours < 24) return language === "en" ? `${hours}h ago` : `il y a ${hours}h`
   const days = Math.floor(hours / 24)
-  if (days === 1) return "hier"
-  return `il y a ${days}j`
+  if (days === 1) return language === "en" ? "yesterday" : "hier"
+  return language === "en" ? `${days}d ago` : `il y a ${days}j`
 }
 
 function activityIcon(action = "") {
@@ -64,6 +65,7 @@ function activityIcon(action = "") {
 export default function Home() {
   const navigate = useNavigate()
   const { user, isAuthenticated, isLoading, logout } = useAuth()
+  const { t, language } = useI18n()
   const [recommended, setRecommended] = useState([])
   const [loadingRecommended, setLoadingRecommended] = useState(true)
 
@@ -186,7 +188,7 @@ export default function Home() {
 
   if (isLoading || !user) return null
 
-  const roleLabel = { admin: "Administrateur", manager: "Manager", client: "Client" }[user.role] || "Utilisateur"
+  const roleLabel = { admin: t("account.admin"), manager: t("account.manager"), client: t("account.client") }[user.role] || t("account.account")
 
   const firstName = user.name?.split(" ")[0] || user.name
 
@@ -203,7 +205,7 @@ export default function Home() {
           <div className="hidden md:flex items-center gap-4">
             <div className="relative">
               <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-              <Input placeholder="Rechercher un talent, un service..." className="pl-10 w-[380px] h-10" />
+              <Input placeholder={t("home.searchPlaceholder")} className="pl-10 w-[380px] h-10" />
             </div>
           </div>
           <div className="flex items-center gap-3">
@@ -238,17 +240,17 @@ export default function Home() {
                 <div>
                   <div className="inline-flex items-center gap-2 mb-3">
                     <HandWaving className="h-6 w-6 animate-pulse" />
-                    <span className="font-black text-sm uppercase tracking-wider">Bon retour sur {APP_PARAMS.name} !</span>
+                    <span className="font-black text-sm uppercase tracking-wider">{t("home.welcomeBack", undefined, { name: APP_PARAMS.name })}</span>
                   </div>
                   <h1 className="text-3xl sm:text-4xl font-black mb-2">
-                    Bienvenue, <span className="underline decoration-white/40 decoration-4 underline-offset-4">{firstName}</span> 👋
+                    {t("home.welcomeUser", undefined, { name: firstName })} 👋
                   </h1>
                   <p className="text-base font-medium opacity-90 max-w-xl">
                     {user.role === "client"
-                      ? "Trouvez les meilleurs talents africains pour faire grandir votre projet. Laissez-vous guider !"
+                      ? t("home.clientIntro")
                       : user.role === "manager"
-                      ? "Tableau de bord manager : gérez vos talents, suivez vos projets et optimisez vos collaborations."
-                      : "Tableau de bord administrateur : consultez les statistiques globales de la plateforme."}
+                      ? t("home.managerIntro")
+                      : t("home.adminIntro")}
                   </p>
                 </div>
                 <div className="flex gap-3 shrink-0">
@@ -278,8 +280,8 @@ export default function Home() {
         <motion.section initial="hidden" animate="visible" variants={stagger}>
           <div className="flex items-end justify-between mb-6">
             <div>
-              <h2 className="text-2xl font-black tracking-tight">Votre tableau de bord</h2>
-              <p className="text-muted-foreground font-medium">Statistiques clés en temps réel</p>
+              <h2 className="text-2xl font-black tracking-tight">{t("dashboard.title")}</h2>
+              <p className="text-muted-foreground font-medium">{t("home.realtimeStats")}</p>
             </div>
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
@@ -307,9 +309,9 @@ export default function Home() {
         <motion.section initial="hidden" animate="visible" variants={stagger} className="space-y-6">
           <div className="flex items-end justify-between flex-wrap gap-4">
             <div>
-              <Badge variant="gold" className="mb-2 px-3 py-1 text-xs font-bold">Sélection KORA</Badge>
-              <h2 className="text-2xl font-black tracking-tight">Talents recommandés pour vous</h2>
-              <p className="text-muted-foreground font-medium">Sélectionnés selon votre activité et vos préférences</p>
+              <Badge variant="gold" className="mb-2 px-3 py-1 text-xs font-bold">{t("home.koraSelection")}</Badge>
+              <h2 className="text-2xl font-black tracking-tight">{t("home.recommendedTalents")}</h2>
+              <p className="text-muted-foreground font-medium">{t("home.recommendedDescription")}</p>
             </div>
             <Button variant="outline" className="gap-1.5" onClick={() => navigate("/categories")}>
               Voir tout <ChevronRight className="h-4 w-4" />
@@ -317,9 +319,9 @@ export default function Home() {
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-5">
             {loadingRecommended ? (
-              <p className="col-span-full text-sm text-muted-foreground">Chargement des talents recommandés...</p>
+              <p className="col-span-full text-sm text-muted-foreground">{t("home.loadingRecommended")}</p>
             ) : recommended.length === 0 ? (
-              <p className="col-span-full text-sm text-muted-foreground">Aucun talent publié pour le moment.</p>
+              <p className="col-span-full text-sm text-muted-foreground">{t("home.noPublishedTalents")}</p>
             ) : (
               recommended.map((t, i) => {
               return (
@@ -339,7 +341,7 @@ export default function Home() {
                           <div className="flex items-center gap-1 mt-1">
                             <Star className="h-3 w-3 text-amber-500 fill-amber-500" />
                             <span className="text-xs font-bold">{t.rating}</span>
-                            <span className="text-[10px] text-muted-foreground">({t.reviews} avis)</span>
+                            <span className="text-[10px] text-muted-foreground">({t.reviews} {t("reviews.reviews")})</span>
                           </div>
                         </div>
                         <Button variant="ghost" size="icon" className="h-8 w-8 shrink-0 rounded-xl">
@@ -359,11 +361,11 @@ export default function Home() {
                       <Separator />
                       <div className="flex items-center justify-between">
                         <div>
-                          <p className="text-[10px] text-muted-foreground">À partir de</p>
-                          <p className="text-lg font-black gold-text-gradient">{formatCurrency(t.price)}<span className="text-[10px] font-medium text-muted-foreground ml-1">/jour</span></p>
+                          <p className="text-[10px] text-muted-foreground">{t("home.from")}</p>
+                          <p className="text-lg font-black gold-text-gradient">{formatCurrency(t.price)}<span className="text-[10px] font-medium text-muted-foreground ml-1">{language === "en" ? "/day" : "/jour"}</span></p>
                         </div>
                         <div className="flex items-center gap-1 text-xs font-semibold text-muted-foreground">
-                          <Briefcase className="h-3.5 w-3.5" /> {t.completed} projets
+                          <Briefcase className="h-3.5 w-3.5" /> {t.completed} {t("home.projectsCompleted")}
                         </div>
                       </div>
                     </CardContent>
@@ -381,12 +383,12 @@ export default function Home() {
               <Card className="h-full overflow-hidden relative">
                 <div className="absolute top-0 left-0 right-0 h-1 gold-gradient" />
                 <CardHeader className="pb-3">
-                  <CardTitle>Activité récente</CardTitle>
-                  <CardDescription>Les dernières actions</CardDescription>
+                  <CardTitle>{t("dashboard.recentActivity")}</CardTitle>
+                  <CardDescription>{t("home.latestActions")}</CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-4">
                   {activity.length === 0 ? (
-                    <p className="text-sm text-muted-foreground">Aucune activité récente.</p>
+                    <p className="text-sm text-muted-foreground">{t("dashboard.noActivity")}</p>
                   ) : (
                     activity.map((a) => {
                       const { Icon, bg, color } = activityIcon(a.action)
