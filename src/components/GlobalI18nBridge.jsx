@@ -86,18 +86,26 @@ export default function GlobalI18nBridge() {
   const { language } = useI18n()
   const observerRef = useRef(null)
   const translatingRef = useRef(false)
+  const timerRef = useRef(null)
   useEffect(() => {
     const run = () => {
-      if (translatingRef.current) return
-      translatingRef.current = true
-      try { translateDom(language) } finally { translatingRef.current = false }
+      if (timerRef.current) window.clearTimeout(timerRef.current)
+      timerRef.current = window.setTimeout(() => {
+        if (translatingRef.current) return
+        translatingRef.current = true
+        try { translateDom(language) } finally { translatingRef.current = false }
+      }, 100)
     }
     run()
     observerRef.current?.disconnect()
     const observer = new MutationObserver(run)
     observer.observe(document.body, { childList:true, subtree:true, characterData:true, attributes:true, attributeFilter:ATTRIBUTES })
     observerRef.current = observer
-    return () => { observer.disconnect(); observerRef.current = null }
+    return () => {
+      observer.disconnect()
+      observerRef.current = null
+      if (timerRef.current) window.clearTimeout(timerRef.current)
+    }
   }, [language])
   return null
 }
