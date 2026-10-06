@@ -27,7 +27,7 @@ const PAGE_SIZE = 10
 
 const STATUS = {
   pending: {
-    label: "En attente",
+    labelKey: "requests.pending",
     className:
       "border-amber-500/30 bg-amber-500/10 text-amber-700",
   },
@@ -37,12 +37,12 @@ const STATUS = {
       "border-amber-500/30 bg-amber-500/10 text-amber-700",
   },
   accepted: {
-    label: "Acceptée",
+    labelKey: "requests.accepted",
     className:
       "border-emerald-500/30 bg-emerald-500/10 text-emerald-700",
   },
   rejected: {
-    label: "Refusée",
+    labelKey: "requests.rejected",
     className:
       "border-red-500/30 bg-red-500/10 text-red-700",
   },
@@ -342,7 +342,7 @@ export default function ManagerRequests() {
                           variant="outline"
                           className={status.className}
                         >
-                          {status.label}
+                          {t(status.labelKey)}
                         </Badge>
                       </div>
 
