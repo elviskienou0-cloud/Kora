@@ -41,7 +41,7 @@ function saveConsent(choice) {
 }
 
 export default function CookieConsent() {
-  const [consent, setConsent] = useState(null)
+  // Lire le consentement dès le premier rendu pour éviter le flash\n  // de la bannière pendant quelques millisecondes.\n  const [consent, setConsent] = useState(() => readConsent())
   const [showSettings, setShowSettings] = useState(false)
   const [analytics, setAnalytics] = useState(false)
   const [marketing, setMarketing] = useState(false)
@@ -92,9 +92,9 @@ export default function CookieConsent() {
       role="dialog"
       aria-modal="true"
       aria-labelledby="kora-cookie-title"
-      className="fixed inset-0 z-[9999] flex items-end justify-center bg-black/60 p-3 backdrop-blur-sm sm:p-6"
+      className="fixed inset-x-0 bottom-0 z-[9999] w-full border-t border-border bg-background/95 shadow-[0_-12px_40px_rgba(0,0,0,0.18)] backdrop-blur-xl"
     >
-      <div className="w-full max-w-3xl rounded-2xl border border-border bg-background p-5 shadow-2xl sm:p-7">
+      <div className="w-full px-5 py-5 sm:px-8 sm:py-6 lg:px-12">
         {!showSettings ? (
           <>
             <div className="mb-4 flex items-start gap-3">
