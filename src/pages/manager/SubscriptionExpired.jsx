@@ -142,7 +142,7 @@ export default function SubscriptionExpired() {
                     <CardTitle className="font-black">{plan.name}</CardTitle>
                     {business && <Badge className="bg-gold/10 text-gold-dark">{t("common.available")}</Badge>}
                   </div>
-                  <CardDescription>{business ? {t("manager.expiredMulti")} : {t("manager.expiredThree")}}</CardDescription>
+                  <CardDescription>{business ? t("manager.expiredMulti") : t("manager.expiredThree")}</CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-5">
                   <div className="text-3xl font-black gold-text-gradient">{money(plan.price, plan.currency)} <span className="text-sm text-muted-foreground">/ mois</span></div>
