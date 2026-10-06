@@ -125,7 +125,7 @@ export default function SubscriptionExpired() {
           <CardContent className="p-7">
             <div className="grid gap-3 md:grid-cols-3">
               <div className="rounded-xl border bg-muted/20 p-4"><p className="font-bold">{t("common.private")}</p><p className="mt-1 text-sm text-muted-foreground">{t("errors.unauthorized")}</p></div>
-              <div className="rounded-xl border bg-muted/20 p-4"><p className="font-bold">{t("common.saved")}</p><p className="mt-1 text-sm text-muted-foreground">Vos talents et historiques restent associés à votre compte.</p></div>
+              <div className="rounded-xl border bg-muted/20 p-4"><p className="font-bold">{t("common.saved")}</p><p className="mt-1 text-sm text-muted-foreground">{t("manager.retainedData")}</p></div>
               <div className="rounded-xl border bg-muted/20 p-4"><p className="font-bold">{t("subscriptions.renew")}</p><p className="mt-1 text-sm text-muted-foreground">{t("common.success")}</p></div>
             </div>
           </CardContent>
@@ -149,9 +149,9 @@ export default function SubscriptionExpired() {
                   <Separator />
                   <div className="space-y-2 text-sm text-muted-foreground">
                     <p>✓ {business ? "Talents illimités" : "Jusqu'à 3 talents"}</p>
-                    <p>✓ Gestion des demandes et projets</p>
-                    <p>✓ Outils manager KORA</p>
-                    <p>✓ Paiement SasPay + validation KORA</p>
+                    <p>✓ {t("manager.projectManagementFeatures")}</p>
+                    <p>✓ {t("manager.managerTools")}</p>
+                    <p>✓ {t("manager.saspayValidation")}</p>
                   </div>
                   <Button className="w-full gold-gradient text-primary-foreground" disabled={paying === plan.id} onClick={() => subscribe(plan)}>
                     {paying === plan.id ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <CreditCard className="mr-2 h-4 w-4" />}
