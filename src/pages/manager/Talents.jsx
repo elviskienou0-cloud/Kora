@@ -54,22 +54,22 @@ import { uploadTalentProfileMedia } from "@/lib/talentMedia"
 
 const STATUS = {
   published: {
-    label: "Publié",
+    labelKey: "talents.published",
     cls: "bg-emerald-500/10 text-emerald-600 border-emerald-500/30",
     icon: UserCheck,
   },
   pending: {
-    label: "En attente",
+    labelKey: "talents.pending",
     cls: "bg-amber-500/10 text-amber-600 border-amber-500/30",
     icon: Clock,
   },
   rejected: {
-    label: "Refusé",
+    labelKey: "talents.rejected",
     cls: "bg-red-500/10 text-red-600 border-red-500/30",
     icon: X,
   },
   suspended: {
-    label: "Suspendu",
+    labelKey: "talents.suspended",
     cls: "bg-red-500/10 text-red-600 border-red-500/30",
     icon: X,
   },
@@ -1673,7 +1673,7 @@ export default function ManagerTalents() {
                             className={cn("gap-1 text-xs font-bold", status.cls)}
                           >
                             <StatusIcon className="h-3 w-3" />
-                            {status.label}
+                            {t(status.labelKey)}
                           </Badge>
                         </td>
 
