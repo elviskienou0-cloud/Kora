@@ -272,13 +272,13 @@ export default function ManagerRequestDetail() {
             <CardHeader><CardTitle className="text-base">{t("requests.client")}</CardTitle></CardHeader>
             <CardContent>
               <p className="text-lg font-bold">{client?.name || "Client KORA"}</p>
-              <Button variant="outline" size="sm" className="mt-4" onClick={handleMessageClient}><MessageCircle className="mr-2 h-4 w-4" /> Contacter le client</Button>
+              <Button variant="outline" size="sm" className="mt-4" onClick={handleMessageClient}><MessageCircle className="mr-2 h-4 w-4" /> {t("manager.clientContact")}</Button>
             </CardContent>
           </Card>
         </div>
 
         <Card className="border-gold/20">
-          <CardHeader><CardTitle className="flex items-center gap-2"><BriefcaseBusiness className="h-5 w-5 text-gold" /> Contexte du projet</CardTitle></CardHeader>
+          <CardHeader><CardTitle className="flex items-center gap-2"><BriefcaseBusiness className="h-5 w-5 text-gold" /> {t("manager.projectContext")}</CardTitle></CardHeader>
           <CardContent className="space-y-5">
             <div className="grid gap-4 md:grid-cols-2">
               <div><p className="text-xs font-semibold uppercase text-muted-foreground">{t("projects.titleLabel")}</p><p className="mt-1 font-bold">{request.title || project?.title || "—"}</p></div>
@@ -308,7 +308,7 @@ export default function ManagerRequestDetail() {
         {project && (
           <Card className="border-border/60">
             <CardHeader>
-              <CardTitle className="flex items-center gap-2"><BriefcaseBusiness className="h-5 w-5 text-gold" /> Gestion du projet</CardTitle>
+              <CardTitle className="flex items-center gap-2"><BriefcaseBusiness className="h-5 w-5 text-gold" /> {t("manager.projectManagement")}</CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="flex flex-wrap items-center justify-between gap-3 rounded-xl border p-4">
@@ -321,7 +321,7 @@ export default function ManagerRequestDetail() {
                     <Button onClick={() => handleProjectStatus("active")} disabled={processing}><Check className="mr-2 h-4 w-4" /> Activer</Button>
                   )}
                   {isAccepted && canManageProjects && projectStatus === "active" && (
-                    <Button onClick={() => handleProjectStatus("completed")} disabled={processing} className="bg-emerald-600 text-white hover:bg-emerald-700"><CheckCircle2 className="mr-2 h-4 w-4" /> Marquer terminé</Button>
+                    <Button onClick={() => handleProjectStatus("completed")} disabled={processing} className="bg-emerald-600 text-white hover:bg-emerald-700"><CheckCircle2 className="mr-2 h-4 w-4" /> {t("manager.markCompleted")}</Button>
                   )}
                   {isAccepted && canManageProjects && !["completed", "cancelled"].includes(projectStatus) && (
                     <Button variant="outline" onClick={() => handleProjectStatus("cancelled")} disabled={processing} className="text-red-600"><XCircle className="mr-2 h-4 w-4" /> Annuler</Button>
@@ -344,7 +344,7 @@ export default function ManagerRequestDetail() {
             <CardContent className="space-y-3">
               <Textarea value={reply} onChange={(event) => setReply(event.target.value)} placeholder="Écrivez votre réponse au client…" rows={4} disabled={processing} />
               <div className="flex justify-end">
-                <Button onClick={sendReply} disabled={processing || !reply.trim()} className="gap-2"><MessageCircle className="h-4 w-4" /> Envoyer la réponse</Button>
+                <Button onClick={sendReply} disabled={processing || !reply.trim()} className="gap-2"><MessageCircle className="h-4 w-4" /> {t("manager.sendReply")}</Button>
               </div>
             </CardContent>
           </Card>
@@ -362,8 +362,8 @@ export default function ManagerRequestDetail() {
               <Button variant="outline" onClick={() => navigate("/manager/requests")}>{t("common.back")}</Button>
               {isPending && (
                 <>
-                  <Button variant="outline" onClick={() => handleStatus("rejected")} disabled={processing} className="text-red-600"><XCircle className="mr-2 h-4 w-4" /> Refuser</Button>
-                  <Button onClick={() => handleStatus("accepted")} disabled={processing} className="bg-emerald-600 text-white hover:bg-emerald-700"><CheckCircle2 className="mr-2 h-4 w-4" /> Accepter</Button>
+                  <Button variant="outline" onClick={() => handleStatus("rejected")} disabled={processing} className="text-red-600"><XCircle className="mr-2 h-4 w-4" /> {t("manager.reject")}</Button>
+                  <Button onClick={() => handleStatus("accepted")} disabled={processing} className="bg-emerald-600 text-white hover:bg-emerald-700"><CheckCircle2 className="mr-2 h-4 w-4" /> {t("manager.accept")}</Button>
                 </>
               )}
             </div>
