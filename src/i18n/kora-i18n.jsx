@@ -326,7 +326,7 @@ const en = {
     success: "Success", error: "Error", warning: "Warning", information: "Information", active: "Active", inactive: "Inactive", available: "Available",
     unavailable: "Unavailable", public: "Public", private: "Private", verified: "Verified", unverified: "Unverified", online: "Online", offline: "Offline",
     today: "Today", yesterday: "Yesterday", now: "Just now", unknown: "Unknown", notProvided: "Not provided", noResults: "No results", noData: "No data",
-    requiredFields: "Please fill in the required fields.", copyLink: "Copy link", copied: "Copied ✅", share: "Share", contact: "Contact", invite: "Invite", and: "and", sendInvitation: "Send invitation",
+    requiredFields: "Please fill in the required fields.", copyLink: "Copy link", copied: "Copied ✅", share: "Share", contact: "Contact", invite: "Invite", all: "All", and: "and", sendInvitation: "Send invitation",
   },
   navigation: { home: "Home", discover: "Discover", favorites: "My favorites", projects: "My projects", requests: "My requests", messages: "Messages", notifications: "Notifications", dashboard: "Dashboard", talents: "My talents", subscription: "Subscription", settings: "Settings", admin: "Administration", users: "Users", clients: "Clients", managers: "Managers", moderation: "Moderation", payments: "Payments", subscriptions: "Subscriptions", logs: "Logs", reports: "Reports" },
   account: { account: "Account", client: "Client", manager: "Manager", talent: "Talent", admin: "Administrator", profile: "My profile", logout: "Log out", login: "Log in", register: "Create an account", forgotPassword: "Forgot password?", resetPassword: "Reset password", email: "Email", password: "Password", confirmPassword: "Confirm password", name: "Full name" },
