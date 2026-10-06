@@ -207,7 +207,7 @@ export default function ManagerRequestDetail() {
 
     setProcessing(true)
     try {
-      const conversationId = await createDirectConversation(request.client_id)
+      const conversationId = await createDirectConversation(request.client_id, request.talent_id)
       const { error } = await supabase.from("messages").insert({
         conversation_id: conversationId,
         sender_id: managerId,
