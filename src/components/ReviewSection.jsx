@@ -3,36 +3,9 @@ import { motion, AnimatePresence } from "framer-motion"
 import { Star, Quote, Send } from "lucide-react"
 import { toast } from "sonner"
 import { cn } from "@/lib/utils.js"
+import { supabase } from "@/lib/supabase"
 
-const DEFAULT_REVIEWS = [
-  {
-    id: "1",
-    author: "Awa K.",
-    role: "Client, Abidjan",
-    avatar: "AK",
-    rating: 5,
-    comment: "Service exceptionnel ! J&apos;ai trouvé un talent incroyable pour mon projet en moins de 24h. Je recommande vivement KORA.",
-    date: "Il y a 2 semaines",
-  },
-  {
-    id: "2",
-    author: "Mohamed T.",
-    role: "Manager, Dakar",
-    avatar: "MT",
-    rating: 5,
-    comment: "La plateforme est intuitive et les talents sont vraiment qualifiés. Mon agence a gagné en efficacité depuis que nous utilisons KORA.",
-    date: "Il y a 1 mois",
-  },
-  {
-    id: "3",
-    author: "Fatou D.",
-    role: "Freelance Design",
-    avatar: "FD",
-    rating: 4,
-    comment: "En tant que talent, je suis très satisfaite. Des missions intéressantes, des paiements rapides et un support client au top !",
-    date: "Il y a 3 semaines",
-  },
-]
+const DEFAULT_REVIEWS = []
 
 export default function ReviewSection({ reviews = DEFAULT_REVIEWS, showForm = true, title = "Avis clients" }) {
   const [hoveredRating, setHoveredRating] = useState(0)
@@ -40,6 +13,27 @@ export default function ReviewSection({ reviews = DEFAULT_REVIEWS, showForm = tr
   const [comment, setComment] = useState("")
   const [name, setName] = useState("")
   const [allReviews, setAllReviews] = useState(reviews)
+
+  useEffect(() => {
+    let mounted = true
+    const loadReviews = async () => {
+      const { data, error } = await supabase.from("reviews").select("id, author_name, role, rating, comment, created_at").eq("is_visible", true).eq("source", "public_review").order("created_at", { ascending: false }).limit(50)
+      if (error) { console.error("Erreur chargement avis KORA :", error); return }
+      if (!mounted) return
+      const persisted = (data || []).map(r => ({
+        id: r.id,
+        author: r.author_name || "Client KORA",
+        role: r.role || "Client KORA",
+        avatar: (r.author_name || "Client KORA").trim().split(/\s+/).filter(Boolean).slice(0,2).map(p => p[0]).join("").toUpperCase(),
+        rating: r.rating,
+        comment: r.comment,
+        date: r.created_at ? new Date(r.created_at).toLocaleDateString("fr-FR") : ""
+      }))
+      setAllReviews(persisted)
+    }
+    loadReviews()
+    return () => { mounted = false }
+  }, [])
 
   const handleSubmit = (e) => {
     e.preventDefault()
