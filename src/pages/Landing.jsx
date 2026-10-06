@@ -14,7 +14,6 @@ import {
   Briefcase,
   Award,
   ChevronRight,
-  Play,
   Target,
   Rocket,
   Heart,
