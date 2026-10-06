@@ -4,15 +4,20 @@ import { supabase } from "@/lib/supabase"
  * Crée ou récupère une conversation directe entre l'utilisateur courant
  * et un autre utilisateur. Toute l'autorisation est vérifiée côté SQL.
  */
-export async function createDirectConversation(otherUserId) {
+export async function createDirectConversation(otherUserId, talentId) {
   if (!otherUserId) {
     throw new Error("Destinataire manquant")
+  }
+
+  if (!talentId) {
+    throw new Error("Talent manquant")
   }
 
   const { data, error } = await supabase.rpc(
     "create_direct_conversation",
     {
       p_other_user_id: otherUserId,
+      p_talent_id: talentId,
     }
   )
 
