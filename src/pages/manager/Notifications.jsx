@@ -13,6 +13,7 @@ import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import { useAuth } from "@/lib/AuthContext"
+import { useI18n } from "@/i18n/kora-i18n.jsx"
 import { supabase } from "@/lib/supabase"
 import { queryClient } from "@/lib/queryClient"
 import { useNotificationsQuery } from "@/hooks/queries/useNotificationsQuery"
@@ -21,6 +22,7 @@ import { playNotificationSound } from "@/lib/notificationSound"
 const PAGE_SIZE = 10
 
 export default function ManagerNotifications() {
+  const { t } = useI18n()
   const { user } = useAuth()
   const userId = user?.authId || user?.id || null
 
@@ -144,8 +146,8 @@ export default function ManagerNotifications() {
       <div className="mx-auto max-w-4xl space-y-6">
         <div className="flex flex-wrap items-end justify-between gap-4">
           <div>
-            <p className="text-xs font-bold uppercase tracking-[0.18em] text-gold">Espace Manager</p>
-            <h1 className="text-2xl font-black tracking-tight md:text-3xl">Notifications</h1>
+            <p className="text-xs font-bold uppercase tracking-[0.18em] text-gold">{t("manager.dashboard")}</p>
+            <h1 className="text-2xl font-black tracking-tight md:text-3xl">{t("navigation.notifications")}</h1>
             <p className="mt-1 text-sm text-muted-foreground">
               Recevez les invitations clients et les mises à jour importantes.
             </p>
@@ -185,7 +187,7 @@ export default function ManagerNotifications() {
           <Card className="border-dashed border-gold/30">
             <CardContent className="py-20 text-center">
               <Bell className="mx-auto mb-3 h-9 w-9 text-gold" />
-              <p className="font-semibold">Aucune notification</p>
+              <p className="font-semibold">{t("notifications.noNotifications")}</p>
               <p className="mt-1 text-sm text-muted-foreground">
                 {unreadOnly
                   ? "Vous n'avez aucune notification non lue."
@@ -221,7 +223,7 @@ export default function ManagerNotifications() {
                               {new Date(notification.created_at).toLocaleString("fr-FR")}
                             </p>
                           </div>
-                          {unread && <Badge className="bg-gold text-primary-foreground">Nouveau</Badge>}
+                          {unread && <Badge className="bg-gold text-primary-foreground">{t("notifications.message")}</Badge>}
                         </div>
 
                         <p className="mt-3 whitespace-pre-line text-sm leading-6 text-muted-foreground">
