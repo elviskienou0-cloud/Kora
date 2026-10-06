@@ -743,6 +743,28 @@ export default function ClientBrowse() {
     setPage(1)
   }
 
+  useEffect(() => {
+    if (!authUserId) return undefined
+
+    const term = search.trim()
+    if (term.length < 2) return undefined
+
+    const timer = window.setTimeout(async () => {
+      const { error } = await supabase.from("activity_logs").insert({
+        user_id: authUserId,
+        action: "search_talents",
+        entity_type: "talent_search",
+        metadata: { query_length: term.length },
+      })
+
+      if (error) {
+        console.warn("Impossible d'enregistrer la recherche KORA :", error)
+      }
+    }, 700)
+
+    return () => window.clearTimeout(timer)
+  }, [authUserId, search])
+
   const handleSearchChange = (
     event
   ) => {
