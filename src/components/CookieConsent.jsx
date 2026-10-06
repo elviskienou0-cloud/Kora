@@ -41,15 +41,12 @@ function saveConsent(choice) {
 }
 
 export default function CookieConsent() {
-  // Lire le consentement dès le premier rendu pour éviter le flash\n  // de la bannière pendant quelques millisecondes.\n  const [consent, setConsent] = useState(() => readConsent())
+  const [consent, setConsent] = useState(() => readConsent())
   const [showSettings, setShowSettings] = useState(false)
   const [analytics, setAnalytics] = useState(false)
   const [marketing, setMarketing] = useState(false)
 
   useEffect(() => {
-    const existing = readConsent()
-    setConsent(existing)
-
     const handleChange = (event) => {
       setConsent(event.detail)
       setShowSettings(false)
