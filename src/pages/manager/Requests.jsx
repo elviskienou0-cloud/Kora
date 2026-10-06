@@ -17,6 +17,7 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 
 import { useAuth } from "@/lib/AuthContext"
+import { useI18n } from "@/i18n/kora-i18n.jsx"
 import { supabase } from "@/lib/supabase"
 import { queryClient } from "@/lib/queryClient"
 
@@ -48,6 +49,7 @@ const STATUS = {
 }
 
 export default function ManagerRequests() {
+  const { t } = useI18n()
   const { user } = useAuth()
   const managerId = user?.authId || user?.id
 
@@ -287,7 +289,7 @@ export default function ManagerRequests() {
           <Card className="border-dashed border-gold/30">
             <CardContent className="flex min-h-[35vh] flex-col items-center justify-center text-center">
               <FileText className="mb-4 h-10 w-10 text-muted-foreground" />
-              <h2 className="font-bold">Aucune demande</h2>
+              <h2 className="font-bold">{t("requests.noRequests")}</h2>
               <p className="mt-2 max-w-md text-sm text-muted-foreground">
                 Les nouvelles invitations envoyées par les clients apparaîtront ici.
               </p>
