@@ -83,7 +83,7 @@ const { t } = useI18n()
 
 const [talents, setTalents] = useState([])
 const [requests, setRequests] = useState([])
-const [notifications, set{t("navigation.notifications")}] = useState([])
+const [notifications, setNotifications] = useState([])
 const [revenue, setRevenue] = useState(0)
 
 const [search, setSearch] = useState("")
@@ -168,7 +168,7 @@ async function loadDashboard() {
 
     setTalents(talentsResult.data || [])
     setRequests(requestsResult.data || [])
-    set{t("navigation.notifications")}(notificationsResult.data || [])
+    setNotifications(notificationsResult.data || [])
 
     const paidStatuses = new Set(["paid", "completed", "confirmed", "success", "succeeded"])
     const totalRevenue = (transactionsResult.data || [])
@@ -360,8 +360,8 @@ return ( <div className="min-h-full space-y-8 bg-background p-4 md:p-6"> <div> <
     <div className="lg:col-span-2">
       <WeeklyChart
         data={weeklyRequests}
-        title="{t("manager.requestActivity")}"
-        subtitle="{t("manager.requestsLast7Days")}"
+        title={t("manager.requestActivity")}
+        subtitle={t("manager.requestsLast7Days")}
       />
     </div>
 
@@ -414,7 +414,7 @@ return ( <div className="min-h-full space-y-8 bg-background p-4 md:p-6"> <div> <
             onChange={(event) =>
               setSearch(event.target.value)
             }
-            placeholder="{t("manager.searchTalent")}"
+            placeholder={t("manager.searchTalent")}
             className="pl-9"
           />
         </div>
@@ -425,14 +425,14 @@ return ( <div className="min-h-full space-y-8 bg-background p-4 md:p-6"> <div> <
 
             <h3 className="font-semibold">
               {search
-                ? "{t("manager.noTalentFound")}"
-                : "{t("manager.noTalent")}"}
+                ? t("manager.noTalentFound")
+                : t("manager.noTalent")}
             </h3>
 
             <p className="mt-2 max-w-sm text-sm text-muted-foreground">
               {search
-                ? "{t("manager.noTalent")} ne correspond à votre recherche."
-                : "{t("manager.addTalentHint")}"}
+                ? `${t("manager.noTalentMatch")}`
+                : t("manager.addTalentHint")}
             </p>
 
             {!search && (
@@ -592,7 +592,7 @@ return ( <div className="min-h-full space-y-8 bg-background p-4 md:p-6"> <div> <
                 </p>
 
                 <p className="text-sm text-muted-foreground">
-                  {request.status || "{t("manager.undefinedStatus")}"}
+                  {request.status || t("manager.undefinedStatus")}
                 </p>
               </div>
 
