@@ -199,7 +199,7 @@ export default function ClientFavorites() {
     setContactingTalentId(talent.id)
 
     try {
-      const conversationId = await createDirectConversation(talent.managedBy)
+      const conversationId = await createDirectConversation(talent.managedBy, talent.id)
       navigate(buildMessagesUrl(conversationId))
     } catch (error) {
       console.error("Erreur ouverture conversation favori :", error)
