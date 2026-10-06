@@ -200,15 +200,15 @@ export default function Landing() {
     },
     {
       icon: Award,
-      title: "Garantie qualité",
-      description: "Satisfaction garantie ou remboursé sur chaque projet jusqu'à 14 jours après livraison.",
+      title: "Profils publiés",
+      description: "Les profils publiés et les fonctionnalités disponibles sont affichés selon les données actuelles de KORA.",
       color: "from-violet-400/20 to-violet-500/10",
       iconColor: "text-violet-600",
     },
     {
       icon: Rocket,
-      title: "Support KORA",
-      description: "Une assistance dédiée pour vous accompagner dans l’utilisation de la plateforme.",
+      title: "Espace de collaboration",
+      description: "Centralisez demandes, projets, messages et notifications dans votre espace KORA.",
       color: "from-cyan-400/20 to-cyan-500/10",
       iconColor: "text-cyan-600",
     },
@@ -260,8 +260,7 @@ export default function Landing() {
                 custom={2}
                 className="text-lg sm:text-xl text-muted-foreground max-w-2xl mx-auto mb-10 leading-relaxed"
               >
-                {APP_PARAMS.description} Des développeurs nigérians aux designers ivoiriens,
-                en passant par les stratèges kényans — trouvez l'expert qu'il vous faut.
+                {APP_PARAMS.description} Explorez les profils réellement publiés sur KORA et contactez le manager du talent qui correspond à votre besoin.
               </motion.p>
 
               <motion.div
@@ -273,10 +272,7 @@ export default function Landing() {
                   Commencer gratuitement
                   <ArrowRight className="h-5 w-5" />
                 </Button>
-                <Button size="lg" variant="outline" className="gap-2 text-base font-bold">
-                  <Play className="h-5 w-5" />
-                  Voir la démo
-                </Button>
+                
               </motion.div>
 
               <motion.div
@@ -284,7 +280,7 @@ export default function Landing() {
                 custom={4}
                 className="flex flex-wrap items-center justify-center gap-x-8 gap-y-3 text-sm text-muted-foreground font-medium"
               >
-                {["Paiement sécurisé", "Satisfait ou remboursé", "Support 24/7", "Sans engagement"].map((item) => (
+                {["Profils et données réels", "Plans affichés depuis KORA", "Paiement d’abonnement via SasPay", "Sans engagement"].map((item) => (
                   <div key={item} className="flex items-center gap-2">
                     <CheckCircle2 className="h-4.5 w-4.5 text-emerald-500" />
                     {item}
@@ -414,8 +410,7 @@ export default function Landing() {
                 custom={2}
                 className="text-lg text-muted-foreground leading-relaxed"
               >
-                Une plateforme complète pensée pour l'Afrique : paiements mobiles,
-                profils vérifiés, support local et algorithme de matching intelligent.
+                Une plateforme qui centralise les profils publiés, les recherches, les demandes, les projets et les échanges entre clients et managers.
               </motion.p>
             </motion.div>
 
@@ -677,7 +672,7 @@ export default function Landing() {
                   </Button>
                 </div>
                 <p className="mt-6 text-sm opacity-80 font-medium">
-                  Sans engagement • Annulation à tout moment • Support 24/7
+                  Sans engagement • Abonnement mensuel sans renouvellement automatique
                 </p>
               </motion.div>
             </motion.div>
