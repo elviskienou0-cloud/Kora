@@ -250,6 +250,12 @@ export default function AdminTalents() {
     }
   }
 
+  const requestModerationReason = (actionLabel) => {
+    const reason = window.prompt(`Motif pour ${actionLabel} (facultatif) :`, "")
+    if (reason === null) return null
+    return reason.trim()
+  }
+
   const toggleVerified = async (talent) => {
     setProcessingId(talent.id)
 
@@ -864,15 +870,15 @@ export default function AdminTalents() {
                                 variant="outline"
                                 size="sm"
                                 disabled={busy}
-                                onClick={() =>
-                                  moderateTalent(
-                                    talent,
-                                    "rejected",
-                                    {
+                                onClick={() => {
+                                  const reason = requestModerationReason("refuser ce profil")
+                                  if (reason !== null) {
+                                    moderateTalent(talent, "rejected", {
                                       visible: false,
-                                    }
-                                  )
-                                }
+                                      reason,
+                                    })
+                                  }
+                                }}
                                 className="
                                   gap-1
                                   text-red-700
@@ -900,15 +906,15 @@ export default function AdminTalents() {
                                 variant="outline"
                                 size="sm"
                                 disabled={busy}
-                                onClick={() =>
-                                  moderateTalent(
-                                    talent,
-                                    "suspended",
-                                    {
+                                onClick={() => {
+                                  const reason = requestModerationReason("suspendre ce profil")
+                                  if (reason !== null) {
+                                    moderateTalent(talent, "suspended", {
                                       visible: false,
-                                    }
-                                  )
-                                }
+                                      reason,
+                                    })
+                                  }
+                                }}
                                 className="
                                   gap-1
                                   text-red-700
