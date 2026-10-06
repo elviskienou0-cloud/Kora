@@ -160,6 +160,7 @@ export default function ClientDashboard() {
     requests: 0,
     accepted: 0,
     favorites: 0,
+    searches: 0,
     spent: 0,
   })
   const [recentRequests, setRecentRequests] = useState([])
@@ -192,6 +193,7 @@ export default function ClientDashboard() {
           requestsResult,
           acceptedResult,
           favoritesResult,
+          searchesResult,
           recentResult,
           talentsResult,
           transactionsResult,
@@ -219,6 +221,12 @@ export default function ClientDashboard() {
             .eq("client_id", user.id),
 
           supabase
+            .from("activity_logs")
+            .select("id", { count: "exact", head: true })
+            .eq("user_id", user.id)
+            .eq("action", "search_talents"),
+
+          supabase
             .from("requests")
             .select("*")
             .eq("client_id", user.id)
@@ -241,6 +249,7 @@ export default function ClientDashboard() {
         if (requestsResult.error) throw requestsResult.error
         if (acceptedResult.error) throw acceptedResult.error
         if (favoritesResult.error) throw favoritesResult.error
+        if (searchesResult.error) throw searchesResult.error
         if (recentResult.error) throw recentResult.error
         if (talentsResult.error) throw talentsResult.error
         if (transactionsResult.error) throw transactionsResult.error
@@ -258,6 +267,7 @@ export default function ClientDashboard() {
           requests: requestsResult.count || 0,
           accepted: acceptedResult.count || 0,
           favorites: favoritesResult.count || 0,
+          searches: searchesResult.count || 0,
           spent: totalSpent,
         })
 
@@ -606,8 +616,8 @@ export default function ClientDashboard() {
                 <ActivityItem
                   icon={Search}
                   label="Recherches"
-                  value="—"
-                  description="Historique bientôt basé sur vos actions réelles"
+                  value={stats.searches}
+                  description="Recherches de talents enregistrées"
                 />
 
                 <ActivityItem
