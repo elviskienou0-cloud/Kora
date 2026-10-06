@@ -50,7 +50,7 @@ export function useKoraStats({ enabled = true } = {}) {
     { value: "0", label: "Talents inscrits" },
     { value: "0", label: "Projets" },
     { value: "0", label: "Pays représentés" },
-    { value: "0/5", label: "Satisfaction moyenne" },
+    { value: "—", label: "Satisfaction moyenne" },
   ])
   const [categoryCounts, setCategoryCounts] = useState(buildEmptyCategoryCounts)
   const [loading, setLoading] = useState(false)
@@ -75,7 +75,7 @@ export function useKoraStats({ enabled = true } = {}) {
             { value: "0", label: "Talents inscrits" },
             { value: "0", label: "Projets" },
             { value: "0", label: "Pays représentés" },
-            { value: "0/5", label: "Satisfaction moyenne" },
+            { value: "—", label: "Satisfaction moyenne" },
           ])
           setCategoryCounts(buildEmptyCategoryCounts())
           return
@@ -96,7 +96,7 @@ export function useKoraStats({ enabled = true } = {}) {
           { value: String(Number(payload.talent_count || 0)), label: "Talents inscrits" },
           { value: String(Number(payload.project_count || 0)), label: "Projets" },
           { value: String(Number(payload.country_count || 0)), label: "Pays représentés" },
-          { value: `${Number(payload.average_rating || 0).toFixed(1)}/5`, label: "Satisfaction moyenne" },
+          { value: Number(payload.average_rating || 0) > 0 ? `${Number(payload.average_rating).toFixed(1)}/5` : "—", label: "Satisfaction moyenne" },
         ])
       } catch (error) {
         if (!cancelled) {
@@ -105,7 +105,7 @@ export function useKoraStats({ enabled = true } = {}) {
             { value: "0", label: "Talents inscrits" },
             { value: "0", label: "Projets" },
             { value: "0", label: "Pays représentés" },
-            { value: "0/5", label: "Satisfaction moyenne" },
+            { value: "—", label: "Satisfaction moyenne" },
           ])
           setCategoryCounts(buildEmptyCategoryCounts())
         }
