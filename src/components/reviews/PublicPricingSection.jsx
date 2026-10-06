@@ -20,14 +20,14 @@ const PLAN_DETAILS = {
     "Outils professionnels complets",
     "Gestion des profils et projets",
     "0 % de commission KORA",
-    "Sans paiement via KORA",
+    "Abonnement mensuel via SasPay",
   ],
   Business: [
     "Talents illimités",
     "Tous les outils professionnels",
-    "Paiements via KORA",
-    "Suivi des transactions",
-    "5 % uniquement sur les transactions réalisées via KORA",
+    "Abonnement mensuel via SasPay",
+    "Suivi de votre abonnement",
+    "0 % de commission KORA",
   ],
 }
 

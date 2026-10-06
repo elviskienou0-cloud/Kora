@@ -174,7 +174,7 @@ export default function Categories() {
         </div>
         <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-14 text-center">
           <Badge variant="gold" className="mb-4 px-4 py-1.5 text-xs font-bold">
-            8 domaines • {allTalentCount.toLocaleString("fr-FR")}+ talents
+            {APP_PARAMS.categories.length} domaines • {allTalentCount.toLocaleString("fr-FR")} {allTalentCount === 1 ? "talent" : "talents"}
           </Badge>
           <h1 className="text-4xl sm:text-5xl font-black tracking-tight mb-4">
             Explorez toutes les <span className="gold-text-gradient">catégories</span>

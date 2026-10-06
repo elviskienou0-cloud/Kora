@@ -42,9 +42,14 @@ set search_path = public
 as $$
 declare
   v_review public.reviews%rowtype;
+  v_user uuid := auth.uid();
   v_name text := btrim(coalesce(p_author_name, ''));
   v_comment text := btrim(coalesce(p_comment, ''));
 begin
+  if v_user is null then
+    raise exception 'Connexion requise pour publier un avis.';
+  end if;
+
   if char_length(v_name) < 2 then
     raise exception 'Le nom doit contenir au moins 2 caractères.';
   end if;
@@ -79,6 +84,8 @@ begin
   end if;
 
   insert into public.reviews (
+    reviewer_id,
+    client_id,
     author_name,
     role,
     rating,
@@ -89,6 +96,8 @@ begin
     updated_at
   )
   values (
+    v_user,
+    v_user,
     v_name,
     'Client KORA',
     p_rating,
@@ -105,7 +114,7 @@ end;
 $$;
 
 revoke all on function public.create_public_review(text, integer, text) from public;
-grant execute on function public.create_public_review(text, integer, text) to anon, authenticated;
+grant execute on function public.create_public_review(text, integer, text) to authenticated;
 
 -- Realtime est déjà utilisé par ReviewSection.jsx pour actualiser les avis
 -- lorsqu'un nouvel avis est ajouté.
