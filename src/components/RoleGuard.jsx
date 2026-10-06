@@ -120,11 +120,9 @@ export default function RoleGuard({ allowedRoles = [], children }) {
     )
   }
 
-  // Un manager expiré est maintenu sur la page de réabonnement.
-  if (user?.role === "manager" && subscriptionCheck.expired && location.pathname !== "/subscription-expired") {
-    return <Navigate to="/subscription-expired" replace />
-  }
-
+  // Après expiration, le manager conserve un accès en lecture.
+  // Les écritures sont bloquées côté base/RLS; cette garde ne redirige donc
+  // plus tout l'espace Manager vers la page de réabonnement.
   // Aucun utilisateur authentifié
   if (!user || !session) {
     return <Navigate to="/login" replace />
