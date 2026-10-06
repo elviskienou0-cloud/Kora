@@ -155,7 +155,7 @@ export default function SubscriptionExpired() {
                   </div>
                   <Button className="w-full gold-gradient text-primary-foreground" disabled={paying === plan.id} onClick={() => subscribe(plan)}>
                     {paying === plan.id ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <CreditCard className="mr-2 h-4 w-4" />}
-                    {paying === plan.id ? {t("manager.preparing")} : {t("manager.resubscribe")}}
+                    {paying === plan.id ? t("manager.preparing") : t("manager.resubscribe")}
                   </Button>
                 </CardContent>
               </Card>
