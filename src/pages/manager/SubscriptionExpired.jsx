@@ -9,6 +9,7 @@ import { Badge } from "@/components/ui/badge"
 import { Separator } from "@/components/ui/separator"
 import { supabase } from "@/lib/supabase"
 import { useAuth } from "@/lib/AuthContext"
+import { useI18n } from "@/i18n/kora-i18n.jsx"
 
 function money(value, currency = "XOF") {
   return new Intl.NumberFormat("fr-FR", {
@@ -19,6 +20,7 @@ function money(value, currency = "XOF") {
 }
 
 export default function SubscriptionExpired() {
+  const { t } = useI18n()
   const navigate = useNavigate()
   const { logout } = useAuth()
   const [plans, setPlans] = useState([])
@@ -104,10 +106,10 @@ export default function SubscriptionExpired() {
             </div>
             <div>
               <p className="font-black text-xl">KORA</p>
-              <p className="text-xs text-muted-foreground">Espace abonnement</p>
+              <p className="text-xs text-muted-foreground">{t("subscriptions.title")}</p>
             </div>
           </div>
-          <Button variant="ghost" onClick={signOut}><LogOut className="mr-2 h-4 w-4" />Déconnexion</Button>
+          <Button variant="ghost" onClick={signOut}><LogOut className="mr-2 h-4 w-4" />{t("account.logout")}</Button>
         </div>
 
         <Card className="mb-8 overflow-hidden border-gold/30 shadow-xl shadow-gold/5">
@@ -115,16 +117,16 @@ export default function SubscriptionExpired() {
             <Badge className="mb-3 w-fit gap-1.5 border-amber-500/30 bg-amber-500/10 text-amber-700">
               <Clock3 className="h-3.5 w-3.5" /> Abonnement expiré
             </Badge>
-            <CardTitle className="text-3xl font-black">Votre abonnement a expiré</CardTitle>
+            <CardTitle className="text-3xl font-black">{t("subscriptions.expired")}</CardTitle>
             <CardDescription className="max-w-2xl text-base">
               Votre accès manager est temporairement suspendu. Réabonnez-vous pour retrouver vos talents, demandes, projets et outils KORA.
             </CardDescription>
           </CardHeader>
           <CardContent className="p-7">
             <div className="grid gap-3 md:grid-cols-3">
-              <div className="rounded-xl border bg-muted/20 p-4"><p className="font-bold">Accès sécurisé</p><p className="mt-1 text-sm text-muted-foreground">L'accès ne peut pas être réactivé en modifiant l'URL.</p></div>
-              <div className="rounded-xl border bg-muted/20 p-4"><p className="font-bold">Vos données conservées</p><p className="mt-1 text-sm text-muted-foreground">Vos talents et historiques restent associés à votre compte.</p></div>
-              <div className="rounded-xl border bg-muted/20 p-4"><p className="font-bold">Réactivation</p><p className="mt-1 text-sm text-muted-foreground">Après validation du paiement, l'accès revient automatiquement.</p></div>
+              <div className="rounded-xl border bg-muted/20 p-4"><p className="font-bold">{t("common.private")}</p><p className="mt-1 text-sm text-muted-foreground">{t("errors.unauthorized")}</p></div>
+              <div className="rounded-xl border bg-muted/20 p-4"><p className="font-bold">{t("common.saved")}</p><p className="mt-1 text-sm text-muted-foreground">Vos talents et historiques restent associés à votre compte.</p></div>
+              <div className="rounded-xl border bg-muted/20 p-4"><p className="font-bold">{t("subscriptions.renew")}</p><p className="mt-1 text-sm text-muted-foreground">{t("common.success")}</p></div>
             </div>
           </CardContent>
         </Card>
@@ -138,7 +140,7 @@ export default function SubscriptionExpired() {
                 <CardHeader>
                   <div className="flex items-center justify-between">
                     <CardTitle className="font-black">{plan.name}</CardTitle>
-                    {business && <Badge className="bg-gold/10 text-gold-dark">Illimité</Badge>}
+                    {business && <Badge className="bg-gold/10 text-gold-dark">{t("common.available")}</Badge>}
                   </div>
                   <CardDescription>{business ? "Pour les managers qui gèrent plusieurs talents." : "Pour gérer jusqu'à 3 talents."}</CardDescription>
                 </CardHeader>
