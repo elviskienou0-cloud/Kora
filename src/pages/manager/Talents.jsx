@@ -1429,8 +1429,9 @@ export default function ManagerTalents() {
   const talentLimitReached =
     talentLimit !== null && talents.length >= talentLimit
 
+  const canManageTalents = !isSubscriptionExpired
   const canCreateTalent =
-    !isSubscriptionExpired && !talentLimitReached
+    canManageTalents && !talentLimitReached
   const ratedTalents = talents.filter((talent) => talent.ratingValue > 0)
   const averageRating = ratedTalents.length
     ? (
@@ -1705,9 +1706,9 @@ export default function ManagerTalents() {
                             <Button
                               variant="ghost"
                               size="icon"
-                              disabled={busy}
+                              disabled={busy || !canManageTalents}
                               className="h-8 w-8 rounded-lg"
-                              onClick={() => openEdit(talent)}
+                              onClick={() => canManageTalents && openEdit(talent)}
                               title="Modifier"
                             >
                               {busy ? (
@@ -1721,9 +1722,9 @@ export default function ManagerTalents() {
                               <Button
                                 variant="outline"
                                 size="sm"
-                                disabled={busy}
+                                disabled={busy || !canManageTalents}
                                 className="h-8 gap-1 px-2.5 text-xs"
-                                onClick={() => publish(talent)}
+                                onClick={() => canManageTalents && publish(talent)}
                               >
                                 {busy ? (
                                   <Loader2 className="h-3.5 w-3.5 animate-spin" />
@@ -1738,9 +1739,9 @@ export default function ManagerTalents() {
                               <Button
                                 variant="ghost"
                                 size="icon"
-                                disabled={busy}
+                                disabled={busy || !canManageTalents}
                                 className="h-8 w-8 rounded-lg hover:bg-red-500/10 hover:text-red-600"
-                                onClick={() => reject(talent)}
+                                onClick={() => canManageTalents && reject(talent)}
                                 title="Refuser"
                               >
                                 <X className="h-4 w-4" />
@@ -1750,9 +1751,9 @@ export default function ManagerTalents() {
                             <Button
                               variant="ghost"
                               size="icon"
-                              disabled={busy}
+                              disabled={busy || !canManageTalents}
                               className="h-8 w-8 rounded-lg hover:bg-red-500/10 hover:text-red-600"
-                              onClick={() => removeTalent(talent)}
+                              onClick={() => canManageTalents && removeTalent(talent)}
                               title="Supprimer"
                             >
                               {busy ? (
@@ -1785,7 +1786,7 @@ export default function ManagerTalents() {
               Créez un profil, ajoutez les compétences et le portfolio, puis publiez-le.
             </p>
           </div>
-          <Button className="shrink-0 gap-2" onClick={openCreate} disabled={!!editingTalent}>
+          <Button className="shrink-0 gap-2" onClick={openCreate} disabled={!!editingTalent || !canManageTalents}>
             <Plus className="h-4 w-4" />
             Ajouter
           </Button>
