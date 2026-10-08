@@ -41,7 +41,6 @@ function initials(name = "KORA") {
 }
 
 export default function ManagerSettings() {
-  const { t } = useI18n()
   const { user, logout } = useAuth()
   const { t, language, setLanguage, theme, setTheme } = useI18n()
   const userId = user?.authId || user?.id || null
