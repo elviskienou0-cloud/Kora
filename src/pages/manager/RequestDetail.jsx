@@ -250,7 +250,7 @@ export default function ManagerRequestDetail() {
             <Button variant="outline" size="icon" onClick={() => navigate(-1)}><ArrowLeft className="h-4 w-4" /></Button>
             <div>
               <p className="text-xs font-bold uppercase tracking-[0.18em] text-gold">{t("requestForm.badge")}</p>
-              <h1 className="text-2xl font-black tracking-tight">{request.title || {t("requests.request")}}</h1>
+              <h1 className="text-2xl font-black tracking-tight">{request.title || t("requests.request")}</h1>
             </div>
           </div>
           <Badge variant="outline" className={status.className}>{status.label}</Badge>
@@ -342,7 +342,7 @@ export default function ManagerRequestDetail() {
           <Card className="border-gold/20">
             <CardHeader><CardTitle>{t("talents.contact")}</CardTitle></CardHeader>
             <CardContent className="space-y-3">
-              <Textarea value={reply} onChange={(event) => setReply(event.target.value)} placeholder=t("manager.replyPlaceholder") rows={4} disabled={processing} />
+              <Textarea value={reply} onChange={(event) => setReply(event.target.value)} placeholder={t("manager.replyPlaceholder")} rows={4} disabled={processing} />
               <div className="flex justify-end">
                 <Button onClick={sendReply} disabled={processing || !reply.trim()} className="gap-2"><MessageCircle className="h-4 w-4" /> {t("manager.sendReply")}</Button>
               </div>
