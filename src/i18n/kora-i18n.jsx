@@ -212,6 +212,31 @@ const fr = {
   },
 
   clientUi: {
+    browse: {
+      titleStart: "Découvrez nos", titleHighlight: "Talents",
+      availableCount: "{count} professionnel(s) disponible(s) à travers toute l'Afrique",
+      refreshing: "Actualisation…", searchPlaceholder: "Rechercher un talent, une compétence, un métier…",
+      sortRecommended: "Recommandés", sortRating: "Mieux notés", sortProjects: "Plus d'expérience",
+      sortRateAsc: "Prix croissant", sortRateDesc: "Prix décroissant", allCategories: "Toutes",
+      allCountries: "Tous les pays", filters: "Filtres", country: "Pays",
+      rateRange: "Fourchette de tarif", maxRate: "Jusqu'à", availableOnly: "Disponibles uniquement",
+      verifiedOnly: "Vérifiés uniquement", reset: "Réinitialiser", loadError: "Impossible de charger les talents.",
+      filterLoadError: "Impossible de charger les filtres KORA.", loading: "Chargement",
+      displayedCount: "{shown} affiché(s) sur {total} talent(s)", page: "Page {page}", of: "sur {totalPages}",
+      noTalents: "Aucun talent trouvé", noTalentsDescription: "Modifiez vos critères de recherche ou de filtrage pour découvrir d'autres professionnels.",
+      resetFilters: "Réinitialiser les filtres", removeFavorite: "Retirer des favoris",
+      addFavorite: "Ajouter aux favoris", projects: "{count} projet(s)", available: "Disponible",
+      busy: "Occupé", dailyRate: "Tarif journalier", viewProfile: "Voir le profil", contact: "Contacter",
+      previous: "Précédent", next: "Suivant",
+      categoryNames: {
+        beauty: "Beauté & Image", business: "Business & Stratégie", cinema: "Cinéma & Audiovisuel",
+        comedy: "Humour & Animation", creative: "Créatif & Design", culture: "Culture & Traditions",
+        education: "Formation & Éducation", events: "Événementiel", fashion: "Mode & Mannequinat",
+        finance: "Finance & Comptabilité", gastronomy: "Gastronomie & Traiteur", health: "Santé & Bien-être",
+        influence: "Contenu & Influence", legal: "Juridique & Conseil", marketing: "Marketing & Communication",
+        music: "Musique & Spectacle", sport: "Sport", tech: "Technologie & Digital", voice: "Voix & Doublage",
+      },
+    },
     dashboard: {
       loading: "Chargement de votre tableau de bord…", hello: "Bonjour, {name}",
       welcome: "Bienvenue sur votre tableau de bord KORA", search: "Rechercher",
@@ -481,6 +506,31 @@ const en = {
   home: { searchPlaceholder: "Search for a talent, a service...", welcomeBack: "Welcome back to {name}!", welcomeUser: "Welcome, {name}", clientIntro: "Find the best African talents to grow your project. Let us guide you!", managerIntro: "Manager dashboard: manage your talents, track your projects and optimize your collaborations.", adminIntro: "Administrator dashboard: view the platform global statistics.", realtimeStats: "Key statistics in real time", koraSelection: "KORA Selection", recommendedTalents: "Talents recommended for you", recommendedDescription: "Selected based on your activity and preferences", from: "From", loadingRecommended: "Loading recommended talents...", noPublishedTalents: "No published talent yet.", latestActions: "Latest actions", projectsCompleted: "projects" },
 
   clientUi: {
+    browse: {
+      titleStart: "Discover our", titleHighlight: "Talents",
+      availableCount: "{count} professional(s) available across Africa",
+      refreshing: "Refreshing…", searchPlaceholder: "Search for a talent, skill, profession…",
+      sortRecommended: "Recommended", sortRating: "Top rated", sortProjects: "Most experienced",
+      sortRateAsc: "Price: low to high", sortRateDesc: "Price: high to low", allCategories: "All",
+      allCountries: "All countries", filters: "Filters", country: "Country",
+      rateRange: "Price range", maxRate: "Up to", availableOnly: "Available only",
+      verifiedOnly: "Verified only", reset: "Reset", loadError: "Unable to load talents.",
+      filterLoadError: "Unable to load KORA filters.", loading: "Loading",
+      displayedCount: "{shown} shown out of {total} talents", page: "Page {page}", of: "of {totalPages}",
+      noTalents: "No talents found", noTalentsDescription: "Adjust your search or filters to discover other professionals.",
+      resetFilters: "Reset filters", removeFavorite: "Remove from favorites",
+      addFavorite: "Add to favorites", projects: "{count} project(s)", available: "Available",
+      busy: "Busy", dailyRate: "Daily rate", viewProfile: "View profile", contact: "Contact",
+      previous: "Previous", next: "Next",
+      categoryNames: {
+        beauty: "Beauty & Image", business: "Business & Strategy", cinema: "Film & Audiovisual",
+        comedy: "Comedy & Hosting", creative: "Creative & Design", culture: "Culture & Traditions",
+        education: "Training & Education", events: "Events", fashion: "Fashion & Modeling",
+        finance: "Finance & Accounting", gastronomy: "Gastronomy & Catering", health: "Health & Wellness",
+        influence: "Content & Influence", legal: "Legal & Consulting", marketing: "Marketing & Communication",
+        music: "Music & Entertainment", sport: "Sports", tech: "Technology & Digital", voice: "Voice & Dubbing",
+      },
+    },
     dashboard: {
       loading: "Loading your dashboard…", hello: "Hello, {name}",
       welcome: "Welcome to your KORA dashboard", search: "Search",
