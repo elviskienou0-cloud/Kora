@@ -1,0 +1,37 @@
+name: KORA i18n validation
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - "src/**"
+      - "scripts/check-i18n.mjs"
+      - "tests/i18n/**"
+      - "package.json"
+      - "package-lock.json"
+      - ".github/workflows/i18n-validation.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  i18n-and-build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - name: Install locked dependencies
+        run: npm ci
+      - name: Validate translation dictionaries and references
+        run: npm run test:i18n
+      - name: Run ESLint
+        run: npm run lint
+      - name: Build production bundle
+        run: npm run build
