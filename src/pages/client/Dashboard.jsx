@@ -282,8 +282,7 @@ export default function ClientDashboard() {
         if (!mounted) return
 
         setError(
-          err?.message ||
-            t("clientUi.dashboard.loadingError")
+          "clientUi.dashboard.loadingError"
         )
       } finally {
         if (mounted) {
@@ -297,7 +296,7 @@ export default function ClientDashboard() {
     return () => {
       mounted = false
     }
-  }, [navigate])
+  }, [navigate, t])
 
   const firstName = useMemo(() => {
     if (!profile) return t("clientUi.dashboard.you")
@@ -338,7 +337,7 @@ export default function ClientDashboard() {
             <Card className="border-red-500/30 bg-red-500/5">
               <CardContent className="flex items-center gap-3 p-4">
                 <AlertCircle className="h-5 w-5 text-red-500 shrink-0" />
-                <p className="text-sm text-red-600">{error}</p>
+                <p className="text-sm text-red-600">{t(error)}</p>
               </CardContent>
             </Card>
           </motion.div>
