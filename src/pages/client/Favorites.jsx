@@ -414,32 +414,32 @@ export default function ClientFavorites() {
               animate="visible"
               className="grid gap-5 md:grid-cols-2 xl:grid-cols-3"
             >
-              {filtered.map((t) => (
-                <motion.div key={t.id} variants={itemVariants} layout>
+              {filtered.map((talent) => (
+                <motion.div key={talent.id} variants={itemVariants} layout>
                   <Card className="group h-full border-gold/15 transition-all duration-300 hover:border-gold/40 hover:shadow-xl hover:shadow-gold/10 relative overflow-hidden">
                     <div className="absolute right-0 top-0 flex items-center gap-1 rounded-bl-xl bg-rose-500/10 px-2.5 py-1 text-[10px] font-semibold text-rose-500">
-                      <Heart className="h-3 w-3 fill-rose-500" /> {new Date(t.savedAt).toLocaleDateString(language === "en" ? "en-GB" : "fr-FR")}
+                      <Heart className="h-3 w-3 fill-rose-500" /> {new Date(talent.savedAt).toLocaleDateString(language === "en" ? "en-GB" : "fr-FR")}
                     </div>
                     <CardHeader className="pb-3 pt-6">
                       <div className="flex items-start justify-between">
                         <div className="flex items-start gap-3">
                           <Avatar className="h-14 w-14 ring-2 ring-gold/30 ring-offset-2 ring-offset-card">
                             <AvatarFallback className="gold-gradient text-white font-bold text-lg">
-                              {t.firstName[0] || ""}{t.lastName[0] || ""}
+                              {talent.firstName[0] || ""}{talent.lastName[0] || ""}
                             </AvatarFallback>
                           </Avatar>
                           <div className="min-w-0 pr-2">
                             <div className="flex items-center gap-1.5">
-                              <h3 className="font-bold truncate">{t.firstName} {t.lastName}</h3>
-                              {t.verified && (
+                              <h3 className="font-bold truncate">{talent.firstName} {talent.lastName}</h3>
+                              {talent.verified && (
                                 <CheckCircle2 className="h-4 w-4 shrink-0 text-emerald-500 fill-emerald-50" />
                               )}
                             </div>
-                            {t.title && <p className="text-sm font-medium text-gold-dark truncate">{t.title}</p>}
-                            {(t.city || t.country) && (
+                            {talent.title && <p className="text-sm font-medium text-gold-dark truncate">{talent.title}</p>}
+                            {(talent.city || talent.country) && (
                               <div className="mt-1 flex items-center gap-1.5 text-xs text-muted-foreground">
                                 <MapPin className="h-3 w-3" />
-                                {[t.city, t.country].filter(Boolean).join(", ")}
+                                {[talent.city, talent.country].filter(Boolean).join(", ")}
                               </div>
                             )}
                           </div>
@@ -447,9 +447,9 @@ export default function ClientFavorites() {
                       </div>
                     </CardHeader>
                     <CardContent className="space-y-4 pb-4">
-                      {t.skills.length > 0 && (
+                      {talent.skills.length > 0 && (
                         <div className="flex flex-wrap gap-1.5">
-                          {t.skills.map((s) => (
+                          {talent.skills.map((s) => (
                             <Badge key={s} variant="outline" className="border-gold/25 bg-gold/5 text-gold-dark text-xs font-medium">
                               {s}
                             </Badge>
@@ -460,15 +460,15 @@ export default function ClientFavorites() {
                         <div className="flex items-center gap-3">
                           <div className="flex items-center gap-0.5">
                             <Star className="h-3.5 w-3.5 fill-gold text-gold" />
-                            <span className="font-semibold text-foreground">{t.rating ? t.rating.toFixed(1) : "—"}</span>
-                            <span className="text-muted-foreground">({t.reviews})</span>
+                            <span className="font-semibold text-foreground">{talent.rating ? talent.rating.toFixed(1) : "—"}</span>
+                            <span className="text-muted-foreground">({talent.reviews})</span>
                           </div>
                           <div className="flex items-center gap-1 text-muted-foreground">
                             <Briefcase className="h-3.5 w-3.5" />
-                            {t.completedProjects} {t("favorites.completedProjects")}
+                            {talent.completedProjects} {t("favorites.completedProjects")}
                           </div>
                         </div>
-                        {t.available ? (
+                        {talent.available ? (
                           <Badge variant="outline" className="border-emerald-500/30 bg-emerald-500/10 text-emerald-600 text-[10px]">
                             {t("favorites.availableStatus")}
                           </Badge>
@@ -483,33 +483,33 @@ export default function ClientFavorites() {
                     <CardFooter className="flex items-center justify-between py-4">
                       <div>
                         <p className="text-xs text-muted-foreground">{t("favorites.dailyRate")}</p>
-                        <p className="text-lg font-bold gold-text-gradient">{new Intl.NumberFormat(language === "en" ? "en-GB" : "fr-FR", { style: "currency", currency: "XOF", maximumFractionDigits: 0 }).format(t.rate)}</p>
+                        <p className="text-lg font-bold gold-text-gradient">{new Intl.NumberFormat(language === "en" ? "en-GB" : "fr-FR", { style: "currency", currency: "XOF", maximumFractionDigits: 0 }).format(talent.rate)}</p>
                       </div>
                       <div className="flex items-center gap-2">
                         <Button
                           variant="ghost"
                           size="sm"
-                          onClick={() => removeFavorite(t.id)}
+                          onClick={() => removeFavorite(talent.id)}
                           className="text-rose-500 hover:bg-rose-500/10 h-9 w-9 p-0"
                           title={t("favorites.removeTitle")} aria-label={t("favorites.removeTitle")}
                         >
                           <HeartCrack className="h-4 w-4" />
                         </Button>
-                        <Button variant="ghost" size="sm" aria-label={t("talents.viewProfile")} title={t("talents.viewProfile")} onClick={() => navigate(`/talent/${t.id}`)} className="text-gold-dark hover:bg-gold/10 h-9 w-9 p-0">
+                        <Button variant="ghost" size="sm" aria-label={t("talents.viewProfile")} title={t("talents.viewProfile")} onClick={() => navigate(`/talent/${talent.id}`)} className="text-gold-dark hover:bg-gold/10 h-9 w-9 p-0">
                           <Eye className="h-4 w-4" aria-hidden="true" />
                         </Button>
                         <Button
                           size="sm"
                           onClick={() => handleContact(t)}
-                          disabled={contactingTalentId === t.id}
+                          disabled={contactingTalentId === talent.id}
                           className="h-9 gold-gradient text-primary-foreground hover:opacity-90 shadow-sm shadow-gold/25"
                         >
-                          {contactingTalentId === t.id ? (
+                          {contactingTalentId === talent.id ? (
                             <Loader2 className="h-3.5 w-3.5 mr-1.5 animate-spin" />
                           ) : (
                             <Send className="h-3.5 w-3.5 mr-1.5" />
                           )}
-                          {contactingTalentId === t.id ? t("favorites.openingConversation") : t("favorites.contactAction")}
+                          {contactingTalentId === talent.id ? t("favorites.openingConversation") : t("favorites.contactAction")}
                         </Button>
                       </div>
                     </CardFooter>
