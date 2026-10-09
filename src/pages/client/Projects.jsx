@@ -156,9 +156,7 @@ export default function ClientProjects() {
       return
     }
 
-    const ok = window.confirm(
-      `Annuler le projet « ${project.title} » ?`
-    )
+    const ok = window.confirm(t("clientUi.projects.cancelConfirm", "Cancel project “{title}”? ", { title: project.title }))
 
     if (!ok) return
 
