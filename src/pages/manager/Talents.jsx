@@ -774,7 +774,7 @@ function TalentEditor({
                   className="mt-2 h-8 gap-1.5 px-2 text-xs"
                 >
                   <Plus className="h-3.5 w-3.5" />
-                  {t("manager.addTalentAction")} un lien
+                  Ajouter un lien
                 </Button>
               </div>
             </div>
@@ -1658,7 +1658,7 @@ export default function ManagerTalents() {
                         </td>
 
                         <td className="hidden px-6 py-3.5 md:table-cell">
-                          <span className="text-xs font-medium">{talent.cat}</span>
+                          <span className="text-xs font-medium">{language === "en" && ["Musique & Spectacle", "Musique et spectacle"].includes(talent.cat) ? t("categories.musicEntertainment") : talent.cat}</span>
                         </td>
 
                         <td className="hidden px-6 py-3.5 lg:table-cell">
@@ -1791,7 +1791,7 @@ export default function ManagerTalents() {
           </div>
           <Button className="shrink-0 gap-2" onClick={openCreate} disabled={!!editingTalent || !canManageTalents}>
             <Plus className="h-4 w-4" />
-            Ajouter
+            {t("manager.addTalentAction")}
           </Button>
         </CardContent>
       </Card>
