@@ -5,7 +5,8 @@ import {
   Phone,
   MapPin,
   Heart,
-} from "lucide-react"import { cn } from "@/lib/utils.js"
+} from "lucide-react"
+import { cn } from "@/lib/utils.js"
 import koraLogo from "@/assets/kora-logo.svg"
 
 const FOOTER_LINKS = {
