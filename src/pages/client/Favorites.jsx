@@ -146,7 +146,7 @@ export default function ClientFavorites() {
         setFavorites(merged);
       } catch (err) {
         console.error("Erreur chargement des favoris :", err);
-        if (mounted) setLoadError(tr("clientUi.favorites.loadingError"));
+        if (mounted) setLoadError("clientUi.favorites.loadingError");
       } finally {
         if (mounted) setLoading(false);
       }
@@ -307,7 +307,7 @@ export default function ClientFavorites() {
             <Card className="border-red-500/30 bg-red-500/5">
               <CardContent className="flex items-center gap-3 p-4">
                 <AlertCircle className="h-5 w-5 text-red-500 shrink-0" />
-                <p className="text-sm text-red-600">{loadError}</p>
+                <p className="text-sm text-red-600">{tr(loadError)}</p>
               </CardContent>
             </Card>
           </motion.div>
