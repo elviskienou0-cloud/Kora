@@ -21,56 +21,57 @@ import { useAuth } from "@/lib/AuthContext"
 import { supabase } from "@/lib/supabase"
 import { queryClient } from "@/lib/queryClient"
 import { useProjectsQuery } from "@/hooks/queries/useProjectsQuery"
+import { useI18n } from "@/i18n/kora-i18n.jsx"
 
 const PAGE_SIZE = 10
 
 const STATUS_CONFIG = {
   draft: {
-    label: "Brouillon",
+    labelKey: "projects.draft",
     className: "bg-slate-500/10 text-slate-600 border-slate-500/30",
   },
   open: {
-    label: "Ouvert",
+    labelKey: "projects.open",
     className: "bg-emerald-500/10 text-emerald-600 border-emerald-500/30",
   },
   pending: {
-    label: "En attente",
+    labelKey: "projects.pending",
     className: "bg-amber-500/10 text-amber-700 border-amber-500/30",
   },
   active: {
-    label: "Actif",
+    labelKey: "projects.active",
     className: "bg-blue-500/10 text-blue-600 border-blue-500/30",
   },
   completed: {
-    label: "Terminé",
+    labelKey: "projects.completed",
     className: "bg-violet-500/10 text-violet-600 border-violet-500/30",
   },
   cancelled: {
-    label: "Annulé",
+    labelKey: "projects.cancelled",
     className: "bg-red-500/10 text-red-600 border-red-500/30",
   },
 }
 
-function formatMoney(value, currency) {
+function formatMoney(value, currency, language = "fr") {
   if (value === null || value === undefined) return "—"
 
   try {
-    return new Intl.NumberFormat("fr-FR", {
+    return new Intl.NumberFormat(language === "en" ? "en-GB" : "fr-FR", {
       style: "currency",
       currency: currency || "XOF",
       maximumFractionDigits: 0,
     }).format(Number(value))
   } catch {
-    return `${Number(value).toLocaleString("fr-FR")} ${currency || "XOF"}`
+    return `${Number(value).toLocaleString(language === "en" ? "en-GB" : "fr-FR")} ${currency || "XOF"}`
   }
 }
 
-function budgetLabel(project) {
+function budgetLabel(project, t, language) {
   const min = project.budget_min
   const max = project.budget_max
 
   if (min == null && max == null) {
-    return "Budget non défini"
+    return t("projects.budgetUndefined")
   }
 
   if (min != null && max != null) {
@@ -81,13 +82,14 @@ function budgetLabel(project) {
   }
 
   return min != null
-    ? `À partir de ${formatMoney(min, project.currency)}`
-    : `Jusqu'à ${formatMoney(max, project.currency)}`
+    ? t("projects.startingAt", undefined, { amount: formatMoney(min, project.currency, language) })
+    : t("projects.upTo", undefined, { amount: formatMoney(max, project.currency, language) })
 }
 
 export default function ClientProjects() {
   const navigate = useNavigate()
   const { user } = useAuth()
+  const { t, language } = useI18n()
 
   const authUserId = user?.authId || user?.id
 
@@ -170,9 +172,7 @@ export default function ClientProjects() {
       return
     }
 
-    const ok = window.confirm(
-      `Annuler le projet « ${project.title} » ?`
-    )
+    const ok = window.confirm(t("projects.cancelConfirm"))
 
     if (!ok) return
 
@@ -188,13 +188,13 @@ export default function ClientProjects() {
       console.error("Erreur annulation projet :", updateError)
 
       toast.error(
-        updateError.message || "Impossible d'annuler le projet."
+        t("projects.saveError")
       )
 
       return
     }
 
-    toast.success("Projet annulé.")
+    toast.success(t("projects.cancelledToast"))
 
     await queryClient.invalidateQueries({
       queryKey: ["projects"],
@@ -211,16 +211,17 @@ export default function ClientProjects() {
         <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
           <div>
             <p className="text-xs font-bold uppercase tracking-[0.18em] text-gold">
-              Espace Client
+              {t("projects.clientArea")}
             </p>
 
             <h1 className="text-2xl font-black tracking-tight md:text-3xl">
-              Mes projets
+              {t("projects.title")}
             </h1>
 
             <p className="mt-1 text-sm text-muted-foreground">
-              {totalCount} projet{totalCount > 1 ? "s" : ""} enregistré
-              {totalCount > 1 ? "s" : ""}
+              {totalCount === 1
+                ? t("projects.projectCountOne", undefined, { count: totalCount })
+                : t("projects.projectCountMany", undefined, { count: totalCount })}
             </p>
           </div>
 
@@ -236,7 +237,7 @@ export default function ClientProjects() {
                 }`}
               />
 
-              Actualiser
+              {t("common.refresh")}
             </Button>
 
             <Button
@@ -244,7 +245,7 @@ export default function ClientProjects() {
               className="gold-gradient text-primary-foreground"
             >
               <Plus className="mr-2 h-4 w-4" />
-              Créer un projet
+              {t("projects.create")}
             </Button>
           </div>
         </div>
@@ -258,7 +259,7 @@ export default function ClientProjects() {
               <Input
                 value={search}
                 onChange={(event) => setSearch(event.target.value)}
-                placeholder="Rechercher un projet..."
+                placeholder={t("projects.searchPlaceholder")}
                 className="pl-9 pr-9"
               />
 
@@ -267,7 +268,7 @@ export default function ClientProjects() {
                   type="button"
                   onClick={() => setSearch("")}
                   className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground"
-                  aria-label="Effacer la recherche"
+                  aria-label={t("projects.clearSearch")}
                 >
                   <XCircle className="h-4 w-4" />
                 </button>
@@ -280,7 +281,7 @@ export default function ClientProjects() {
         {isError && (
           <Card className="border-red-500/30 bg-red-500/5">
             <CardContent className="p-4 text-sm text-red-600">
-              {error?.message || "Impossible de charger vos projets."}
+              {t("projects.cannotLoad")}
             </CardContent>
           </Card>
         )}
@@ -290,7 +291,7 @@ export default function ClientProjects() {
           <div className="flex min-h-[40vh] items-center justify-center">
             <Loader2
               className="h-7 w-7 animate-spin text-gold"
-              aria-label="Chargement"
+              aria-label={t("common.loading")}
             />
           </div>
         ) : projects.length === 0 ? (
@@ -303,14 +304,14 @@ export default function ClientProjects() {
 
               <h2 className="text-lg font-black">
                 {search
-                  ? "Aucun projet trouvé"
-                  : "Aucun projet"}
+                  ? t("projects.noSearchResults")
+                  : t("projects.noProjects")}
               </h2>
 
               <p className="mt-2 max-w-md text-sm text-muted-foreground">
                 {search
-                  ? "Aucun projet ne correspond à votre recherche."
-                  : "Créez votre premier projet pour le retrouver ici et commencer à travailler avec les talents KORA."}
+                  ? t("projects.noSearchResultsDescription")
+                  : t("projects.emptyDescription")}
               </p>
 
               {!search && (
@@ -333,7 +334,7 @@ export default function ClientProjects() {
               {projects.map((project) => {
                 const status =
                   STATUS_CONFIG[project.status] || {
-                    label: project.status || "—",
+                    labelKey: null,
                     className:
                       "bg-muted text-muted-foreground",
                   }
@@ -359,33 +360,33 @@ export default function ClientProjects() {
                           variant="outline"
                           className={status.className}
                         >
-                          {status.label}
+                          {status.labelKey ? t(status.labelKey) : project.status || "—"}
                         </Badge>
                       </div>
 
                       <div className="mt-5 space-y-2 text-sm">
                         <div className="flex justify-between gap-4">
                           <span className="text-muted-foreground">
-                            Budget
+                            {t("projects.budget")}
                           </span>
 
                           <span className="text-right font-medium">
-                            {budgetLabel(project)}
+                            {budgetLabel(project, t, language)}
                           </span>
                         </div>
 
                         <div className="flex items-center justify-between gap-4">
                           <span className="flex items-center gap-2 text-muted-foreground">
                             <CalendarDays className="h-3.5 w-3.5" />
-                            Date limite
+                            {t("projects.dueDateLabel")}
                           </span>
 
                           <span>
                             {project.due_date
                               ? new Date(
                                   `${project.due_date}T00:00:00`
-                                ).toLocaleDateString("fr-FR")
-                              : "Non définie"}
+                                ).toLocaleDateString(language === "en" ? "en-GB" : "fr-FR")
+                              : t("common.notProvided")}
                           </span>
                         </div>
                       </div>
@@ -399,7 +400,7 @@ export default function ClientProjects() {
                           <Link
                             to={`/client/projects/${project.id}`}
                           >
-                            Détail
+                            {t("common.details")}
                             <ChevronRight className="ml-1 h-4 w-4" />
                           </Link>
                         </Button>
@@ -415,7 +416,7 @@ export default function ClientProjects() {
                             }
                             className="text-red-600 hover:bg-red-50 hover:text-red-700"
                           >
-                            Annuler
+                            {t("common.cancel")}
                           </Button>
                         )}
                       </div>
@@ -429,7 +430,7 @@ export default function ClientProjects() {
             {totalPages > 1 && (
               <div className="flex flex-col items-center justify-between gap-3 border-t border-border pt-5 sm:flex-row">
                 <p className="text-sm text-muted-foreground">
-                  Page {page} sur {totalPages}
+                  {t("projects.pageOf", undefined, { page, total: totalPages })}
                 </p>
 
                 <div className="flex items-center gap-2">
@@ -443,7 +444,7 @@ export default function ClientProjects() {
                       )
                     }
                   >
-                    Précédent
+                    {t("common.previous")}
                   </Button>
 
                   <Button
@@ -456,7 +457,7 @@ export default function ClientProjects() {
                       )
                     }
                   >
-                    Suivant
+                    {t("common.next")}
                   </Button>
                 </div>
               </div>
