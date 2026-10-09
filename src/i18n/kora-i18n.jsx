@@ -263,6 +263,11 @@ const fr = {
     manager: "Manager", client: "Client", budget: "Budget", details: "Détails de la demande", accept: "Accepter", reject: "Refuser",
     view: "Voir la demande", invitation: "Invitation", invitationSent: "Invitation envoyée", noRequests: "Aucune demande.",
     noRequestsDescription: "Vous n'avez actuellement aucune demande.",
+    countOne: "{count} demande",
+    countMany: "{count} demandes",
+    pageOf: "Page {page} sur {total}",
+
+
   },
 
   requestForm: {
@@ -661,6 +666,11 @@ const en = {
     savedTalents: "Saved talents",
     requestsSentDescription: "Requests sent",
     unknownDate: "Unknown date",
+
+
+    countOne: "{count} request",
+    countMany: "{count} requests",
+    pageOf: "Page {page} of {total}",
 
 
   },
