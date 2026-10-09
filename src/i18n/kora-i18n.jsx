@@ -210,6 +210,7 @@ const fr = {
     maxBudget: "Budget maximum",
     dueDateLabel: "Date limite",
     stateLabel: "État",
+    projectCountOne: "{count} projet enregistré", projectCountMany: "{count} projets enregistrés", pageOf: "Page {page} sur {total}",
   },
 
   requests: {
@@ -466,7 +467,8 @@ const en = {
     minBudget: "Minimum budget",
     maxBudget: "Maximum budget",
     dueDateLabel: "Due date",
-    stateLabel: "Status"
+    stateLabel: "Status",
+    projectCountOne: "{count} project", projectCountMany: "{count} projects", pageOf: "Page {page} of {total}",
   },
   requests: { title: "My requests", description: "Track your requests and invitations.", request: "Request", requests: "Requests", pending: "Pending", accepted: "Accepted", rejected: "Rejected", cancelled: "Cancelled", sent: "Sent", received: "Received", project: "Project", talent: "Talent", manager: "Manager", client: "Client", budget: "Budget", details: "Request details", accept: "Accept", reject: "Reject", view: "View request", invitation: "Invitation", invitationSent: "Invitation sent", noRequests: "No requests.", noRequestsDescription: "You currently have no requests." },
   requestForm: { badge: "Collaboration request", title: "Describe your project", forTalent: "For {talent}", openButton: "Send a request", projectTitle: "Project title", projectTitlePlaceholder: "E.g. Coca-Cola advertising campaign", projectType: "Project type", selectType: "Select a type…", description: "Description", descriptionPlaceholder: "Describe what you want to accomplish with this talent…", dateStart: "Date / period start", dateEnd: "Period end", budget: "Proposed budget (optional)", location: "Location", locationPlaceholder: "E.g. Ouagadougou, Burkina Faso", additionalInfo: "Additional information", additionalInfoPlaceholder: "Constraints, deliverables, schedules, references, etc.", notice: "The request contains the project context directly. The manager can review it, reply, accept or reject the collaboration.", submit: "Send request", titleRequired: "Project title is required.", descriptionRequired: "Project description is required.", dateInvalid: "The period end cannot be before the start.", sent: "Request sent ✅", sentDescription: "The talent manager received the project information.", error: "Unable to send the request", types: { advertising: "Advertising", event: "Event", musicVideo: "Music video", shooting: "Shooting", socialCampaign: "Social media campaign", fashion: "Fashion", filmTv: "Film / TV", other: "Other" } },
