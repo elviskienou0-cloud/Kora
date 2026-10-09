@@ -168,6 +168,20 @@ const fr = {
     noFavoritesTitle: "Aucun favori pour le moment",
 
 
+    savedOne: "{count} talent sauvegardé",
+    savedMany: "{count} talents sauvegardés",
+    emptyDescription: "Sauvegardez les talents qui vous intéressent pour les retrouver facilement et comparer leurs profils.",
+    discoverAction: "Découvrir des talents",
+    howItWorks: "Comment ça marche ?",
+    tutorialHeartTitle: "Cliquez sur",
+    tutorialHeartDescription: "l'icône cœur sur un profil",
+    tutorialFindTitle: "Retrouvez-les",
+    tutorialFindDescription: "ici, à tout moment",
+    tutorialRequestTitle: "Envoyez des",
+    tutorialRequestDescription: "demandes en un clic",
+    matchingSearch: "Aucun de vos favoris ne correspond à « {search} »",
+
+
   },
 
   projects: {
@@ -532,6 +546,20 @@ const en = {
     viewProfile: "View profile",
     reset: "Reset",
     noResultsDescription: "Try broadening your search or changing the filters.",
+
+
+    savedOne: "{count} talent saved",
+    savedMany: "{count} talents saved",
+    emptyDescription: "Save the talents you are interested in to find them easily and compare their profiles.",
+    discoverAction: "Discover talents",
+    howItWorks: "How does it work?",
+    tutorialHeartTitle: "Click the",
+    tutorialHeartDescription: "heart icon on a profile",
+    tutorialFindTitle: "Find them",
+    tutorialFindDescription: "here, anytime",
+    tutorialRequestTitle: "Send",
+    tutorialRequestDescription: "requests in one click",
+    matchingSearch: "None of your favorites match “{search}”",
 
 
   },
