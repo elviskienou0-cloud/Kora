@@ -371,7 +371,7 @@ const fr = {
   },
 
   talentDetail: {
-    loading: "Chargement du profil…", unavailableTitle: "Talent indisponible",
+    loading: "Chargement du profil…", unavailableTitle: "Talent indisponible", noLongerAvailable: "Ce talent n’est pas disponible.", metaDescriptionFallback: "{title} disponible sur KORA.",
     unavailableDescription: "Ce profil n'existe pas ou n'est plus visible.",
     back: "Retour", pageTitle: "Profil de {name}", publicTitle: "Profil talent",
     unpublishedWarning: "Ce profil n’est pas encore publié publiquement. Seul le manager propriétaire ou un administrateur peut actuellement le consulter.",
@@ -689,7 +689,7 @@ const en = {
 
   dashboard: { title: "Dashboard", welcome: "Welcome to KORA.", overview: "Overview", recentActivity: "Recent activity", statistics: "Statistics", totalProjects: "Total projects", activeProjects: "Active projects", completedProjects: "Completed projects", pendingRequests: "Pending requests", talents: "Talents", messages: "Messages", notifications: "Notifications", unreadMessages: "Unread messages", noActivity: "No recent activity." },
   talentDetail: {
-    loading: "Loading profile…", unavailableTitle: "Talent unavailable",
+    loading: "Loading profile…", unavailableTitle: "Talent unavailable", noLongerAvailable: "This talent is not available.", metaDescriptionFallback: "{title} available on KORA.",
     unavailableDescription: "This profile does not exist or is no longer visible.",
     back: "Back", pageTitle: "{name}'s profile", publicTitle: "Talent profile",
     unpublishedWarning: "This profile has not been published publicly yet. Only its owning manager or an administrator can currently view it.",
