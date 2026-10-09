@@ -296,7 +296,7 @@ const fr = {
       submit: "Publier mon avis", loadError: "Impossible de préparer l'évaluation.",
       projectNotFound: "Projet introuvable ou inaccessible.", eligibleTalentMissing: "Aucun talent éligible à évaluer.",
       chooseRating: "Choisissez une note de 1 à 5.", commentRequired: "Ajoutez un commentaire.",
-      saved: "Évaluation enregistrée ✅", saveError: "Impossible d'enregistrer l'avis.",
+      saved: "Évaluation enregistrée ✅", saveError: "Impossible d'enregistrer l'avis.", reputation: "Réputation KORA", ratingAvailableWhenCompleted: "La note et l’avis deviennent disponibles lorsque le manager marque ce projet comme terminé.", finished: "Terminé", stars: "{count} étoile(s)",
     },
   },
 
@@ -565,7 +565,7 @@ const en = {
       submit: "Publish my review", loadError: "Unable to prepare the review.",
       projectNotFound: "Project not found or inaccessible.", eligibleTalentMissing: "No eligible talent to review.",
       chooseRating: "Choose a rating from 1 to 5.", commentRequired: "Add a comment.",
-      saved: "Review saved ✅", saveError: "Unable to save the review.",
+      saved: "Review saved ✅", saveError: "Unable to save the review.", reputation: "KORA reputation", ratingAvailableWhenCompleted: "Ratings and reviews become available when the manager marks the project as completed.", finished: "Completed", stars: "{count} star(s)",
     },
   },
 
