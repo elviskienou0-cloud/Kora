@@ -352,6 +352,25 @@ const fr = {
     noRequestDescription: "Vos demandes apparaîtront ici après leur envoi.",
 
 
+    greeting: "Bienvenue sur votre tableau de bord KORA",
+    searchAction: "Rechercher",
+    newRequest: "Nouvelle demande",
+    recentRequests: "Dernières demandes",
+    recentRequestsDescription: "Vos demandes récentes auprès des managers",
+    viewAll: "Tout voir",
+    exploreTalents: "Explorer les talents",
+    recentTalents: "Talents récents",
+    currentTalentsDescription: "Talents actuellement présents sur KORA",
+    noPublicProfiles: "Aucun profil public n'est actuellement disponible.",
+    seeAllTalents: "Voir tous les talents",
+    activityDescription: "Les données apparaîtront ici à mesure que vous utilisez KORA.",
+    searches: "Recherches",
+    searchHistoryDescription: "Recherches de talents enregistrées",
+    savedTalents: "Talents enregistrés",
+    requestsSentDescription: "Demandes envoyées",
+    unknownDate: "Date inconnue",
+
+
   },
 
   manager: {
@@ -623,6 +642,25 @@ const en = {
     yourActivity: "Your activity",
     noAvailableTalentsDescription: "Available talents will appear here.",
     noRequestDescription: "Your requests will appear here after you send them.",
+
+
+    greeting: "Welcome to your KORA dashboard",
+    searchAction: "Search",
+    newRequest: "New request",
+    recentRequests: "Recent requests",
+    recentRequestsDescription: "Your latest requests to managers",
+    viewAll: "View all",
+    exploreTalents: "Explore talents",
+    recentTalents: "Recent talents",
+    currentTalentsDescription: "Talents currently on KORA",
+    noPublicProfiles: "No public profile is currently available.",
+    seeAllTalents: "View all talents",
+    activityDescription: "Data will appear here as you use KORA.",
+    searches: "Searches",
+    searchHistoryDescription: "Recorded talent searches",
+    savedTalents: "Saved talents",
+    requestsSentDescription: "Requests sent",
+    unknownDate: "Unknown date",
 
 
   },
