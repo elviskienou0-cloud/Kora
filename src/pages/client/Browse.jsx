@@ -28,6 +28,7 @@ import {
 import {
   useNavigate,
 } from "react-router-dom"
+import { useI18n } from "@/i18n/kora-i18n.jsx"
 
 import {
   Card,
@@ -49,10 +50,7 @@ import {
   TabsTrigger,
 } from "@/components/ui/tabs"
 
-import {
-  cn,
-  formatCurrency,
-} from "@/lib/utils"
+import { cn } from "@/lib/utils"
 import { useAuth } from "@/lib/AuthContext"
 import { supabase } from "@/lib/supabase"
 import { getCategoryIcon } from "@/lib/categoryIcons"
@@ -60,7 +58,15 @@ import {
   useTalentsQuery,
 } from "@/hooks/queries/useTalentsQuery"
 
-const ALL_COUNTRIES_LABEL = "Tous les pays"
+function formatMoney(value, currency, language = "fr") {
+  return new Intl.NumberFormat(language === "en" ? "en-GB" : "fr-FR", {
+    style: "currency",
+    currency: currency || "XOF",
+    maximumFractionDigits: 0,
+  }).format(Number(value || 0))
+}
+
+const ALL_COUNTRIES_LABEL = "all"
 
 /*
  * IMPORTANT :
@@ -102,6 +108,7 @@ const itemVariants = {
 export default function ClientBrowse() {
   const navigate = useNavigate()
   const { user } = useAuth()
+  const { t, language } = useI18n()
 
   const authUserId =
     user?.authId || user?.id
@@ -447,7 +454,7 @@ export default function ClientBrowse() {
         if (mounted) {
           setLoadError(
             error?.message ||
-              "Impossible de charger les filtres KORA."
+              t("errors.loading")
           )
         }
       }
@@ -492,7 +499,7 @@ export default function ClientBrowse() {
 
       if (error) {
         console.warn(
-          "Impossible de récupérer le tarif maximum :",
+          t("browse.maxRateError"),
           error
         )
         return
@@ -656,7 +663,7 @@ export default function ClientBrowse() {
       )
 
       toast.error(
-        "Impossible de mettre à jour votre favori."
+        t("browse.favoriteError")
       )
 
       setFavorites((current) => {
@@ -855,22 +862,11 @@ export default function ClientBrowse() {
           <div className="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
             <div>
               <h1 className="text-2xl font-bold tracking-tight md:text-3xl">
-                Découvrez nos{" "}
-                <span className="text-gold-dark">
-                  Talents
-                </span>
+                {t("browse.title")}
               </h1>
 
               <p className="mt-1 text-sm text-muted-foreground">
-                {totalTalents} professionnel
-                {totalTalents > 1
-                  ? "s"
-                  : ""}{" "}
-                disponible
-                {totalTalents > 1
-                  ? "s"
-                  : ""}{" "}
-                à travers toute l'Afrique
+                {totalTalents === 1 ? t("browse.availableCountOne", undefined, { count: totalTalents }) : t("browse.availableCountMany", undefined, { count: totalTalents })}
               </p>
             </div>
 
@@ -878,7 +874,7 @@ export default function ClientBrowse() {
             !loading ? (
               <div className="flex items-center gap-2 text-xs text-muted-foreground">
                 <Loader2 className="h-3.5 w-3.5 animate-spin" />
-                Actualisation…
+                {t("browse.refresh")}
               </div>
             ) : null}
           </div>
@@ -888,7 +884,7 @@ export default function ClientBrowse() {
               <Search className="absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-muted-foreground" />
 
               <Input
-                placeholder="Rechercher un talent, une compétence, un métier..."
+                placeholder={t("browse.searchLong")}
                 value={search}
                 onChange={
                   handleSearchChange
@@ -921,19 +917,19 @@ export default function ClientBrowse() {
                 className="h-12 rounded-xl border border-border bg-card px-4 pr-9 text-sm font-medium text-foreground focus:outline-none focus:ring-2 focus:ring-gold/30"
               >
                 <option value="recommended">
-                  Recommandés
+                  {t("browse.recommendedSort")}
                 </option>
                 <option value="rating">
-                  Mieux notés
+                  {t("browse.rating")}
                 </option>
                 <option value="projects">
-                  Plus d'expérience
+                  {t("browse.projectsSort")}
                 </option>
                 <option value="rate-asc">
-                  Prix croissant
+                  {t("browse.priceAscending")}
                 </option>
                 <option value="rate-desc">
-                  Prix décroissant
+                  {t("browse.priceDescending")}
                 </option>
               </select>
 
@@ -955,7 +951,7 @@ export default function ClientBrowse() {
                 )}
               >
                 <Filter className="h-4 w-4" />
-                Filtres
+                {t("browse.filters")}
 
                 {activeFiltersCount >
                 0 ? (
@@ -1039,7 +1035,7 @@ export default function ClientBrowse() {
                     <div className="space-y-2">
                       <label className="text-sm font-semibold text-foreground flex items-center gap-2">
                         <MapPin className="h-4 w-4 text-gold-dark" />
-                        Pays
+                        {t("browse.country")}
                       </label>
 
                       <select
@@ -1075,7 +1071,7 @@ export default function ClientBrowse() {
 
                     <div className="space-y-2 md:col-span-2">
                       <label className="text-sm font-semibold text-foreground">
-                        Fourchette de tarif
+                        {t("browse.rateRange")}
                       </label>
 
                       <div className="flex items-center gap-3">
@@ -1143,18 +1139,11 @@ export default function ClientBrowse() {
 
                       <div className="flex justify-between text-[11px] text-muted-foreground">
                         <span>
-                          {formatCurrency(
-                            minRate,
-                            "XOF"
-                          )}
+                          {formatMoney(minRate, "XOF", language)}
                         </span>
 
                         <span>
-                          Jusqu'à{" "}
-                          {formatCurrency(
-                            rateCeiling,
-                            "XOF"
-                          )}
+                          {t("browse.maxPrice")}:{" "}{formatMoney(rateCeiling, "XOF", language)}
                         </span>
                       </div>
                     </div>
@@ -1176,7 +1165,7 @@ export default function ClientBrowse() {
                             }}
                             className="h-4 w-4 rounded accent-gold"
                           />
-                          Disponibles uniquement
+                          {t("browse.availableOnly")}
                         </label>
 
                         <label className="flex cursor-pointer items-center gap-2 text-sm">
@@ -1194,7 +1183,7 @@ export default function ClientBrowse() {
                             }}
                             className="h-4 w-4 rounded accent-gold"
                           />
-                          Vérifiés uniquement
+                          {t("browse.verifiedOnly")}
                         </label>
                       </div>
 
@@ -1206,7 +1195,7 @@ export default function ClientBrowse() {
                         className="text-sm text-muted-foreground hover:text-foreground"
                       >
                         <X className="mr-1 h-3.5 w-3.5" />
-                        Réinitialiser
+                        {t("browse.resetFiltersAction")}
                       </Button>
                     </div>
                   </CardContent>
@@ -1227,7 +1216,7 @@ export default function ClientBrowse() {
                 <p className="text-sm text-red-600">
                   {loadError ||
                     talentsError?.message ||
-                    "Impossible de charger les talents."}
+                    t("errors.loading")}
                 </p>
               </CardContent>
             </Card>
@@ -1238,7 +1227,7 @@ export default function ClientBrowse() {
           <div className="flex items-center justify-center py-20">
             <Loader2
               className="h-8 w-8 text-gold animate-spin"
-              aria-label="Chargement"
+              aria-label={t("common.loading")}
             />
           </div>
         ) : (
@@ -1251,26 +1240,12 @@ export default function ClientBrowse() {
                 <span className="font-semibold text-foreground">
                   {filteredTalents.length}
                 </span>{" "}
-                affichés sur{" "}
-                <span className="font-semibold text-foreground">
-                  {totalTalents}
-                </span>{" "}
-                talent
-                {totalTalents > 1
-                  ? "s"
-                  : ""}
+                {t("browse.resultsDisplayed", undefined, { displayed: filteredTalents.length, total: totalTalents })}
               </p>
 
               {totalPages > 1 ? (
                 <p className="text-xs text-muted-foreground">
-                  Page{" "}
-                  <span className="font-semibold text-foreground">
-                    {page}
-                  </span>{" "}
-                  /{" "}
-                  <span className="font-semibold text-foreground">
-                    {totalPages}
-                  </span>
+{t("browse.pageOf", undefined, { page, total: totalPages })}
                 </p>
               ) : null}
             </motion.div>
@@ -1298,11 +1273,11 @@ export default function ClientBrowse() {
                       </div>
 
                       <h3 className="text-lg font-semibold">
-                        Aucun talent trouvé
+                        {t("browse.noResultsTitle")}
                       </h3>
 
                       <p className="mt-1 text-sm text-muted-foreground max-w-sm">
-                        Modifiez vos critères de recherche ou de filtrage pour découvrir d'autres professionnels.
+                        {t("browse.noResultsDescription")}
                       </p>
 
                       <Button
@@ -1312,7 +1287,7 @@ export default function ClientBrowse() {
                         variant="outline"
                         className="mt-5 border-gold/50 text-gold-dark hover:bg-accent"
                       >
-                        Réinitialiser les filtres
+                        {t("browse.resetFiltersAction")}
                       </Button>
                     </CardContent>
                   </Card>
@@ -1397,8 +1372,8 @@ export default function ClientBrowse() {
                                 favorites.has(
                                   talent.id
                                 )
-                                  ? "Retirer des favoris"
-                                  : "Ajouter aux favoris"
+                                  ? t("browse.favoriteRemove")
+                                  : t("browse.favoriteAdd")
                               }
                             >
                               <Heart
@@ -1494,7 +1469,7 @@ export default function ClientBrowse() {
                                 {
                                   talent.completedProjects
                                 }{" "}
-                                projets
+                                {t("browse.projectsCompleted")}
                               </div>
                             </div>
 
@@ -1503,14 +1478,14 @@ export default function ClientBrowse() {
                                 variant="outline"
                                 className="border-emerald-500/30 bg-emerald-500/10 text-emerald-600 text-[10px]"
                               >
-                                Disponible
+                                {t("common.available")}
                               </Badge>
                             ) : (
                               <Badge
                                 variant="outline"
                                 className="border-muted text-muted-foreground text-[10px]"
                               >
-                                Occupé
+                                {t("browse.busy")}
                               </Badge>
                             )}
                           </div>
@@ -1521,7 +1496,7 @@ export default function ClientBrowse() {
                         <CardFooter className="flex items-center justify-between py-4">
                           <div>
                             <p className="text-xs text-muted-foreground">
-                              Tarif journalier
+                              {t("browse.dailyRate")}
                             </p>
 
                             <p className="text-lg font-bold text-gold-dark">
@@ -1542,7 +1517,7 @@ export default function ClientBrowse() {
                                 )
                               }
                               className="text-gold-dark hover:bg-accent h-9 w-9 p-0"
-                              title="Voir le profil"
+                              title={t("browse.viewProfile")} aria-label={t("browse.viewProfile")}
                             >
                               <Eye className="h-4 w-4" />
                             </Button>
@@ -1557,7 +1532,7 @@ export default function ClientBrowse() {
                               className="h-9 bg-foreground text-background hover:bg-foreground/90 shadow-sm"
                             >
                               <Send className="h-3.5 w-3.5 mr-1.5" />
-                              Contacter
+                              {t("browse.contactAction")}
                             </Button>
                           </div>
                         </CardFooter>
@@ -1587,18 +1562,11 @@ export default function ClientBrowse() {
                   className="gap-2 border-border"
                 >
                   <ChevronLeft className="h-4 w-4" />
-                  Précédent
+                  {t("common.previous")}
                 </Button>
 
                 <div className="rounded-xl border border-border bg-card px-4 py-2 text-sm">
-                  Page{" "}
-                  <span className="font-black">
-                    {page}
-                  </span>{" "}
-                  sur{" "}
-                  <span className="font-black">
-                    {totalPages}
-                  </span>
+{t("browse.pageOf", undefined, { page, total: totalPages })}
                 </div>
 
                 <Button
@@ -1613,7 +1581,7 @@ export default function ClientBrowse() {
                   }
                   className="gap-2 border-border"
                 >
-                  Suivant
+                  {t("common.next")}
                   <ChevronRight className="h-4 w-4" />
                 </Button>
               </motion.div>
