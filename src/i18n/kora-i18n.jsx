@@ -214,7 +214,8 @@ const fr = {
   clientUi: {
     browse: {
       titleStart: "Découvrez nos", titleHighlight: "Talents",
-      availableCount: "{count} professionnel(s) disponible(s) à travers toute l'Afrique",
+      availableCount: "{count} professionnel(s) disponible(s) à travers toute l'Afrique", availableCountOne: "{count} professionnel disponible à travers toute l’Afrique", availableCountMany: "{count} professionnels disponibles à travers toute l’Afrique",
+      displayedCount: "Affichage de {shown} sur {total} talents", projectsOne: "{count} projet terminé", projectsMany: "{count} projets terminés",
       refreshing: "Actualisation…", searchPlaceholder: "Rechercher un talent, une compétence, un métier…",
       sortRecommended: "Recommandés", sortRating: "Mieux notés", sortProjects: "Plus d'expérience",
       sortRateAsc: "Prix croissant", sortRateDesc: "Prix décroissant", allCategories: "Toutes",
@@ -508,7 +509,8 @@ const en = {
   clientUi: {
     browse: {
       titleStart: "Discover our", titleHighlight: "Talents",
-      availableCount: "{count} professional(s) available across Africa",
+      availableCount: "{count} professional(s) available across Africa", availableCountOne: "{count} professional available across Africa", availableCountMany: "{count} professionals available across Africa",
+      displayedCount: "Showing {shown} of {total} talents", projectsOne: "{count} completed project", projectsMany: "{count} completed projects",
       refreshing: "Refreshing…", searchPlaceholder: "Search for a talent, skill, profession…",
       sortRecommended: "Recommended", sortRating: "Top rated", sortProjects: "Most experienced",
       sortRateAsc: "Price: low to high", sortRateDesc: "Price: high to low", allCategories: "All",
