@@ -49,10 +49,7 @@ import {
   TabsTrigger,
 } from "@/components/ui/tabs"
 
-import {
-  cn,
-  formatCurrency,
-} from "@/lib/utils"
+import { cn } from "@/lib/utils"
 import { useAuth } from "@/lib/AuthContext"
 import { supabase } from "@/lib/supabase"
 import { getCategoryIcon } from "@/lib/categoryIcons"
@@ -1250,14 +1247,7 @@ export default function ClientBrowse() {
               className="flex flex-wrap items-center justify-between gap-3 text-sm"
             >
               <p className="text-muted-foreground">
-                <span className="font-semibold text-foreground">
-                  {filteredTalents.length}
-                </span>{" "}
-                
-                <span className="font-semibold text-foreground">
-                  {totalTalents}
-                </span>{" "}
-
+                {t("clientUi.browse.displayedCount", "Showing {shown} of {total} talents", { shown: filteredTalents.length, total: totalTalents })}
               </p>
 
               {totalPages > 1 ? (
@@ -1578,14 +1568,7 @@ export default function ClientBrowse() {
                 </Button>
 
                 <div className="rounded-xl border border-border bg-card px-4 py-2 text-sm">
-                  Page{" "}
-                  <span className="font-black">
-                    {page}
-                  </span>{" "}
-                  sur{" "}
-                  <span className="font-black">
-                    {totalPages}
-                  </span>
+                  {t("clientUi.browse.page", "Page {page}", { page })} {t("clientUi.browse.of", "of {totalPages}", { totalPages })}
                 </div>
 
                 <Button
