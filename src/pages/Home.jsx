@@ -1,7 +1,6 @@
 import { useEffect, useState } from "react"
 import { Link, useNavigate } from "react-router-dom"
 import { motion } from "framer-motion"
-import { toast } from "sonner"
 import {
   Users,
   Briefcase,
@@ -11,13 +10,11 @@ import {
   ChevronRight,
   MessageCircle,
   Heart,
-  Clock,
   Award,
   MapPin,
   ArrowRight,
   Hand as HandWaving,
-} from "lucide-react"
-import { Button } from "@/components/ui/button"
+} from "lucide-react"import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Badge } from "@/components/ui/badge"

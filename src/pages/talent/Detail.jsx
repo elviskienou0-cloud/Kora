@@ -19,12 +19,9 @@ import {
   Image as ImageIcon,
   FileText,
   CalendarDays,
-  Send,
   Loader2,
   UserRound,
-} from "lucide-react"
-
-import { Button } from "@/components/ui/button"
+} from "lucide-react"import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
 import { Separator } from "@/components/ui/separator"

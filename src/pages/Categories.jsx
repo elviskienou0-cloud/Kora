@@ -1,8 +1,17 @@
 import { useEffect, useMemo, useState } from "react"
 import { Link, useNavigate } from "react-router-dom"
 import { motion } from "framer-motion"
-import { Sparkles, Search, ChevronRight, Users, Filter, ArrowRight, X, Star, MapPin, Briefcase } from "lucide-react"
-import { Button } from "@/components/ui/button"
+import {
+  Sparkles,
+  Search,
+  ChevronRight,
+  Users,
+  Filter,
+  ArrowRight,
+  X,
+  Star,
+  MapPin,
+} from "lucide-react"import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Badge } from "@/components/ui/badge"

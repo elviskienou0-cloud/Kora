@@ -14,8 +14,9 @@ import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Separator } from "@/components/ui/separator";
 import { Input } from "@/components/ui/input";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { cn, formatCurrency, formatDate } from "@/lib/utils";
-import { useAuth } from "@/lib/AuthContext";
+import {
+  cn,
+} from "@/lib/utils"import { useAuth } from "@/lib/AuthContext";
 import { supabase } from "@/lib/supabase";
 import { useI18n } from "@/i18n/kora-i18n.jsx";
 import { buildMessagesUrl, createDirectConversation } from "@/lib/messaging";

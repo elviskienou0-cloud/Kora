@@ -1,8 +1,6 @@
 import { useEffect, useState } from "react"
 import { Eye, Loader2, RefreshCw } from "lucide-react"
 import { Link } from "react-router-dom"
-import { toast } from "sonner"
-
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"

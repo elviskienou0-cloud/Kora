@@ -2,13 +2,11 @@ import { useCallback, useRef, useState } from "react"
 import { motion, AnimatePresence } from "framer-motion"
 import {
   UploadCloud,
-  File,
   X,
   CheckCircle2,
   Image as ImageIcon,
   FileText,
-} from "lucide-react"
-import { toast } from "sonner"
+} from "lucide-react"import { toast } from "sonner"
 import { cn } from "@/lib/utils.js"
 
 const MAX_SIZE_MB = 5

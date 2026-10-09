@@ -3,27 +3,11 @@ import { useCallback, useEffect, useState } from "react"
 import { useLocation, useNavigate } from "react-router-dom"
 import {
   AlertTriangle,
-  BarChart3,
-  CreditCard,
-  FolderKanban,
   Loader2,
-  MessageSquare,
   RefreshCw,
-  Settings,
-  ShieldCheck,
-  ContactRound,
-  Users,
-  UserCheck,
-  UserCog,
-  WalletCards,
-  BriefcaseBusiness,
-  Clock,
   Megaphone,
-} from "lucide-react"
-
-import { Button } from "@/components/ui/button"
+} from "lucide-react"import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
-import { Badge } from "@/components/ui/badge"
 import { APP_PARAMS } from "@/lib/app-params"
 import { supabase } from "@/lib/supabase"
 import { useAuth } from "@/lib/AuthContext"

@@ -27,10 +27,7 @@ import {
   Link2,
   Video,
   Image as ImageIcon,
-  ChevronRight,
-} from "lucide-react"
-
-import { Button } from "@/components/ui/button"
+} from "lucide-react"import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import {
   Card,
