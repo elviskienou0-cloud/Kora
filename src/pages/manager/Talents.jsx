@@ -98,9 +98,9 @@ function normalize(value) {
     .replace(/[\u0300-\u036f]/g, "")
 }
 
-function formatDate(date) {
+function formatDate(date, language = "fr") {
   if (!date) return "—"
-  return new Date(date).toLocaleDateString("fr-FR", {
+  return new Date(date).toLocaleDateString(language === "en" ? "en-GB" : "fr-FR", {
     day: "2-digit",
     month: "short",
     year: "numeric",
@@ -820,7 +820,7 @@ function Field({ label, icon: Icon, required, error, children }) {
 }
 
 export default function ManagerTalents() {
-  const { t } = useI18n()
+  const { t, language } = useI18n()
   const navigate = useNavigate()
   const { user } = useAuth()
   const managerId = user?.authId || user?.id
@@ -1448,17 +1448,17 @@ export default function ManagerTalents() {
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
           <h1 className="text-2xl font-black tracking-tight">
-            Gestion des talents
+            {t("manager.talentManagementTitle")}
           </h1>
           <p className="text-sm text-muted-foreground">
-            {talents.length} talent{talents.length > 1 ? "s" : ""} dans votre équipe
+            {t(talents.length === 1 ? "manager.teamTalentOne" : "manager.teamTalentMany", undefined, { count: talents.length })}
           </p>
         </div>
 
         <div className="flex flex-col items-stretch gap-2 sm:flex-row sm:items-center">
           <div className="rounded-xl border border-border/60 bg-card px-3 py-2 text-xs">
             <span className="font-bold">
-              {currentPlanId === "BUSINESS" ? "Business" : currentPlanId === "PRO" ? "Pro" : "Gratuit"}
+              {currentPlanId === "BUSINESS" ? "Business" : currentPlanId === "PRO" ? "Pro" : t("manager.freePlan")}
             </span>
             <span className="mx-1 text-muted-foreground">•</span>
             <span className={cn(
@@ -1466,9 +1466,9 @@ export default function ManagerTalents() {
               isSubscriptionExpired || talentLimitReached ? "text-destructive" : "text-muted-foreground"
             )}>
               {isSubscriptionExpired
-                ? "Abonnement expiré"
+                ? t("manager.subscriptionExpired")
                 : talentLimit === null
-                  ? `${talents.length} talent(s) • illimité`
+                  ? `${talents.length} talent(s) • ${t("manager.unlimitedTalents")}`
                   : `${talents.length}/${talentLimit} talent(s)`}
             </span>
           </div>
@@ -1479,17 +1479,17 @@ export default function ManagerTalents() {
             disabled={!!editingTalent || !canCreateTalent}
             title={
               isSubscriptionExpired
-                ? "Votre abonnement est expiré. Choisissez Pro ou Business."
+                ? t("manager.expiredSubscriptionHint")
                 : talentLimitReached
-                  ? "Limite de talents atteinte pour votre forfait."
+                  ? t("manager.talentLimitHint")
                   : undefined
             }
           >
             <Plus className="h-4 w-4" />
             {isSubscriptionExpired
-              ? "Abonnement requis"
+              ? t("manager.subscriptionRequired")
               : talentLimitReached
-                ? "Limite atteinte"
+                ? t("manager.talentLimitReached")
                 : "Créer un talent"}
           </Button>
         </div>
@@ -1509,9 +1509,9 @@ export default function ManagerTalents() {
       <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
         {[
           { label: "Total", value: talents.length, cls: "text-gold-dark", icon: Award },
-          { label: "Publiés", value: publishedCount, cls: "text-emerald-600", icon: ShieldCheck },
-          { label: "En attente", value: pendingCount, cls: "text-amber-600", icon: Clock },
-          { label: "Note moy.", value: averageRating, cls: "text-violet-600", icon: Star },
+          { label: t("manager.publishedStat"), value: publishedCount, cls: "text-emerald-600", icon: ShieldCheck },
+          { label: t("manager.pendingStat"), value: pendingCount, cls: "text-amber-600", icon: Clock },
+          { label: t("manager.averageRatingShort"), value: averageRating, cls: "text-violet-600", icon: Star },
         ].map((stat) => {
           const Icon = stat.icon
           return (
@@ -1537,7 +1537,7 @@ export default function ManagerTalents() {
           <div>
             <CardTitle className="font-black">{t("manager.myTalents")}</CardTitle>
             <CardDescription>
-              Créez, modifiez, publiez ou supprimez les profils que vous gérez.
+              {t("manager.talentManagementDescription")}
             </CardDescription>
           </div>
 
@@ -1554,9 +1554,9 @@ export default function ManagerTalents() {
 
             <div className="flex gap-1 rounded-xl bg-muted/50 p-1">
               {[
-                { k: "all", l: "Tous" },
-                { k: "pending", l: `En attente (${pendingCount})` },
-                { k: "published", l: "Publiés" },
+                { k: "all", l: t("manager.filterAll") },
+                { k: "pending", l: t("manager.filterPending", undefined, { count: pendingCount }) },
+                { k: "published", l: t("manager.filterPublished") },
               ].map((item) => (
                 <button
                   key={item.k}
@@ -1582,19 +1582,19 @@ export default function ManagerTalents() {
               <thead>
                 <tr className="border-b border-border/60 bg-muted/30 text-left">
                   <th className="px-6 py-3 text-xs font-bold uppercase tracking-wider text-muted-foreground">
-                    Talent
+                    {t("manager.talentColumn")}
                   </th>
                   <th className="hidden px-6 py-3 text-xs font-bold uppercase tracking-wider text-muted-foreground md:table-cell">
-                    Catégorie
+                    {t("manager.categoryColumn")}
                   </th>
                   <th className="hidden px-6 py-3 text-xs font-bold uppercase tracking-wider text-muted-foreground lg:table-cell">
-                    Rejoint
+                    {t("manager.joinedColumn")}
                   </th>
                   <th className="px-6 py-3 text-xs font-bold uppercase tracking-wider text-muted-foreground">
-                    Statut
+                    {t("manager.statusColumn")}
                   </th>
                   <th className="hidden px-6 py-3 text-xs font-bold uppercase tracking-wider text-muted-foreground sm:table-cell">
-                    Perf.
+                    {t("manager.performanceColumn")}
                   </th>
                   <th className="w-10 px-6 py-3" />
                 </tr>
@@ -1606,7 +1606,7 @@ export default function ManagerTalents() {
                     <td colSpan={6} className="px-6 py-16">
                       <div className="flex items-center justify-center gap-2 text-sm text-muted-foreground">
                         <Loader2 className="h-4 w-4 animate-spin" />
-                        Chargement des talents...
+                        {t("manager.loadingTalents")}
                       </div>
                     </td>
                   </tr>
@@ -1615,7 +1615,7 @@ export default function ManagerTalents() {
                     <td colSpan={6} className="px-6 py-16 text-center">
                       <p className="text-sm font-semibold">{t("manager.noTalentFound")}</p>
                       <p className="mt-1 text-xs text-muted-foreground">
-                        Créez votre premier profil avec « Créer un talent ».
+                        {t("manager.createFirstProfile")}
                       </p>
                     </td>
                   </tr>
@@ -1658,12 +1658,12 @@ export default function ManagerTalents() {
                         </td>
 
                         <td className="hidden px-6 py-3.5 md:table-cell">
-                          <span className="text-xs font-medium">{talent.cat}</span>
+                          <span className="text-xs font-medium">{language === "en" && ["Musique & Spectacle", "Musique et spectacle"].includes(talent.cat) ? t("categories.musicEntertainment") : talent.cat}</span>
                         </td>
 
                         <td className="hidden px-6 py-3.5 lg:table-cell">
                           <span className="text-xs text-muted-foreground">
-                            {formatDate(talent.created_at)}
+                            {formatDate(talent.created_at, language)}
                           </span>
                         </td>
 
@@ -1688,7 +1688,7 @@ export default function ManagerTalents() {
                               <span className="text-muted-foreground">—</span>
                             )}
                             <span className="text-muted-foreground">
-                              {talent.tasks} projet{talent.tasks > 1 ? "s" : ""}
+                              {t(talent.tasks === 1 ? "manager.projectOne" : "manager.projectMany", undefined, { count: talent.tasks })}
                             </span>
                           </div>
                         </td>
@@ -1701,7 +1701,7 @@ export default function ManagerTalents() {
                               disabled={busy}
                               className="h-8 w-8 rounded-lg"
                               onClick={() => navigate(`/talent/${talent.id}`)}
-                              title="Voir la fiche"
+                              title={t("manager.viewTalent")}
                             >
                               <Eye className="h-4 w-4" />
                             </Button>
@@ -1734,7 +1734,7 @@ export default function ManagerTalents() {
                                 ) : (
                                   <ShieldCheck className="h-3.5 w-3.5" />
                                 )}
-                                Publier
+                                {t("manager.publishAction")}
                               </Button>
                             ) : null}
 
@@ -1745,7 +1745,7 @@ export default function ManagerTalents() {
                                 disabled={busy || !canManageTalents}
                                 className="h-8 w-8 rounded-lg hover:bg-red-500/10 hover:text-red-600"
                                 onClick={() => canManageTalents && reject(talent)}
-                                title="Refuser"
+                                title={t("manager.rejectAction")}
                               >
                                 <X className="h-4 w-4" />
                               </Button>
@@ -1786,12 +1786,12 @@ export default function ManagerTalents() {
           <div className="min-w-0 flex-1">
             <h3 className="mb-1 text-lg font-black">{t("manager.workflow")}</h3>
             <p className="text-sm text-muted-foreground">
-              Créez un profil, ajoutez les compétences et le portfolio, puis publiez-le.
+              {t("manager.workflowDescription")}
             </p>
           </div>
           <Button className="shrink-0 gap-2" onClick={openCreate} disabled={!!editingTalent || !canManageTalents}>
             <Plus className="h-4 w-4" />
-            Ajouter
+            {t("manager.addTalentAction")}
           </Button>
         </CardContent>
       </Card>
