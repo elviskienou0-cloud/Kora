@@ -11,6 +11,7 @@ import { Textarea } from "@/components/ui/textarea"
 import { Badge } from "@/components/ui/badge"
 import { useAuth } from "@/lib/AuthContext"
 import { supabase } from "@/lib/supabase"
+import { useI18n } from "@/i18n/kora-i18n.jsx"
 
 const CURRENCIES = ["XOF", "XAF", "GHS", "NGN", "KES", "USD", "EUR"]
 const EMPTY_FORM = {
@@ -40,6 +41,7 @@ export default function ProjectForm() {
   const editing = Boolean(id)
   const navigate = useNavigate()
   const { user } = useAuth()
+  const { t } = useI18n()
   const authUserId = user?.authId || user?.id
 
   const [form, setForm] = useState(EMPTY_FORM)
@@ -63,13 +65,13 @@ export default function ProjectForm() {
 
       if (error) {
         console.error("Erreur chargement projet :", error)
-        toast.error("Impossible de charger ce projet.")
+        toast.error(t("clientUi.projects.loadError"))
         navigate("/client/projects", { replace: true })
         return
       }
 
       if (!data) {
-        toast.error("Projet introuvable ou inaccessible.")
+        toast.error(t("clientUi.projects.projectNotFound"))
         navigate("/client/projects", { replace: true })
         return
       }
@@ -93,7 +95,7 @@ export default function ProjectForm() {
     event.preventDefault()
 
     if (!authUserId) {
-      toast.error("Connexion requise.")
+      toast.error(t("errors.unauthorized"))
       navigate("/login")
       return
     }
@@ -104,27 +106,27 @@ export default function ProjectForm() {
     const max = form.budget_max === "" ? null : Number(form.budget_max)
 
     if (!title) {
-      toast.error("Le titre du projet est obligatoire.")
+      toast.error(t("clientUi.projects.titleRequired"))
       return
     }
 
     if (!description) {
-      toast.error("La description du projet est obligatoire.")
+      toast.error(t("clientUi.projects.descriptionRequired"))
       return
     }
 
     if (min !== null && (!Number.isFinite(min) || min < 0)) {
-      toast.error("Le budget minimum est invalide.")
+      toast.error(t("clientUi.projects.minBudgetInvalid"))
       return
     }
 
     if (max !== null && (!Number.isFinite(max) || max < 0)) {
-      toast.error("Le budget maximum est invalide.")
+      toast.error(t("clientUi.projects.maxBudgetInvalid"))
       return
     }
 
     if (min !== null && max !== null && min > max) {
-      toast.error("Le budget minimum ne peut pas dépasser le maximum.")
+      toast.error(t("clientUi.projects.budgetRangeInvalid"))
       return
     }
 
@@ -151,7 +153,7 @@ export default function ProjectForm() {
 
         if (error) throw error
 
-        toast.success("Projet modifié ✅")
+        toast.success(t("clientUi.projects.updated"))
         navigate(`/client/projects/${id}`)
       } else {
         const createPayload = {
@@ -169,12 +171,13 @@ export default function ProjectForm() {
 
         if (error) throw error
 
-        toast.success("Projet enregistré ✅")
+        toast.success(t("clientUi.projects.created"))
         navigate(`/client/projects/${data.id}`)
       }
     } catch (error) {
       console.error("Erreur enregistrement projet :", error)
-      toast.error(error?.message || "Impossible d'enregistrer le projet.")
+      console.error("KORA: project save failed", error)
+      toast.error(t("clientUi.projects.saveError"))
     } finally {
       setSaving(false)
     }
@@ -183,7 +186,7 @@ export default function ProjectForm() {
   if (loading) {
     return (
       <div className="min-h-[60vh] flex items-center justify-center">
-        <Loader2 className="h-7 w-7 animate-spin text-gold" aria-label="Chargement" />
+        <Loader2 className="h-7 w-7 animate-spin text-gold" aria-label={t("clientUi.projects.loading")} />
       </div>
     )
   }
@@ -196,9 +199,9 @@ export default function ProjectForm() {
             <ArrowLeft className="h-4 w-4" />
           </Button>
           <div>
-            <p className="text-xs font-bold uppercase tracking-[0.18em] text-gold">Projets</p>
+            <p className="text-xs font-bold uppercase tracking-[0.18em] text-gold">{t("projects.title")}</p>
             <h1 className="text-2xl font-black tracking-tight">
-              {editing ? "Modifier le projet" : "Nouveau projet"}
+              {editing ? t("clientUi.projects.edit") : t("clientUi.projects.newProject")}
             </h1>
           </div>
         </div>
@@ -207,14 +210,14 @@ export default function ProjectForm() {
           <CardHeader>
             <div className="flex items-center justify-between gap-3">
               <div>
-                <CardTitle>Informations du projet</CardTitle>
+                <CardTitle>{t("clientUi.projects.projectInfo")}</CardTitle>
                 <p className="mt-1 text-sm text-muted-foreground">
-                  Définissez précisément le besoin, le budget et la date limite.
+                  {t("clientUi.projects.formDescription")}
                 </p>
               </div>
               {editing && (
                 <Badge variant="outline" className="capitalize border-gold/30 text-gold-dark">
-                  {form.status}
+                  {t(({ draft: "projects.draft", open: "projects.open", pending: "projects.pending", active: "projects.active", completed: "projects.completed", cancelled: "projects.cancelled" })[form.status] || "projects.status")}
                 </Badge>
               )}
             </div>
@@ -224,24 +227,24 @@ export default function ProjectForm() {
             <form onSubmit={submit} className="space-y-6">
               <div className="grid gap-5 md:grid-cols-2">
                 <div className="md:col-span-2 space-y-2">
-                  <Label htmlFor="project-title">Titre</Label>
+                  <Label htmlFor="project-title">{t("clientUi.projects.titleLabel")}</Label>
                   <Input
                     id="project-title"
                     value={form.title}
                     onChange={(event) => setField("title", event.target.value)}
-                    placeholder="Ex. Refonte du site web KORA"
+                    placeholder={t("clientUi.projects.titlePlaceholder")}
                     maxLength={160}
                     required
                   />
                 </div>
 
                 <div className="md:col-span-2 space-y-2">
-                  <Label htmlFor="project-description">Description</Label>
+                  <Label htmlFor="project-description">{t("clientUi.projects.descriptionLabel")}</Label>
                   <Textarea
                     id="project-description"
                     value={form.description}
                     onChange={(event) => setField("description", event.target.value)}
-                    placeholder="Décrivez le contexte, les objectifs, les livrables et les attentes."
+                    placeholder={t("clientUi.projects.descriptionPlaceholder")}
                     className="min-h-36"
                     maxLength={5000}
                     required
@@ -249,7 +252,7 @@ export default function ProjectForm() {
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="budget-min">Budget minimum</Label>
+                  <Label htmlFor="budget-min">{t("clientUi.projects.minBudget")}</Label>
                   <Input
                     id="budget-min"
                     type="number"
@@ -262,7 +265,7 @@ export default function ProjectForm() {
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="budget-max">Budget maximum</Label>
+                  <Label htmlFor="budget-max">{t("clientUi.projects.maxBudget")}</Label>
                   <Input
                     id="budget-max"
                     type="number"
@@ -275,7 +278,7 @@ export default function ProjectForm() {
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="currency">Devise</Label>
+                  <Label htmlFor="currency">{t("clientUi.projects.currency")}</Label>
                   <select
                     id="currency"
                     value={form.currency}
@@ -291,7 +294,7 @@ export default function ProjectForm() {
                 <div className="space-y-2">
                   <Label htmlFor="due-date" className="flex items-center gap-2">
                     <CalendarDays className="h-4 w-4 text-gold-dark" />
-                    Date limite
+                    {t("clientUi.projects.dueDate")}
                   </Label>
                   <Input
                     id="due-date"
@@ -302,23 +305,23 @@ export default function ProjectForm() {
                 </div>
 
                 <div className="space-y-2">
-                  <Label>État</Label>
+                  <Label>{t("clientUi.projects.status")}</Label>
                   <div className="h-10 flex items-center rounded-md border border-input bg-muted/40 px-3 text-sm font-semibold capitalize text-muted-foreground">
                     {form.status || "open"}
                   </div>
                   <p className="text-xs text-muted-foreground">
-                    L'état est géré automatiquement par le processus KORA.
+                    {t("clientUi.projects.managedStatus")}
                   </p>
                 </div>
               </div>
 
               <div className="flex flex-wrap justify-end gap-3 pt-2 border-t border-border">
                 <Button type="button" variant="outline" onClick={() => navigate(-1)}>
-                  Annuler
+                  {t("clientUi.projects.cancel")}
                 </Button>
                 <Button type="submit" disabled={saving} className="gold-gradient text-primary-foreground">
                   {saving ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Save className="mr-2 h-4 w-4" />}
-                  {editing ? "Enregistrer les modifications" : "Créer le projet"}
+                  {saving ? t("common.saving") : editing ? t("clientUi.projects.saveChanges") : t("clientUi.projects.create")}
                 </Button>
               </div>
             </form>
