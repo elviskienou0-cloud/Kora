@@ -142,11 +142,32 @@ const fr = {
     newest: "Plus récents", rating: "Mieux notés", priceLow: "Tarif croissant", priceHigh: "Tarif décroissant",
     resetFilters: "Réinitialiser les filtres", applyFilters: "Appliquer les filtres", results: "résultats", result: "résultat",
     previous: "Précédent", next: "Suivant", noResults: "Aucun talent ne correspond à vos critères.",
+    searchLong: "Rechercher un talent, une compétence, un métier...",
+    loading: "Chargement des talents...",
+    viewProfile: "Voir le profil",
+    reset: "Réinitialiser",
+    noResultsDescription: "Essayez d'élargir votre recherche ou de modifier les filtres.",
+
+
   },
 
   favorites: {
     title: "Mes favoris", description: "Retrouvez les talents que vous avez enregistrés.", empty: "Vous n'avez encore aucun favori.",
     discover: "Découvrir les talents", remove: "Retirer des favoris", add: "Ajouter aux favoris",
+    searchPlaceholder: "Rechercher dans mes favoris...",
+    noSearchResults: "Aucun résultat",
+    loadError: "Impossible de charger vos favoris pour le moment.",
+    managerUnavailable: "Le manager de ce talent est indisponible.",
+    ownTalent: "Ce talent est géré par votre propre compte.",
+    contactError: "Impossible d'ouvrir la conversation.",
+    removeError: "Impossible de retirer ce favori.",
+    categoryOther: "Autre",
+    all: "Tous",
+    dailyRate: "Tarif journalier",
+    removeTitle: "Retirer des favoris",
+    noFavoritesTitle: "Aucun favori pour le moment",
+
+
   },
 
   projects: {
@@ -261,6 +282,18 @@ const fr = {
     title: "Notifications", description: "Retrouvez vos alertes et mises à jour.", markRead: "Marquer comme lu", markAllRead: "Tout marquer comme lu",
     all: "Toutes", unread: "Non lues", read: "Lues", noNotifications: "Aucune notification.", noUnread: "Aucune notification non lue.", descriptionEmpty: "Les notifications importantes apparaîtront ici.",
     invitation: "Nouvelle invitation", request: "Mise à jour d'une demande", message: "Nouveau message", payment: "Paiement", subscription: "Abonnement", security: "Sécurité",
+    clientArea: "Espace Client",
+    readError: "Impossible de marquer la notification comme lue.",
+    markAllError: "Impossible de marquer les notifications.",
+    readSuccess: "Notifications marquées comme lues.",
+    readAllButton: "Tout lire",
+    newLabel: "Nouveau",
+    pageOf: "Page {page} sur {total}",
+    notificationCountOne: "{count} notification",
+    notificationCountMany: "{count} notifications",
+    clearSearch: "Effacer la recherche",
+
+
   },
 
   home: {
@@ -285,6 +318,17 @@ const fr = {
     title: "Tableau de bord", welcome: "Bienvenue sur KORA.", overview: "Vue d'ensemble", recentActivity: "Activité récente", statistics: "Statistiques",
     totalProjects: "Total des projets", activeProjects: "Projets actifs", completedProjects: "Projets terminés", pendingRequests: "Demandes en attente",
     talents: "Talents", messages: "Messages", notifications: "Notifications", unreadMessages: "Messages non lus", noActivity: "Aucune activité récente.",
+    clientRequestsSent: "Demandes envoyées",
+    clientRequestsAccepted: "Demandes acceptées",
+    clientFavorites: "Talents favoris",
+    clientBudgetSpent: "Budget dépensé",
+    noClientRequests: "Aucune demande",
+    noAvailableTalents: "Aucun talent disponible",
+    yourActivity: "Votre activité",
+    noAvailableTalentsDescription: "Les talents disponibles apparaîtront ici.",
+    noRequestDescription: "Vos demandes apparaîtront ici après leur envoi.",
+
+
   },
 
   manager: {
@@ -469,6 +513,27 @@ const en = {
     dueDateLabel: "Due date",
     stateLabel: "Status",
     projectCountOne: "{count} project", projectCountMany: "{count} projects", pageOf: "Page {page} of {total}",
+    searchPlaceholder: "Search my favorites...",
+    noSearchResults: "No results",
+    loadError: "Unable to load your favorites right now.",
+    managerUnavailable: "This talent's manager is unavailable.",
+    ownTalent: "This talent is managed by your own account.",
+    contactError: "Unable to open the conversation.",
+    removeError: "Unable to remove this favorite.",
+    categoryOther: "Other",
+    all: "All",
+    dailyRate: "Daily rate",
+    removeTitle: "Remove from favorites",
+    noFavoritesTitle: "No favorites yet",
+
+
+    searchLong: "Search for a talent, skill or profession...",
+    loading: "Loading talents...",
+    viewProfile: "View profile",
+    reset: "Reset",
+    noResultsDescription: "Try broadening your search or changing the filters.",
+
+
   },
   requests: { title: "My requests", description: "Track your requests and invitations.", request: "Request", requests: "Requests", pending: "Pending", accepted: "Accepted", rejected: "Rejected", cancelled: "Cancelled", sent: "Sent", received: "Received", project: "Project", talent: "Talent", manager: "Manager", client: "Client", budget: "Budget", details: "Request details", accept: "Accept", reject: "Reject", view: "View request", invitation: "Invitation", invitationSent: "Invitation sent", noRequests: "No requests.", noRequestsDescription: "You currently have no requests." },
   requestForm: { badge: "Collaboration request", title: "Describe your project", forTalent: "For {talent}", openButton: "Send a request", projectTitle: "Project title", projectTitlePlaceholder: "E.g. Coca-Cola advertising campaign", projectType: "Project type", selectType: "Select a type…", description: "Description", descriptionPlaceholder: "Describe what you want to accomplish with this talent…", dateStart: "Date / period start", dateEnd: "Period end", budget: "Proposed budget (optional)", location: "Location", locationPlaceholder: "E.g. Ouagadougou, Burkina Faso", additionalInfo: "Additional information", additionalInfoPlaceholder: "Constraints, deliverables, schedules, references, etc.", notice: "The request contains the project context directly. The manager can review it, reply, accept or reject the collaboration.", submit: "Send request", titleRequired: "Project title is required.", descriptionRequired: "Project description is required.", dateInvalid: "The period end cannot be before the start.", sent: "Request sent ✅", sentDescription: "The talent manager received the project information.", error: "Unable to send the request", types: { advertising: "Advertising", event: "Event", musicVideo: "Music video", shooting: "Shooting", socialCampaign: "Social media campaign", fashion: "Fashion", filmTv: "Film / TV", other: "Other" } },
@@ -491,6 +556,29 @@ const en = {
     planFree1: "1 talent maximum", planProfilePortfolio: "Talent profile and portfolio", planFee: "Fee management", planRequests: "Request management", planMessaging: "Messaging and notifications", planBasicTalent: "Basic talent management", planTrial: "30 days free access", planPro1: "3 talents maximum", planFreeFeatures: "All Free plan features", planOperations: "Operational project management", planManagerProfile: "Manager profile", planBusiness1: "Unlimited talents", planProFeatures: "All Pro plan features", planBusinessBadge: "Business badge on your profile", planUnlimited: "Unlimited talent organization", activePlan: "Active plan", trialEnded: "Trial ended", useFree: "Use for free", choosePlanButton: "Choose {name}", noPaidSubscription: "No paid subscription", monthlySubscription: "Monthly subscription", perMonth: "/ month",
     replyPlaceholder: "Write your reply to the client…", createdWithRequest: "Created with the request", alreadyProcessed: "This request has already been processed.", requestAccepted: "Request accepted.", requestRejected: "Request rejected.", projectCompleted: "Project marked as completed.", projectStatusUpdated: "Project status updated.",
     expiredMulti: "For managers who manage multiple talents.", expiredThree: "For managing up to 3 talents.", preparing: "Preparing...", resubscribe: "Resubscribe",
+    clientArea: "Client area",
+    readError: "Unable to mark this notification as read.",
+    markAllError: "Unable to mark notifications as read.",
+    readSuccess: "Notifications marked as read.",
+    readAllButton: "Mark all as read",
+    newLabel: "New",
+    pageOf: "Page {page} of {total}",
+    notificationCountOne: "{count} notification",
+    notificationCountMany: "{count} notifications",
+    clearSearch: "Clear search",
+
+
+    clientRequestsSent: "Requests sent",
+    clientRequestsAccepted: "Requests accepted",
+    clientFavorites: "Favorite talents",
+    clientBudgetSpent: "Budget spent",
+    noClientRequests: "No requests",
+    noAvailableTalents: "No talents available",
+    yourActivity: "Your activity",
+    noAvailableTalentsDescription: "Available talents will appear here.",
+    noRequestDescription: "Your requests will appear here after you send them.",
+
+
   },
   admin: { title: "Administration", dashboard: "Dashboard", controlCenter: "KORA Control Center", dataSource: "All displayed data comes from the available Supabase tables.", users: "Users", clients: "Clients", managers: "Managers", admins: "Administrators", talents: "Talents", publishedTalents: "Published talents", pendingTalents: "Pending talents", projects: "Projects", requests: "Requests", messages: "Messages", conversations: "Conversations", reports: "Reports", moderation: "Moderation", subscriptions: "Subscriptions", payments: "Payments", logs: "Logs", settings: "Administration settings", suspendedUsers: "Suspended users", openProjects: "Open projects", activeProjects: "Active projects", completedProjects: "Completed projects", pendingRequests: "Pending requests", acceptedRequests: "Accepted requests", rejectedRequests: "Rejected requests", pendingReports: "Pending reports", activeSubscriptions: "Active subscriptions", expiredSubscriptions: "Expired subscriptions", pendingPayments: "Pending payments", paidPayments: "Paid payments", failedPayments: "Failed payments", transactions: "Transactions", administration: "Administration" },
   moderation: { title: "Moderation", reports: "Reports", pending: "Pending", reviewed: "Reviewed", resolved: "Resolved", dismissed: "Dismissed", suspend: "Suspend", reactivate: "Reactivate", hide: "Hide", publish: "Publish", reject: "Reject", noReports: "No reports." },
