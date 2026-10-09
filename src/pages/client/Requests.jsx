@@ -268,7 +268,7 @@ export default function ClientRequests() {
                       <div className="mt-4 space-y-2 text-sm">
                         <p>
                           <span className="text-muted-foreground">
-                            Projet :
+                            {t("clientUi.requests.project")}
                           </span>{" "}
                           <strong>
                             {request.project?.title ||
@@ -278,7 +278,7 @@ export default function ClientRequests() {
 
                         <p>
                           <span className="text-muted-foreground">
-                            Talent :
+                            {t("clientUi.requests.talent")}
                           </span>{" "}
                           <strong>{talentName}</strong>
                         </p>
