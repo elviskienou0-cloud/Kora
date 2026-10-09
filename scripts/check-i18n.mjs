@@ -113,6 +113,12 @@ for (const file of sourceFiles(path.join(root, "src"))) {
   const expression = /\bt\s*\(\s*(["'`])([^"'\x60]+)\1/g
   for (const match of source.matchAll(expression)) {
     const key = match[2]
+
+    // Template-literal keys with interpolation are dynamic; validate their known
+    // finite key sets explicitly below instead of treating the whole expression
+    // as a literal dictionary key.
+    if (match[1] === "`" && key.includes("${")) continue
+
     if (!Object.hasOwn(fr, key) || !Object.hasOwn(en, key)) {
       const line = source.slice(0, match.index).split("\n").length
       missingStaticReferences.push(`${path.relative(root, file)}:${line} → ${key}`)
@@ -125,6 +131,19 @@ assert.deepEqual(missingInFrench, [], `Missing French keys:\n${missingInFrench.j
 assert.deepEqual(nonStringValues, [], `Empty or non-string translation values:\n${nonStringValues.join("\n")}`)
 assert.deepEqual(placeholderMismatches, [], `Placeholder mismatch between FR and EN:\n${placeholderMismatches.join("\n")}`)
 assert.deepEqual(missingStaticReferences, [], `Static t() references missing from a dictionary:\n${missingStaticReferences.join("\n")}`)
+
+// Validate known finite sets used by interpolated translation keys.
+const dynamicTranslationKeys = {
+  "requestForm.types": ["advertising", "event", "musicVideo", "shooting", "socialCampaign", "fashion", "filmTv", "other"],
+  projects: ["draft", "open", "pending", "active", "completed", "cancelled"],
+}
+for (const [prefix, keys] of Object.entries(dynamicTranslationKeys)) {
+  for (const key of keys) {
+    const fullKey = `${prefix}.${key}`
+    assert.ok(Object.hasOwn(fr, fullKey), `Missing French dynamic translation: ${fullKey}`)
+    assert.ok(Object.hasOwn(en, fullKey), `Missing English dynamic translation: ${fullKey}`)
+  }
+}
 
 // Exercise the language normalization and persistence contract without requiring a browser.
 assert.equal(normalizeLanguage("en"), "en")
