@@ -6,7 +6,8 @@ import {
   CheckCircle2,
   Image as ImageIcon,
   FileText,
-} from "lucide-react"import { toast } from "sonner"
+} from "lucide-react"
+import { toast } from "sonner"
 import { cn } from "@/lib/utils.js"
 
 const MAX_SIZE_MB = 5
