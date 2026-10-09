@@ -209,6 +209,24 @@ const fr = {
     invitation: "Nouvelle invitation", request: "Mise à jour d'une demande", message: "Nouveau message", payment: "Paiement", subscription: "Abonnement", security: "Sécurité",
   },
 
+  home: {
+    searchPlaceholder: "Rechercher un talent, un service...",
+    welcomeBack: "Bon retour parmi nous, {name} !",
+    welcomeUser: "Bienvenue, {name}",
+    clientIntro: "Trouvez les meilleurs talents africains pour faire avancer votre projet.",
+    managerIntro: "Gérez vos talents, suivez vos projets et développez vos collaborations.",
+    adminIntro: "Consultez les statistiques globales de la plateforme.",
+    realtimeStats: "Statistiques clés en temps réel",
+    koraSelection: "Sélection KORA",
+    recommendedTalents: "Talents recommandés pour vous",
+    recommendedDescription: "Sélectionnés selon votre activité et vos préférences.",
+    from: "À partir de",
+    loadingRecommended: "Chargement des talents recommandés...",
+    noPublishedTalents: "Aucun talent publié pour le moment.",
+    latestActions: "Dernières actions",
+    projectsCompleted: "projets terminés",
+  },
+
   dashboard: {
     title: "Tableau de bord", welcome: "Bienvenue sur KORA.", overview: "Vue d'ensemble", recentActivity: "Activité récente", statistics: "Statistiques",
     totalProjects: "Total des projets", activeProjects: "Projets actifs", completedProjects: "Projets terminés", pendingRequests: "Demandes en attente",
@@ -329,6 +347,11 @@ const en = {
     unavailable: "Unavailable", public: "Public", private: "Private", verified: "Verified", unverified: "Unverified", online: "Online", offline: "Offline",
     today: "Today", yesterday: "Yesterday", now: "Just now", unknown: "Unknown", notProvided: "Not provided", noResults: "No results", noData: "No data",
     requiredFields: "Please fill in the required fields.", copyLink: "Copy link", copied: "Copied ✅", share: "Share", contact: "Contact", invite: "Invite", all: "All", clientKora: "KORA Client", noDescription: "No description.", and: "and", sendInvitation: "Send invitation",
+    clientContact: "Contact client", projectContext: "Project context", projectManagement: "Project management", markCompleted: "Mark completed", sendReply: "Send reply", accept: "Accept", reject: "Reject", paymentRecorded: "Your payment has been recorded. A KORA administrator must confirm it before activation.", paymentHistory: "Payment history", saspayPending: "SasPay payments remain pending until validated by an authorized administrator.", choosePlan: "Choose your plan. Pro and Business subscription payments are manually validated by KORA.", retainedData: "Your talents and history remain associated with your account.", projectManagementFeatures: "Request and project management", managerTools: "KORA manager tools", saspayValidation: "SasPay payment + KORA validation", changeCover: "Change cover", uploading: "Uploading…", cover: "Cover", profile: "Profile",
+    planFree1: "1 talent maximum", planProfilePortfolio: "Talent profile and portfolio", planFee: "Fee management", planRequests: "Request management", planMessaging: "Messaging and notifications", planBasicTalent: "Basic talent management", planTrial: "30 days free access", planPro1: "3 talents maximum", planFreeFeatures: "All Free plan features", planOperations: "Operational project management", planManagerProfile: "Manager profile", planBusiness1: "Unlimited talents", planProFeatures: "All Pro plan features", planBusinessBadge: "Business badge on your profile", planUnlimited: "Unlimited talent organization", activePlan: "Active plan", trialEnded: "Trial ended", useFree: "Use for free", choosePlanButton: "Choose {name}", noPaidSubscription: "No paid subscription", monthlySubscription: "Monthly subscription", perMonth: "/ month",
+    replyPlaceholder: "Write your reply to the client…", createdWithRequest: "Created with the request", alreadyProcessed: "This request has already been processed.", requestAccepted: "Request accepted.", requestRejected: "Request rejected.", projectCompleted: "Project marked as completed.", projectStatusUpdated: "Project status updated.",
+    expiredMulti: "For managers who manage multiple talents.", expiredThree: "For managing up to 3 talents.", preparing: "Preparing...", resubscribe: "Resubscribe",
+
   },
   navigation: { home: "Home", discover: "Discover", favorites: "My favorites", projects: "My projects", requests: "My requests", messages: "Messages", notifications: "Notifications", dashboard: "Dashboard", talents: "My talents", subscription: "Subscription", settings: "Settings", admin: "Administration", users: "Users", clients: "Clients", managers: "Managers", moderation: "Moderation", payments: "Payments", subscriptions: "Subscriptions", logs: "Logs", reports: "Reports" },
   account: { account: "Account", client: "Client", manager: "Manager", talent: "Talent", admin: "Administrator", profile: "My profile", logout: "Log out", login: "Log in", register: "Create an account", forgotPassword: "Forgot password?", resetPassword: "Reset password", email: "Email", password: "Password", confirmPassword: "Confirm password", name: "Full name" },
@@ -373,10 +396,7 @@ const en = {
     security: { passwordTitle: "Change password", passwordDescription: "Minimum 8 characters. Your current password will be verified.", currentPassword: "Current password", newPassword: "New password", confirmPassword: "Confirm", update: "Update", mfaTitle: "Two-factor authentication", mfaDescription: "Add an extra layer of security to your KORA account using an authenticator app.", mfaEnabled: "2FA enabled", mfaEnable: "Enable 2FA", mfaSecret: "Secret key", mfaCode: "Verification code", mfaVerify: "Verify and enable" },
     appearance: { title: "Appearance", description: "Customize your KORA interface.", theme: "Theme", light: "Light", dark: "Dark", auto: "Auto", language: "Interface language" },
     delete: { title: "Danger zone", description: "Deleting your account is permanent.", button: "Delete my account", confirm: "Are you sure you want to delete your account? This action is permanent.", success: "Your account has been deleted.", error: "Unable to delete the account." },
-    clientContact: "Contact client", projectContext: "Project context", projectManagement: "Project management", markCompleted: "Mark completed", sendReply: "Send reply", accept: "Accept", reject: "Reject", paymentRecorded: "Your payment has been recorded. A KORA administrator must confirm it before activation.", paymentHistory: "Payment history", saspayPending: "SasPay payments remain pending until validated by an authorized administrator.", choosePlan: "Choose your plan. Pro and Business subscription payments are manually validated by KORA.", retainedData: "Your talents and history remain associated with your account.", projectManagementFeatures: "Request and project management", managerTools: "KORA manager tools", saspayValidation: "SasPay payment + KORA validation", changeCover: "Change cover", uploading: "Uploading…", cover: "Cover", profile: "Profile",
-    planFree1: "1 talent maximum", planProfilePortfolio: "Talent profile and portfolio", planFee: "Fee management", planRequests: "Request management", planMessaging: "Messaging and notifications", planBasicTalent: "Basic talent management", planTrial: "30 days free access", planPro1: "3 talents maximum", planFreeFeatures: "All Free plan features", planOperations: "Operational project management", planManagerProfile: "Manager profile", planBusiness1: "Unlimited talents", planProFeatures: "All Pro plan features", planBusinessBadge: "Business badge on your profile", planUnlimited: "Unlimited talent organization", activePlan: "Active plan", trialEnded: "Trial ended", useFree: "Use for free", choosePlanButton: "Choose {name}", noPaidSubscription: "No paid subscription", monthlySubscription: "Monthly subscription", perMonth: "/ month",
-    replyPlaceholder: "Write your reply to the client…", createdWithRequest: "Created with the request", alreadyProcessed: "This request has already been processed.", requestAccepted: "Request accepted.", requestRejected: "Request rejected.", projectCompleted: "Project marked as completed.", projectStatusUpdated: "Project status updated.",
-    expiredMulti: "For managers who manage multiple talents.", expiredThree: "For managing up to 3 talents.", preparing: "Preparing...", resubscribe: "Resubscribe",
+    
   },
   auth: { loginTitle: "Log in", loginDescription: "Sign in to your KORA account.", registerTitle: "Create your account", registerDescription: "Join KORA and discover African talents.", email: "Email address", password: "Password", confirmPassword: "Confirm password", forgotPassword: "Forgot password?", rememberMe: "Remember me", login: "Log in", register: "Create an account", continue: "Continue", logout: "Log out", invalidCredentials: "Incorrect email or password.", accountCreated: "Account created ✅", resetSent: "A reset link has been sent to your email address.", passwordReset: "Password reset ✅", minimumPassword: "Minimum 8 characters.", passwordsMismatch: "Passwords do not match." },
   legal: { conditions: "Terms and conditions", privacy: "Privacy policy", cookies: "Cookie policy", legalNotice: "Legal notice", faq: "FAQ", contact: "Contact", reportProblem: "Report a problem" },
