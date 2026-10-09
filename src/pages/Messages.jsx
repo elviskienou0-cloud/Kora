@@ -223,10 +223,11 @@ export default function Messages() {
     ]
   )
 
-  const conversationTitle =
-    getConversationTitle(
-      currentConversation
-    )
+  const conversationTitle = getConversationTitle(
+    currentConversation,
+    t("clientUi.messaging.conversation"),
+    t("clientUi.messaging.discussion")
+  )
 
   useEffect(() => {
     setMessagePage(1)
@@ -986,14 +987,7 @@ export default function Messages() {
             1 && (
             <div className="flex items-center justify-between border-t px-4 py-3">
               <span className="text-xs text-muted-foreground">
-                Page{" "}
-                <strong className="text-foreground">
-                  {messagePage}
-                </strong>{" "}
-                sur{" "}
-                <strong className="text-foreground">
-                  {messageTotalPages}
-                </strong>
+                {t("clientUi.messaging.page", "Page {page}", { page: messagePage })} {t("clientUi.messaging.of", "of {totalPages}", { totalPages: messageTotalPages })}
               </span>
 
               <div className="flex gap-2">
