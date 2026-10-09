@@ -2,7 +2,7 @@ import { useEffect, useState } from "react"
 import { Link } from "react-router-dom"
 
 const CONSENT_COOKIE = "kora_cookie_consent"
-const CONSENT_VERSION = "2026-10-05"
+const CONSENT_VERSION = "2026-10-09"
 const MAX_AGE = 60 * 60 * 24 * 180
 
 function readConsent() {
@@ -15,7 +15,10 @@ function readConsent() {
   if (!match) return null
 
   try {
-    return JSON.parse(decodeURIComponent(match.split("=")[1]))
+    const saved = JSON.parse(decodeURIComponent(match.split("=")[1]))
+    // Re-show the banner whenever the consent policy/version changes.
+    if (!saved || saved.version !== CONSENT_VERSION) return null
+    return saved
   } catch {
     return null
   }
