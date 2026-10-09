@@ -267,6 +267,10 @@ export default function ClientBrowse() {
           talent.countries?.name ||
           "",
 
+        countryCode:
+          talent.countries?.code ||
+          "",
+
         city:
           talent.city || "",
 
@@ -395,7 +399,7 @@ export default function ClientBrowse() {
 
           supabase
             .from("countries")
-            .select("id, name")
+            .select("id, code, name")
             .order("name"),
 
           supabase
@@ -1360,14 +1364,12 @@ export default function ClientBrowse() {
                                     <MapPin className="h-3 w-3" />
                                     {[
                                       talent.city,
-                                      talent.country,
+                                      talent.countryCode
+                                        ? (countryDisplayNames.of(String(talent.countryCode).toUpperCase()) || talent.country)
+                                        : talent.country,
                                     ]
-                                      .filter(
-                                        Boolean
-                                      )
-                                      .join(
-                                        ", "
-                                      )}
+                                      .filter(Boolean)
+                                      .join(", ")}
                                   </div>
                                 ) : null}
                               </div>
