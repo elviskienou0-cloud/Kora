@@ -1,7 +1,7 @@
 ﻿import { createContext, useContext, useEffect, useMemo, useState } from "react"
+import { normalizeLanguage, persistLanguage, resolveInitialLanguage, STORAGE_KEY } from "./language.js"
 import { Globe2, Languages } from "lucide-react"
 
-const STORAGE_KEY = "kora-language"
 const THEME_STORAGE_KEY = "kora-theme"
 const THEME_EXPLICIT_STORAGE_KEY = "kora-theme-explicit"
 const DEFAULT_THEME = "light"
@@ -408,15 +408,11 @@ const en = {
 
 export const translations = { fr, en }
 
-function normalizeLanguage(value) {
-  return value === "en" ? "en" : "fr"
-}
-
 function getInitialLanguage() {
   if (typeof window === "undefined") return "fr"
   try {
     const saved = window.localStorage.getItem(STORAGE_KEY)
-    if (saved === "fr" || saved === "en") return saved
+    return resolveInitialLanguage(saved)
   } catch {}
   return "fr"
 }
@@ -479,9 +475,8 @@ export function I18nProvider({ children }) {
   const [theme, setThemeState] = useState(getInitialTheme)
 
   const setLanguage = (nextLanguage) => {
-    const normalized = normalizeLanguage(nextLanguage)
+    const normalized = persistLanguage(nextLanguage)
     setLanguageState(normalized)
-    try { window.localStorage.setItem(STORAGE_KEY, normalized) } catch {}
   }
 
   const setTheme = (nextTheme) => {
