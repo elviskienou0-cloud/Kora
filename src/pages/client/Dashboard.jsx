@@ -53,7 +53,7 @@ const STATUS_CONFIG = {
     className: "border-gold text-gold-dark bg-gold/10",
   },
   en_attente: {
-    label: "En attente",
+    labelKey: "requests.pending",
     className: "border-gold text-gold-dark bg-gold/10",
   },
   accepted: {
@@ -61,7 +61,7 @@ const STATUS_CONFIG = {
     className: "bg-emerald-500 text-white",
   },
   acceptee: {
-    label: "Acceptée",
+    labelKey: "requests.accepted",
     className: "bg-emerald-500 text-white",
   },
   rejected: {
@@ -69,7 +69,7 @@ const STATUS_CONFIG = {
     className: "bg-red-500 text-white",
   },
   refusee: {
-    label: "Refusée",
+    labelKey: "requests.rejected",
     className: "bg-red-500 text-white",
   },
   completed: {
@@ -77,7 +77,7 @@ const STATUS_CONFIG = {
     className: "bg-slate-600 text-white",
   },
   terminee: {
-    label: "Terminée",
+    labelKey: "projects.completed",
     className: "bg-slate-600 text-white",
   },
 }
@@ -355,8 +355,7 @@ export default function ClientDashboard() {
 
             <div>
               <h1 className="text-2xl font-bold tracking-tight md:text-3xl">
-                Bonjour,{" "}
-                
+                {t("clientUi.dashboard.hello", "Bonjour, {name}", { name: firstName })}
               </h1>
 
               <p className="text-sm text-muted-foreground">
