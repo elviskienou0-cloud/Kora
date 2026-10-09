@@ -1,5 +1,7 @@
 ﻿import { createContext, useContext, useEffect, useMemo, useState } from "react"
 import { Globe2, Languages } from "lucide-react"
+import { supabase } from "@/lib/supabase"
+import { getLanguageStorageKey, isSupportedLanguage, normalizeLanguage, readStoredLanguage } from "@/i18n/language-preferences.js"
 
 const STORAGE_KEY = "kora-language"
 const THEME_STORAGE_KEY = "kora-theme"
@@ -283,6 +285,30 @@ const fr = {
     noReviews: "Aucun avis pour le moment.", thankYou: "Merci pour votre avis.",
   },
 
+  clientSettings: {
+    tabs: { profile: "Mon profil", preferences: "Préférences", notifications: "Notifications", security: "Sécurité" },
+    profile: {
+      title: "Mon profil", description: "Informations personnelles de votre compte.",
+      cover: "Couverture", changeCover: "Changer la couverture", uploadInProgress: "Envoi de l’image…",
+      avatar: "Photo de profil", photoAndCover: "Photo de profil et couverture", fullName: "Nom complet",
+      phone: "Téléphone", city: "Ville", company: "Entreprise", bio: "Biographie",
+      personalData: "Gérer mes données personnelles →",
+    },
+    preferences: { title: "Préférences", description: "Langue et apparence de votre espace.", language: "Langue", theme: "Thème", light: "Clair", dark: "Sombre", auto: "Auto", save: "Enregistrer les préférences" },
+    notifications: { title: "Notifications", description: "Choisissez les alertes que vous souhaitez recevoir.", email: "Notifications par email", browser: "Notifications du navigateur", marketing: "Offres et nouveautés KORA", save: "Enregistrer" },
+    security: { title: "Sécurité", description: "Modifier votre mot de passe.", currentPassword: "Mot de passe actuel", newPassword: "Nouveau mot de passe", confirmPassword: "Confirmer", update: "Mettre à jour" },
+    loading: "Chargement des paramètres…",
+    errors: {
+      load: "Impossible de charger vos paramètres.", upload: "Impossible d’envoyer l’image.",
+      nameRequired: "Le nom est obligatoire.", profileSave: "Impossible d'enregistrer le profil.",
+      preferencesSave: "Impossible d'enregistrer les préférences.", fieldsRequired: "Veuillez remplir tous les champs.",
+      passwordLength: "Le nouveau mot de passe doit contenir au moins 8 caractères.",
+      passwordMismatch: "Les mots de passe ne correspondent pas.", emailMissing: "Adresse email introuvable.",
+      currentPassword: "Le mot de passe actuel est incorrect.", passwordUpdate: "Impossible de modifier le mot de passe.",
+    },
+    success: { avatar: "Photo de profil mise à jour.", cover: "Photo de couverture mise à jour.", profile: "Profil enregistré ✅", preferences: "Préférences enregistrées ✅", password: "Mot de passe mis à jour ✅" },
+  },
+
   settings: {
     title: "Paramètres", subtitle: "Gérez votre compte et vos préférences.", profileTab: "Profil", notificationsTab: "Notifications", securityTab: "Sécurité", appearanceTab: "Apparence",
     errors: {
@@ -386,6 +412,30 @@ const en = {
   payments: { title: "Payments", payment: "Payment", payments: "Payments", pending: "Pending", paid: "Paid", failed: "Failed", cancelled: "Cancelled", provider: "Provider", reference: "Reference", amount: "Amount", currency: "Currency", date: "Date", method: "Method", status: "Status", orangeMoney: "Orange Money", moovMoney: "Moov Money", wave: "Wave", card: "Bank card", visa: "Visa", mastercard: "Mastercard" },
   subscriptions: { title: "Subscriptions", subscription: "Subscription", trial: "Trial period", active: "Active", expired: "Expired", cancelled: "Cancelled", pending: "Pending", plan: "Plan", startDate: "Start date", endDate: "End date", period: "Period", upgrade: "Upgrade", renew: "Renew" },
   reviews: { title: "Reviews", review: "Review", reviews: "Reviews", rating: "Rating", comment: "Comment", submit: "Publish my review", noReviews: "No reviews yet.", thankYou: "Thank you for your review." },
+  clientSettings: {
+    tabs: { profile: "My profile", preferences: "Preferences", notifications: "Notifications", security: "Security" },
+    profile: {
+      title: "My profile", description: "Personal information for your account.",
+      cover: "Cover", changeCover: "Change cover", uploadInProgress: "Uploading image…",
+      avatar: "Profile photo", photoAndCover: "Profile photo and cover", fullName: "Full name",
+      phone: "Phone", city: "City", company: "Company", bio: "Biography",
+      personalData: "Manage my personal data →",
+    },
+    preferences: { title: "Preferences", description: "Language and appearance of your space.", language: "Language", theme: "Theme", light: "Light", dark: "Dark", auto: "Auto", save: "Save preferences" },
+    notifications: { title: "Notifications", description: "Choose the alerts you want to receive.", email: "Email notifications", browser: "Browser notifications", marketing: "KORA offers and updates", save: "Save" },
+    security: { title: "Security", description: "Change your password.", currentPassword: "Current password", newPassword: "New password", confirmPassword: "Confirm", update: "Update" },
+    loading: "Loading settings…",
+    errors: {
+      load: "Unable to load your settings.", upload: "Unable to upload the image.",
+      nameRequired: "Name is required.", profileSave: "Unable to save the profile.",
+      preferencesSave: "Unable to save preferences.", fieldsRequired: "Please fill in all fields.",
+      passwordLength: "The new password must contain at least 8 characters.",
+      passwordMismatch: "The passwords do not match.", emailMissing: "Email address not found.",
+      currentPassword: "The current password is incorrect.", passwordUpdate: "Unable to update the password.",
+    },
+    success: { avatar: "Profile photo updated.", cover: "Cover photo updated.", profile: "Profile saved ✅", preferences: "Preferences saved ✅", password: "Password updated ✅" },
+  },
+
   settings: {
     title: "Settings", subtitle: "Manage your account and preferences.", profileTab: "Profile", notificationsTab: "Notifications", securityTab: "Security", appearanceTab: "Appearance",
     errors: { notConnected: "User not connected.", nameRequired: "Name is required.", emailMissing: "Email address not found.", passwordFields: "Please fill in all fields.", passwordLength: "The new password must contain at least 8 characters.", passwordMismatch: "The new passwords do not match.", oldPassword: "The current password is incorrect.", save: "Unable to save.", mfaSetup: "Incomplete 2FA configuration.", mfa: "Unable to enable 2FA.", mfaCode: "Enter the verification code.", mfaVerify: "Invalid 2FA code or verification failed." },
@@ -406,17 +456,9 @@ const en = {
 
 export const translations = { fr, en }
 
-function normalizeLanguage(value) {
-  return value === "en" ? "en" : "fr"
-}
-
 function getInitialLanguage() {
   if (typeof window === "undefined") return "fr"
-  try {
-    const saved = window.localStorage.getItem(STORAGE_KEY)
-    if (saved === "fr" || saved === "en") return saved
-  } catch {}
-  return "fr"
+  return readStoredLanguage(window.localStorage, null) || "fr"
 }
 
 function getNestedValue(source, path) {
@@ -474,12 +516,18 @@ const I18nContext = createContext(null)
 
 export function I18nProvider({ children }) {
   const [language, setLanguageState] = useState(getInitialLanguage)
+  const [activeUserId, setActiveUserId] = useState(null)
   const [theme, setThemeState] = useState(getInitialTheme)
 
   const setLanguage = (nextLanguage) => {
     const normalized = normalizeLanguage(nextLanguage)
     setLanguageState(normalized)
-    try { window.localStorage.setItem(STORAGE_KEY, normalized) } catch {}
+    try {
+      window.localStorage.setItem(getLanguageStorageKey(activeUserId), normalized)
+      // Keep the legacy global key only for signed-out visitors; authenticated
+      // users are stored under their own ID to prevent language leakage.
+      if (!activeUserId) window.localStorage.setItem(STORAGE_KEY, normalized)
+    } catch {}
   }
 
   const setTheme = (nextTheme) => {
@@ -491,6 +539,59 @@ export function I18nProvider({ children }) {
     } catch {}
     applyTheme(normalized)
   }
+
+  useEffect(() => {
+    let mounted = true
+    let lastUserId
+
+    async function applySessionLanguage(session) {
+      const userId = session?.user?.id || null
+      if (userId === lastUserId) return
+      lastUserId = userId
+      if (mounted) setActiveUserId(userId)
+
+      if (!userId) {
+        if (mounted) setLanguageState(getInitialLanguage())
+        return
+      }
+
+      const localPreference = typeof window !== "undefined"
+        ? readStoredLanguage(window.localStorage, userId)
+        : null
+      if (localPreference) {
+        if (mounted && lastUserId === userId) setLanguageState(localPreference)
+        return
+      }
+
+      const { data, error } = await supabase
+        .from("profiles")
+        .select("preferences")
+        .eq("id", userId)
+        .maybeSingle()
+
+      if (!mounted || lastUserId !== userId) return
+      const preferences = data?.preferences && typeof data.preferences === "object" ? data.preferences : {}
+      const preferredLanguage = isSupportedLanguage(preferences.language) ? preferences.language : "fr"
+      setLanguageState(preferredLanguage)
+      try {
+        window.localStorage.setItem(getLanguageStorageKey(userId), preferredLanguage)
+      } catch {}
+      if (error) console.warn("KORA: impossible de charger la préférence de langue du compte.")
+    }
+
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+      if (event === "TOKEN_REFRESHED" && session?.user?.id === lastUserId) return
+      Promise.resolve().then(() => applySessionLanguage(session))
+    })
+    supabase.auth.getSession()
+      .then(({ data }) => applySessionLanguage(data?.session || null))
+      .catch(() => applySessionLanguage(null))
+
+    return () => {
+      mounted = false
+      subscription.unsubscribe()
+    }
+  }, [])
 
   useEffect(() => {
     const config = SUPPORTED_LANGUAGES[language] || SUPPORTED_LANGUAGES.fr
@@ -531,7 +632,7 @@ export function I18nProvider({ children }) {
       isEnglish: language === "en",
       languageConfig: SUPPORTED_LANGUAGES[language] || SUPPORTED_LANGUAGES.fr,
     }
-  }, [language, theme])
+  }, [language, theme, activeUserId])
 
   return <I18nContext.Provider value={value}>{children}</I18nContext.Provider>
 }
