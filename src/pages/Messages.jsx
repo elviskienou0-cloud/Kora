@@ -27,6 +27,7 @@ import { useAuth } from "@/lib/AuthContext"
 import { supabase } from "@/lib/supabase"
 import { markMessagesRead } from "@/lib/messaging"
 import { queryClient } from "@/lib/queryClient"
+import { useI18n } from "@/i18n/kora-i18n.jsx"
 
 import {
   useConversationsQuery,
@@ -36,25 +37,25 @@ import {
 const CONVERSATIONS_PAGE_SIZE = 20
 const MESSAGES_PAGE_SIZE = 50
 
-function getProfileName(profile) {
-  if (!profile) return "Conversation"
+function getProfileName(profile, fallback = "Conversation") {
+  if (!profile) return fallback
 
   return (
     profile.name ||
     [profile.first_name, profile.last_name]
       .filter(Boolean)
       .join(" ") ||
-    "Discussion"
+    fallback
   )
 }
 
-function getConversationTitle(conversation) {
-  if (!conversation) return "Conversation"
+function getConversationTitle(conversation, conversationFallback = "Conversation", discussionFallback = "Discussion") {
+  if (!conversation) return conversationFallback
 
   return (
     conversation.title ||
-    getProfileName(conversation.participant) ||
-    "Conversation"
+    getProfileName(conversation.participant, discussionFallback) ||
+    conversationFallback
   )
 }
 
@@ -75,7 +76,7 @@ function getInitials(name) {
   return `${parts[0][0]}${parts[parts.length - 1][0]}`.toUpperCase()
 }
 
-function formatMessageTime(value) {
+function formatMessageTime(value, locale = "fr-FR") {
   if (!value) return ""
 
   const date = new Date(value)
@@ -87,20 +88,20 @@ function formatMessageTime(value) {
   const now = new Date()
 
   if (date.toDateString() === now.toDateString()) {
-    return date.toLocaleTimeString("fr-FR", {
+    return date.toLocaleTimeString(locale, {
       hour: "2-digit",
       minute: "2-digit",
     })
   }
 
-  return date.toLocaleDateString("fr-FR", {
+  return date.toLocaleDateString(locale, {
     day: "2-digit",
     month: "2-digit",
     year: "numeric",
   })
 }
 
-function formatConversationTime(value) {
+function formatConversationTime(value, locale = "fr-FR") {
   if (!value) return ""
 
   const date = new Date(value)
@@ -133,6 +134,8 @@ export default function Messages() {
 
   const { user, isAuthenticated } =
     useAuth()
+  const { t, language } = useI18n()
+  const locale = language === "en" ? "en-GB" : "fr-FR"
 
   const authUserId =
     user?.authId || user?.id
@@ -435,7 +438,7 @@ export default function Messages() {
 
     if (body.length > 4000) {
       toast.error(
-        "Le message ne peut pas dépasser 4000 caractères."
+        t("clientUi.messaging.sendTooLong")
       )
       return
     }
@@ -559,8 +562,7 @@ export default function Messages() {
       )
 
       toast.error(
-        error?.message ||
-          "Impossible d'envoyer le message."
+        t("clientUi.messaging.sendError")
       )
     } finally {
       setSending(false)
@@ -589,11 +591,11 @@ export default function Messages() {
           <MessageCircle className="mx-auto mb-4 h-10 w-10 text-muted-foreground" />
 
           <h1 className="text-xl font-bold">
-            Connexion requise
+            {t("clientUi.messaging.authRequired")}
           </h1>
 
           <p className="mt-2 text-sm text-muted-foreground">
-            Connectez-vous pour accéder à vos messages.
+            {t("clientUi.messaging.authDescription")}
           </p>
         </div>
       </div>
@@ -616,11 +618,11 @@ export default function Messages() {
               </p>
 
               <h1 className="text-2xl font-black">
-                Messages
+                {t("clientUi.messaging.title")}
               </h1>
 
               <p className="text-sm text-muted-foreground">
-                Vos conversations avec les membres de KORA.
+                {t("clientUi.messaging.description")}
               </p>
             </div>
 
@@ -641,21 +643,20 @@ export default function Messages() {
                 }
               />
 
-              Actualiser
+              {t("clientUi.messaging.refresh")}
             </button>
           </div>
 
           {!online && (
             <div className="flex items-center gap-2 rounded-xl border border-amber-300/50 bg-amber-50 px-4 py-3 text-sm text-amber-800">
               <WifiOff className="h-4 w-4" />
-              Vous êtes hors connexion.
+              {t("clientUi.messaging.offline")}
             </div>
           )}
 
           {conversationsError && (
             <div className="rounded-xl border border-red-500/30 bg-red-500/5 px-4 py-3 text-sm text-red-600">
-              {conversationsError.message ||
-                "Impossible de charger vos conversations."}
+              {t("clientUi.messaging.conversationsLoadError")}
             </div>
           )}
 
@@ -668,11 +669,11 @@ export default function Messages() {
               <MessageCircle className="mx-auto mb-4 h-10 w-10 text-muted-foreground" />
 
               <h2 className="font-bold">
-                Aucune conversation
+                {t("clientUi.messaging.noConversations")}
               </h2>
 
               <p className="mx-auto mt-2 max-w-md text-sm text-muted-foreground">
-                Utilisez « Contacter » sur une fiche Talent ou depuis une demande pour démarrer une discussion.
+                {t("clientUi.messaging.noConversationsDescription")}
               </p>
             </div>
           ) : (
@@ -681,9 +682,7 @@ export default function Messages() {
                 {conversations.map(
                   (conversation) => {
                     const title =
-                      getConversationTitle(
-                        conversation
-                      )
+                      getConversationTitle(conversation, t("clientUi.messaging.conversation"), t("clientUi.messaging.discussion"))
 
                     return (
                       <button
@@ -723,11 +722,7 @@ export default function Messages() {
                             </p>
 
                             <span className="shrink-0 text-xs text-muted-foreground">
-                              {formatConversationTime(
-                                conversation
-                                  .latestMessage
-                                  ?.created_at
-                              )}
+                              {formatConversationTime(conversation.latestMessage?.created_at, locale)}
                             </span>
                           </div>
 
@@ -736,7 +731,7 @@ export default function Messages() {
                               {conversation
                                 .latestMessage
                                 ?.body ||
-                                "Aucun message"}
+                                t("clientUi.messaging.noMessage")}
                             </p>
 
                             {conversation.unreadCount >
@@ -760,14 +755,7 @@ export default function Messages() {
                 1 && (
                 <div className="flex items-center justify-between border-t pt-4">
                   <span className="text-sm text-muted-foreground">
-                    Page{" "}
-                    <strong className="text-foreground">
-                      {conversationPage}
-                    </strong>{" "}
-                    sur{" "}
-                    <strong className="text-foreground">
-                      {conversationTotalPages}
-                    </strong>
+                    {t("clientUi.messaging.page", "Page {page}", { page: conversationPage })} {t("clientUi.messaging.of", "of {totalPages}", { totalPages: conversationTotalPages })}
                   </span>
 
                   <div className="flex gap-2">
@@ -790,7 +778,7 @@ export default function Messages() {
                       className="inline-flex items-center gap-1 rounded-xl border px-3 py-2 text-sm disabled:opacity-40"
                     >
                       <ChevronLeft className="h-4 w-4" />
-                      Précédent
+                      {t("clientUi.messaging.previous")}
                     </button>
 
                     <button
@@ -811,7 +799,7 @@ export default function Messages() {
                       }
                       className="inline-flex items-center gap-1 rounded-xl border px-3 py-2 text-sm disabled:opacity-40"
                     >
-                      Suivant
+                      {t("clientUi.messaging.next")}
                       <ChevronRight className="h-4 w-4" />
                     </button>
                   </div>
@@ -840,7 +828,7 @@ export default function Messages() {
                 navigate("/messages")
               }
               className="flex h-10 w-10 items-center justify-center rounded-xl border hover:bg-accent"
-              aria-label="Retour"
+              aria-label={t("clientUi.messaging.back")}
             >
               <ArrowLeft className="h-5 w-5" />
             </button>
@@ -870,12 +858,12 @@ export default function Messages() {
                 {online ? (
                   <>
                     <Wifi className="h-3.5 w-3.5 text-emerald-600" />
-                    En ligne
+                    {t("clientUi.messaging.online")}
                   </>
                 ) : (
                   <>
                     <WifiOff className="h-3.5 w-3.5 text-amber-600" />
-                    Hors connexion
+                    {t("clientUi.messaging.offlineStatus")}
                   </>
                 )}
 
@@ -883,7 +871,7 @@ export default function Messages() {
                   "SUBSCRIBED" && (
                   <span className="inline-flex items-center gap-1">
                     <span className="h-1.5 w-1.5 rounded-full bg-emerald-500" />
-                    Temps réel
+                    {t("clientUi.messaging.realtime")}
                   </span>
                 )}
               </div>
@@ -896,7 +884,7 @@ export default function Messages() {
               }
               disabled={refreshing}
               className="rounded-xl border p-2 hover:bg-accent disabled:opacity-50"
-              aria-label="Actualiser"
+              aria-label={t("clientUi.messaging.refresh")}
             >
               <RefreshCw
                 className={
@@ -912,7 +900,7 @@ export default function Messages() {
           {messagesError && (
             <div className="border-b border-red-500/20 bg-red-500/5 px-4 py-3 text-sm text-red-600">
               {messagesError.message ||
-                "Impossible de charger les messages."}
+                t("clientUi.messaging.loadMessagesError")}
             </div>
           )}
 
@@ -927,11 +915,11 @@ export default function Messages() {
                   <MessageCircle className="mx-auto mb-4 h-10 w-10 text-muted-foreground" />
 
                   <p className="font-semibold">
-                    Aucun message
+                    {t("clientUi.messaging.noMessage")}
                   </p>
 
                   <p className="mt-1 text-sm text-muted-foreground">
-                    Envoyez le premier message.
+                    {t("clientUi.messaging.sendFirst")}
                   </p>
                 </div>
               </div>
@@ -975,9 +963,7 @@ export default function Messages() {
 
                           <div className="mt-1 flex items-center gap-1 px-1 text-[11px] text-muted-foreground">
                             <span>
-                              {formatMessageTime(
-                                message.created_at
-                              )}
+                              {formatMessageTime(message.created_at, locale)}
                             </span>
 
                             {mine &&
@@ -1030,7 +1016,7 @@ export default function Messages() {
                   className="inline-flex items-center gap-1 rounded-xl border px-3 py-2 text-xs disabled:opacity-40"
                 >
                   <ChevronLeft className="h-4 w-4" />
-                  Plus récent
+                  {t("clientUi.messaging.newer")}
                 </button>
 
                 <button
@@ -1051,7 +1037,7 @@ export default function Messages() {
                   }
                   className="inline-flex items-center gap-1 rounded-xl border px-3 py-2 text-xs disabled:opacity-40"
                 >
-                  Plus ancien
+                  {t("clientUi.messaging.older")}
                   <ChevronRight className="h-4 w-4" />
                 </button>
               </div>
@@ -1060,7 +1046,7 @@ export default function Messages() {
 
           {!online && (
             <div className="border-t bg-amber-50 px-4 py-2 text-xs text-amber-800">
-              Hors connexion : l'envoi des messages est désactivé.
+              {t("clientUi.messaging.offlineSendDisabled")}
             </div>
           )}
 
@@ -1087,8 +1073,8 @@ export default function Messages() {
                 }
                 placeholder={
                   online
-                    ? "Écrire un message…"
-                    : "Hors connexion…"
+                    ? t("clientUi.messaging.writeMessage")
+                    : t("clientUi.messaging.offlinePlaceholder")
                 }
                 className="min-h-12 flex-1 resize-none rounded-xl border bg-muted/30 px-4 py-3 text-sm outline-none focus:ring-2 focus:ring-ring/40 disabled:cursor-not-allowed disabled:opacity-60"
               />
@@ -1104,7 +1090,7 @@ export default function Messages() {
                   !messageText.trim()
                 }
                 className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-foreground text-background hover:bg-foreground/90 disabled:cursor-not-allowed disabled:opacity-40"
-                aria-label="Envoyer"
+                aria-label={t("clientUi.messaging.send")}
               >
                 {sending ? (
                   <Loader2 className="h-5 w-5 animate-spin" />
@@ -1116,7 +1102,7 @@ export default function Messages() {
 
             <p className="mt-2 flex items-center gap-2 text-[11px] text-muted-foreground">
               <User className="h-3.5 w-3.5" />
-              Entrée pour envoyer · Shift + Entrée pour une nouvelle ligne
+              {t("clientUi.messaging.enterToSend")} · {t("clientUi.messaging.shiftEnterNewLine")}
             </p>
           </div>
         </div>
