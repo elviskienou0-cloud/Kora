@@ -241,7 +241,7 @@ const fr = {
       noResults: "Aucun résultat", noResultsDescription: "Aucun de vos favoris ne correspond à « {search} ».",
       managerUnavailable: "Le manager de ce talent est indisponible.",
       ownTalent: "Ce talent est géré par votre propre compte.",
-      openConversation: "Ouverture…", contact: "Contacter", removeError: "Impossible de retirer ce favori.",
+      openConversation: "Ouverture…", contact: "Contacter", busy: "Occupé", removeError: "Impossible de retirer ce favori.",
       loadingError: "Impossible de charger vos favoris pour le moment.", contactError: "Impossible d'ouvrir la conversation.",
     },
     notifications: {
@@ -510,7 +510,7 @@ const en = {
       noResults: "No results", noResultsDescription: "None of your favorites match “{search}”.",
       managerUnavailable: "The talent's manager is unavailable.",
       ownTalent: "This talent is managed by your own account.",
-      openConversation: "Opening…", contact: "Contact", removeError: "Unable to remove this favorite.",
+      openConversation: "Opening…", contact: "Contact", busy: "Busy", removeError: "Unable to remove this favorite.",
       loadingError: "Unable to load your favorites right now.", contactError: "Unable to open the conversation.",
     },
     notifications: {
