@@ -10,11 +10,13 @@ import { Label } from "@/components/ui/label"
 import { Badge } from "@/components/ui/badge"
 import { useAuth } from "@/lib/AuthContext"
 import { supabase } from "@/lib/supabase"
+import { useI18n } from "@/i18n/kora-i18n.jsx"
 
 export default function ReviewProject() {
   const { id } = useParams()
   const navigate = useNavigate()
   const { user } = useAuth()
+  const { t } = useI18n()
   const clientId = user?.authId || user?.id
 
   const [project, setProject] = useState(null)
@@ -46,7 +48,7 @@ export default function ReviewProject() {
           .maybeSingle()
 
         if (projectError) throw projectError
-        if (!projectData) throw new Error("Projet introuvable ou inaccessible.")
+        if (!projectData) throw new Error("PROJECT_NOT_FOUND")
 
         const { data: requestRows, error: requestError } = await supabase
           .from("requests")
@@ -92,7 +94,7 @@ export default function ReviewProject() {
         setSelectedTalentId(firstEligible?.id || "")
       } catch (error) {
         console.error("Erreur préparation avis :", error)
-        if (mounted) setLoadError(error?.message || "Impossible de préparer l'évaluation.")
+        if (mounted) setLoadError(error?.message === "PROJECT_NOT_FOUND" ? "clientUi.review.projectNotFound" : "clientUi.review.loadError")
       } finally {
         if (mounted) setLoading(false)
       }
@@ -119,15 +121,15 @@ export default function ReviewProject() {
     event.preventDefault()
 
     if (!selectedTalentId) {
-      toast.error("Aucun talent éligible à évaluer.")
+      toast.error(t("clientUi.review.eligibleTalentMissing"))
       return
     }
     if (!rating) {
-      toast.error("Choisissez une note de 1 à 5.")
+      toast.error(t("clientUi.review.chooseRating"))
       return
     }
     if (!comment.trim()) {
-      toast.error("Ajoutez un commentaire.")
+      toast.error(t("clientUi.review.commentRequired"))
       return
     }
 
@@ -142,11 +144,12 @@ export default function ReviewProject() {
 
       if (error) throw error
 
-      toast.success("Évaluation enregistrée ✅")
+      toast.success(t("clientUi.review.saved"))
       navigate(`/client/projects/${id}`)
     } catch (error) {
       console.error("Erreur création avis :", error)
-      toast.error(error?.message || "Impossible d'enregistrer l'avis.")
+      console.error("KORA: project review save failed", error)
+      toast.error(t("clientUi.review.saveError"))
     } finally {
       setSaving(false)
     }
@@ -162,9 +165,9 @@ export default function ReviewProject() {
         <Card className="max-w-xl w-full">
           <CardContent className="p-8 text-center space-y-4">
             <MessageSquareWarning className="mx-auto h-10 w-10 text-gold" />
-            <h1 className="text-xl font-black">Évaluation indisponible</h1>
-            <p className="text-sm text-muted-foreground">{loadError}</p>
-            <Button onClick={() => navigate(`/client/projects/${id}`)}><ArrowLeft className="mr-2 h-4 w-4" /> Retour au projet</Button>
+            <h1 className="text-xl font-black">{t("clientUi.review.unavailable")}</h1>
+            <p className="text-sm text-muted-foreground">{t(loadError)}</p>
+            <Button onClick={() => navigate(`/client/projects/${id}`)}><ArrowLeft className="mr-2 h-4 w-4" /> {t("clientUi.review.backToProject")}</Button>
           </CardContent>
         </Card>
       </div>
@@ -178,10 +181,10 @@ export default function ReviewProject() {
       <div className="min-h-[60vh] flex items-center justify-center p-6">
         <Card className="max-w-xl w-full border-gold/20">
           <CardContent className="p-8 text-center space-y-4">
-            <Badge variant="outline" className="mx-auto">Statut : {project.status || "—"}</Badge>
-            <h1 className="text-xl font-black">Le projet n'est pas encore terminé</h1>
+            <Badge variant="outline" className="mx-auto">{t("projects.status")}: {t(({ draft: "projects.draft", open: "projects.open", pending: "projects.pending", active: "projects.active", completed: "projects.completed", cancelled: "projects.cancelled" })[project.status] || "projects.status")}</Badge>
+            <h1 className="text-xl font-black">{t("clientUi.review.notComplete")}</h1>
             <p className="text-sm text-muted-foreground">
-              La note et l'avis deviennent disponibles lorsque le manager marque ce projet comme terminé.
+              {t("clientUi.review.ratingAvailableWhenCompleted")}
             </p>
             <Button onClick={() => navigate(`/client/projects/${id}`)}><ArrowLeft className="mr-2 h-4 w-4" /> Retour au projet</Button>
           </CardContent>
@@ -195,9 +198,9 @@ export default function ReviewProject() {
       <div className="min-h-[60vh] flex items-center justify-center p-6">
         <Card className="max-w-xl w-full border-border/60">
           <CardContent className="p-8 text-center space-y-4">
-            <h1 className="text-xl font-black">Aucun avis à publier</h1>
+            <h1 className="text-xl font-black">{t("clientUi.review.noReviews")}</h1>
             <p className="text-sm text-muted-foreground">
-              Tous les talents rattachés à ce projet ont déjà été évalués, ou aucun talent n'est actuellement éligible.
+              {t("clientUi.review.allReviewed")}
             </p>
             <Button onClick={() => navigate(`/client/projects/${id}`)}><ArrowLeft className="mr-2 h-4 w-4" /> Retour au projet</Button>
           </CardContent>
@@ -212,8 +215,8 @@ export default function ReviewProject() {
         <div className="flex items-center gap-3">
           <Button variant="outline" size="icon" onClick={() => navigate(-1)} className="rounded-xl"><ArrowLeft className="h-4 w-4" /></Button>
           <div>
-            <p className="text-xs font-bold uppercase tracking-[0.18em] text-gold">Réputation KORA</p>
-            <h1 className="text-2xl font-black tracking-tight">Évaluer le projet</h1>
+            <p className="text-xs font-bold uppercase tracking-[0.18em] text-gold">{t("clientUi.review.reputation")}</p>
+            <h1 className="text-2xl font-black tracking-tight">{t("clientUi.review.title")}</h1>
           </div>
         </div>
 
@@ -222,40 +225,40 @@ export default function ReviewProject() {
             <div className="flex flex-wrap items-center justify-between gap-2">
               <div>
                 <CardTitle>{project.title}</CardTitle>
-                <CardDescription className="mt-1">Projet terminé — votre avis sera rattaché au projet et au talent choisi.</CardDescription>
+                <CardDescription className="mt-1">{t("clientUi.review.projectComplete")}</CardDescription>
               </div>
-              <Badge className="bg-emerald-500/10 text-emerald-600 border border-emerald-500/30">Terminé</Badge>
+              <Badge className="bg-emerald-500/10 text-emerald-600 border border-emerald-500/30">{t("clientUi.review.finished")}</Badge>
             </div>
           </CardHeader>
         </Card>
 
         <Card className="border-border/60">
           <CardHeader>
-            <CardTitle className="font-black">Votre évaluation</CardTitle>
-            <CardDescription>Une note de 1 à 5 et un commentaire sont requis.</CardDescription>
+            <CardTitle className="font-black">{t("clientUi.review.yourReview")}</CardTitle>
+            <CardDescription>{t("clientUi.review.ratingCommentRequired")}</CardDescription>
           </CardHeader>
           <CardContent>
             <form onSubmit={submit} className="space-y-6">
               <div className="space-y-2">
-                <Label htmlFor="talent">Talent évalué</Label>
+                <Label htmlFor="talent">{t("clientUi.review.talent")}</Label>
                 <select id="talent" value={selectedTalentId} onChange={(event) => setSelectedTalentId(event.target.value)} className="h-11 w-full rounded-xl border border-input bg-background px-3 text-sm" disabled={saving}>
                   {eligibleTalents.map((talent) => (
                     <option key={talent.id} value={talent.id}>
-                      {[talent.first_name, talent.last_name].filter(Boolean).join(" ") || talent.title || "Talent"}
+                      {[talent.first_name, talent.last_name].filter(Boolean).join(" ") || talent.title || t("clientUi.dashboard.talent")}
                     </option>
                   ))}
                 </select>
-                {selectedTalent && <p className="text-xs text-muted-foreground">{selectedTalent.title || "Talent KORA"}</p>}
+                {selectedTalent && <p className="text-xs text-muted-foreground">{selectedTalent.title || t("talent.profile")}</p>}
               </div>
 
               <div className="space-y-2">
-                <Label>Note</Label>
+                <Label>{t("clientUi.review.rating")}</Label>
                 <div className="flex items-center gap-1" onMouseLeave={() => setHoverRating(0)}>
                   {Array.from({ length: 5 }).map((_, index) => {
                     const value = index + 1
                     const active = (hoverRating || rating) >= value
                     return (
-                      <button key={value} type="button" aria-label={`${value} étoile${value > 1 ? "s" : ""}`} onMouseEnter={() => setHoverRating(value)} onClick={() => setRating(value)} className="rounded-md p-1.5 transition-transform hover:scale-110">
+                      <button key={value} type="button" aria-label={t("clientUi.review.stars", "{count} star(s)", { count: value })} onMouseEnter={() => setHoverRating(value)} onClick={() => setRating(value)} className="rounded-md p-1.5 transition-transform hover:scale-110">
                         <Star className={active ? "h-8 w-8 fill-amber-400 text-amber-400" : "h-8 w-8 text-muted-foreground/40"} />
                       </button>
                     )
@@ -264,16 +267,16 @@ export default function ReviewProject() {
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="review-comment">Commentaire</Label>
-                <Textarea id="review-comment" value={comment} onChange={(event) => setComment(event.target.value)} placeholder="Partagez votre expérience avec ce talent…" maxLength={3000} className="min-h-36" disabled={saving} />
+                <Label htmlFor="review-comment">{t("clientUi.review.comment")}</Label>
+                <Textarea id="review-comment" value={comment} onChange={(event) => setComment(event.target.value)} placeholder={t("clientUi.review.commentPlaceholder")} maxLength={3000} className="min-h-36" disabled={saving} />
                 <p className="text-right text-[11px] text-muted-foreground">{comment.length}/3000</p>
               </div>
 
               <div className="flex justify-end gap-2">
-                <Button type="button" variant="outline" onClick={() => navigate(-1)} disabled={saving}>Annuler</Button>
+                <Button type="button" variant="outline" onClick={() => navigate(-1)} disabled={saving}>{t("clientUi.review.cancel")}</Button>
                 <Button type="submit" className="gap-2 gold-gradient text-white" disabled={saving}>
                   {saving ? <Loader2 className="h-4 w-4 animate-spin" /> : <Send className="h-4 w-4" />}
-                  {saving ? "Enregistrement…" : "Publier mon avis"}
+                  {saving ? t("common.saving") : t("clientUi.review.submit")}
                 </Button>
               </div>
             </form>
