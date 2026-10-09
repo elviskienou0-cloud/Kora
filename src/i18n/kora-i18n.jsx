@@ -182,6 +182,15 @@ const fr = {
     matchingSearch: "Aucun de vos favoris ne correspond à « {search} »",
 
 
+    completedProjects: "projets",
+    availableStatus: "Disponible",
+    busyStatus: "Occupé",
+    openingConversation: "Ouverture…",
+    contactAction: "Contacter",
+    savedAt: "Enregistré le",
+    emptyHint: "Choisissez un talent à ajouter à vos favoris depuis son profil.",
+
+
   },
 
   projects: {
@@ -560,6 +569,15 @@ const en = {
     tutorialRequestTitle: "Send",
     tutorialRequestDescription: "requests in one click",
     matchingSearch: "None of your favorites match “{search}”",
+
+
+    completedProjects: "projects",
+    availableStatus: "Available",
+    busyStatus: "Busy",
+    openingConversation: "Opening…",
+    contactAction: "Contact",
+    savedAt: "Saved on",
+    emptyHint: "Choose a talent to add to your favorites from its profile.",
 
 
   },
