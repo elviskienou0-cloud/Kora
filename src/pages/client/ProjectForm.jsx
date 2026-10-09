@@ -85,7 +85,7 @@ export default function ProjectForm() {
     return () => {
       cancelled = true
     }
-  }, [editing, id, authUserId, navigate])
+  }, [editing, id, authUserId, navigate, t])
 
   const setField = (field, value) => {
     setForm((current) => ({ ...current, [field]: value }))
