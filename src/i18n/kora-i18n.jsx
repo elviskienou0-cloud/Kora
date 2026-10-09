@@ -27,7 +27,7 @@ const fr = {
     yesterday: "Hier", now: "À l'instant", unknown: "Inconnu", notProvided: "Non renseigné",
     noResults: "Aucun résultat", noData: "Aucune donnée", requiredFields: "Veuillez remplir les champs obligatoires.",
     copyLink: "Copier le lien", copied: "Copié ✅", share: "Partager", contact: "Contacter",
-    invite: "Inviter", all: "Tous", clientKora: "Client KORA", noDescription: "Aucune description.", and: "et", sendInvitation: "Envoyer l'invitation",
+    invite: "Inviter", all: "Tous", clientKora: "Client KORA", noDescription: "Aucune description.", and: "et", sendInvitation: "Envoyer l'invitation", phone: "Téléphone", company: "Entreprise",
   },
 
   navigation: {
@@ -284,7 +284,7 @@ const fr = {
   },
 
   settings: {
-    title: "Paramètres", subtitle: "Gérez votre compte et vos préférences.", profileTab: "Profil", notificationsTab: "Notifications", securityTab: "Sécurité", appearanceTab: "Apparence",
+    title: "Paramètres", subtitle: "Gérez votre compte et vos préférences.", preferencesTab: "Préférences", manageData: "Gérer mes données personnelles →", profileTab: "Profil", notificationsTab: "Notifications", securityTab: "Sécurité", appearanceTab: "Apparence",
     errors: {
       notConnected: "Utilisateur non connecté.", nameRequired: "Le nom est obligatoire.", emailMissing: "Adresse email introuvable.",
       passwordFields: "Veuillez remplir tous les champs.", passwordLength: "Le nouveau mot de passe doit contenir au moins 8 caractères.",
@@ -294,12 +294,12 @@ const fr = {
     },
     success: {
       profile: "Profil enregistré ✅", password: "Mot de passe mis à jour ✅", preferences: "Préférences enregistrées ✅",
-      appearance: "Préférences d'apparence enregistrées ✅", generic: "Paramètres enregistrés ✅", mfaQr: "Scannez le QR code puis saisissez le code.",
+      appearance: "Préférences d'apparence enregistrées ✅", generic: "Paramètres enregistrés ✅", avatar: "Photo de profil mise à jour.", cover: "Photo de couverture mise à jour.", mfaQr: "Scannez le QR code puis saisissez le code.",
       mfa: "Authentification à deux facteurs activée ✅",
     },
     avatar: { comingSoon: "Ajout de photo bientôt disponible." },
     badges: { emailVerified: "Email vérifié", authOk: "Authentification OK" },
-    profileInfo: { title: "Informations du profil", description: "Les informations principales sont synchronisées avec votre profil KORA.", fullName: "Nom complet" },
+    profileInfo: { title: "Informations du profil", description: "Les informations principales sont synchronisées avec votre profil KORA.", fullName: "Nom complet", mediaHint: "Photo de profil et couverture." },
     notifications: {
       title: "Préférences de notifications", description: "Choisissez les alertes que vous souhaitez recevoir.",
       emailTitle: "Notifications par email", emailDescription: "Tâches, réponses et rappels importants.", pushTitle: "Notifications push", pushDescription: "Alertes instantanées du navigateur.",
@@ -346,7 +346,7 @@ const en = {
     success: "Success", error: "Error", warning: "Warning", information: "Information", active: "Active", inactive: "Inactive", available: "Available",
     unavailable: "Unavailable", public: "Public", private: "Private", verified: "Verified", unverified: "Unverified", online: "Online", offline: "Offline",
     today: "Today", yesterday: "Yesterday", now: "Just now", unknown: "Unknown", notProvided: "Not provided", noResults: "No results", noData: "No data",
-    requiredFields: "Please fill in the required fields.", copyLink: "Copy link", copied: "Copied ✅", share: "Share", contact: "Contact", invite: "Invite", all: "All", clientKora: "KORA Client", noDescription: "No description.", and: "and", sendInvitation: "Send invitation",
+    requiredFields: "Please fill in the required fields.", copyLink: "Copy link", copied: "Copied ✅", share: "Share", contact: "Contact", invite: "Invite", all: "All", clientKora: "KORA Client", noDescription: "No description.", and: "and", sendInvitation: "Send invitation", phone: "Phone", company: "Company",
     
 
   },
@@ -389,11 +389,11 @@ const en = {
   subscriptions: { title: "Subscriptions", subscription: "Subscription", trial: "Trial period", active: "Active", expired: "Expired", cancelled: "Cancelled", pending: "Pending", plan: "Plan", startDate: "Start date", endDate: "End date", period: "Period", upgrade: "Upgrade", renew: "Renew" },
   reviews: { title: "Reviews", review: "Review", reviews: "Reviews", rating: "Rating", comment: "Comment", submit: "Publish my review", noReviews: "No reviews yet.", thankYou: "Thank you for your review." },
   settings: {
-    title: "Settings", subtitle: "Manage your account and preferences.", profileTab: "Profile", notificationsTab: "Notifications", securityTab: "Security", appearanceTab: "Appearance",
+    title: "Settings", subtitle: "Manage your account and preferences.", preferencesTab: "Preferences", manageData: "Manage my personal data →", profileTab: "Profile", notificationsTab: "Notifications", securityTab: "Security", appearanceTab: "Appearance",
     errors: { notConnected: "User not connected.", nameRequired: "Name is required.", emailMissing: "Email address not found.", passwordFields: "Please fill in all fields.", passwordLength: "The new password must contain at least 8 characters.", passwordMismatch: "The new passwords do not match.", oldPassword: "The current password is incorrect.", save: "Unable to save.", mfaSetup: "Incomplete 2FA configuration.", mfa: "Unable to enable 2FA.", mfaCode: "Enter the verification code.", mfaVerify: "Invalid 2FA code or verification failed." },
-    success: { profile: "Profile saved ✅", password: "Password updated ✅", preferences: "Preferences saved ✅", appearance: "Appearance preferences saved ✅", generic: "Settings saved ✅", mfaQr: "Scan the QR code and enter the code.", mfa: "Two-factor authentication enabled ✅" },
+    success: { profile: "Profile saved ✅", password: "Password updated ✅", preferences: "Preferences saved ✅", appearance: "Appearance preferences saved ✅", generic: "Settings saved ✅", avatar: "Profile photo updated.", cover: "Cover photo updated.", mfaQr: "Scan the QR code and enter the code.", mfa: "Two-factor authentication enabled ✅" },
     avatar: { comingSoon: "Photo upload coming soon." }, badges: { emailVerified: "Email verified", authOk: "Authentication OK" },
-    profileInfo: { title: "Profile information", description: "Main information is synchronized with your KORA profile.", fullName: "Full name" },
+    profileInfo: { title: "Profile information", description: "Main information is synchronized with your KORA profile.", fullName: "Full name", mediaHint: "Profile photo and cover." },
     notifications: { title: "Notification preferences", description: "Choose the alerts you want to receive.", emailTitle: "Email notifications", emailDescription: "Tasks, replies and important reminders.", pushTitle: "Push notifications", pushDescription: "Instant browser alerts.", marketingTitle: "KORA offers and news", marketingDescription: "New features, events and offers.", securityTitle: "Security alerts", securityDescription: "Logins and sensitive changes." },
     security: { passwordTitle: "Change password", passwordDescription: "Minimum 8 characters. Your current password will be verified.", currentPassword: "Current password", newPassword: "New password", confirmPassword: "Confirm", update: "Update", mfaTitle: "Two-factor authentication", mfaDescription: "Add an extra layer of security to your KORA account using an authenticator app.", mfaEnabled: "2FA enabled", mfaEnable: "Enable 2FA", mfaSecret: "Secret key", mfaCode: "Verification code", mfaVerify: "Verify and enable" },
     appearance: { title: "Appearance", description: "Customize your KORA interface.", theme: "Theme", light: "Light", dark: "Dark", auto: "Auto", language: "Interface language" },
