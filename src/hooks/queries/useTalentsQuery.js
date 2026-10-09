@@ -285,7 +285,7 @@ export function useTalentsQuery({
           ? supabase
               .from("countries")
               .select(
-                "id,name"
+                "id,code,name"
               )
               .in(
                 "id",

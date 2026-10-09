@@ -11,37 +11,21 @@ import { useAuth } from "@/lib/AuthContext"
 import { supabase } from "@/lib/supabase"
 import { queryClient } from "@/lib/queryClient"
 import { useRequestsQuery } from "@/hooks/queries/useRequestsQuery"
+import { useI18n } from "@/i18n/kora-i18n.jsx"
 
 const PAGE_SIZE = 10
 
 const STATUS = {
-  pending: {
-    label: "En attente",
-    className:
-      "border-amber-500/30 bg-amber-500/10 text-amber-700",
-  },
-
-  open: {
-    label: "En attente",
-    className:
-      "border-amber-500/30 bg-amber-500/10 text-amber-700",
-  },
-
-  accepted: {
-    label: "Acceptée",
-    className:
-      "border-emerald-500/30 bg-emerald-500/10 text-emerald-700",
-  },
-
-  rejected: {
-    label: "Refusée",
-    className:
-      "border-red-500/30 bg-red-500/10 text-red-700",
-  },
+  pending: { labelKey: "requests.pending", className: "border-amber-500/30 bg-amber-500/10 text-amber-700" },
+  open: { labelKey: "requests.pending", className: "border-amber-500/30 bg-amber-500/10 text-amber-700" },
+  accepted: { labelKey: "requests.accepted", className: "border-emerald-500/30 bg-emerald-500/10 text-emerald-700" },
+  rejected: { labelKey: "requests.rejected", className: "border-red-500/30 bg-red-500/10 text-red-700" },
 }
 
 export default function ClientRequests() {
   const { user } = useAuth()
+  const { t, language } = useI18n()
+  const locale = language === "en" ? "en-GB" : "fr-FR"
   const clientId = user?.authId || user?.id
 
   const [page, setPage] = useState(1)
@@ -185,16 +169,15 @@ export default function ClientRequests() {
         <div className="flex flex-wrap items-end justify-between gap-4">
           <div>
             <p className="text-xs font-bold uppercase tracking-[0.18em] text-gold">
-              Espace Client
+              {t("clientUi.requests.area")}
             </p>
 
             <h1 className="text-2xl font-black md:text-3xl">
-              Mes demandes
+              {t("clientUi.requests.title")}
             </h1>
 
             <p className="mt-1 text-sm text-muted-foreground">
-              {totalCount} demande
-              {totalCount > 1 ? "s" : ""}
+              {t("clientUi.requests.count", "{count} request(s)", { count: totalCount })}
             </p>
           </div>
 
@@ -209,7 +192,7 @@ export default function ClientRequests() {
               }`}
             />
 
-            Actualiser
+            {t("clientUi.requests.refresh")}
           </Button>
         </div>
 
@@ -217,7 +200,7 @@ export default function ClientRequests() {
           <Card className="border-red-500/30 bg-red-500/5">
             <CardContent className="p-4 text-sm text-red-600">
               {error?.message ||
-                "Impossible de charger vos demandes."}
+                t("clientUi.requests.loadError")}
             </CardContent>
           </Card>
         )}
@@ -229,7 +212,7 @@ export default function ClientRequests() {
         ) : enrichedRequests.length === 0 ? (
           <Card className="border-dashed border-gold/30">
             <CardContent className="py-20 text-center text-sm text-muted-foreground">
-              Aucune demande envoyée.
+              {t("clientUi.requests.none")}
             </CardContent>
           </Card>
         ) : (
@@ -250,7 +233,7 @@ export default function ClientRequests() {
                   request.talent?.last_name,
                 ]
                   .filter(Boolean)
-                  .join(" ") || "Talent"
+                  .join(" ") || t("clientUi.dashboard.talent")
 
                 return (
                   <Card
@@ -262,16 +245,14 @@ export default function ClientRequests() {
                         <div className="min-w-0">
                           <h2 className="line-clamp-2 font-bold">
                             {request.title ||
-                              "Invitation"}
+                              t("clientUi.requests.invitation")}
                           </h2>
 
                           <p className="mt-1 text-xs text-muted-foreground">
                             {request.created_at
                               ? new Date(
                                   request.created_at
-                                ).toLocaleDateString(
-                                  "fr-FR"
-                                )
+                                ).toLocaleDateString(locale)
                               : "—"}
                           </p>
                         </div>
@@ -280,14 +261,14 @@ export default function ClientRequests() {
                           variant="outline"
                           className={status.className}
                         >
-                          {status.label}
+                          {status.labelKey ? t(status.labelKey) : (request.status || "—")}
                         </Badge>
                       </div>
 
                       <div className="mt-4 space-y-2 text-sm">
                         <p>
                           <span className="text-muted-foreground">
-                            Projet :
+                            {t("clientUi.requests.project")}
                           </span>{" "}
                           <strong>
                             {request.project?.title ||
@@ -297,7 +278,7 @@ export default function ClientRequests() {
 
                         <p>
                           <span className="text-muted-foreground">
-                            Talent :
+                            {t("clientUi.requests.talent")}
                           </span>{" "}
                           <strong>{talentName}</strong>
                         </p>
@@ -313,7 +294,7 @@ export default function ClientRequests() {
                             to={`/talent/${request.talent_id}`}
                           >
                             <Eye className="mr-2 h-4 w-4" />
-                            Voir le talent
+                            {t("clientUi.requests.viewTalent")}
                           </Link>
                         </Button>
                       </div>
@@ -326,7 +307,7 @@ export default function ClientRequests() {
             {totalPages > 1 && (
               <div className="flex items-center justify-between border-t pt-5">
                 <span className="text-sm text-muted-foreground">
-                  Page {page} sur {totalPages}
+                  {t("clientUi.requests.page", "Page {page}", { page })} {t("clientUi.requests.of", "of {totalPages}", { totalPages })}
                 </span>
 
                 <div className="flex gap-2">
@@ -339,7 +320,7 @@ export default function ClientRequests() {
                       )
                     }
                   >
-                    Précédent
+                    {t("clientUi.requests.previous")}
                   </Button>
 
                   <Button
@@ -357,7 +338,7 @@ export default function ClientRequests() {
                       )
                     }
                   >
-                    Suivant
+                    {t("clientUi.requests.next")}
                   </Button>
                 </div>
               </div>

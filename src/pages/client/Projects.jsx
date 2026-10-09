@@ -21,72 +21,58 @@ import { useAuth } from "@/lib/AuthContext"
 import { supabase } from "@/lib/supabase"
 import { queryClient } from "@/lib/queryClient"
 import { useProjectsQuery } from "@/hooks/queries/useProjectsQuery"
+import { useI18n } from "@/i18n/kora-i18n.jsx"
 
 const PAGE_SIZE = 10
 
 const STATUS_CONFIG = {
-  draft: {
-    label: "Brouillon",
-    className: "bg-slate-500/10 text-slate-600 border-slate-500/30",
-  },
-  open: {
-    label: "Ouvert",
-    className: "bg-emerald-500/10 text-emerald-600 border-emerald-500/30",
-  },
-  pending: {
-    label: "En attente",
-    className: "bg-amber-500/10 text-amber-700 border-amber-500/30",
-  },
-  active: {
-    label: "Actif",
-    className: "bg-blue-500/10 text-blue-600 border-blue-500/30",
-  },
-  completed: {
-    label: "Terminé",
-    className: "bg-violet-500/10 text-violet-600 border-violet-500/30",
-  },
-  cancelled: {
-    label: "Annulé",
-    className: "bg-red-500/10 text-red-600 border-red-500/30",
-  },
+  draft: { labelKey: "projects.draft", className: "bg-slate-500/10 text-slate-600 border-slate-500/30" },
+  open: { labelKey: "projects.open", className: "bg-emerald-500/10 text-emerald-600 border-emerald-500/30" },
+  pending: { labelKey: "projects.pending", className: "bg-amber-500/10 text-amber-700 border-amber-500/30" },
+  active: { labelKey: "projects.active", className: "bg-blue-500/10 text-blue-600 border-blue-500/30" },
+  completed: { labelKey: "projects.completed", className: "bg-violet-500/10 text-violet-600 border-violet-500/30" },
+  cancelled: { labelKey: "projects.cancelled", className: "bg-red-500/10 text-red-600 border-red-500/30" },
 }
 
-function formatMoney(value, currency) {
+function formatMoney(value, currency, locale = "fr-FR") {
   if (value === null || value === undefined) return "—"
 
   try {
-    return new Intl.NumberFormat("fr-FR", {
+    return new Intl.NumberFormat(locale, {
       style: "currency",
       currency: currency || "XOF",
       maximumFractionDigits: 0,
     }).format(Number(value))
   } catch {
-    return `${Number(value).toLocaleString("fr-FR")} ${currency || "XOF"}`
+    return `${Number(value).toLocaleString(locale)} ${currency || "XOF"}`
   }
 }
 
-function budgetLabel(project) {
+function budgetLabel(project, locale, t) {
   const min = project.budget_min
   const max = project.budget_max
 
   if (min == null && max == null) {
-    return "Budget non défini"
+    return t("clientUi.projects.undefinedBudget")
   }
 
   if (min != null && max != null) {
-    return `${formatMoney(min, project.currency)} — ${formatMoney(
+    return `${formatMoney(min, project.currency, locale)} — ${formatMoney(
       max,
-      project.currency
+      project.currency,
+      locale
     )}`
   }
 
   return min != null
-    ? `À partir de ${formatMoney(min, project.currency)}`
-    : `Jusqu'à ${formatMoney(max, project.currency)}`
+    ? `${t("clientUi.projects.from")} ${formatMoney(min, project.currency, locale)}`
+    : `${t("clientUi.projects.upTo")} ${formatMoney(max, project.currency, locale)}`
 }
 
 export default function ClientProjects() {
   const navigate = useNavigate()
+  const { t, language } = useI18n()
+  const locale = language === "en" ? "en-GB" : "fr-FR"
   const { user } = useAuth()
 
   const authUserId = user?.authId || user?.id
@@ -170,9 +156,7 @@ export default function ClientProjects() {
       return
     }
 
-    const ok = window.confirm(
-      `Annuler le projet « ${project.title} » ?`
-    )
+    const ok = window.confirm(t("clientUi.projects.cancelConfirm", "Cancel project “{title}”? ", { title: project.title }))
 
     if (!ok) return
 
@@ -188,13 +172,13 @@ export default function ClientProjects() {
       console.error("Erreur annulation projet :", updateError)
 
       toast.error(
-        updateError.message || "Impossible d'annuler le projet."
+        t("clientUi.projects.cancelError")
       )
 
       return
     }
 
-    toast.success("Projet annulé.")
+    toast.success(t("clientUi.projects.cancelled"))
 
     await queryClient.invalidateQueries({
       queryKey: ["projects"],
@@ -211,16 +195,15 @@ export default function ClientProjects() {
         <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
           <div>
             <p className="text-xs font-bold uppercase tracking-[0.18em] text-gold">
-              Espace Client
+              {t("clientUi.projects.area")}
             </p>
 
             <h1 className="text-2xl font-black tracking-tight md:text-3xl">
-              Mes projets
+              {t("clientUi.projects.title")}
             </h1>
 
             <p className="mt-1 text-sm text-muted-foreground">
-              {totalCount} projet{totalCount > 1 ? "s" : ""} enregistré
-              {totalCount > 1 ? "s" : ""}
+              {t("clientUi.projects.count", "{count} saved project(s)", { count: totalCount })}
             </p>
           </div>
 
@@ -236,7 +219,7 @@ export default function ClientProjects() {
                 }`}
               />
 
-              Actualiser
+              {t("clientUi.projects.refresh")}
             </Button>
 
             <Button
@@ -244,7 +227,7 @@ export default function ClientProjects() {
               className="gold-gradient text-primary-foreground"
             >
               <Plus className="mr-2 h-4 w-4" />
-              Créer un projet
+              {t("clientUi.projects.create")}
             </Button>
           </div>
         </div>
@@ -258,7 +241,7 @@ export default function ClientProjects() {
               <Input
                 value={search}
                 onChange={(event) => setSearch(event.target.value)}
-                placeholder="Rechercher un projet..."
+                placeholder={t("clientUi.projects.searchPlaceholder")}
                 className="pl-9 pr-9"
               />
 
@@ -267,7 +250,7 @@ export default function ClientProjects() {
                   type="button"
                   onClick={() => setSearch("")}
                   className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground"
-                  aria-label="Effacer la recherche"
+                  aria-label={t("clientUi.projects.clearSearch")}
                 >
                   <XCircle className="h-4 w-4" />
                 </button>
@@ -280,7 +263,7 @@ export default function ClientProjects() {
         {isError && (
           <Card className="border-red-500/30 bg-red-500/5">
             <CardContent className="p-4 text-sm text-red-600">
-              {error?.message || "Impossible de charger vos projets."}
+              {t("clientUi.projects.loadError")}
             </CardContent>
           </Card>
         )}
@@ -290,7 +273,7 @@ export default function ClientProjects() {
           <div className="flex min-h-[40vh] items-center justify-center">
             <Loader2
               className="h-7 w-7 animate-spin text-gold"
-              aria-label="Chargement"
+              aria-label={t("clientUi.projects.loading")}
             />
           </div>
         ) : projects.length === 0 ? (
@@ -303,14 +286,14 @@ export default function ClientProjects() {
 
               <h2 className="text-lg font-black">
                 {search
-                  ? "Aucun projet trouvé"
-                  : "Aucun projet"}
+                  ? t("clientUi.projects.noResults")
+                  : t("clientUi.projects.none")}
               </h2>
 
               <p className="mt-2 max-w-md text-sm text-muted-foreground">
                 {search
-                  ? "Aucun projet ne correspond à votre recherche."
-                  : "Créez votre premier projet pour le retrouver ici et commencer à travailler avec les talents KORA."}
+                  ? t("clientUi.projects.searchNoMatch")
+                  : t("clientUi.projects.createFirst")}
               </p>
 
               {!search && (
@@ -321,7 +304,7 @@ export default function ClientProjects() {
                   }
                 >
                   <Plus className="mr-2 h-4 w-4" />
-                  Créer un projet
+                  {t("clientUi.projects.create")}
                 </Button>
               )}
             </CardContent>
@@ -359,33 +342,33 @@ export default function ClientProjects() {
                           variant="outline"
                           className={status.className}
                         >
-                          {status.label}
+                          {status.labelKey ? t(status.labelKey) : status.label}
                         </Badge>
                       </div>
 
                       <div className="mt-5 space-y-2 text-sm">
                         <div className="flex justify-between gap-4">
                           <span className="text-muted-foreground">
-                            Budget
+                            {t("clientUi.projects.budget")}
                           </span>
 
                           <span className="text-right font-medium">
-                            {budgetLabel(project)}
+                            {budgetLabel(project, locale, t)}
                           </span>
                         </div>
 
                         <div className="flex items-center justify-between gap-4">
                           <span className="flex items-center gap-2 text-muted-foreground">
                             <CalendarDays className="h-3.5 w-3.5" />
-                            Date limite
+                            {t("clientUi.projects.dueDate")}
                           </span>
 
                           <span>
                             {project.due_date
                               ? new Date(
                                   `${project.due_date}T00:00:00`
-                                ).toLocaleDateString("fr-FR")
-                              : "Non définie"}
+                                ).toLocaleDateString(locale)
+                              : t("clientUi.projects.dueDateMissing")}
                           </span>
                         </div>
                       </div>
@@ -399,7 +382,7 @@ export default function ClientProjects() {
                           <Link
                             to={`/client/projects/${project.id}`}
                           >
-                            Détail
+                            {t("clientUi.projects.details")}
                             <ChevronRight className="ml-1 h-4 w-4" />
                           </Link>
                         </Button>
@@ -415,7 +398,7 @@ export default function ClientProjects() {
                             }
                             className="text-red-600 hover:bg-red-50 hover:text-red-700"
                           >
-                            Annuler
+                            {t("clientUi.projects.cancel")}
                           </Button>
                         )}
                       </div>
@@ -429,7 +412,7 @@ export default function ClientProjects() {
             {totalPages > 1 && (
               <div className="flex flex-col items-center justify-between gap-3 border-t border-border pt-5 sm:flex-row">
                 <p className="text-sm text-muted-foreground">
-                  Page {page} sur {totalPages}
+                  {t("clientUi.projects.page", "Page {page}", { page })} {t("clientUi.projects.of", "of {totalPages}", { totalPages })}
                 </p>
 
                 <div className="flex items-center gap-2">
@@ -443,7 +426,7 @@ export default function ClientProjects() {
                       )
                     }
                   >
-                    Précédent
+                    {t("clientUi.projects.previous")}
                   </Button>
 
                   <Button
@@ -456,7 +439,7 @@ export default function ClientProjects() {
                       )
                     }
                   >
-                    Suivant
+                    {t("clientUi.projects.next")}
                   </Button>
                 </div>
               </div>

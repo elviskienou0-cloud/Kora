@@ -28,6 +28,7 @@ import {
   AlertCircle,
 } from "lucide-react"
 import { supabase } from "@/lib/supabase"
+import { useI18n } from "@/i18n/kora-i18n.jsx"
 
 const containerVariants = {
   hidden: { opacity: 0 },
@@ -48,53 +49,53 @@ const itemVariants = {
 
 const STATUS_CONFIG = {
   pending: {
-    label: "En attente",
+    labelKey: "requests.pending",
     className: "border-gold text-gold-dark bg-gold/10",
   },
   en_attente: {
-    label: "En attente",
+    labelKey: "requests.pending",
     className: "border-gold text-gold-dark bg-gold/10",
   },
   accepted: {
-    label: "Acceptée",
+    labelKey: "requests.accepted",
     className: "bg-emerald-500 text-white",
   },
   acceptee: {
-    label: "Acceptée",
+    labelKey: "requests.accepted",
     className: "bg-emerald-500 text-white",
   },
   rejected: {
-    label: "Refusée",
+    labelKey: "requests.rejected",
     className: "bg-red-500 text-white",
   },
   refusee: {
-    label: "Refusée",
+    labelKey: "requests.rejected",
     className: "bg-red-500 text-white",
   },
   completed: {
-    label: "Terminée",
+    labelKey: "projects.completed",
     className: "bg-slate-600 text-white",
   },
   terminee: {
-    label: "Terminée",
+    labelKey: "projects.completed",
     className: "bg-slate-600 text-white",
   },
 }
 
-function formatCurrency(value) {
+function formatCurrency(value, locale = "fr-FR") {
   const amount = Number(value || 0)
 
-  return new Intl.NumberFormat("fr-FR", {
+  return new Intl.NumberFormat(locale, {
     style: "currency",
     currency: "XOF",
     maximumFractionDigits: 0,
   }).format(amount)
 }
 
-function formatDate(value) {
-  if (!value) return "Date inconnue"
+function formatDate(value, locale = "fr-FR") {
+  if (!value) return locale === "en-GB" ? "Unknown date" : "Date inconnue"
 
-  return new Intl.DateTimeFormat("fr-FR", {
+  return new Intl.DateTimeFormat(locale, {
     day: "2-digit",
     month: "short",
     year: "numeric",
@@ -154,6 +155,8 @@ function getTalentCountry(talent) {
 
 export default function ClientDashboard() {
   const navigate = useNavigate()
+  const { t, language } = useI18n()
+  const locale = language === "en" ? "en-GB" : "fr-FR"
 
   const [profile, setProfile] = useState(null)
   const [stats, setStats] = useState({
@@ -279,8 +282,7 @@ export default function ClientDashboard() {
         if (!mounted) return
 
         setError(
-          err?.message ||
-            "Impossible de charger les données de votre tableau de bord."
+          "clientUi.dashboard.loadingError"
         )
       } finally {
         if (mounted) {
@@ -294,17 +296,17 @@ export default function ClientDashboard() {
     return () => {
       mounted = false
     }
-  }, [navigate])
+  }, [navigate, t])
 
   const firstName = useMemo(() => {
-    if (!profile) return "vous"
+    if (!profile) return t("clientUi.dashboard.you")
 
     if (profile.name) {
       return profile.name.split(" ")[0]
     }
 
-    return "vous"
-  }, [profile])
+    return t("clientUi.dashboard.you")
+  }, [profile, t])
 
   if (isLoading) {
     return (
@@ -312,10 +314,10 @@ export default function ClientDashboard() {
         <div className="flex flex-col items-center gap-3">
           <Loader2
             className="h-10 w-10 text-gold animate-spin"
-            aria-label="Chargement"
+            aria-label={t("clientUi.dashboard.loading")}
           />
           <p className="text-sm text-muted-foreground">
-            Chargement de votre tableau de bord...
+            {t("clientUi.dashboard.loading")}
           </p>
         </div>
       </div>
@@ -335,7 +337,7 @@ export default function ClientDashboard() {
             <Card className="border-red-500/30 bg-red-500/5">
               <CardContent className="flex items-center gap-3 p-4">
                 <AlertCircle className="h-5 w-5 text-red-500 shrink-0" />
-                <p className="text-sm text-red-600">{error}</p>
+                <p className="text-sm text-red-600">{t(error)}</p>
               </CardContent>
             </Card>
           </motion.div>
@@ -352,12 +354,11 @@ export default function ClientDashboard() {
 
             <div>
               <h1 className="text-2xl font-bold tracking-tight md:text-3xl">
-                Bonjour,{" "}
-                <span className="text-gold-dark">{firstName}</span>
+                {t("clientUi.dashboard.hello", "Bonjour, {name}", { name: firstName })}
               </h1>
 
               <p className="text-sm text-muted-foreground">
-                Bienvenue sur votre tableau de bord KORA
+                {t("clientUi.dashboard.welcome")}
               </p>
             </div>
           </div>
@@ -369,7 +370,7 @@ export default function ClientDashboard() {
               onClick={() => navigate("/categories")}
             >
               <Search className="mr-2 h-4 w-4" />
-              Rechercher
+              {t("clientUi.dashboard.search")}
             </Button>
 
             <Button
@@ -377,7 +378,7 @@ export default function ClientDashboard() {
               onClick={() => navigate("/categories")}
             >
               <Send className="mr-2 h-4 w-4" />
-              Nouvelle demande
+              {t("clientUi.dashboard.newRequest")}
             </Button>
           </div>
         </motion.div>
@@ -387,29 +388,29 @@ export default function ClientDashboard() {
           className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4"
         >
           <StatCard
-            title="Demandes envoyées"
+            title={t("clientUi.dashboard.requestsSent")}
             value={stats.requests}
             icon={Send}
             iconClass="bg-gold/15 text-gold-dark"
           />
 
           <StatCard
-            title="Demandes acceptées"
+            title={t("clientUi.dashboard.requestsAccepted")}
             value={stats.accepted}
             icon={Briefcase}
             iconClass="bg-emerald-500/15 text-emerald-600"
           />
 
           <StatCard
-            title="Talents favoris"
+            title={t("clientUi.dashboard.favoriteTalents")}
             value={stats.favorites}
             icon={Heart}
             iconClass="bg-rose-500/15 text-rose-500"
           />
 
           <StatCard
-            title="Budget dépensé"
-            value={formatCurrency(stats.spent)}
+            title={t("clientUi.dashboard.spentBudget")}
+            value={formatCurrency(stats.spent, locale)}
             icon={TrendingUp}
             iconClass="bg-amber-500/15 text-amber-600"
           />
@@ -424,11 +425,11 @@ export default function ClientDashboard() {
               <div>
                 <CardTitle className="flex items-center gap-2 text-xl">
                   <Clock className="h-5 w-5 text-gold-dark" />
-                  Dernières demandes
+                  {t("clientUi.dashboard.recentRequests")}
                 </CardTitle>
 
                 <CardDescription>
-                  Vos demandes récentes auprès des managers
+                  {t("clientUi.dashboard.recentRequestsDescription")}
                 </CardDescription>
               </div>
 
@@ -437,7 +438,7 @@ export default function ClientDashboard() {
                 className="text-gold-dark hover:bg-gold/10"
                 onClick={() => navigate("/client/requests")}
               >
-                Tout voir
+                {t("clientUi.dashboard.seeAll")}
                 <ChevronRight className="ml-1 h-4 w-4" />
               </Button>
             </CardHeader>
@@ -446,9 +447,9 @@ export default function ClientDashboard() {
               {recentRequests.length === 0 ? (
                 <EmptyState
                   icon={Briefcase}
-                  title="Aucune demande"
-                  description="Vous n'avez encore envoyé aucune demande."
-                  actionLabel="Explorer les talents"
+                  title={t("clientUi.dashboard.noRequests")}
+                  description={t("clientUi.dashboard.noRequestsDescription")}
+                  actionLabel={t("clientUi.dashboard.exploreTalents")}
                   onAction={() => navigate("/categories")}
                 />
               ) : (
@@ -456,7 +457,8 @@ export default function ClientDashboard() {
                   {recentRequests.map((request) => {
                     const status =
                       STATUS_CONFIG[request.status] || {
-                        label: request.status || "Inconnu",
+                        labelKey: null,
+                        label: request.status || t("clientUi.dashboard.unknown"),
                         className: "bg-muted text-muted-foreground",
                       }
 
@@ -494,11 +496,11 @@ export default function ClientDashboard() {
                           {request.budget != null && (
                             <div className="text-right">
                               <p className="font-semibold">
-                                {formatCurrency(request.budget)}
+                                {formatCurrency(request.budget, locale)}
                               </p>
 
                               <p className="text-xs text-muted-foreground">
-                                {formatDate(request.created_at)}
+                                {formatDate(request.created_at, locale)}
                               </p>
                             </div>
                           )}
@@ -524,11 +526,11 @@ export default function ClientDashboard() {
             <CardHeader className="pb-2">
               <CardTitle className="flex items-center gap-2 text-xl">
                 <Users className="h-5 w-5 text-gold-dark" />
-                Talents récents
+                {t("clientUi.dashboard.recentTalents")}
               </CardTitle>
 
               <CardDescription>
-                Talents actuellement présents sur KORA
+                {t("clientUi.dashboard.recentTalentsDescription")}
               </CardDescription>
             </CardHeader>
 
@@ -536,8 +538,8 @@ export default function ClientDashboard() {
               {recommendedTalents.length === 0 ? (
                 <EmptyState
                   icon={Users}
-                  title="Aucun talent disponible"
-                  description="Aucun profil public n'est actuellement disponible."
+                  title={t("clientUi.dashboard.noTalents")}
+                  description={t("clientUi.dashboard.noPublicProfiles")}
                 />
               ) : (
                 <>
@@ -593,7 +595,7 @@ export default function ClientDashboard() {
                     className="w-full text-gold-dark hover:bg-gold/10"
                     onClick={() => navigate("/categories")}
                   >
-                    Voir tous les talents
+                    {t("clientUi.dashboard.viewAllTalents")}
                     <ChevronRight className="ml-1 h-4 w-4" />
                   </Button>
                 </>
@@ -605,9 +607,9 @@ export default function ClientDashboard() {
         <motion.div variants={itemVariants}>
           <Card className="border-gold/20 shadow-sm">
             <CardHeader>
-              <CardTitle>Votre activité</CardTitle>
+              <CardTitle>{t("clientUi.dashboard.activity")}</CardTitle>
               <CardDescription>
-                Les données apparaîtront ici à mesure que vous utilisez KORA.
+                {t("clientUi.dashboard.activityDescription")}
               </CardDescription>
             </CardHeader>
 
@@ -615,23 +617,23 @@ export default function ClientDashboard() {
               <div className="grid gap-4 sm:grid-cols-3">
                 <ActivityItem
                   icon={Search}
-                  label="Recherches"
+                  label={t("clientUi.dashboard.searches")}
                   value={stats.searches}
-                  description="Recherches de talents enregistrées"
+                  description={t("clientUi.dashboard.savedSearches")}
                 />
 
                 <ActivityItem
                   icon={Heart}
-                  label="Favoris"
+                  label={t("clientUi.dashboard.favorites")}
                   value={stats.favorites}
-                  description="Talents enregistrés"
+                  description={t("clientUi.dashboard.savedTalents")}
                 />
 
                 <ActivityItem
                   icon={Send}
-                  label="Demandes"
+                  label={t("clientUi.dashboard.requests")}
                   value={stats.requests}
-                  description="Demandes envoyées"
+                  description={t("clientUi.dashboard.noSentRequests")}
                 />
               </div>
             </CardContent>

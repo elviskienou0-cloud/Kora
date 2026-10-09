@@ -1,5 +1,7 @@
 ﻿import { createContext, useContext, useEffect, useMemo, useState } from "react"
 import { Globe2, Languages } from "lucide-react"
+import { supabase } from "@/lib/supabase"
+import { getLanguageStorageKey, isSupportedLanguage, normalizeLanguage, readStoredLanguage } from "@/i18n/language-preferences.js"
 
 const STORAGE_KEY = "kora-language"
 const THEME_STORAGE_KEY = "kora-theme"
@@ -209,10 +211,189 @@ const fr = {
     invitation: "Nouvelle invitation", request: "Mise à jour d'une demande", message: "Nouveau message", payment: "Paiement", subscription: "Abonnement", security: "Sécurité",
   },
 
+  clientUi: {
+    browse: {
+      titleStart: "Découvrez nos", titleHighlight: "Talents",
+      availableCount: "{count} professionnel(s) disponible(s) à travers toute l'Afrique", availableCountOne: "{count} professionnel disponible à travers toute l’Afrique", availableCountMany: "{count} professionnels disponibles à travers toute l’Afrique",
+      displayedCount: "Affichage de {shown} sur {total} talents", projectsOne: "{count} projet terminé", projectsMany: "{count} projets terminés",
+      refreshing: "Actualisation…", searchPlaceholder: "Rechercher un talent, une compétence, un métier…",
+      sortRecommended: "Recommandés", sortRating: "Mieux notés", sortProjects: "Plus d'expérience",
+      sortRateAsc: "Prix croissant", sortRateDesc: "Prix décroissant", allCategories: "Toutes",
+      allCountries: "Tous les pays", filters: "Filtres", country: "Pays",
+      rateRange: "Fourchette de tarif", maxRate: "Jusqu'à", availableOnly: "Disponibles uniquement",
+      verifiedOnly: "Vérifiés uniquement", reset: "Réinitialiser", favoriteError: "Impossible de mettre à jour ce favori.", loadError: "Impossible de charger les talents.",
+      filterLoadError: "Impossible de charger les filtres KORA.", loading: "Chargement",
+      displayedCount: "{shown} affiché(s) sur {total} talent(s)", page: "Page {page}", of: "sur {totalPages}",
+      noTalents: "Aucun talent trouvé", noTalentsDescription: "Modifiez vos critères de recherche ou de filtrage pour découvrir d'autres professionnels.",
+      resetFilters: "Réinitialiser les filtres", removeFavorite: "Retirer des favoris",
+      addFavorite: "Ajouter aux favoris", projects: "{count} projet(s)", available: "Disponible",
+      busy: "Occupé", dailyRate: "Tarif journalier", viewProfile: "Voir le profil", contact: "Contacter",
+      previous: "Précédent", next: "Suivant",
+      categoryNames: {
+        beauty: "Beauté & Image", business: "Business & Stratégie", cinema: "Cinéma & Audiovisuel",
+        comedy: "Humour & Animation", creative: "Créatif & Design", culture: "Culture & Traditions",
+        education: "Formation & Éducation", events: "Événementiel", fashion: "Mode & Mannequinat",
+        finance: "Finance & Comptabilité", gastronomy: "Gastronomie & Traiteur", health: "Santé & Bien-être",
+        influence: "Contenu & Influence", legal: "Juridique & Conseil", marketing: "Marketing & Communication",
+        music: "Musique & Spectacle", sport: "Sport", tech: "Technologie & Digital", voice: "Voix & Doublage",
+      },
+    },
+    messaging: {
+      conversation: "Conversation", discussion: "Discussion",
+      authRequired: "Connexion requise", authDescription: "Connectez-vous pour accéder à vos messages.",
+      title: "Messages", description: "Vos conversations avec les membres de KORA.",
+      refresh: "Actualiser", offline: "Vous êtes hors connexion.", online: "En ligne",
+      offlineStatus: "Hors connexion", realtime: "Temps réel",
+      conversationsLoadError: "Impossible de charger vos conversations.",
+      noConversations: "Aucune conversation",
+      noConversationsDescription: "Utilisez « Contacter » sur une fiche Talent ou depuis une demande pour démarrer une discussion.",
+      noMessage: "Aucun message", sendFirst: "Envoyez le premier message.",
+      loadMessagesError: "Impossible de charger les messages.",
+      page: "Page {page}", of: "sur {totalPages}", previous: "Précédent", next: "Suivant",
+      newer: "Plus récent", older: "Plus ancien", back: "Retour",
+      sendTooLong: "Le message ne peut pas dépasser 4000 caractères.",
+      sendError: "Impossible d'envoyer le message.",
+      writeMessage: "Écrire un message…", offlinePlaceholder: "Hors connexion…",
+      send: "Envoyer", enterToSend: "Entrée pour envoyer", shiftEnterNewLine: "Shift + Entrée pour une nouvelle ligne",
+      offlineSendDisabled: "Hors connexion : l'envoi des messages est désactivé.",
+      loading: "Chargement", missingMessage: "Aucun message",
+    },
+    dashboard: {
+      loading: "Chargement de votre tableau de bord…", hello: "Bonjour, {name}",
+      welcome: "Bienvenue sur votre tableau de bord KORA", search: "Rechercher",
+      newRequest: "Nouvelle demande", requestsSent: "Demandes envoyées", requestsAccepted: "Demandes acceptées",
+      favoriteTalents: "Talents favoris", spentBudget: "Budget dépensé", recentRequests: "Dernières demandes",
+      recentRequestsDescription: "Vos demandes récentes auprès des managers", seeAll: "Tout voir",
+      noRequests: "Aucune demande", noRequestsDescription: "Vous n'avez encore envoyé aucune demande.",
+      exploreTalents: "Explorer les talents", recentTalents: "Talents récents",
+      recentTalentsDescription: "Talents actuellement présents sur KORA",
+      noTalents: "Aucun talent disponible", noPublicProfiles: "Aucun profil public n'est actuellement disponible.",
+      viewAllTalents: "Voir tous les talents", activity: "Votre activité",
+      activityDescription: "Les données apparaîtront ici à mesure que vous utilisez KORA.",
+      searches: "Recherches", savedSearches: "Recherches de talents enregistrées",
+      favorites: "Favoris", savedTalents: "Talents enregistrés", requests: "Demandes",
+      noSentRequests: "Demandes envoyées", unknown: "Inconnu", talent: "Talent", you: "vous",
+      latestActions: "Dernières actions", category: "Catégorie",
+    },
+    favorites: {
+      title: "Mes favoris", savedCount: "{count} talent(s) enregistré(s)",
+      searchPlaceholder: "Rechercher dans vos favoris…", loading: "Chargement",
+      noFavorites: "Aucun favori pour le moment",
+      noFavoritesDescription: "Enregistrez les talents qui vous intéressent pour les retrouver facilement et comparer leurs profils.",
+      discover: "Découvrir des talents", howItWorks: "Comment ça marche ?",
+      clickOn: "Cliquez sur", clickOnDescription: "l'icône cœur sur un profil",
+      findThem: "Retrouvez-les", findThemDescription: "ici, à tout moment",
+      sendRequests: "Envoyez des", sendRequestsDescription: "demandes en un clic",
+      noResults: "Aucun résultat", noResultsDescription: "Aucun de vos favoris ne correspond à « {search} ».",
+      managerUnavailable: "Le manager de ce talent est indisponible.",
+      ownTalent: "Ce talent est géré par votre propre compte.",
+      openConversation: "Ouverture…", contact: "Contacter", busy: "Occupé", removeError: "Impossible de retirer ce favori.",
+      loadingError: "Impossible de charger vos favoris pour le moment.", contactError: "Impossible d'ouvrir la conversation.",
+    },
+    notifications: {
+      title: "Notifications", refresh: "Actualiser", markAllRead: "Tout marquer comme lu",
+      markRead: "Marquer comme lu", loadError: "Impossible de charger les notifications.",
+      markReadError: "Impossible de marquer la notification comme lue.",
+      markAllError: "Impossible de marquer les notifications.", markedAllRead: "Notifications marquées comme lues.",
+      none: "Aucune notification", noUnread: "Vous n'avez aucune notification non lue.",
+      emptyDescription: "Les notifications importantes apparaîtront ici.",
+      fallbackTitle: "Notification KORA", new: "Nouveau", page: "Page {page}", of: "sur {totalPages}",
+      total: "{count} notification(s)", previous: "Précédente", next: "Suivante",
+    },
+    projects: {
+      area: "Espace Client", title: "Mes projets", count: "{count} projet(s) enregistré(s)",
+      refresh: "Actualiser", create: "Créer un projet", searchPlaceholder: "Rechercher un projet…",
+      clearSearch: "Effacer la recherche", loadError: "Impossible de charger vos projets.",
+      loading: "Chargement", noResults: "Aucun projet trouvé", none: "Aucun projet",
+      searchNoMatch: "Aucun projet ne correspond à votre recherche.",
+      createFirst: "Créez votre premier projet pour le retrouver ici et commencer à travailler avec les talents KORA.",
+      budget: "Budget", dueDate: "Date limite", dueDateMissing: "Non définie", details: "Détail", from: "À partir de", upTo: "Jusqu'à",
+      cancel: "Annuler", cancelConfirm: "Annuler le projet « {title} » ?",
+      cancelError: "Impossible d'annuler le projet.", cancelled: "Projet annulé.",
+      undefinedBudget: "Budget non défini", page: "Page {page}", of: "sur {totalPages}",
+      previous: "Précédent", next: "Suivant", titleLabel: "Titre du projet", descriptionLabel: "Description",
+      minBudget: "Budget minimum", maxBudget: "Budget maximum", currency: "Devise",
+      save: "Enregistrer le projet", saveChanges: "Enregistrer les modifications",
+      newProject: "Nouveau projet", projectInfo: "Informations du projet", titlePlaceholder: "Ex. Refonte du site web KORA",
+      descriptionPlaceholder: "Décrivez le contexte, les objectifs, les livrables et les attentes.",
+      minBudgetInvalid: "Le budget minimum est invalide.", maxBudgetInvalid: "Le budget maximum est invalide.",
+      budgetRangeInvalid: "Le budget minimum ne peut pas dépasser le maximum.",
+      titleRequired: "Le titre du projet est obligatoire.", descriptionRequired: "La description du projet est obligatoire.",
+      saveError: "Impossible d'enregistrer le projet.", created: "Projet enregistré ✅", updated: "Projet modifié ✅",
+      status: "État", back: "Retour", rateProject: "Évaluation du projet", projectNotFound: "Projet introuvable ou inaccessible.", formDescription: "Définissez précisément le besoin, le budget et la date limite.", managedStatus: "L’état est géré automatiquement par le processus KORA.", completedReviewPrompt: "Le projet est terminé. Vous pouvez maintenant évaluer les talents avec lesquels vous avez réellement collaboré.", leaveReview: "Laisser un avis", reviewsAlreadySaved: "Avis déjà enregistrés", createdAt: "Créé le", updatedAt: "Dernière mise à jour", manager: "Manager", assigned: "Assigné", notAssigned: "Non assigné", edit: "Modifier",
+      noEligibleTalents: "Aucun talent éligible n'est rattaché à ce projet.",
+      messages: "Messages", cancelProject: "Annuler le projet", completed: "Terminé",
+    },
+    requests: {
+      area: "Espace Client", title: "Mes demandes", count: "{count} demande(s)",
+      refresh: "Actualiser", loadError: "Impossible de charger vos demandes.",
+      none: "Aucune demande envoyée.", invitation: "Invitation", project: "Projet :",
+      talent: "Talent :", viewTalent: "Voir le talent", previous: "Précédent", next: "Suivant",
+      page: "Page {page}", of: "sur {totalPages}",
+    },
+    review: {
+      unavailable: "Évaluation indisponible", backToProject: "Retour au projet",
+      notComplete: "Le projet n'est pas encore terminé", noReviews: "Aucun avis à publier",
+      allReviewed: "Tous les talents rattachés à ce projet ont déjà été évalués, ou aucun talent n'est actuellement éligible.",
+      title: "Évaluer le projet", projectComplete: "Projet terminé — votre avis sera rattaché au projet et au talent choisi.",
+      yourReview: "Votre évaluation", ratingCommentRequired: "Une note de 1 à 5 et un commentaire sont requis.",
+      talent: "Talent évalué", rating: "Note", comment: "Commentaire",
+      commentPlaceholder: "Partagez votre expérience avec ce talent…", cancel: "Annuler",
+      submit: "Publier mon avis", loadError: "Impossible de préparer l'évaluation.",
+      projectNotFound: "Projet introuvable ou inaccessible.", eligibleTalentMissing: "Aucun talent éligible à évaluer.",
+      chooseRating: "Choisissez une note de 1 à 5.", commentRequired: "Ajoutez un commentaire.",
+      saved: "Évaluation enregistrée ✅", saveError: "Impossible d'enregistrer l'avis.", reputation: "Réputation KORA", ratingAvailableWhenCompleted: "La note et l’avis deviennent disponibles lorsque le manager marque ce projet comme terminé.", finished: "Terminé", stars: "{count} étoile(s)",
+    },
+  },
+
   dashboard: {
     title: "Tableau de bord", welcome: "Bienvenue sur KORA.", overview: "Vue d'ensemble", recentActivity: "Activité récente", statistics: "Statistiques",
     totalProjects: "Total des projets", activeProjects: "Projets actifs", completedProjects: "Projets terminés", pendingRequests: "Demandes en attente",
     talents: "Talents", messages: "Messages", notifications: "Notifications", unreadMessages: "Messages non lus", noActivity: "Aucune activité récente.",
+  },
+
+  home: {
+    searchPlaceholder: "Rechercher un talent, un service...",
+    welcomeBack: "Content de vous revoir, {name} !",
+    welcomeUser: "Bienvenue, {name}",
+    clientIntro: "Trouvez les talents africains adaptés à votre projet.",
+    managerIntro: "Espace manager : gérez vos talents, suivez vos projets et vos collaborations.",
+    adminIntro: "Espace administrateur : consultez les statistiques globales de la plateforme.",
+    realtimeStats: "Statistiques clés en temps réel",
+    koraSelection: "Sélection KORA",
+    recommendedTalents: "Talents recommandés pour vous",
+    recommendedDescription: "Sélectionnés selon votre activité et vos préférences",
+    from: "À partir de",
+    loadingRecommended: "Chargement des talents recommandés...",
+    noPublishedTalents: "Aucun talent publié pour le moment.",
+    latestActions: "Dernières actions",
+    projectsCompleted: "projets",
+  },
+
+  talentDetail: {
+    loading: "Chargement du profil…", unavailableTitle: "Talent indisponible", noLongerAvailable: "Ce talent n’est pas disponible.", metaDescriptionFallback: "{title} disponible sur KORA.",
+    unavailableDescription: "Ce profil n'existe pas ou n'est plus visible.",
+    back: "Retour", pageTitle: "Profil de {name}", publicTitle: "Profil talent",
+    unpublishedWarning: "Ce profil n’est pas encore publié publiquement. Seul le manager propriétaire ou un administrateur peut actuellement le consulter.",
+    verified: "Vérifié KORA", professionalFallback: "Professionnel", categoryMissing: "Catégorie non renseignée",
+    locationMissing: "Localisation non renseignée", favoriteLogin: "Connectez-vous pour enregistrer ce talent dans vos favoris.",
+    favoriteError: "Impossible de modifier vos favoris.", copySuccess: "Lien du profil copié ✅",
+    shareError: "Impossible de partager ce profil.", copyError: "Impossible de copier le lien.",
+    contactLogin: "Connectez-vous pour contacter ce talent.", managerUnavailable: "Le manager de ce talent n'est pas disponible.",
+    ownTalent: "Ce talent est géré par votre propre compte.", conversationMissing: "Conversation introuvable.",
+    contactError: "Impossible d'ouvrir la conversation.", about: "À propos", presentationMissing: "Aucune présentation renseignée.",
+    skills: "Compétences", skillsMissing: "Aucune compétence renseignée.", availability: "Disponibilité",
+    available: "Disponible", unavailable: "Indisponible", acceptsMissions: "Le talent accepte de nouvelles missions.",
+    noNewMissions: "Le talent n'accepte pas de nouvelles missions pour le moment.",
+    portfolio: "Portfolio", portfolioDescription: "Photos, vidéos et liens ajoutés par le Manager.",
+    portfolioEmpty: "Aucun élément de portfolio pour le moment.", externalLink: "Lien externe",
+    video: "Vidéo", image: "Image", document: "Document", fee: "Cachet", uponRequest: "Sur demande",
+    rating: "Note", reviews: "Avis", projects: "Projets", contacting: "Ouverture…", contact: "Contacter",
+    share: "Partager", shareProfile: "Partager ce profil", copyLink: "Copier le lien",
+    shareWithDevice: "Partager avec l’appareil", manager: "Manager", managerResponsibility: "Responsable de ce talent.",
+    managerFallback: "Manager KORA", managerRole: "Gestionnaire KORA", managerInfoUnavailable: "Informations du manager indisponibles.",
+    sourceDisclaimer: "Les informations affichées proviennent directement du profil Talent et de son portfolio enregistré dans Supabase.",
+    errorLoad: "Impossible de charger ce talent.",
   },
 
   manager: {
@@ -263,6 +444,30 @@ const fr = {
   reviews: {
     title: "Avis", review: "Avis", reviews: "Avis", rating: "Note", comment: "Commentaire", submit: "Publier mon avis",
     noReviews: "Aucun avis pour le moment.", thankYou: "Merci pour votre avis.",
+  },
+
+  clientSettings: {
+    tabs: { profile: "Mon profil", preferences: "Préférences", notifications: "Notifications", security: "Sécurité" },
+    profile: {
+      title: "Mon profil", description: "Informations personnelles de votre compte.",
+      cover: "Couverture", changeCover: "Changer la couverture", uploadInProgress: "Envoi de l’image…",
+      avatar: "Photo de profil", photoAndCover: "Photo de profil et couverture", fullName: "Nom complet",
+      phone: "Téléphone", city: "Ville", company: "Entreprise", bio: "Biographie",
+      personalData: "Gérer mes données personnelles →",
+    },
+    preferences: { title: "Préférences", description: "Langue et apparence de votre espace.", language: "Langue", theme: "Thème", light: "Clair", dark: "Sombre", auto: "Auto", save: "Enregistrer les préférences" },
+    notifications: { title: "Notifications", description: "Choisissez les alertes que vous souhaitez recevoir.", email: "Notifications par email", browser: "Notifications du navigateur", marketing: "Offres et nouveautés KORA", save: "Enregistrer" },
+    security: { title: "Sécurité", description: "Modifier votre mot de passe.", currentPassword: "Mot de passe actuel", newPassword: "Nouveau mot de passe", confirmPassword: "Confirmer", update: "Mettre à jour" },
+    loading: "Chargement des paramètres…",
+    errors: {
+      load: "Impossible de charger vos paramètres.", upload: "Impossible d’envoyer l’image.",
+      nameRequired: "Le nom est obligatoire.", profileSave: "Impossible d'enregistrer le profil.",
+      preferencesSave: "Impossible d'enregistrer les préférences.", fieldsRequired: "Veuillez remplir tous les champs.",
+      passwordLength: "Le nouveau mot de passe doit contenir au moins 8 caractères.",
+      passwordMismatch: "Les mots de passe ne correspondent pas.", emailMissing: "Adresse email introuvable.",
+      currentPassword: "Le mot de passe actuel est incorrect.", passwordUpdate: "Impossible de modifier le mot de passe.",
+    },
+    success: { avatar: "Photo de profil mise à jour.", cover: "Photo de couverture mise à jour.", profile: "Profil enregistré ✅", preferences: "Préférences enregistrées ✅", password: "Mot de passe mis à jour ✅" },
   },
 
   settings: {
@@ -347,7 +552,168 @@ const en = {
   notifications: { title: "Notifications", description: "View your alerts and updates.", markRead: "Mark as read", markAllRead: "Mark all as read", all: "All", unread: "Unread", read: "Read", noNotifications: "No notifications.", noUnread: "No unread notifications.", descriptionEmpty: "Important notifications will appear here.", invitation: "New invitation", request: "Request update", message: "New message", payment: "Payment", subscription: "Subscription", security: "Security" },
   home: { searchPlaceholder: "Search for a talent, a service...", welcomeBack: "Welcome back to {name}!", welcomeUser: "Welcome, {name}", clientIntro: "Find the best African talents to grow your project. Let us guide you!", managerIntro: "Manager dashboard: manage your talents, track your projects and optimize your collaborations.", adminIntro: "Administrator dashboard: view the platform global statistics.", realtimeStats: "Key statistics in real time", koraSelection: "KORA Selection", recommendedTalents: "Talents recommended for you", recommendedDescription: "Selected based on your activity and preferences", from: "From", loadingRecommended: "Loading recommended talents...", noPublishedTalents: "No published talent yet.", latestActions: "Latest actions", projectsCompleted: "projects" },
 
+  clientUi: {
+    browse: {
+      titleStart: "Discover our", titleHighlight: "Talents",
+      availableCount: "{count} professional(s) available across Africa", availableCountOne: "{count} professional available across Africa", availableCountMany: "{count} professionals available across Africa",
+      displayedCount: "Showing {shown} of {total} talents", projectsOne: "{count} completed project", projectsMany: "{count} completed projects",
+      refreshing: "Refreshing…", searchPlaceholder: "Search for a talent, skill, profession…",
+      sortRecommended: "Recommended", sortRating: "Top rated", sortProjects: "Most experienced",
+      sortRateAsc: "Price: low to high", sortRateDesc: "Price: high to low", allCategories: "All",
+      allCountries: "All countries", filters: "Filters", country: "Country",
+      rateRange: "Price range", maxRate: "Up to", availableOnly: "Available only",
+      verifiedOnly: "Verified only", reset: "Reset", favoriteError: "Unable to update this favorite.", loadError: "Unable to load talents.",
+      filterLoadError: "Unable to load KORA filters.", loading: "Loading",
+      displayedCount: "{shown} shown out of {total} talents", page: "Page {page}", of: "of {totalPages}",
+      noTalents: "No talents found", noTalentsDescription: "Adjust your search or filters to discover other professionals.",
+      resetFilters: "Reset filters", removeFavorite: "Remove from favorites",
+      addFavorite: "Add to favorites", projects: "{count} project(s)", available: "Available",
+      busy: "Busy", dailyRate: "Daily rate", viewProfile: "View profile", contact: "Contact",
+      previous: "Previous", next: "Next",
+      categoryNames: {
+        beauty: "Beauty & Image", business: "Business & Strategy", cinema: "Film & Audiovisual",
+        comedy: "Comedy & Hosting", creative: "Creative & Design", culture: "Culture & Traditions",
+        education: "Training & Education", events: "Events", fashion: "Fashion & Modeling",
+        finance: "Finance & Accounting", gastronomy: "Gastronomy & Catering", health: "Health & Wellness",
+        influence: "Content & Influence", legal: "Legal & Consulting", marketing: "Marketing & Communication",
+        music: "Music & Entertainment", sport: "Sports", tech: "Technology & Digital", voice: "Voice & Dubbing",
+      },
+    },
+    messaging: {
+      conversation: "Conversation", discussion: "Discussion",
+      authRequired: "Sign-in required", authDescription: "Sign in to access your messages.",
+      title: "Messages", description: "Your conversations with KORA members.",
+      refresh: "Refresh", offline: "You are offline.", online: "Online",
+      offlineStatus: "Offline", realtime: "Real-time",
+      conversationsLoadError: "Unable to load your conversations.",
+      noConversations: "No conversations",
+      noConversationsDescription: "Use “Contact” on a talent profile or a request to start a conversation.",
+      noMessage: "No messages", sendFirst: "Send the first message.",
+      loadMessagesError: "Unable to load messages.",
+      page: "Page {page}", of: "of {totalPages}", previous: "Previous", next: "Next",
+      newer: "Newer", older: "Older", back: "Back",
+      sendTooLong: "Messages cannot exceed 4,000 characters.",
+      sendError: "Unable to send the message.",
+      writeMessage: "Write a message…", offlinePlaceholder: "Offline…",
+      send: "Send", enterToSend: "Press Enter to send", shiftEnterNewLine: "Shift + Enter for a new line",
+      offlineSendDisabled: "You are offline. Sending messages is disabled.",
+      loading: "Loading", missingMessage: "No message",
+    },
+    dashboard: {
+      loading: "Loading your dashboard…", hello: "Hello, {name}",
+      welcome: "Welcome to your KORA dashboard", search: "Search",
+      newRequest: "New request", requestsSent: "Requests sent", requestsAccepted: "Requests accepted",
+      favoriteTalents: "Favorite talents", spentBudget: "Budget spent", recentRequests: "Recent requests",
+      recentRequestsDescription: "Your recent requests to managers", seeAll: "View all",
+      noRequests: "No requests", noRequestsDescription: "You have not sent any requests yet.",
+      exploreTalents: "Explore talents", recentTalents: "Recent talents",
+      recentTalentsDescription: "Talents currently available on KORA",
+      noTalents: "No talents available", noPublicProfiles: "No public profiles are currently available.",
+      viewAllTalents: "View all talents", activity: "Your activity",
+      activityDescription: "Data will appear here as you use KORA.",
+      searches: "Searches", savedSearches: "Saved talent searches",
+      favorites: "Favorites", savedTalents: "Saved talents", requests: "Requests",
+      noSentRequests: "Requests sent", unknown: "Unknown", talent: "Talent", you: "you",
+      latestActions: "Latest actions", category: "Category",
+    },
+    favorites: {
+      title: "My favorites", savedCount: "{count} saved talent(s)",
+      searchPlaceholder: "Search your favorites…", loading: "Loading",
+      noFavorites: "No favorites yet",
+      noFavoritesDescription: "Save talents you like to find them easily and compare their profiles.",
+      discover: "Discover talents", howItWorks: "How does it work?",
+      clickOn: "Click on", clickOnDescription: "the heart icon on a profile",
+      findThem: "Find them", findThemDescription: "here, at any time",
+      sendRequests: "Send", sendRequestsDescription: "requests in one click",
+      noResults: "No results", noResultsDescription: "None of your favorites match “{search}”.",
+      managerUnavailable: "The talent's manager is unavailable.",
+      ownTalent: "This talent is managed by your own account.",
+      openConversation: "Opening…", contact: "Contact", busy: "Busy", removeError: "Unable to remove this favorite.",
+      loadingError: "Unable to load your favorites right now.", contactError: "Unable to open the conversation.",
+    },
+    notifications: {
+      title: "Notifications", refresh: "Refresh", markAllRead: "Mark all as read",
+      markRead: "Mark as read", loadError: "Unable to load notifications.",
+      markReadError: "Unable to mark the notification as read.",
+      markAllError: "Unable to mark notifications.", markedAllRead: "Notifications marked as read.",
+      none: "No notifications", noUnread: "You have no unread notifications.",
+      emptyDescription: "Important notifications will appear here.",
+      fallbackTitle: "KORA notification", new: "New", page: "Page {page}", of: "of {totalPages}",
+      total: "{count} notification(s)", previous: "Previous", next: "Next",
+    },
+    projects: {
+      area: "Client area", title: "My projects", count: "{count} saved project(s)",
+      refresh: "Refresh", create: "Create a project", searchPlaceholder: "Search projects…",
+      clearSearch: "Clear search", loadError: "Unable to load your projects.",
+      loading: "Loading", noResults: "No projects found", none: "No projects",
+      searchNoMatch: "No projects match your search.",
+      createFirst: "Create your first project to keep it here and start working with KORA talents.",
+      budget: "Budget", dueDate: "Due date", dueDateMissing: "Not set", details: "Details", from: "From", upTo: "Up to",
+      cancel: "Cancel", cancelConfirm: "Cancel project “{title}”?",
+      cancelError: "Unable to cancel the project.", cancelled: "Project cancelled.",
+      undefinedBudget: "Budget not defined", page: "Page {page}", of: "of {totalPages}",
+      previous: "Previous", next: "Next", titleLabel: "Project title", descriptionLabel: "Description",
+      minBudget: "Minimum budget", maxBudget: "Maximum budget", currency: "Currency",
+      save: "Save project", saveChanges: "Save changes",
+      newProject: "New project", projectInfo: "Project information", titlePlaceholder: "E.g. KORA website redesign",
+      descriptionPlaceholder: "Describe the context, goals, deliverables and expectations.",
+      minBudgetInvalid: "Minimum budget is invalid.", maxBudgetInvalid: "Maximum budget is invalid.",
+      budgetRangeInvalid: "Minimum budget cannot exceed the maximum.",
+      titleRequired: "Project title is required.", descriptionRequired: "Project description is required.",
+      saveError: "Unable to save the project.", created: "Project saved ✅", updated: "Project updated ✅",
+      status: "Status", back: "Back", rateProject: "Project review", projectNotFound: "Project not found or inaccessible.", formDescription: "Describe the need, budget and due date clearly.", managedStatus: "The status is managed automatically by the KORA workflow.", completedReviewPrompt: "The project is completed. You can now review the talents you actually worked with.", leaveReview: "Leave a review", reviewsAlreadySaved: "Reviews already saved", createdAt: "Created on", updatedAt: "Last updated", manager: "Manager", assigned: "Assigned", notAssigned: "Not assigned", edit: "Edit",
+      noEligibleTalents: "No eligible talent is linked to this project.",
+      messages: "Messages", cancelProject: "Cancel project", completed: "Completed",
+    },
+    requests: {
+      area: "Client area", title: "My requests", count: "{count} request(s)",
+      refresh: "Refresh", loadError: "Unable to load your requests.",
+      none: "No requests sent.", invitation: "Invitation", project: "Project:",
+      talent: "Talent:", viewTalent: "View talent", previous: "Previous", next: "Next",
+      page: "Page {page}", of: "of {totalPages}",
+    },
+    review: {
+      unavailable: "Review unavailable", backToProject: "Back to project",
+      notComplete: "This project is not completed yet", noReviews: "No reviews to publish",
+      allReviewed: "All talents linked to this project have already been reviewed, or no talent is currently eligible.",
+      title: "Review project", projectComplete: "Project completed — your review will be linked to the project and selected talent.",
+      yourReview: "Your review", ratingCommentRequired: "A rating from 1 to 5 and a comment are required.",
+      talent: "Reviewed talent", rating: "Rating", comment: "Comment",
+      commentPlaceholder: "Share your experience with this talent…", cancel: "Cancel",
+      submit: "Publish my review", loadError: "Unable to prepare the review.",
+      projectNotFound: "Project not found or inaccessible.", eligibleTalentMissing: "No eligible talent to review.",
+      chooseRating: "Choose a rating from 1 to 5.", commentRequired: "Add a comment.",
+      saved: "Review saved ✅", saveError: "Unable to save the review.", reputation: "KORA reputation", ratingAvailableWhenCompleted: "Ratings and reviews become available when the manager marks the project as completed.", finished: "Completed", stars: "{count} star(s)",
+    },
+  },
+
   dashboard: { title: "Dashboard", welcome: "Welcome to KORA.", overview: "Overview", recentActivity: "Recent activity", statistics: "Statistics", totalProjects: "Total projects", activeProjects: "Active projects", completedProjects: "Completed projects", pendingRequests: "Pending requests", talents: "Talents", messages: "Messages", notifications: "Notifications", unreadMessages: "Unread messages", noActivity: "No recent activity." },
+  talentDetail: {
+    loading: "Loading profile…", unavailableTitle: "Talent unavailable", noLongerAvailable: "This talent is not available.", metaDescriptionFallback: "{title} available on KORA.",
+    unavailableDescription: "This profile does not exist or is no longer visible.",
+    back: "Back", pageTitle: "{name}'s profile", publicTitle: "Talent profile",
+    unpublishedWarning: "This profile has not been published publicly yet. Only its owning manager or an administrator can currently view it.",
+    verified: "KORA verified", professionalFallback: "Professional", categoryMissing: "Category not provided",
+    locationMissing: "Location not provided", favoriteLogin: "Sign in to save this talent to your favorites.",
+    favoriteError: "Unable to update your favorites.", copySuccess: "Profile link copied ✅",
+    shareError: "Unable to share this profile.", copyError: "Unable to copy the link.",
+    contactLogin: "Sign in to contact this talent.", managerUnavailable: "This talent's manager is unavailable.",
+    ownTalent: "This talent is managed by your own account.", conversationMissing: "Conversation not found.",
+    contactError: "Unable to open the conversation.", about: "About", presentationMissing: "No biography provided.",
+    skills: "Skills", skillsMissing: "No skills provided.", availability: "Availability",
+    available: "Available", unavailable: "Unavailable", acceptsMissions: "This talent is accepting new work.",
+    noNewMissions: "This talent is not accepting new work right now.",
+    portfolio: "Portfolio", portfolioDescription: "Photos, videos and links added by the manager.",
+    portfolioEmpty: "No portfolio items yet.", externalLink: "External link",
+    video: "Video", image: "Image", document: "Document", fee: "Fee", uponRequest: "On request",
+    rating: "Rating", reviews: "Reviews", projects: "Projects", contacting: "Opening…", contact: "Contact",
+    share: "Share", shareProfile: "Share this profile", copyLink: "Copy link",
+    shareWithDevice: "Share with device", manager: "Manager", managerResponsibility: "Responsible for this talent.",
+    managerFallback: "KORA manager", managerRole: "KORA manager", managerInfoUnavailable: "Manager information is unavailable.",
+    sourceDisclaimer: "The information shown comes directly from the talent profile and its portfolio stored in Supabase.",
+    errorLoad: "Unable to load this talent.",
+  },
+
   manager: { dashboard: "Manager Dashboard", myTalents: "My talents", myRequests: "Requests", subscription: "Subscription", manageTalent: "Manage your talents and their visibility.", createTalent: "Create talent", pending: "Pending", published: "Published", total: "Total", averageRating: "Average rating",
     loading: "Loading dashboard...", errorLoad: "Unable to load dashboard data.", retry: "Retry", manageTalents: "Manage your talents and track your requests.",
     activeRequests: "Active requests", revenue: "Revenue", settledTransactions: "Settled transactions", requestActivity: "Request activity",
@@ -357,12 +723,41 @@ const en = {
     addTalentHint: "Start by adding a talent to your manager space.", manageTalentLabel: "Manage talent", noNotifications: "No notifications",
     recentRequests: "Recent requests", recentRequestsDescription: "The latest requests received in your space.", viewRequests: "View requests",
     noRequests: "No requests yet.", open: "Open", requestNumber: "Request #{id}", undefinedStatus: "Status not defined" ,
-    availabilityLabel: "Availability", artistFee: "Talent fee", showFeePublicly: "Show fee publicly", profilePhoto: "Profile photo", currentTalentPhoto: "Current talent photo", coverPhoto: "Cover photo", photosVideos: "Photos / videos", imageUploadHint: "1 image · JPG, PNG, WebP or GIF · 5 MB max.", coverUploadHint: "1 image · landscape format recommended · 5 MB max.", workflow: "Manager workflow",  },
+    availabilityLabel: "Availability", artistFee: "Talent fee", showFeePublicly: "Show fee publicly", profilePhoto: "Profile photo", currentTalentPhoto: "Current talent photo", coverPhoto: "Cover photo", photosVideos: "Photos / videos", imageUploadHint: "1 image · JPG, PNG, WebP or GIF · 5 MB max.", coverUploadHint: "1 image · landscape format recommended · 5 MB max.", workflow: "Manager workflow",
+    clientContact: "Contact client", projectContext: "Project context", projectManagement: "Project management", markCompleted: "Mark completed", sendReply: "Send reply", accept: "Accept", reject: "Reject", paymentRecorded: "Your payment has been recorded. A KORA administrator must confirm it before activation.", paymentHistory: "Payment history", saspayPending: "SasPay payments remain pending until validated by an authorized administrator.", choosePlan: "Choose your plan. Pro and Business subscription payments are manually validated by KORA.", retainedData: "Your talents and history remain associated with your account.", projectManagementFeatures: "Request and project management", managerTools: "KORA manager tools", saspayValidation: "SasPay payment + KORA validation", changeCover: "Change cover", uploading: "Uploading…", cover: "Cover", profile: "Profile",
+    planFree1: "1 talent maximum", planProfilePortfolio: "Talent profile and portfolio", planFee: "Fee management", planRequests: "Request management", planMessaging: "Messaging and notifications", planBasicTalent: "Basic talent management", planTrial: "30 days free access", planPro1: "3 talents maximum", planFreeFeatures: "All Free plan features", planOperations: "Operational project management", planManagerProfile: "Manager profile", planBusiness1: "Unlimited talents", planProFeatures: "All Pro plan features", planBusinessBadge: "Business badge on your profile", planUnlimited: "Unlimited talent organization", activePlan: "Active plan", trialEnded: "Trial ended", useFree: "Use for free", choosePlanButton: "Choose {name}", noPaidSubscription: "No paid subscription", monthlySubscription: "Monthly subscription", perMonth: "/ month",
+    replyPlaceholder: "Write your reply to the client…", createdWithRequest: "Created with the request", alreadyProcessed: "This request has already been processed.", requestAccepted: "Request accepted.", requestRejected: "Request rejected.", projectCompleted: "Project marked as completed.", projectStatusUpdated: "Project status updated.",
+    expiredMulti: "For managers who manage multiple talents.", expiredThree: "For managing up to 3 talents.", preparing: "Preparing...", resubscribe: "Resubscribe",
+  },
   admin: { title: "Administration", dashboard: "Dashboard", controlCenter: "KORA Control Center", dataSource: "All displayed data comes from the available Supabase tables.", users: "Users", clients: "Clients", managers: "Managers", admins: "Administrators", talents: "Talents", publishedTalents: "Published talents", pendingTalents: "Pending talents", projects: "Projects", requests: "Requests", messages: "Messages", conversations: "Conversations", reports: "Reports", moderation: "Moderation", subscriptions: "Subscriptions", payments: "Payments", logs: "Logs", settings: "Administration settings", suspendedUsers: "Suspended users", openProjects: "Open projects", activeProjects: "Active projects", completedProjects: "Completed projects", pendingRequests: "Pending requests", acceptedRequests: "Accepted requests", rejectedRequests: "Rejected requests", pendingReports: "Pending reports", activeSubscriptions: "Active subscriptions", expiredSubscriptions: "Expired subscriptions", pendingPayments: "Pending payments", paidPayments: "Paid payments", failedPayments: "Failed payments", transactions: "Transactions", administration: "Administration" },
   moderation: { title: "Moderation", reports: "Reports", pending: "Pending", reviewed: "Reviewed", resolved: "Resolved", dismissed: "Dismissed", suspend: "Suspend", reactivate: "Reactivate", hide: "Hide", publish: "Publish", reject: "Reject", noReports: "No reports." },
   payments: { title: "Payments", payment: "Payment", payments: "Payments", pending: "Pending", paid: "Paid", failed: "Failed", cancelled: "Cancelled", provider: "Provider", reference: "Reference", amount: "Amount", currency: "Currency", date: "Date", method: "Method", status: "Status", orangeMoney: "Orange Money", moovMoney: "Moov Money", wave: "Wave", card: "Bank card", visa: "Visa", mastercard: "Mastercard" },
   subscriptions: { title: "Subscriptions", subscription: "Subscription", trial: "Trial period", active: "Active", expired: "Expired", cancelled: "Cancelled", pending: "Pending", plan: "Plan", startDate: "Start date", endDate: "End date", period: "Period", upgrade: "Upgrade", renew: "Renew" },
   reviews: { title: "Reviews", review: "Review", reviews: "Reviews", rating: "Rating", comment: "Comment", submit: "Publish my review", noReviews: "No reviews yet.", thankYou: "Thank you for your review." },
+  clientSettings: {
+    tabs: { profile: "My profile", preferences: "Preferences", notifications: "Notifications", security: "Security" },
+    profile: {
+      title: "My profile", description: "Personal information for your account.",
+      cover: "Cover", changeCover: "Change cover", uploadInProgress: "Uploading image…",
+      avatar: "Profile photo", photoAndCover: "Profile photo and cover", fullName: "Full name",
+      phone: "Phone", city: "City", company: "Company", bio: "Biography",
+      personalData: "Manage my personal data →",
+    },
+    preferences: { title: "Preferences", description: "Language and appearance of your space.", language: "Language", theme: "Theme", light: "Light", dark: "Dark", auto: "Auto", save: "Save preferences" },
+    notifications: { title: "Notifications", description: "Choose the alerts you want to receive.", email: "Email notifications", browser: "Browser notifications", marketing: "KORA offers and updates", save: "Save" },
+    security: { title: "Security", description: "Change your password.", currentPassword: "Current password", newPassword: "New password", confirmPassword: "Confirm", update: "Update" },
+    loading: "Loading settings…",
+    errors: {
+      load: "Unable to load your settings.", upload: "Unable to upload the image.",
+      nameRequired: "Name is required.", profileSave: "Unable to save the profile.",
+      preferencesSave: "Unable to save preferences.", fieldsRequired: "Please fill in all fields.",
+      passwordLength: "The new password must contain at least 8 characters.",
+      passwordMismatch: "The passwords do not match.", emailMissing: "Email address not found.",
+      currentPassword: "The current password is incorrect.", passwordUpdate: "Unable to update the password.",
+    },
+    success: { avatar: "Profile photo updated.", cover: "Cover photo updated.", profile: "Profile saved ✅", preferences: "Preferences saved ✅", password: "Password updated ✅" },
+  },
+
   settings: {
     title: "Settings", subtitle: "Manage your account and preferences.", profileTab: "Profile", notificationsTab: "Notifications", securityTab: "Security", appearanceTab: "Appearance",
     errors: { notConnected: "User not connected.", nameRequired: "Name is required.", emailMissing: "Email address not found.", passwordFields: "Please fill in all fields.", passwordLength: "The new password must contain at least 8 characters.", passwordMismatch: "The new passwords do not match.", oldPassword: "The current password is incorrect.", save: "Unable to save.", mfaSetup: "Incomplete 2FA configuration.", mfa: "Unable to enable 2FA.", mfaCode: "Enter the verification code.", mfaVerify: "Invalid 2FA code or verification failed." },
@@ -373,10 +768,7 @@ const en = {
     security: { passwordTitle: "Change password", passwordDescription: "Minimum 8 characters. Your current password will be verified.", currentPassword: "Current password", newPassword: "New password", confirmPassword: "Confirm", update: "Update", mfaTitle: "Two-factor authentication", mfaDescription: "Add an extra layer of security to your KORA account using an authenticator app.", mfaEnabled: "2FA enabled", mfaEnable: "Enable 2FA", mfaSecret: "Secret key", mfaCode: "Verification code", mfaVerify: "Verify and enable" },
     appearance: { title: "Appearance", description: "Customize your KORA interface.", theme: "Theme", light: "Light", dark: "Dark", auto: "Auto", language: "Interface language" },
     delete: { title: "Danger zone", description: "Deleting your account is permanent.", button: "Delete my account", confirm: "Are you sure you want to delete your account? This action is permanent.", success: "Your account has been deleted.", error: "Unable to delete the account." },
-    clientContact: "Contact client", projectContext: "Project context", projectManagement: "Project management", markCompleted: "Mark completed", sendReply: "Send reply", accept: "Accept", reject: "Reject", paymentRecorded: "Your payment has been recorded. A KORA administrator must confirm it before activation.", paymentHistory: "Payment history", saspayPending: "SasPay payments remain pending until validated by an authorized administrator.", choosePlan: "Choose your plan. Pro and Business subscription payments are manually validated by KORA.", retainedData: "Your talents and history remain associated with your account.", projectManagementFeatures: "Request and project management", managerTools: "KORA manager tools", saspayValidation: "SasPay payment + KORA validation", changeCover: "Change cover", uploading: "Uploading…", cover: "Cover", profile: "Profile",
-    planFree1: "1 talent maximum", planProfilePortfolio: "Talent profile and portfolio", planFee: "Fee management", planRequests: "Request management", planMessaging: "Messaging and notifications", planBasicTalent: "Basic talent management", planTrial: "30 days free access", planPro1: "3 talents maximum", planFreeFeatures: "All Free plan features", planOperations: "Operational project management", planManagerProfile: "Manager profile", planBusiness1: "Unlimited talents", planProFeatures: "All Pro plan features", planBusinessBadge: "Business badge on your profile", planUnlimited: "Unlimited talent organization", activePlan: "Active plan", trialEnded: "Trial ended", useFree: "Use for free", choosePlanButton: "Choose {name}", noPaidSubscription: "No paid subscription", monthlySubscription: "Monthly subscription", perMonth: "/ month",
-    replyPlaceholder: "Write your reply to the client…", createdWithRequest: "Created with the request", alreadyProcessed: "This request has already been processed.", requestAccepted: "Request accepted.", requestRejected: "Request rejected.", projectCompleted: "Project marked as completed.", projectStatusUpdated: "Project status updated.",
-    expiredMulti: "For managers who manage multiple talents.", expiredThree: "For managing up to 3 talents.", preparing: "Preparing...", resubscribe: "Resubscribe",
+
   },
   auth: { loginTitle: "Log in", loginDescription: "Sign in to your KORA account.", registerTitle: "Create your account", registerDescription: "Join KORA and discover African talents.", email: "Email address", password: "Password", confirmPassword: "Confirm password", forgotPassword: "Forgot password?", rememberMe: "Remember me", login: "Log in", register: "Create an account", continue: "Continue", logout: "Log out", invalidCredentials: "Incorrect email or password.", accountCreated: "Account created ✅", resetSent: "A reset link has been sent to your email address.", passwordReset: "Password reset ✅", minimumPassword: "Minimum 8 characters.", passwordsMismatch: "Passwords do not match." },
   legal: { conditions: "Terms and conditions", privacy: "Privacy policy", cookies: "Cookie policy", legalNotice: "Legal notice", faq: "FAQ", contact: "Contact", reportProblem: "Report a problem" },
@@ -386,17 +778,9 @@ const en = {
 
 export const translations = { fr, en }
 
-function normalizeLanguage(value) {
-  return value === "en" ? "en" : "fr"
-}
-
 function getInitialLanguage() {
   if (typeof window === "undefined") return "fr"
-  try {
-    const saved = window.localStorage.getItem(STORAGE_KEY)
-    if (saved === "fr" || saved === "en") return saved
-  } catch {}
-  return "fr"
+  return readStoredLanguage(window.localStorage, null) || "fr"
 }
 
 function getNestedValue(source, path) {
@@ -454,12 +838,18 @@ const I18nContext = createContext(null)
 
 export function I18nProvider({ children }) {
   const [language, setLanguageState] = useState(getInitialLanguage)
+  const [activeUserId, setActiveUserId] = useState(null)
   const [theme, setThemeState] = useState(getInitialTheme)
 
   const setLanguage = (nextLanguage) => {
     const normalized = normalizeLanguage(nextLanguage)
     setLanguageState(normalized)
-    try { window.localStorage.setItem(STORAGE_KEY, normalized) } catch {}
+    try {
+      window.localStorage.setItem(getLanguageStorageKey(activeUserId), normalized)
+      // Keep the legacy global key only for signed-out visitors; authenticated
+      // users are stored under their own ID to prevent language leakage.
+      if (!activeUserId) window.localStorage.setItem(STORAGE_KEY, normalized)
+    } catch {}
   }
 
   const setTheme = (nextTheme) => {
@@ -471,6 +861,59 @@ export function I18nProvider({ children }) {
     } catch {}
     applyTheme(normalized)
   }
+
+  useEffect(() => {
+    let mounted = true
+    let lastUserId
+
+    async function applySessionLanguage(session) {
+      const userId = session?.user?.id || null
+      if (userId === lastUserId) return
+      lastUserId = userId
+      if (mounted) setActiveUserId(userId)
+
+      if (!userId) {
+        if (mounted) setLanguageState(getInitialLanguage())
+        return
+      }
+
+      const localPreference = typeof window !== "undefined"
+        ? readStoredLanguage(window.localStorage, userId)
+        : null
+      if (localPreference) {
+        if (mounted && lastUserId === userId) setLanguageState(localPreference)
+        return
+      }
+
+      const { data, error } = await supabase
+        .from("profiles")
+        .select("preferences")
+        .eq("id", userId)
+        .maybeSingle()
+
+      if (!mounted || lastUserId !== userId) return
+      const preferences = data?.preferences && typeof data.preferences === "object" ? data.preferences : {}
+      const preferredLanguage = isSupportedLanguage(preferences.language) ? preferences.language : "fr"
+      setLanguageState(preferredLanguage)
+      try {
+        window.localStorage.setItem(getLanguageStorageKey(userId), preferredLanguage)
+      } catch {}
+      if (error) console.warn("KORA: impossible de charger la préférence de langue du compte.")
+    }
+
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+      if (event === "TOKEN_REFRESHED" && session?.user?.id === lastUserId) return
+      Promise.resolve().then(() => applySessionLanguage(session))
+    })
+    supabase.auth.getSession()
+      .then(({ data }) => applySessionLanguage(data?.session || null))
+      .catch(() => applySessionLanguage(null))
+
+    return () => {
+      mounted = false
+      subscription.unsubscribe()
+    }
+  }, [])
 
   useEffect(() => {
     const config = SUPPORTED_LANGUAGES[language] || SUPPORTED_LANGUAGES.fr
@@ -511,7 +954,7 @@ export function I18nProvider({ children }) {
       isEnglish: language === "en",
       languageConfig: SUPPORTED_LANGUAGES[language] || SUPPORTED_LANGUAGES.fr,
     }
-  }, [language, theme])
+  }, [language, theme, activeUserId])
 
   return <I18nContext.Provider value={value}>{children}</I18nContext.Provider>
 }
