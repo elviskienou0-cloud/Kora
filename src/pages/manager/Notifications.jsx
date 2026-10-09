@@ -21,7 +21,7 @@ import { playNotificationSound } from "@/lib/notificationSound"
 
 const PAGE_SIZE = 10
 
-function translateNotificationText(value, language, t) {
+function translateNotificationText(value, t) {
   const text = String(value || "").trim()
   if (!text) return text
   const normalized = text.toLowerCase()
@@ -190,7 +190,7 @@ export default function ManagerNotifications() {
         {error ? (
           <Card className="border-destructive/30">
             <CardContent className="p-6 text-sm text-destructive">
-              {error.message || "Impossible de charger les notifications."}
+              {error.message || t("notifications.loadError")}
             </CardContent>
           </Card>
         ) : isLoading ? (
@@ -204,8 +204,8 @@ export default function ManagerNotifications() {
               <p className="font-semibold">{t("notifications.noNotifications")}</p>
               <p className="mt-1 text-sm text-muted-foreground">
                 {unreadOnly
-                  ? "Vous n'avez aucune notification non lue."
-                  : "Les notifications importantes apparaîtront ici."}
+                  ? t("manager.noUnreadNotifications")
+                   : t("manager.importantNotificationsEmpty")}
               </p>
             </CardContent>
           </Card>
@@ -232,7 +232,7 @@ export default function ManagerNotifications() {
                       <div className="min-w-0 flex-1">
                         <div className="flex flex-wrap items-start justify-between gap-3">
                           <div>
-                            <h2 className="font-bold">{translateNotificationText(notification.title || "Notification KORA", language, t)}</h2>
+                            <h2 className="font-bold">{translateNotificationText(notification.title || "Notification KORA", t)}</h2>
                             <p className="mt-1 text-xs text-muted-foreground">
                               {new Date(notification.created_at).toLocaleString(language === "en" ? "en-GB" : "fr-FR")}
                             </p>
@@ -241,7 +241,7 @@ export default function ManagerNotifications() {
                         </div>
 
                         <p className="mt-3 whitespace-pre-line text-sm leading-6 text-muted-foreground">
-                          {translateNotificationText(notification.message || "", language, t)}
+                          {translateNotificationText(notification.message || "", t)}
                         </p>
 
                         {unread && (
