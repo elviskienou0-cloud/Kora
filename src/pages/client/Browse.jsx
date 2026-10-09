@@ -1500,9 +1500,10 @@ export default function ClientBrowse() {
                             </p>
 
                             <p className="text-lg font-bold text-gold-dark">
-                              {formatCurrency(
+                              {formatMoney(
                                 talent.rate,
-                                talent.currency
+                                talent.currency,
+                                language
                               )}
                             </p>
                           </div>
