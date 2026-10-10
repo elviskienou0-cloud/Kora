@@ -54,6 +54,8 @@ export async function uploadTalentPortfolioFiles(talentId, files = []) {
   const createdRows = []
 
   for (const file of selected) {
+    const validationError = validatePortfolioFile(file)
+    if (validationError) throw new Error(validationError)
     const cleanName = String(file.name || "fichier")
       .trim()
       .replace(/[^a-zA-Z0-9._-]+/g, "-")
