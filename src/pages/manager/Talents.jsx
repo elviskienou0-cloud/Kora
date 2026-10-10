@@ -839,7 +839,7 @@ export default function ManagerTalents() {
   const getTalentsCacheKey = () =>
     managerId ? `kora-manager-talents:${managerId}` : null
 
-  const restoreTalentsCache = () => {
+  const restoreTalentsCache = async () => {
     const key = getTalentsCacheKey()
     if (!key) return false
 
@@ -965,15 +965,18 @@ export default function ManagerTalents() {
       return
     }
 
-    const restored = restoreTalentsCache()
+    let cancelled = false
+    void (async () => {
+      const restored = await restoreTalentsCache()
+      if (cancelled) return
 
-    // S'il existe déjà un cache, on l'affiche sans refaire de requête.
-    // Sans cache (première ouverture ou cache expiré), on charge une seule
-    // fois les talents depuis Supabase. Les navigations suivantes ne
-    // déclenchent pas de nouveau chargement automatique tant qu'un cache
-    // valide est disponible.
-    if (!restored) {
-      void loadTalents()
+      // S'il existe déjà un cache, on l'affiche sans refaire de requête.
+      // Sans cache valide, on charge les talents depuis Supabase.
+      if (!restored) void loadTalents()
+    })()
+
+    return () => {
+      cancelled = true
     }
   }, [managerId])
 
