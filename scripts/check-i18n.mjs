@@ -121,6 +121,19 @@ for (const file of sourceFiles(path.join(root, "src"))) {
   }
 }
 
+// Static template literals without interpolation are also safe to validate.
+const staticTemplateExpression = new RegExp("\\bt\\s*\\(\\s*`([^`$]*)`", "g")
+for (const file of sourceFiles(path.join(root, "src"))) {
+  const source = fs.readFileSync(file, "utf8")
+  for (const match of source.matchAll(staticTemplateExpression)) {
+    const key = match[1]
+    if (!Object.hasOwn(fr, key) || !Object.hasOwn(en, key)) {
+      const line = source.slice(0, match.index).split("\n").length
+      missingStaticReferences.push(`${path.relative(root, file)}:${line} → ${key}`)
+    }
+  }
+}
+
 assert.deepEqual(missingInEnglish, [], `Missing English keys:\n${missingInEnglish.join("\n")}`)
 assert.deepEqual(missingInFrench, [], `Missing French keys:\n${missingInFrench.join("\n")}`)
 assert.deepEqual(nonStringValues, [], `Empty or non-string translation values:\n${nonStringValues.join("\n")}`)
