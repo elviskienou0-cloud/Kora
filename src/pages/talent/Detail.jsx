@@ -33,6 +33,7 @@ import { cn } from "@/lib/utils"
 import { supabase } from "@/lib/supabase"
 import { useAuth } from "@/lib/AuthContext"
 import { resolvePortfolioUrls } from "@/lib/talentPortfolio"
+import { resolveTalentProfileMedia } from "@/lib/talentMedia"
 import TalentRequestButton from "@/components/TalentRequestButton.jsx"
 import TalentReviews from "@/components/reviews/TalentReviews.jsx"
 import { buildTalentShareUrl, copyTalentShareLink, getTalentShareTargets } from "@/lib/talentShare"
@@ -177,6 +178,7 @@ export default function TalentDetail() {
 
         if (error) throw error
         if (!data) throw new Error("Ce talent n'est pas disponible.")
+        const talentWithSignedMedia = await resolveTalentProfileMedia(data)
 
         const { data: portfolioRows, error: portfolioError } = await supabase
           .from("portfolio_items")
@@ -197,7 +199,7 @@ export default function TalentDetail() {
 
         if (!mounted) return
 
-        setTalent(data)
+        setTalent(talentWithSignedMedia)
         setSkills((data.talent_profile_skills || []).map((item) => item.skills?.name).filter(Boolean))
         setPortfolio(portfolioWithUrls || [])
         setManager(managerData)

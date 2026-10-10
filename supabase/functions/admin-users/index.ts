@@ -382,6 +382,33 @@ Deno.serve(async (req) => {
         )
       }
 
+      // Register a short-lived pending invitation record before Auth creates
+      // the user. The database consent trigger trusts this server-created row,
+      // not the client-controlled kora_admin_invitation metadata flag.
+      const preflightInvitationId = crypto.randomUUID()
+      const { error: preflightError } = await adminClient
+        .from("admin_invitations")
+        .insert({
+          id: preflightInvitationId,
+          email: email.toLowerCase(),
+          invited_by: callerId,
+          message: message || null,
+          access_level: accessLevel,
+          permissions: permissions || {},
+          max_users: maxUsers,
+          max_payment_validations: maxPaymentValidations,
+          access_expires_at: accessExpiresAt,
+          scope: {},
+          status: "pending",
+        })
+
+      if (preflightError) {
+        return jsonResponse(
+          { error: "Impossible de préparer l'invitation administrateur." },
+          400,
+        )
+      }
+
       const {
         data: invitedUser,
         error: inviteError,
@@ -402,6 +429,7 @@ Deno.serve(async (req) => {
         (inviteError.code === "email_exists" ||
           inviteError.status === 422)
       ) {
+        await adminClient.from("admin_invitations").delete().eq("id", preflightInvitationId)
         return jsonResponse(
           {
             error:
@@ -416,6 +444,7 @@ Deno.serve(async (req) => {
         inviteError ||
         !invitedUser?.user
       ) {
+        await adminClient.from("admin_invitations").delete().eq("id", preflightInvitationId)
         return jsonResponse(
           {
             error:
@@ -423,6 +452,21 @@ Deno.serve(async (req) => {
               "Impossible d'envoyer l'invitation.",
           },
           400,
+        )
+      }
+
+      // The Auth trigger has already checked the pending invite row.
+      // Remove the preflight row before the canonical invitation RPC creates
+      // the fully configured record.
+      const { error: preflightCleanupError } = await adminClient
+        .from("admin_invitations")
+        .delete()
+        .eq("id", preflightInvitationId)
+      if (preflightCleanupError) {
+        await adminClient.auth.admin.deleteUser(invitedUser.user.id, true)
+        return jsonResponse(
+          { error: "Impossible de finaliser l'invitation en toute sécurité." },
+          500,
         )
       }
 

@@ -50,7 +50,7 @@ import {
   deleteTalentPortfolioItems,
   uploadTalentPortfolioFiles,
 } from "@/lib/talentPortfolio"
-import { uploadTalentProfileMedia } from "@/lib/talentMedia"
+import { uploadTalentProfileMedia, resolveTalentProfileMedia } from "@/lib/talentMedia"
 
 const STATUS = {
   published: {
@@ -839,7 +839,7 @@ export default function ManagerTalents() {
   const getTalentsCacheKey = () =>
     managerId ? `kora-manager-talents:${managerId}` : null
 
-  const restoreTalentsCache = () => {
+  const restoreTalentsCache = async () => {
     const key = getTalentsCacheKey()
     if (!key) return false
 
@@ -853,7 +853,10 @@ export default function ManagerTalents() {
         return false
       }
 
-      if (Array.isArray(cached.talents)) setTalents(cached.talents)
+      if (Array.isArray(cached.talents)) {
+        const refreshedCachedTalents = await Promise.all(cached.talents.map((talent) => resolveTalentProfileMedia(talent)))
+        setTalents(refreshedCachedTalents)
+      }
       if (cached.subscription) setSubscription(cached.subscription)
       setLoading(false)
       return true
@@ -935,13 +938,15 @@ export default function ManagerTalents() {
 
       if (error) throw error
 
-      const nextTalents = (data || []).map((talent) => ({
-        ...talent,
+      const nextTalents = await Promise.all((data || []).map(async (talent) => {
+        const mediaResolved = await resolveTalentProfileMedia(talent)
+        return {
+        ...mediaResolved,
         name: `${talent.first_name || ""} ${talent.last_name || ""}`.trim(),
         cat: talent.categories?.name || "Non classé",
         ratingValue: Number(talent.rating || 0),
         tasks: Number(talent.completed_projects || 0),
-      }))
+      }}))
 
       setTalents(nextTalents)
       saveTalentsCache(nextTalents, nextSubscription || subscription)
@@ -960,15 +965,18 @@ export default function ManagerTalents() {
       return
     }
 
-    const restored = restoreTalentsCache()
+    let cancelled = false
+    void (async () => {
+      const restored = await restoreTalentsCache()
+      if (cancelled) return
 
-    // S'il existe déjà un cache, on l'affiche sans refaire de requête.
-    // Sans cache (première ouverture ou cache expiré), on charge une seule
-    // fois les talents depuis Supabase. Les navigations suivantes ne
-    // déclenchent pas de nouveau chargement automatique tant qu'un cache
-    // valide est disponible.
-    if (!restored) {
-      void loadTalents()
+      // S'il existe déjà un cache, on l'affiche sans refaire de requête.
+      // Sans cache valide, on charge les talents depuis Supabase.
+      if (!restored) void loadTalents()
+    })()
+
+    return () => {
+      cancelled = true
     }
   }, [managerId])
 
@@ -1228,7 +1236,7 @@ export default function ManagerTalents() {
       }
 
       if (formData.avatarFile || formData.coverFile) {
-        // Upload vers le bucket public puis enregistrer les URLs dans talent_profiles.
+        // Upload vers le bucket privé puis enregistrer des références stables dans talent_profiles.
         // IMPORTANT : la fonction attend managerId puis talentId.
         const mediaUrls = await uploadTalentProfileMedia(
           managerId,
