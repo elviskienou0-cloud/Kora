@@ -853,7 +853,10 @@ export default function ManagerTalents() {
         return false
       }
 
-      if (Array.isArray(cached.talents)) setTalents(cached.talents)
+      if (Array.isArray(cached.talents)) {
+        const refreshedCachedTalents = await Promise.all(cached.talents.map((talent) => resolveTalentProfileMedia(talent)))
+        setTalents(refreshedCachedTalents)
+      }
       if (cached.subscription) setSubscription(cached.subscription)
       setLoading(false)
       return true
