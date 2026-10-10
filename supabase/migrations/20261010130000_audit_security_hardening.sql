@@ -13,12 +13,12 @@ to authenticated
 using (
   public.is_conversation_member(conversation_id)
   or public.is_super_admin()
-  or public.admin_has_permission('messages.moderate')
+  or false
 )
 with check (
   public.is_conversation_member(conversation_id)
   or public.is_super_admin()
-  or public.admin_has_permission('messages.moderate')
+  or false
 );
 
 create or replace function public.protect_message_immutable()
@@ -29,7 +29,7 @@ as $$
 begin
   if current_user <> 'authenticated' or auth.uid() is null
      or public.is_super_admin()
-     or public.admin_has_permission('messages.moderate') then
+     or false then
     return new;
   end if;
 
@@ -54,12 +54,12 @@ for update
 to authenticated
 using (
   public.is_super_admin()
-  or public.admin_has_permission('talents.moderate')
+  or public.admin_has_permission('talents.manage')
   or (managed_by = (select auth.uid()) and public.manager_has_active_plan())
 )
 with check (
   public.is_super_admin()
-  or public.admin_has_permission('talents.moderate')
+  or public.admin_has_permission('talents.manage')
   or (managed_by = (select auth.uid()) and public.manager_has_active_plan())
 );
 
@@ -73,7 +73,7 @@ declare
 begin
   if current_user <> 'authenticated' or auth.uid() is null
      or public.is_super_admin()
-     or public.admin_has_permission('talents.moderate') then
+     or public.admin_has_permission('talents.manage') then
     return new;
   end if;
 
@@ -195,5 +195,63 @@ set public = false,
       'video/mp4','video/webm','video/quicktime','application/pdf'
     ]
 where id = 'talent-portfolio';
+
+
+-- App settings are global platform controls. Scoped admins can read settings
+-- through their existing read permission, but only the superadmin can mutate
+-- them until a dedicated write permission is added to the admin permission UI.
+drop policy if exists app_settings_admin_update on public.app_settings;
+create policy app_settings_admin_update
+on public.app_settings for update to authenticated
+using (public.is_super_admin())
+with check (public.is_super_admin());
+
+drop policy if exists app_settings_admin_insert on public.app_settings;
+create policy app_settings_admin_insert
+on public.app_settings for insert to authenticated
+with check (public.is_super_admin());
+
+create or replace function public.update_kora_setting(p_key text, p_value jsonb)
+returns public.app_settings
+language plpgsql
+security definer
+set search_path = public, pg_temp
+as $function$
+declare
+  v_setting public.app_settings;
+  v_commission numeric;
+begin
+  if not public.is_super_admin() then
+    raise exception 'Accès Super Admin requis'
+      using errcode = '42501';
+  end if;
+
+  if p_key = 'commission_rate' then
+    v_commission := (p_value #>> '{}')::numeric;
+    if v_commission < 0 or v_commission > 100 then
+      raise exception 'La commission doit être comprise entre 0 et 100';
+    end if;
+  end if;
+
+  update public.app_settings
+  set value = p_value, updated_by = auth.uid(), updated_at = now()
+  where key = p_key
+  returning * into v_setting;
+
+  if not found then
+    insert into public.app_settings (key, value, description, is_public, updated_by)
+    values (p_key, p_value, 'Paramètre KORA', true, auth.uid())
+    returning * into v_setting;
+  end if;
+
+  insert into public.admin_audit_logs (actor_id, action, entity_type, entity_id, metadata)
+  values (
+    auth.uid(), 'update_setting', 'app_setting', null,
+    jsonb_build_object('key', p_key, 'value', p_value)
+  );
+
+  return v_setting;
+end;
+$function$;
 
 commit;
