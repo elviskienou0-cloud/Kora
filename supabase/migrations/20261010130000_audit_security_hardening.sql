@@ -172,6 +172,8 @@ begin
     new.validated_by := auth.uid();
     if new.status is distinct from old.status then
       new.validated_at := now();
+    else
+      new.validated_at := old.validated_at;
     end if;
     new.updated_at := now();
   end if;
