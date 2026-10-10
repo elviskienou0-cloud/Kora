@@ -29,4 +29,19 @@ jobs:
           node-version: 22
           cache: npm
       - run: npm ci
+      - name: Report remaining dependency vulnerabilities
+        shell: bash
+        run: |
+          npm audit --json > npm-audit.json || true
+          node --input-type=module <<'NODE'
+          import fs from "node:fs"
+          const audit = JSON.parse(fs.readFileSync("npm-audit.json", "utf8"))
+          for (const [name, issue] of Object.entries(audit.vulnerabilities || {})) {
+            const fix = typeof issue.fixAvailable === "object"
+              ? `${issue.fixAvailable.name || name}@${issue.fixAvailable.version || "?"}${issue.fixAvailable.isSemVerMajor ? " (major)" : ""}`
+              : String(issue.fixAvailable)
+            console.log(`${issue.severity.toUpperCase()} ${name} range=${issue.range} fix=${fix}`)
+          }
+          console.log("Audit totals:", JSON.stringify(audit.metadata?.vulnerabilities || {}))
+          NODE
       - run: npm run build
