@@ -110,9 +110,23 @@ function sourceFiles(directory) {
 const missingStaticReferences = []
 for (const file of sourceFiles(path.join(root, "src"))) {
   const source = fs.readFileSync(file, "utf8")
-  const expression = /\bt\s*\(\s*(["'`])([^"'\x60]+)\1/g
+  // Interpolated template keys are dynamic and cannot be checked as literal keys.
+  const expression = /\bt\s*\(\s*(["\'])([^"\']+)\1/g
   for (const match of source.matchAll(expression)) {
     const key = match[2]
+    if (!Object.hasOwn(fr, key) || !Object.hasOwn(en, key)) {
+      const line = source.slice(0, match.index).split("\n").length
+      missingStaticReferences.push(`${path.relative(root, file)}:${line} → ${key}`)
+    }
+  }
+}
+
+// Static template literals without interpolation are also safe to validate.
+const staticTemplateExpression = new RegExp("\\bt\\s*\\(\\s*`([^`$]*)`", "g")
+for (const file of sourceFiles(path.join(root, "src"))) {
+  const source = fs.readFileSync(file, "utf8")
+  for (const match of source.matchAll(staticTemplateExpression)) {
+    const key = match[1]
     if (!Object.hasOwn(fr, key) || !Object.hasOwn(en, key)) {
       const line = source.slice(0, match.index).split("\n").length
       missingStaticReferences.push(`${path.relative(root, file)}:${line} → ${key}`)

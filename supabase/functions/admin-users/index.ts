@@ -61,47 +61,9 @@ async function removePrefix(storage, bucket, prefix) {
   return removed
 }
 
-async function removeOwnedStorageObjects(adminClient, userId) {
-  let removed = 0
-  let offset = 0
-
-  while (true) {
-    const { data, error } = await adminClient
-      .from("storage.objects")
-      .select("bucket_id,name")
-      .eq("owner_id", userId)
-      .range(offset, offset + 999)
-
-    if (error) throw error
-
-    const objects = data || []
-    if (!objects.length) break
-
-    const byBucket = new Map()
-    for (const object of objects) {
-      if (!object?.bucket_id || !object?.name) continue
-      if (!byBucket.has(object.bucket_id)) byBucket.set(object.bucket_id, [])
-      byBucket.get(object.bucket_id).push(object.name)
-    }
-
-    for (const [bucket, paths] of byBucket) {
-      const { error: removeError } = await adminClient.storage
-        .from(bucket)
-        .remove(paths)
-
-      if (removeError) throw removeError
-      removed += paths.length
-    }
-
-    if (objects.length < 1000) break
-    offset += objects.length
-  }
-
-  return removed
-}
-
 async function removeUserStorage(adminClient, userId, talentIds = []) {
   let removed = 0
+  removed += await removePrefix(adminClient.storage, "avatars", `${userId}/`)
   removed += await removePrefix(adminClient.storage, "profile-media", `${userId}/`)
   removed += await removePrefix(adminClient.storage, "talent-profile-media", `${userId}/`)
   for (const talentId of talentIds) {
@@ -674,24 +636,10 @@ Deno.serve(async (req) => {
     // Supabase Auth ne supprime pas un utilisateur tant que des objets
     // Storage lui appartiennent. On traite d'abord owner_id (tous les buckets),
     // puis les anciens chemins KORA créés via service role sans owner_id.
-    const ownedStorageObjects = await removeOwnedStorageObjects(adminClient, userId)
-    const prefixedStorageObjects = await removeUserStorage(adminClient, userId, talentIds)
-    const deletedStorageObjects =
-      ownedStorageObjects + prefixedStorageObjects
-
-    const { count: remainingOwnedObjects, error: remainingStorageError } =
-      await adminClient
-        .from("storage.objects")
-        .select("id", { count: "exact", head: true })
-        .eq("owner_id", userId)
-
-    if (remainingStorageError) throw remainingStorageError
-
-    if ((remainingOwnedObjects || 0) > 0) {
-      throw new Error(
-        "Des fichiers Storage appartiennent encore à ce compte.",
-      )
-    }
+    // Storage schema is not guaranteed to be exposed through PostgREST.
+    // Clean up the known user/talent path prefixes via the Storage API instead
+    // of querying admin-only storage.objects through the REST data API.
+    const deletedStorageObjects = await removeUserStorage(adminClient, userId, talentIds)
 
     // ==========================================================
     // AUDIT AVANT SUPPRESSION
