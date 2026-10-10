@@ -13,12 +13,12 @@ to authenticated
 using (
   public.is_conversation_member(conversation_id)
   or public.is_super_admin()
-  or false
+  or public.admin_has_permission('moderation.manage')
 )
 with check (
   public.is_conversation_member(conversation_id)
   or public.is_super_admin()
-  or false
+  or public.admin_has_permission('moderation.manage')
 );
 
 create or replace function public.protect_message_immutable()
@@ -29,7 +29,7 @@ as $$
 begin
   if current_user <> 'authenticated' or auth.uid() is null
      or public.is_super_admin()
-     or false then
+     or public.admin_has_permission('moderation.manage') then
     return new;
   end if;
 
@@ -137,17 +137,17 @@ language plpgsql
 set search_path = public, pg_temp
 as $$
 begin
-  if current_user <> 'authenticated' or auth.uid() is null
-     or public.is_super_admin() then
+  if current_user <> 'authenticated' or auth.uid() is null then
     return new;
   end if;
 
-  if public.is_admin() then
-    if not public.admin_has_permission('payments.validate') then
-      raise exception 'Permission de validation des paiements requise'
-        using errcode = '42501';
-    end if;
+  if not public.is_super_admin()
+     and not public.admin_has_permission('payments.validate') then
+    raise exception 'Permission de validation des paiements requise'
+      using errcode = '42501';
+  end if;
 
+  if public.is_admin() then
     if new.id is distinct from old.id
        or new.user_id is distinct from old.user_id
        or new.subscription_id is distinct from old.subscription_id
