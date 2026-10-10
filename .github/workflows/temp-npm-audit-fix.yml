@@ -3,6 +3,8 @@ name: Temporary non-breaking npm audit fix
 on:
   push:
     branches: [chore/npm-audit-fix-20261010]
+  pull_request:
+    branches: [main]
 
 permissions:
   contents: write
