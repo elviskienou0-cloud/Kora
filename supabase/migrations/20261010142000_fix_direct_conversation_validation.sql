@@ -38,7 +38,9 @@ begin
   select role into v_role from public.profiles where id = v_me;
   select role into v_other_role from public.profiles where id = p_other_user_id;
 
-  if v_role not in ('client', 'manager') or v_other_role not in ('client', 'manager') then
+  if v_role is null or v_other_role is null
+     or v_role not in ('client', 'manager')
+     or v_other_role not in ('client', 'manager') then
     raise exception 'Seuls un client et un manager peuvent ouvrir une conversation directe.';
   end if;
   if v_role = v_other_role then
