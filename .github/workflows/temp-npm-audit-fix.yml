@@ -1,0 +1,40 @@
+name: Temporary non-breaking npm audit fix
+
+on:
+  push:
+    branches: [chore/npm-audit-fix-20261010]
+
+permissions:
+  contents: write
+
+jobs:
+  safe-fix:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: chore/npm-audit-fix-20261010
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - name: Reconcile lockfile after removing unused dependency
+        run: npm install --package-lock-only
+      - run: npm ci
+      - name: Apply compatible security updates only
+        run: npm audit fix || true
+      - name: Verify translation checks and production build
+        run: |
+          npm run test:i18n
+          npm run build
+      - name: Commit lockfile changes only after tests pass
+        run: |
+          if git diff --quiet -- package.json package-lock.json; then
+            echo "No dependency changes required."
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add package.json package-lock.json
+          git commit -m "fix(deps): remove unused ReactQuill and refresh lockfile"
+          git push origin chore/npm-audit-fix-20261010
