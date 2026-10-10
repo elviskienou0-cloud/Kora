@@ -2,6 +2,23 @@ import { supabase } from "@/lib/supabase"
 
 export const TALENT_PORTFOLIO_BUCKET = "talent-portfolio"
 
+export const MAX_PORTFOLIO_FILE_SIZE = 50 * 1024 * 1024
+export const ALLOWED_PORTFOLIO_MIME_TYPES = new Set([
+  "image/jpeg", "image/png", "image/webp", "image/gif", "image/avif",
+  "video/mp4", "video/webm", "video/quicktime", "application/pdf",
+])
+
+export function validatePortfolioFile(file) {
+  if (!file) return "Fichier invalide."
+  if (!ALLOWED_PORTFOLIO_MIME_TYPES.has(file.type)) {
+    return "Format non pris en charge. Utilisez JPG, PNG, WebP, GIF, AVIF, MP4, WebM, MOV ou PDF."
+  }
+  if (!Number.isFinite(file.size) || file.size <= 0 || file.size > MAX_PORTFOLIO_FILE_SIZE) {
+    return "Chaque fichier doit peser au maximum 50 Mo."
+  }
+  return null
+}
+
 export function getPortfolioTypeFromMime(mime = "") {
   if (mime.startsWith("image/")) return "image"
   if (mime.startsWith("video/")) return "video"
