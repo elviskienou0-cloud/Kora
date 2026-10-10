@@ -50,7 +50,7 @@ import {
   deleteTalentPortfolioItems,
   uploadTalentPortfolioFiles,
 } from "@/lib/talentPortfolio"
-import { uploadTalentProfileMedia } from "@/lib/talentMedia"
+import { uploadTalentProfileMedia, resolveTalentProfileMedia } from "@/lib/talentMedia"
 
 const STATUS = {
   published: {
@@ -935,13 +935,15 @@ export default function ManagerTalents() {
 
       if (error) throw error
 
-      const nextTalents = (data || []).map((talent) => ({
-        ...talent,
+      const nextTalents = await Promise.all((data || []).map(async (talent) => {
+        const mediaResolved = await resolveTalentProfileMedia(talent)
+        return {
+        ...mediaResolved,
         name: `${talent.first_name || ""} ${talent.last_name || ""}`.trim(),
         cat: talent.categories?.name || "Non classé",
         ratingValue: Number(talent.rating || 0),
         tasks: Number(talent.completed_projects || 0),
-      }))
+      }}))
 
       setTalents(nextTalents)
       saveTalentsCache(nextTalents, nextSubscription || subscription)
@@ -1228,7 +1230,7 @@ export default function ManagerTalents() {
       }
 
       if (formData.avatarFile || formData.coverFile) {
-        // Upload vers le bucket public puis enregistrer les URLs dans talent_profiles.
+        // Upload vers le bucket privé puis enregistrer des références stables dans talent_profiles.
         // IMPORTANT : la fonction attend managerId puis talentId.
         const mediaUrls = await uploadTalentProfileMedia(
           managerId,
