@@ -13,7 +13,7 @@ export const SUPPORTED_LANGUAGES = {
   en: { code: "en", label: "English", flag: "🇬🇧", htmlLang: "en", locale: "en_GB" },
 }
 
-const fr = const fr = {
+const fr = {
   "common": {
     "appName": "KORA",
     "language": "Langue",
@@ -1462,7 +1462,7 @@ const fr = const fr = {
   }
 }
 
-const en = const en = {
+const en = {
   "common": {
     "appName": "KORA",
     "language": "Language",
