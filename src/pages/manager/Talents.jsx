@@ -27,7 +27,6 @@ import {
   Link2,
   Video,
   Image as ImageIcon,
-  ChevronRight,
 } from "lucide-react"
 
 import { Button } from "@/components/ui/button"
