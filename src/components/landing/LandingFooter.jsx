@@ -4,11 +4,6 @@ import {
   Mail,
   Phone,
   MapPin,
-  Facebook,
-  Twitter,
-  Instagram,
-  Linkedin,
-  Youtube,
   Heart,
 } from "lucide-react"
 import { cn } from "@/lib/utils.js"

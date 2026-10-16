@@ -5,7 +5,6 @@ import {
   CalendarDays,
   CheckCircle2,
   Loader2,
-  MapPin,
   MessageCircle,
   BriefcaseBusiness,
   XCircle,

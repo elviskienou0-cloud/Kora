@@ -24,6 +24,7 @@ const PAGE_SIZE = 10
 export default function ClientNotifications() {
   const { user } = useAuth()
   const { t, language } = useI18n()
+  const locale = language === "en" ? "en-GB" : "fr-FR"
   const userId = user?.authId || user?.id || null
 
   const [page, setPage] = useState(1)
@@ -101,6 +102,8 @@ export default function ClientNotifications() {
       .eq("user_id", userId)
 
     if (updateError) {
+      console.error("KORA: mark notification read failed", updateError)
+      toast.error(t("clientUi.notifications.markReadError"))
       toast.error(t("notifications.readError"))
       return
     }
@@ -124,6 +127,12 @@ export default function ClientNotifications() {
       .in("id", unreadIds)
 
     if (updateError) {
+      console.error("KORA: mark notifications read failed", updateError)
+      toast.error(t("clientUi.notifications.markAllError"))
+      return
+    }
+
+    toast.success(t("clientUi.notifications.markedAllRead"))
       toast.error(t("notifications.markAllError"))
       return
     }
@@ -146,6 +155,8 @@ export default function ClientNotifications() {
       <div className="mx-auto max-w-4xl space-y-6">
         <div className="flex flex-wrap items-end justify-between gap-4">
           <div>
+            <p className="text-xs font-bold uppercase tracking-[0.18em] text-gold">{t("clientUi.projects.area")}</p>
+            <h1 className="text-2xl font-black tracking-tight md:text-3xl">{t("clientUi.notifications.title")}</h1>
             <p className="text-xs font-bold uppercase tracking-[0.18em] text-gold">{t("notifications.clientArea")}</p>
             <h1 className="text-2xl font-black tracking-tight md:text-3xl">{t("notifications.title")}</h1>
             <p className="mt-1 text-sm text-muted-foreground">
@@ -164,18 +175,24 @@ export default function ClientNotifications() {
               {unreadOnly ? t("notifications.all") : t("notifications.unread")}
             </Button>
             <Button variant="outline" onClick={markAllVisibleAsRead} disabled={unreadCountOnPage === 0}>
+              <Check className="mr-2 h-4 w-4" /> {t("clientUi.notifications.markAllRead")}
+            </Button>
+            <Button variant="outline" onClick={refresh} disabled={refreshing || isFetching}>
+              <RefreshCw className={`mr-2 h-4 w-4 ${refreshing || isFetching ? "animate-spin" : ""}`} />
+              {t("clientUi.notifications.refresh")}
               <Check className="mr-2 h-4 w-4" /> {t("notifications.readAllButton")}
             </Button>
             <Button variant="outline" onClick={refresh} disabled={refreshing || isFetching}>
               <RefreshCw className={`mr-2 h-4 w-4 ${refreshing || isFetching ? "animate-spin" : ""}`} />
               {t("common.refresh")}
-            </Button>
+</Button>
           </div>
         </div>
 
         {error ? (
           <Card className="border-destructive/30">
             <CardContent className="p-6 text-sm text-destructive">
+              {t("clientUi.notifications.loadError")}
               {t("errors.loading")}
             </CardContent>
           </Card>
@@ -187,6 +204,11 @@ export default function ClientNotifications() {
           <Card className="border-dashed border-gold/30">
             <CardContent className="py-20 text-center">
               <Bell className="mx-auto mb-3 h-9 w-9 text-gold" />
+              <p className="font-semibold">{t("clientUi.notifications.none")}</p>
+              <p className="mt-1 text-sm text-muted-foreground">
+                {unreadOnly
+                  ? t("clientUi.notifications.noUnread")
+                  : t("clientUi.notifications.emptyDescription")}
               <p className="font-semibold">{t("notifications.noNotifications")}</p>
               <p className="mt-1 text-sm text-muted-foreground">
                 {unreadOnly
@@ -218,6 +240,13 @@ export default function ClientNotifications() {
                       <div className="min-w-0 flex-1">
                         <div className="flex flex-wrap items-start justify-between gap-3">
                           <div>
+                            <h2 className="font-bold">{notification.title || t("clientUi.notifications.fallbackTitle")}</h2>
+                            <p className="mt-1 text-xs text-muted-foreground">
+                              {new Date(notification.created_at).toLocaleString(locale)}
+                            </p>
+                          </div>
+                          {unread && <Badge className="bg-gold text-primary-foreground">{t("clientUi.notifications.new")}</Badge>}
+
                             <h2 className="font-bold">{notification.title || t("notifications.title")}</h2>
                             <p className="mt-1 text-xs text-muted-foreground">
                               {new Date(notification.created_at).toLocaleString(language === "en" ? "en-GB" : "fr-FR")}
@@ -232,6 +261,8 @@ export default function ClientNotifications() {
 
                         {unread && (
                           <Button variant="ghost" size="sm" className="mt-3" onClick={() => markRead(notification)}>
+                            <Check className="mr-2 h-4 w-4" /> {t("clientUi.notifications.markRead")}
+
                             <Check className="mr-2 h-4 w-4" /> {t("notifications.markRead")}
                           </Button>
                         )}
@@ -247,6 +278,8 @@ export default function ClientNotifications() {
         {!isLoading && totalPages > 1 && (
           <div className="flex flex-wrap items-center justify-between gap-3 rounded-xl border bg-card p-4">
             <p className="text-sm text-muted-foreground">
+              {t("clientUi.notifications.page", "Page {page}", { page })} {t("clientUi.notifications.of", "of {totalPages}", { totalPages })} · {t("clientUi.notifications.total", "{count} notification(s)", { count: total })}
+
               {t("notifications.pageOf", undefined, { page, total: totalPages })} · {total === 1 ? t("notifications.notificationCountOne", undefined, { count: total }) : t("notifications.notificationCountMany", undefined, { count: total })}
             </p>
 
@@ -257,6 +290,7 @@ export default function ClientNotifications() {
                 disabled={!hasPrevious || isFetching}
                 onClick={() => setPage((current) => Math.max(1, current - 1))}
               >
+                <ChevronLeft className="mr-1 h-4 w-4" /> {t("clientUi.notifications.previous")}
                 <ChevronLeft className="mr-1 h-4 w-4" /> {t("common.previous")}
               </Button>
               <Button
@@ -265,6 +299,8 @@ export default function ClientNotifications() {
                 disabled={!hasNext || isFetching}
                 onClick={() => setPage((current) => Math.min(totalPages, current + 1))}
               >
+                {t("clientUi.notifications.next")} <ChevronRight className="ml-1 h-4 w-4" />
+
                 {t("common.next")} <ChevronRight className="ml-1 h-4 w-4" />
               </Button>
             </div>

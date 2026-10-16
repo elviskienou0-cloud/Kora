@@ -2,7 +2,6 @@ import { useCallback, useRef, useState } from "react"
 import { motion, AnimatePresence } from "framer-motion"
 import {
   UploadCloud,
-  File,
   X,
   CheckCircle2,
   Image as ImageIcon,

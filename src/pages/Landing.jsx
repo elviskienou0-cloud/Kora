@@ -13,7 +13,6 @@ import {
   TrendingUp,
   Briefcase,
   Award,
-  ChevronRight,
   Target,
   Rocket,
   Heart,

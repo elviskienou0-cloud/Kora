@@ -29,6 +29,7 @@ jobs:
           node-version: 22
           cache: npm
       - run: npm ci
+
       - name: Report remaining dependency vulnerabilities
         shell: bash
         run: |
