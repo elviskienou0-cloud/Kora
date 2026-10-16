@@ -1,156 +1,148 @@
-import { readdir, readFile } from "node:fs/promises"
+import assert from "node:assert/strict"
+import fs from "node:fs"
 import path from "node:path"
 import vm from "node:vm"
+import { fileURLToPath } from "node:url"
+import { normalizeLanguage, persistLanguage, resolveInitialLanguage, STORAGE_KEY } from "../src/i18n/language.js"
 
-const root = process.cwd()
-const dictionaryPath = path.join(root, "src", "i18n", "kora-i18n.jsx")
-const sourceRoot = path.join(root, "src")
+const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..")
+const i18nPath = path.join(root, "src/i18n/kora-i18n.jsx")
+const i18nSource = fs.readFileSync(i18nPath, "utf8")
 
-function extractObject(source, name) {
-  const marker = `const ${name} = `
-  const markerIndex = source.indexOf(marker)
-  if (markerIndex < 0) throw new Error(`Dictionary "${name}" was not found.`)
-  const start = markerIndex + marker.length
+function extractObject(source, declaration) {
+  const declarationIndex = source.indexOf(declaration)
+  assert.notEqual(declarationIndex, -1, `Missing dictionary declaration: ${declaration}`)
+  const start = source.indexOf("{", declarationIndex)
   let depth = 0
-  let state = "code"
+  let quote = null
   let escaped = false
+  let lineComment = false
+  let blockComment = false
 
   for (let index = start; index < source.length; index += 1) {
-    const current = source[index]
+    const char = source[index]
     const next = source[index + 1]
 
-    if (state === "line-comment") {
-      if (current === "\n") state = "code"
+    if (lineComment) {
+      if (char === "\n") lineComment = false
       continue
     }
-    if (state === "block-comment") {
-      if (current === "*" && next === "/") {
-        state = "code"
+    if (blockComment) {
+      if (char === "*" && next === "/") {
+        blockComment = false
         index += 1
       }
       continue
     }
-    if (state !== "code") {
+    if (quote) {
       if (escaped) {
         escaped = false
         continue
       }
-      if (current === "\\") {
+      if (char === "\\") {
         escaped = true
         continue
       }
-      if (
-        (state === "double" && current === '"') ||
-        (state === "single" && current === "'") ||
-        (state === "template" && current === "`")
-      ) state = "code"
+      if (char === quote) quote = null
       continue
     }
-
-    if (current === "/" && next === "/") {
-      state = "line-comment"
+    if (char === "/" && next === "/") {
+      lineComment = true
       index += 1
       continue
     }
-    if (current === "/" && next === "*") {
-      state = "block-comment"
+    if (char === "/" && next === "*") {
+      blockComment = true
       index += 1
       continue
     }
-    if (current === '"') { state = "double"; continue }
-    if (current === "'") { state = "single"; continue }
-    if (current === "`") { state = "template"; continue }
-    if (current === "{") depth += 1
-    if (current === "}") {
+    if (char === "'" || char === '"' || char === "`") {
+      quote = char
+      continue
+    }
+    if (char === "{") depth += 1
+    if (char === "}") {
       depth -= 1
       if (depth === 0) return source.slice(start, index + 1)
     }
   }
 
-  throw new Error(`Dictionary object "${name}" has unbalanced braces.`)
+  throw new Error(`Unclosed dictionary object: ${declaration}`)
 }
 
-function evaluateDictionary(source, name) {
-  const objectSource = extractObject(source, name)
-  return vm.runInNewContext(`(${objectSource})`, Object.create(null), { timeout: 1000 })
-}
-
-function flattenDictionary(dictionary, prefix = "", output = new Map()) {
-  for (const [key, value] of Object.entries(dictionary)) {
+function flatten(value, prefix = "", result = {}) {
+  for (const [key, child] of Object.entries(value)) {
     const fullKey = prefix ? `${prefix}.${key}` : key
-    if (value && typeof value === "object" && !Array.isArray(value)) {
-      flattenDictionary(value, fullKey, output)
-    } else if (typeof value === "string") {
-      output.set(fullKey, value)
+    if (child && typeof child === "object" && !Array.isArray(child)) {
+      flatten(child, fullKey, result)
     } else {
-      throw new Error(`Translation value "${fullKey}" must be a string or nested object.`)
+      result[fullKey] = child
     }
   }
-  return output
+  return result
 }
 
-async function collectSourceFiles(directory) {
-  const entries = await readdir(directory, { withFileTypes: true })
-  const files = []
-  for (const entry of entries) {
+const fr = flatten(vm.runInNewContext(`(${extractObject(i18nSource, "const fr =")})`))
+const en = flatten(vm.runInNewContext(`(${extractObject(i18nSource, "const en =")})`))
+const frKeys = Object.keys(fr).sort()
+const enKeys = Object.keys(en).sort()
+const missingInEnglish = frKeys.filter((key) => !Object.hasOwn(en, key))
+const missingInFrench = enKeys.filter((key) => !Object.hasOwn(fr, key))
+const nonStringValues = [...frKeys, ...enKeys].filter((key) => {
+  const value = Object.hasOwn(fr, key) ? fr[key] : en[key]
+  return typeof value !== "string" || value.trim() === ""
+})
+const placeholderMismatches = frKeys
+  .filter((key) => Object.hasOwn(en, key))
+  .filter((key) => {
+    const variables = (value) => [...value.matchAll(/\{([A-Za-z0-9_]+)\}/g)].map((match) => match[1]).sort()
+    return JSON.stringify(variables(fr[key])) !== JSON.stringify(variables(en[key]))
+  })
+
+function sourceFiles(directory) {
+  return fs.readdirSync(directory, { withFileTypes: true }).flatMap((entry) => {
     const fullPath = path.join(directory, entry.name)
-    if (entry.isDirectory()) {
-      files.push(...await collectSourceFiles(fullPath))
-    } else if (/\.(?:js|jsx|ts|tsx)$/.test(entry.name)) {
-      files.push(fullPath)
-    }
-  }
-  return files
+    if (entry.isDirectory()) return sourceFiles(fullPath)
+    return /\.(?:js|jsx|ts|tsx)$/.test(entry.name) ? [fullPath] : []
+  })
 }
 
-const source = await readFile(dictionaryPath, "utf8")
-const fr = flattenDictionary(evaluateDictionary(source, "fr"))
-const en = flattenDictionary(evaluateDictionary(source, "en"))
-const missingInEnglish = [...fr.keys()].filter((key) => !en.has(key))
-const missingInFrench = [...en.keys()].filter((key) => !fr.has(key))
-
-if (missingInEnglish.length || missingInFrench.length) {
-  console.error("French/English dictionary parity failed.")
-  if (missingInEnglish.length) console.error("Missing in en:\n" + missingInEnglish.join("\n"))
-  if (missingInFrench.length) console.error("Missing in fr:\n" + missingInFrench.join("\n"))
-  process.exitCode = 1
-}
-
-const files = await collectSourceFiles(sourceRoot)
-const keyPattern = /\bt\s*\(\s*(["'`])([^"'`]+)\1/g
-const missingUsage = []
-let literalReferences = 0
-let dynamicReferencesSkipped = 0
-
-for (const file of files) {
-  const contents = await readFile(file, "utf8")
-  let match
-  while ((match = keyPattern.exec(contents))) {
-    const key = match[2]
-    if (key.includes("${")) {
-      dynamicReferencesSkipped += 1
-      continue
-    }
-    literalReferences += 1
-    if (!fr.has(key) || !en.has(key)) {
-      missingUsage.push({
-        file: path.relative(root, file).replaceAll(path.sep, "/"),
-        key,
-        missingFrench: !fr.has(key),
-        missingEnglish: !en.has(key),
-      })
+const missingStaticReferences = []
+for (const file of sourceFiles(path.join(root, "src"))) {
+  const source = fs.readFileSync(file, "utf8")
+  const expression = /\bt\s*\(\s*(?:([\"\'])([^\"\'\n]*)\1|`([^`]*)`)/g
+  for (const match of source.matchAll(expression)) {
+    const key = match[2] ?? match[3] ?? ""
+    if (key.includes("${")) continue
+    if (!Object.hasOwn(fr, key) || !Object.hasOwn(en, key)) {
+      const line = source.slice(0, match.index).split("\n").length
+      missingStaticReferences.push(`${path.relative(root, file)}:${line} → ${key}`)
     }
   }
 }
 
-if (missingUsage.length) {
-  console.error("Static translation references missing from one or both dictionaries:")
-  for (const item of missingUsage) {
-    console.error(`- ${item.file}: "${item.key}" (fr missing: ${item.missingFrench}; en missing: ${item.missingEnglish})`)
-  }
-  process.exitCode = 1
-}
+assert.deepEqual(missingInEnglish, [], `Missing English keys:\n${missingInEnglish.join("\n")}`)
+assert.deepEqual(missingInFrench, [], `Missing French keys:\n${missingInFrench.join("\n")}`)
+assert.deepEqual(nonStringValues, [], `Empty or non-string translation values:\n${nonStringValues.join("\n")}`)
+assert.deepEqual(placeholderMismatches, [], `Placeholder mismatch between FR and EN:\n${placeholderMismatches.join("\n")}`)
+assert.deepEqual(missingStaticReferences, [], `Static t() references missing from a dictionary:\n${missingStaticReferences.join("\n")}`)
 
-if (!process.exitCode) {
-  console.log(`i18n check passed: ${fr.size} keys in each dictionary, ${literalReferences} literal references checked, ${dynamicReferencesSkipped} dynamic references skipped.`)
-}
+// Exercise the language normalization and persistence contract without requiring a browser.
+assert.equal(normalizeLanguage("en"), "en")
+assert.equal(normalizeLanguage("fr"), "fr")
+assert.equal(normalizeLanguage("invalid"), "fr")
+assert.equal(resolveInitialLanguage("en"), "en")
+assert.equal(resolveInitialLanguage("fr"), "fr")
+assert.equal(resolveInitialLanguage(null), "fr")
+assert.equal(resolveInitialLanguage("invalid"), "fr")
+let savedKey = null
+let savedValue = null
+const fakeStorage = { setItem(key, value) { savedKey = key; savedValue = value } }
+assert.equal(persistLanguage("en", fakeStorage), "en")
+assert.equal(savedKey, STORAGE_KEY)
+assert.equal(savedValue, "en")
+assert.equal(persistLanguage("invalid", fakeStorage), "fr")
+assert.equal(savedValue, "fr")
+assert.equal(persistLanguage("en", { setItem() { throw new Error("storage unavailable") } }), "en")
+
+console.log(`i18n OK: ${frKeys.length} FR/EN keys in parity; ${frKeys.length} keys with matching placeholders; static references verified; language fallback and persistence tested.`)

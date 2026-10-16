@@ -21,8 +21,22 @@ import { playNotificationSound } from "@/lib/notificationSound"
 
 const PAGE_SIZE = 10
 
+function translateNotificationText(value, t) {
+  const text = String(value || "").trim()
+  if (!text) return text
+  const normalized = text.toLowerCase()
+  if (normalized === "new message" || normalized === "nouveau message") return t("notifications.message")
+  if (normalized === "new request de collaboration" || normalized === "nouvelle demande de collaboration" || normalized === "new collaboration request") return t("notifications.newCollaborationRequest")
+  if (normalized.includes("vous avez reçu un new message") || normalized.includes("you have received a new message") || normalized.includes("vous avez reçu un nouveau message")) return t("notifications.receivedNewMessage")
+  const requestPattern = /(?:le client vous a envoyé une request pour|le client vous a envoyé une demande pour|the client sent you a request for)\s*[«“"]?(.+?)[»”"]?\s*(?:concernant le talent|for talent)\s+(.+?)\.?$/i
+  const match = text.match(requestPattern)
+  if (match) return t("notifications.clientSentRequest", undefined, { project: match[1].replace(/[»”"]$/, "").trim(), talent: match[2].replace(/[.]+$/, "").trim() })
+  return text
+}
+
+
 export default function ManagerNotifications() {
-  const { t } = useI18n()
+  const { t, language } = useI18n()
   const { user } = useAuth()
   const userId = user?.authId || user?.id || null
 
@@ -101,7 +115,7 @@ export default function ManagerNotifications() {
       .eq("user_id", userId)
 
     if (updateError) {
-      toast.error(updateError.message || "Impossible de marquer la notification comme lue.")
+      toast.error(updateError.message || t("notifications.readError"))
       return
     }
 
@@ -124,11 +138,11 @@ export default function ManagerNotifications() {
       .in("id", unreadIds)
 
     if (updateError) {
-      toast.error(updateError.message || "Impossible de marquer les notifications.")
+      toast.error(t("notifications.markAllError"))
       return
     }
 
-    toast.success("Notifications marquées comme lues.")
+    toast.success(t("notifications.readSuccess"))
     queryClient.invalidateQueries({ queryKey: ["notifications"] })
   }
 
@@ -149,7 +163,7 @@ export default function ManagerNotifications() {
             <p className="text-xs font-bold uppercase tracking-[0.18em] text-gold">{t("manager.dashboard")}</p>
             <h1 className="text-2xl font-black tracking-tight md:text-3xl">{t("navigation.notifications")}</h1>
             <p className="mt-1 text-sm text-muted-foreground">
-              Recevez les invitations clients et les mises à jour importantes.
+              {t("manager.notificationsDescription")}
             </p>
           </div>
 
@@ -161,14 +175,14 @@ export default function ManagerNotifications() {
                 setPage(1)
               }}
             >
-              {unreadOnly ? "Toutes" : "Non lues"}
+              {unreadOnly ? t("notifications.all") : t("notifications.unread")}
             </Button>
             <Button variant="outline" onClick={markAllVisibleAsRead} disabled={unreadCountOnPage === 0}>
-              <Check className="mr-2 h-4 w-4" /> Tout lire
+              <Check className="mr-2 h-4 w-4" /> {t("notifications.readAllButton")}
             </Button>
             <Button variant="outline" onClick={refresh} disabled={refreshing || isFetching}>
               <RefreshCw className={`mr-2 h-4 w-4 ${refreshing || isFetching ? "animate-spin" : ""}`} />
-              Actualiser
+              {t("common.refresh")}
             </Button>
           </div>
         </div>
@@ -176,7 +190,7 @@ export default function ManagerNotifications() {
         {error ? (
           <Card className="border-destructive/30">
             <CardContent className="p-6 text-sm text-destructive">
-              {error.message || "Impossible de charger les notifications."}
+              {error.message || t("notifications.loadError")}
             </CardContent>
           </Card>
         ) : isLoading ? (
@@ -190,8 +204,8 @@ export default function ManagerNotifications() {
               <p className="font-semibold">{t("notifications.noNotifications")}</p>
               <p className="mt-1 text-sm text-muted-foreground">
                 {unreadOnly
-                  ? "Vous n'avez aucune notification non lue."
-                  : "Les notifications importantes apparaîtront ici."}
+                  ? t("manager.noUnreadNotifications")
+                   : t("manager.importantNotificationsEmpty")}
               </p>
             </CardContent>
           </Card>
@@ -218,21 +232,21 @@ export default function ManagerNotifications() {
                       <div className="min-w-0 flex-1">
                         <div className="flex flex-wrap items-start justify-between gap-3">
                           <div>
-                            <h2 className="font-bold">{notification.title || "Notification KORA"}</h2>
+                            <h2 className="font-bold">{translateNotificationText(notification.title || "Notification KORA", t)}</h2>
                             <p className="mt-1 text-xs text-muted-foreground">
-                              {new Date(notification.created_at).toLocaleString("fr-FR")}
+                              {new Date(notification.created_at).toLocaleString(language === "en" ? "en-GB" : "fr-FR")}
                             </p>
                           </div>
                           {unread && <Badge className="bg-gold text-primary-foreground">{t("notifications.message")}</Badge>}
                         </div>
 
                         <p className="mt-3 whitespace-pre-line text-sm leading-6 text-muted-foreground">
-                          {notification.message || ""}
+                          {translateNotificationText(notification.message || "", t)}
                         </p>
 
                         {unread && (
                           <Button variant="ghost" size="sm" className="mt-3" onClick={() => markRead(notification)}>
-                            <Check className="mr-2 h-4 w-4" /> Marquer comme lu
+                            <Check className="mr-2 h-4 w-4" /> {t("manager.markAsRead")}
                           </Button>
                         )}
                       </div>
@@ -247,7 +261,7 @@ export default function ManagerNotifications() {
         {!isLoading && totalPages > 1 && (
           <div className="flex flex-wrap items-center justify-between gap-3 rounded-xl border bg-card p-4">
             <p className="text-sm text-muted-foreground">
-              Page {page} sur {totalPages} · {total} notification{total > 1 ? "s" : ""}
+              {t("manager.notificationPageOf", undefined, { page, total: totalPages })} · {t(total === 1 ? "manager.notificationCountOne" : "manager.notificationCountMany", undefined, { count: total })}
             </p>
 
             <div className="flex items-center gap-2">
@@ -257,7 +271,7 @@ export default function ManagerNotifications() {
                 disabled={!hasPrevious || isFetching}
                 onClick={() => setPage((current) => Math.max(1, current - 1))}
               >
-                <ChevronLeft className="mr-1 h-4 w-4" /> Précédente
+                <ChevronLeft className="mr-1 h-4 w-4" /> {t("manager.previousPage")}
               </Button>
               <Button
                 variant="outline"
@@ -265,7 +279,7 @@ export default function ManagerNotifications() {
                 disabled={!hasNext || isFetching}
                 onClick={() => setPage((current) => Math.min(totalPages, current + 1))}
               >
-                Suivante <ChevronRight className="ml-1 h-4 w-4" />
+                {t("manager.nextPage")} <ChevronRight className="ml-1 h-4 w-4" />
               </Button>
             </div>
           </div>

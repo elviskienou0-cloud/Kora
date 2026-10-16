@@ -40,7 +40,7 @@ function formatDate(value) {
 }
 
 export default function ManagerSubscription() {
-  const { t } = useI18n()
+  const { t, language } = useI18n()
   const { user } = useAuth()
   const managerId = user?.authId || user?.id
 
@@ -49,6 +49,7 @@ export default function ManagerSubscription() {
   const [payments, setPayments] = useState([])
   const [loading, setLoading] = useState(true)
   const [loadingPlan, setLoadingPlan] = useState(null)
+  const [nowMs, setNowMs] = useState(Date.now())
 
   const load = async () => {
     if (!managerId) return
@@ -75,8 +76,21 @@ export default function ManagerSubscription() {
 
   useEffect(() => { load() }, [managerId])
 
+  useEffect(() => {
+    const timer = window.setInterval(() => setNowMs(Date.now()), 60_000)
+    return () => window.clearInterval(timer)
+  }, [])
+
   const currentPlanId = String(subscription?.plan_id || subscription?.plan || "FREE").toUpperCase()
   const currentIsActive = ["trialing", "active"].includes(subscription?.status)
+  const expiresAt = subscription?.current_period_end || subscription?.trial_end
+  const remainingMs = expiresAt ? Math.max(0, new Date(expiresAt).getTime() - nowMs) : null
+  const remainingDays = remainingMs === null ? null : Math.floor(remainingMs / 86_400_000)
+  const remainingHours = remainingMs === null ? null : Math.floor((remainingMs % 86_400_000) / 3_600_000)
+  const remainingMinutes = remainingMs === null ? null : Math.floor((remainingMs % 3_600_000) / 60_000)
+  const countdownText = remainingMs === null ? null : language === "en"
+    ? `${remainingDays}d ${remainingHours}h ${remainingMinutes}m remaining`
+    : `${remainingDays} j ${remainingHours} h ${remainingMinutes} min restantes`
   const freeTrialExpired =
     String(subscription?.plan_id || subscription?.plan || "").toUpperCase() === "FREE" &&
     Boolean(
@@ -175,6 +189,19 @@ export default function ManagerSubscription() {
             <div>
               <p className="font-black">{t("subscriptions.expired")}</p>
               <p className="text-sm text-muted-foreground">{t("manager.subscription")}</p>
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
+      {currentIsActive && expiresAt && countdownText && remainingMs > 0 && (
+        <Card className="border-gold/30 bg-gold/5">
+          <CardContent className="p-5 flex items-center gap-3">
+            <Clock3 className="h-5 w-5 text-gold" />
+            <div>
+              <p className="font-black">{language === "en" ? "Subscription time remaining" : "Temps restant sur l’abonnement"}</p>
+              <p className="text-sm text-muted-foreground">{countdownText}</p>
+              <p className="text-xs text-muted-foreground">{language === "en" ? "Access is automatically restricted at expiry." : "Les accès sont automatiquement limités à l’expiration."}</p>
             </div>
           </CardContent>
         </Card>
