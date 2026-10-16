@@ -1,0 +1,63 @@
+-- Composite and partial hot-path indexes reconstructed from the linked project's pg_indexes inventory.
+-- Existing schema migrations may already create some of these names; IF NOT EXISTS prevents duplicates.
+-- Production already records this version; this file restores source parity only.
+begin;
+
+CREATE INDEX IF NOT EXISTS idx_activity_logs_user ON public.activity_logs USING btree (user_id, created_at DESC);
+CREATE INDEX IF NOT EXISTS idx_activity_logs_user_action_created_at ON public.activity_logs USING btree (user_id, action, created_at DESC);
+CREATE INDEX IF NOT EXISTS admin_audit_logs_actor_idx ON public.admin_audit_logs USING btree (actor_id, created_at DESC);
+CREATE INDEX IF NOT EXISTS admin_audit_logs_entity_idx ON public.admin_audit_logs USING btree (entity_type, entity_id, created_at DESC);
+CREATE INDEX IF NOT EXISTS idx_conversation_participants_user_conversation ON public.conversation_participants USING btree (user_id, conversation_id);
+CREATE UNIQUE INDEX IF NOT EXISTS favorites_client_id_talent_id_key ON public.favorites USING btree (client_id, talent_id);
+CREATE INDEX IF NOT EXISTS idx_favorites_client_created ON public.favorites USING btree (client_id, created_at DESC);
+CREATE INDEX IF NOT EXISTS kora_payouts_manager_idx ON public.kora_payouts USING btree (manager_id, created_at DESC);
+CREATE INDEX IF NOT EXISTS idx_kora_transactions_client_status ON public.kora_transactions USING btree (client_id, status);
+CREATE INDEX IF NOT EXISTS idx_kora_transactions_manager_status ON public.kora_transactions USING btree (manager_id, status);
+CREATE INDEX IF NOT EXISTS kora_transactions_client_idx ON public.kora_transactions USING btree (client_id, created_at DESC);
+CREATE INDEX IF NOT EXISTS kora_transactions_manager_idx ON public.kora_transactions USING btree (manager_id, created_at DESC);
+CREATE INDEX IF NOT EXISTS kora_transactions_status_idx ON public.kora_transactions USING btree (status, created_at DESC);
+CREATE INDEX IF NOT EXISTS idx_messages_conversation_created ON public.messages USING btree (conversation_id, created_at DESC);
+CREATE INDEX IF NOT EXISTS idx_messages_sender_created ON public.messages USING btree (sender_id, created_at DESC);
+CREATE INDEX IF NOT EXISTS idx_messages_unread ON public.messages USING btree (conversation_id) WHERE (read_at IS NULL);
+CREATE INDEX IF NOT EXISTS idx_notifications_user_created_at ON public.notifications USING btree (user_id, created_at DESC);
+CREATE INDEX IF NOT EXISTS idx_notifications_user_read ON public.notifications USING btree (user_id, is_read);
+CREATE INDEX IF NOT EXISTS idx_notifications_user_unread ON public.notifications USING btree (user_id, is_read, created_at DESC);
+CREATE INDEX IF NOT EXISTS payment_events_payment_idx ON public.payment_events USING btree (payment_id, created_at DESC);
+CREATE UNIQUE INDEX IF NOT EXISTS payment_events_provider_provider_event_id_key ON public.payment_events USING btree (provider, provider_event_id);
+CREATE INDEX IF NOT EXISTS idx_payments_user_created ON public.payments USING btree (user_id, created_at DESC);
+CREATE UNIQUE INDEX IF NOT EXISTS payments_provider_payment_id_idx ON public.payments USING btree (provider, provider_payment_id) WHERE (provider_payment_id IS NOT NULL);
+CREATE INDEX IF NOT EXISTS payments_status_created_idx ON public.payments USING btree (status, created_at DESC);
+CREATE INDEX IF NOT EXISTS plans_active_idx ON public.plans USING btree (is_active, price);
+CREATE INDEX IF NOT EXISTS idx_profiles_role_created_at ON public.profiles USING btree (role, created_at DESC);
+CREATE INDEX IF NOT EXISTS idx_profiles_suspension ON public.profiles USING btree (is_suspended, updated_at DESC);
+CREATE INDEX IF NOT EXISTS idx_projects_client_created ON public.projects USING btree (client_id, created_at DESC);
+CREATE INDEX IF NOT EXISTS idx_projects_manager_created ON public.projects USING btree (manager_id, created_at DESC);
+CREATE INDEX IF NOT EXISTS projects_status_created_idx ON public.projects USING btree (status, created_at DESC);
+CREATE INDEX IF NOT EXISTS reports_reporter_idx ON public.reports USING btree (reporter_id, created_at DESC);
+CREATE INDEX IF NOT EXISTS reports_status_created_idx ON public.reports USING btree (status, created_at DESC);
+CREATE INDEX IF NOT EXISTS reports_target_idx ON public.reports USING btree (target_type, target_id);
+CREATE INDEX IF NOT EXISTS idx_requests_client_status_created ON public.requests USING btree (client_id, status, created_at DESC);
+CREATE INDEX IF NOT EXISTS idx_requests_manager_status_created ON public.requests USING btree (manager_id, status, created_at DESC);
+CREATE INDEX IF NOT EXISTS idx_requests_project_created ON public.requests USING btree (project_id, created_at DESC);
+CREATE INDEX IF NOT EXISTS idx_requests_talent_created ON public.requests USING btree (talent_id, created_at DESC);
+CREATE INDEX IF NOT EXISTS requests_manager_created_idx ON public.requests USING btree (manager_id, created_at DESC);
+CREATE INDEX IF NOT EXISTS requests_status_created_idx ON public.requests USING btree (status, created_at DESC);
+CREATE INDEX IF NOT EXISTS requests_talent_status_idx ON public.requests USING btree (talent_id, status);
+CREATE INDEX IF NOT EXISTS idx_reviews_project_created ON public.reviews USING btree (project_id, created_at DESC);
+CREATE INDEX IF NOT EXISTS idx_reviews_talent_visible ON public.reviews USING btree (talent_id) WHERE (is_visible = true);
+CREATE UNIQUE INDEX IF NOT EXISTS reviews_one_per_project_talent_client_idx ON public.reviews USING btree (client_id, talent_id, project_id) WHERE ((source = 'project_review'::text) AND (client_id IS NOT NULL) AND (talent_id IS NOT NULL) AND (project_id IS NOT NULL));
+CREATE INDEX IF NOT EXISTS reviews_project_client_idx ON public.reviews USING btree (project_id, client_id);
+CREATE INDEX IF NOT EXISTS reviews_public_idx ON public.reviews USING btree (is_visible, source, created_at DESC);
+CREATE INDEX IF NOT EXISTS reviews_talent_created_idx ON public.reviews USING btree (talent_id, created_at DESC);
+CREATE INDEX IF NOT EXISTS reviews_visible_rating_idx ON public.reviews USING btree (is_visible, rating, created_at DESC);
+CREATE INDEX IF NOT EXISTS idx_subscriptions_status_end ON public.subscriptions USING btree (status, current_period_end);
+CREATE INDEX IF NOT EXISTS idx_subscriptions_user_status ON public.subscriptions USING btree (user_id, status, current_period_end DESC);
+CREATE INDEX IF NOT EXISTS subscriptions_status_updated_idx ON public.subscriptions USING btree (status, updated_at DESC);
+CREATE INDEX IF NOT EXISTS subscriptions_user_updated_idx ON public.subscriptions USING btree (user_id, updated_at DESC);
+CREATE INDEX IF NOT EXISTS idx_talent_profiles_available_rate ON public.talent_profiles USING btree (available, daily_rate);
+CREATE INDEX IF NOT EXISTS idx_talent_profiles_manager_updated ON public.talent_profiles USING btree (managed_by, updated_at DESC);
+CREATE INDEX IF NOT EXISTS idx_talent_profiles_visible_available ON public.talent_profiles USING btree (is_visible, available) WHERE (is_visible = true);
+CREATE INDEX IF NOT EXISTS talent_profiles_status_visible_idx ON public.talent_profiles USING btree (status, is_visible, updated_at DESC);
+CREATE INDEX IF NOT EXISTS user_consents_type_idx ON public.user_consents USING btree (user_id, consent_type);
+
+commit;

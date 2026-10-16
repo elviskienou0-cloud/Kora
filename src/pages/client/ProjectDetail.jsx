@@ -26,6 +26,12 @@ function formatMoney(value, currency, locale = "fr-FR") {
     return new Intl.NumberFormat(locale, { style: "currency", currency: currency || "XOF", maximumFractionDigits: 0 }).format(Number(value))
   } catch {
     return `${Number(value).toLocaleString(locale)} ${currency || "XOF"}`
+function formatMoney(value, currency, language = "fr") {
+  if (value === null || value === undefined) return "—"
+  try {
+    return new Intl.NumberFormat(language === "en" ? "en-GB" : "fr-FR", { style: "currency", currency: currency || "XOF", maximumFractionDigits: 0 }).format(Number(value))
+  } catch {
+    return `${Number(value).toLocaleString(language === "en" ? "en-GB" : "fr-FR")} ${currency || "XOF"}`
   }
 }
 
@@ -104,6 +110,7 @@ export default function ProjectDetail() {
       console.error("Erreur détail projet :", error)
       console.error("KORA: project detail load failed", error)
       toast.error(error?.message === "PROJECT_NOT_FOUND" ? t("clientUi.projects.projectNotFound") : t("clientUi.projects.loadError"))
+      toast.error(t("projects.cannotLoad"))
       navigate("/client/projects", { replace: true })
       return
     } finally {
@@ -118,6 +125,7 @@ export default function ProjectDetail() {
   const cancelProject = async () => {
     if (!project || ["completed", "cancelled"].includes(project.status)) return
     if (!window.confirm(t("clientUi.projects.cancelConfirm", "Cancel project “{title}”? ", { title: project.title }))) return
+    if (!window.confirm(t("projects.cancelConfirm"))) return
 
     const { error } = await supabase
       .from("projects")
@@ -132,11 +140,16 @@ export default function ProjectDetail() {
     }
 
     toast.success(t("clientUi.projects.cancelled"))
+      toast.error(t("projects.saveError"))
+      return
+    }
+
+    toast.success(t("projects.cancelledToast"))
     loadProject()
   }
 
   if (loading) {
-    return <div className="min-h-[60vh] flex items-center justify-center"><Loader2 className="h-7 w-7 animate-spin text-gold" /></div>
+    return <div className="min-h-[60vh] flex items-center justify-center"><Loader2 className="h-7 w-7 animate-spin text-gold" aria-label={t("common.loading")} /></div>
   }
 
   if (!project) return null
@@ -149,6 +162,12 @@ export default function ProjectDetail() {
     : project.budget_max != null
     ? `${t("clientUi.projects.upTo")} ${formatMoney(project.budget_max, project.currency, locale)}`
      : t("clientUi.projects.undefinedBudget")
+    ? `${formatMoney(project.budget_min, project.currency, language)} — ${formatMoney(project.budget_max, project.currency, language)}`
+    : project.budget_min != null
+    ? t("projects.startingAt", undefined, { amount: formatMoney(project.budget_min, project.currency, language) })
+    : project.budget_max != null
+    ? t("projects.upTo", undefined, { amount: formatMoney(project.budget_max, project.currency, language) })
+    : t("projects.budgetUndefined")
 
   return (
     <div className="min-h-[70vh] bg-gradient-to-br from-accent/30 via-background to-background p-4 md:p-8">
@@ -162,6 +181,11 @@ export default function ProjectDetail() {
             </div>
           </div>
           <Badge variant="outline" className={status.className}>{status.labelKey ? t(status.labelKey) : status.label}</Badge>
+              <p className="text-xs font-bold uppercase tracking-[0.18em] text-gold">{t("projects.projectLabel")}</p>
+              <h1 className="text-2xl font-black tracking-tight">{project.title}</h1>
+            </div>
+          </div>
+          <Badge variant="outline" className={status.className}>{t(status.labelKey)}</Badge>
         </div>
 
         <Card className="border-gold/20">
@@ -179,6 +203,14 @@ export default function ProjectDetail() {
             <CardContent className="flex items-center gap-2 text-sm font-medium">
               <CalendarDays className="h-4 w-4 text-gold-dark" />
               {project.due_date ? new Date(`${project.due_date}T00:00:00`).toLocaleDateString(locale) : t("clientUi.projects.dueDateMissing")}
+            <CardHeader><CardTitle className="text-base">{t("projects.budget")}</CardTitle></CardHeader>
+            <CardContent className="text-sm font-medium">{budget}</CardContent>
+          </Card>
+          <Card className="border-gold/15">
+            <CardHeader><CardTitle className="text-base">{t("projects.dueDateLabel")}</CardTitle></CardHeader>
+            <CardContent className="flex items-center gap-2 text-sm font-medium">
+              <CalendarDays className="h-4 w-4 text-gold-dark" />
+              {project.due_date ? new Date(`${project.due_date}T00:00:00`).toLocaleDateString(language === "en" ? "en-GB" : "fr-FR") : t("common.notProvided")}
             </CardContent>
           </Card>
         </div>
@@ -187,12 +219,15 @@ export default function ProjectDetail() {
           <Card className="border-gold/20 bg-gold/5">
             <CardHeader>
               <CardTitle className="flex items-center gap-2"><Star className="h-5 w-5 text-gold" /> {t("clientUi.projects.rateProject")}</CardTitle>
+              <CardTitle className="flex items-center gap-2"><Star className="h-5 w-5 text-gold" /> {t("projects.evaluateProject")}</CardTitle>
             </CardHeader>
             <CardContent>
               <p className="text-sm text-muted-foreground mb-4">
                 {eligibleTalents.length
                   ? t("clientUi.projects.completedReviewPrompt")
                   : t("clientUi.projects.noEligibleTalents")
+                  ? t("projects.reviewDescription")
+                  : t("projects.noEligibleTalent")
                 }
               </p>
               {eligibleTalents.length > 0 && !alreadyReviewed ? (
@@ -201,6 +236,10 @@ export default function ProjectDetail() {
                 </Button>
               ) : eligibleTalents.length > 0 ? (
                 <Badge variant="outline" className="border-emerald-500/30 bg-emerald-500/10 text-emerald-700">{t("clientUi.projects.reviewsAlreadySaved")}</Badge>
+                  <Link to={`/client/projects/${project.id}/review`}><Star className="h-4 w-4" /> {t("reviews.submit")}</Link>
+                </Button>
+              ) : eligibleTalents.length > 0 ? (
+                <Badge variant="outline" className="border-emerald-500/30 bg-emerald-500/10 text-emerald-700">{t("projects.reviewAlreadySubmitted")}</Badge>
               ) : null}
             </CardContent>
           </Card>
@@ -219,6 +258,16 @@ export default function ProjectDetail() {
               <Button variant="outline" onClick={() => navigate("/messages")}><MessageCircle className="mr-2 h-4 w-4" /> {t("clientUi.projects.messages")}</Button>
               {!['completed', 'cancelled'].includes(project.status) && (
                 <Button variant="ghost" onClick={cancelProject} className="text-red-600 hover:bg-red-50 hover:text-red-700"><XCircle className="mr-2 h-4 w-4" /> {t("clientUi.projects.cancelProject")}</Button>
+              <div><p className="text-muted-foreground">{t("projects.createdAt")}</p><p className="font-medium">{new Date(project.created_at).toLocaleString("fr-FR")}</p></div>
+              <div><p className="text-muted-foreground">{t("projects.lastUpdated")}</p><p className="font-medium">{project.updated_at ? new Date(project.updated_at).toLocaleString("fr-FR") : "—"}</p></div>
+              <div><p className="text-muted-foreground">{t("requests.manager")}</p><p className="font-medium">{project.manager_id ? t("projects.assigned") : t("projects.unassigned")}</p></div>
+            </div>
+            <Separator className="my-5" />
+            <div className="flex flex-wrap justify-end gap-2">
+              <Button variant="outline" asChild><Link to={`/client/projects/${project.id}/edit`}><Edit3 className="mr-2 h-4 w-4" /> {t("common.edit")}</Link></Button>
+              <Button variant="outline" onClick={() => navigate("/messages")}><MessageCircle className="mr-2 h-4 w-4" /> {t("navigation.messages")}</Button>
+              {!['completed', 'cancelled'].includes(project.status) && (
+                <Button variant="ghost" onClick={cancelProject} className="text-red-600 hover:bg-red-50 hover:text-red-700"><XCircle className="mr-2 h-4 w-4" /> {t("projects.cancel")}</Button>
               )}
             </div>
           </CardContent>

@@ -17,6 +17,7 @@ import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
   cn,
 } from "@/lib/utils"
+import { cn } from "@/lib/utils";
 import { useAuth } from "@/lib/AuthContext";
 import { supabase } from "@/lib/supabase";
 import { useI18n } from "@/i18n/kora-i18n.jsx";
@@ -53,6 +54,7 @@ const itemVariants = {
 
 export default function ClientFavorites() {
   const { user } = useAuth();
+  const { t, language } = useI18n();
   const navigate = useNavigate();
   const { t: tr, language } = useI18n();
   const locale = language === "en" ? "en-GB" : "fr-FR";
@@ -149,6 +151,7 @@ export default function ClientFavorites() {
       } catch (err) {
         console.error("Erreur chargement des favoris :", err);
         if (mounted) setLoadError("clientUi.favorites.loadingError");
+        if (mounted) setLoadError(t("favorites.loadError"));
       } finally {
         if (mounted) setLoading(false);
       }
@@ -160,19 +163,20 @@ export default function ClientFavorites() {
       mounted = false;
     };
   }, [user?.authId, tr]);
+  }, [user?.authId, t]);
 
   const categories = useMemo(() => {
     const seen = new Map();
     favorites.forEach((t) => {
       if (t.categoryId && !seen.has(t.categoryId)) {
-        seen.set(t.categoryId, t.categoryLabel || "Autre");
+        seen.set(t.categoryId, t.categoryLabel || t("favorites.categoryOther"));
       }
     });
     return [
-      { id: "all", label: "Tous" },
+      { id: "all", label: t("favorites.all") },
       ...Array.from(seen.entries()).map(([id, label]) => ({ id, label })),
     ];
-  }, [favorites]);
+  }, [favorites, t]);
 
   const filtered = favorites.filter((t) => {
     const matchSearch =
@@ -193,11 +197,13 @@ export default function ClientFavorites() {
 
     if (!talent?.managedBy) {
       toast.error(tr("clientUi.favorites.managerUnavailable"))
+      toast.error(t("favorites.managerUnavailable"))
       return
     }
 
     if (talent.managedBy === user.authId) {
       toast.info(tr("clientUi.favorites.ownTalent"))
+      toast.info(t("favorites.ownTalent"))
       return
     }
 
@@ -209,6 +215,8 @@ export default function ClientFavorites() {
     } catch (error) {
       console.error("Erreur ouverture conversation favori :", error)
       toast.error(tr("clientUi.favorites.contactError"))
+
+      toast.error(t("favorites.contactError"))
     } finally {
       setContactingTalentId(null)
     }
@@ -230,6 +238,7 @@ export default function ClientFavorites() {
     } catch (err) {
       console.error("Erreur suppression favori :", err);
       toast.error(tr("clientUi.favorites.removeError"));
+      toast.error(t("favorites.removeError"));
       setFavorites(previous);
     }
   };
@@ -256,6 +265,10 @@ export default function ClientFavorites() {
                 </h1>
                 <p className="mt-1 text-sm text-muted-foreground">
                   {tr("clientUi.favorites.savedCount", "{count} saved talent(s)", { count: favorites.length })}
+                  {t("favorites.title")}
+                </h1>
+                <p className="mt-1 text-sm text-muted-foreground">
+                  {favorites.length === 1 ? t("favorites.savedOne", undefined, { count: favorites.length }) : t("favorites.savedMany", undefined, { count: favorites.length })}
                 </p>
               </div>
             </div>
@@ -264,6 +277,7 @@ export default function ClientFavorites() {
                 <Search className="absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
                 <Input
                   placeholder={tr("clientUi.favorites.searchPlaceholder")}
+                  placeholder={t("favorites.searchPlaceholder")}
                   value={search}
                   onChange={(e) => setSearch(e.target.value)}
                   className="h-11 pl-11 pr-4 border-gold/30 focus:border-gold focus:ring-gold/30"
@@ -318,6 +332,7 @@ export default function ClientFavorites() {
         {loading ? (
           <div className="flex items-center justify-center py-20">
             <Loader2 className="h-8 w-8 text-gold animate-spin" aria-label={tr("clientUi.favorites.loading")} />
+            <Loader2 className="h-8 w-8 text-gold animate-spin" aria-label={t("common.loading")} />
           </div>
         ) : (
         <AnimatePresence mode="wait">
@@ -360,6 +375,17 @@ export default function ClientFavorites() {
                     </Button>
                     <Button variant="outline" className="border-gold/40 text-gold-dark hover:bg-gold/10">
                       {tr("clientUi.favorites.howItWorks")}
+                  <h2 className="text-xl font-bold text-foreground">{t("favorites.noFavoritesTitle")}</h2>
+                  <p className="mt-2 max-w-md text-sm text-muted-foreground">
+                    {t("favorites.emptyDescription")}
+                  </p>
+                  <div className="mt-8 flex flex-col items-center gap-3 sm:flex-row">
+                    <Button className="gold-gradient text-primary-foreground hover:opacity-90 shadow-md shadow-gold/30">
+                      {t("favorites.discoverAction")}
+                      <ArrowRight className="ml-2 h-4 w-4" />
+                    </Button>
+                    <Button variant="outline" className="border-gold/40 text-gold-dark hover:bg-gold/10">
+                      {t("favorites.howItWorks")}
                     </Button>
                   </div>
                   <Separator className="my-10 max-w-xs" />
@@ -368,6 +394,9 @@ export default function ClientFavorites() {
                       { icon: Heart, title: tr("clientUi.favorites.clickOn"), desc: tr("clientUi.favorites.clickOnDescription") },
                       { icon: Eye, title: tr("clientUi.favorites.findThem"), desc: tr("clientUi.favorites.findThemDescription") },
                       { icon: Send, title: tr("clientUi.favorites.sendRequests"), desc: tr("clientUi.favorites.sendRequestsDescription") },
+                      { icon: Heart, title: t("favorites.tutorialHeartTitle"), desc: t("favorites.tutorialHeartDescription") },
+                      { icon: Eye, title: t("favorites.tutorialFindTitle"), desc: t("favorites.tutorialFindDescription") },
+                      { icon: Send, title: t("favorites.tutorialRequestTitle"), desc: t("favorites.tutorialRequestDescription") },
                     ].map((f, i) => (
                       <div key={i} className="flex gap-3 rounded-xl border border-gold/15 bg-card p-4">
                         <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-gold/15 text-gold-dark">
@@ -398,6 +427,9 @@ export default function ClientFavorites() {
                   <h3 className="text-lg font-semibold">{tr("clientUi.favorites.noResults")}</h3>
                   <p className="mt-1 text-sm text-muted-foreground">
                     {tr("clientUi.favorites.noResultsDescription", "None match {search}", { search })}
+                  <h3 className="text-lg font-semibold">{t("favorites.noSearchResults")}</h3>
+                  <p className="mt-1 text-sm text-muted-foreground">
+                    {t("favorites.matchingSearch", undefined, { search })}
                   </p>
                   <Button
                     variant="ghost"
@@ -405,6 +437,7 @@ export default function ClientFavorites() {
                     className="mt-4 text-sm text-gold-dark hover:bg-gold/10"
                   >
                     <X className="mr-1 h-3.5 w-3.5" /> {tr("clientUi.projects.clearSearch")}
+                    <X className="mr-1 h-3.5 w-3.5" /> {t("common.clear")}
                   </Button>
                 </CardContent>
               </Card>
@@ -417,32 +450,34 @@ export default function ClientFavorites() {
               animate="visible"
               className="grid gap-5 md:grid-cols-2 xl:grid-cols-3"
             >
-              {filtered.map((t) => (
-                <motion.div key={t.id} variants={itemVariants} layout>
+              {filtered.map((talent) => (
+                <motion.div key={talent.id} variants={itemVariants} layout>
                   <Card className="group h-full border-gold/15 transition-all duration-300 hover:border-gold/40 hover:shadow-xl hover:shadow-gold/10 relative overflow-hidden">
                     <div className="absolute right-0 top-0 flex items-center gap-1 rounded-bl-xl bg-rose-500/10 px-2.5 py-1 text-[10px] font-semibold text-rose-500">
                       <Heart className="h-3 w-3 fill-rose-500" /> {t.savedAt ? new Date(t.savedAt).toLocaleDateString(locale) : "—"}
+
+                      <Heart className="h-3 w-3 fill-rose-500" /> {new Date(talent.savedAt).toLocaleDateString(language === "en" ? "en-GB" : "fr-FR")}
                     </div>
                     <CardHeader className="pb-3 pt-6">
                       <div className="flex items-start justify-between">
                         <div className="flex items-start gap-3">
                           <Avatar className="h-14 w-14 ring-2 ring-gold/30 ring-offset-2 ring-offset-card">
                             <AvatarFallback className="gold-gradient text-white font-bold text-lg">
-                              {t.firstName[0] || ""}{t.lastName[0] || ""}
+                              {talent.firstName[0] || ""}{talent.lastName[0] || ""}
                             </AvatarFallback>
                           </Avatar>
                           <div className="min-w-0 pr-2">
                             <div className="flex items-center gap-1.5">
-                              <h3 className="font-bold truncate">{t.firstName} {t.lastName}</h3>
-                              {t.verified && (
+                              <h3 className="font-bold truncate">{talent.firstName} {talent.lastName}</h3>
+                              {talent.verified && (
                                 <CheckCircle2 className="h-4 w-4 shrink-0 text-emerald-500 fill-emerald-50" />
                               )}
                             </div>
-                            {t.title && <p className="text-sm font-medium text-gold-dark truncate">{t.title}</p>}
-                            {(t.city || t.country) && (
+                            {talent.title && <p className="text-sm font-medium text-gold-dark truncate">{talent.title}</p>}
+                            {(talent.city || talent.country) && (
                               <div className="mt-1 flex items-center gap-1.5 text-xs text-muted-foreground">
                                 <MapPin className="h-3 w-3" />
-                                {[t.city, t.country].filter(Boolean).join(", ")}
+                                {[talent.city, talent.country].filter(Boolean).join(", ")}
                               </div>
                             )}
                           </div>
@@ -450,9 +485,9 @@ export default function ClientFavorites() {
                       </div>
                     </CardHeader>
                     <CardContent className="space-y-4 pb-4">
-                      {t.skills.length > 0 && (
+                      {talent.skills.length > 0 && (
                         <div className="flex flex-wrap gap-1.5">
-                          {t.skills.map((s) => (
+                          {talent.skills.map((s) => (
                             <Badge key={s} variant="outline" className="border-gold/25 bg-gold/5 text-gold-dark text-xs font-medium">
                               {s}
                             </Badge>
@@ -463,21 +498,28 @@ export default function ClientFavorites() {
                         <div className="flex items-center gap-3">
                           <div className="flex items-center gap-0.5">
                             <Star className="h-3.5 w-3.5 fill-gold text-gold" />
-                            <span className="font-semibold text-foreground">{t.rating ? t.rating.toFixed(1) : "—"}</span>
-                            <span className="text-muted-foreground">({t.reviews})</span>
+                            <span className="font-semibold text-foreground">{talent.rating ? talent.rating.toFixed(1) : "—"}</span>
+                            <span className="text-muted-foreground">({talent.reviews})</span>
                           </div>
                           <div className="flex items-center gap-1 text-muted-foreground">
                             <Briefcase className="h-3.5 w-3.5" />
                             {t.completedProjects} {language === "en" ? "projects" : "projets"}
+
+                            {talent.completedProjects} {t("favorites.completedProjects")}
                           </div>
                         </div>
-                        {t.available ? (
+                        {talent.available ? (
                           <Badge variant="outline" className="border-emerald-500/30 bg-emerald-500/10 text-emerald-600 text-[10px]">
                             {tr("talents.available")}
                           </Badge>
                         ) : (
                           <Badge variant="outline" className="border-muted text-muted-foreground text-[10px]">
                             {tr("clientUi.favorites.busy")}
+                            {t("favorites.availableStatus")}
+                          </Badge>
+                        ) : (
+                          <Badge variant="outline" className="border-muted text-muted-foreground text-[10px]">
+                            {t("favorites.busyStatus")}
                           </Badge>
                         )}
                       </div>
@@ -487,32 +529,36 @@ export default function ClientFavorites() {
                       <div>
                         <p className="text-xs text-muted-foreground">{tr("talents.dailyRate")}</p>
                         <p className="text-lg font-bold gold-text-gradient">{new Intl.NumberFormat(locale, { style: "currency", currency: "XOF", maximumFractionDigits: 0 }).format(t.rate)}</p>
+                        <p className="text-xs text-muted-foreground">{t("favorites.dailyRate")}</p>
+                        <p className="text-lg font-bold gold-text-gradient">{new Intl.NumberFormat(language === "en" ? "en-GB" : "fr-FR", { style: "currency", currency: "XOF", maximumFractionDigits: 0 }).format(talent.rate)}</p>
                       </div>
                       <div className="flex items-center gap-2">
                         <Button
                           variant="ghost"
                           size="sm"
-                          onClick={() => removeFavorite(t.id)}
+                          onClick={() => removeFavorite(talent.id)}
                           className="text-rose-500 hover:bg-rose-500/10 h-9 w-9 p-0"
                           title={tr("favorites.remove")} aria-label={tr("favorites.remove")}
+                          title={t("favorites.removeTitle")} aria-label={t("favorites.removeTitle")}
                         >
                           <HeartCrack className="h-4 w-4" />
                         </Button>
-                        <Button variant="ghost" size="sm" className="text-gold-dark hover:bg-gold/10 h-9 w-9 p-0">
-                          <Eye className="h-4 w-4" />
+                        <Button variant="ghost" size="sm" aria-label={t("talents.viewProfile")} title={t("talents.viewProfile")} onClick={() => navigate(`/talent/${talent.id}`)} className="text-gold-dark hover:bg-gold/10 h-9 w-9 p-0">
+                          <Eye className="h-4 w-4" aria-hidden="true" />
                         </Button>
                         <Button
                           size="sm"
                           onClick={() => handleContact(t)}
-                          disabled={contactingTalentId === t.id}
+                          disabled={contactingTalentId === talent.id}
                           className="h-9 gold-gradient text-primary-foreground hover:opacity-90 shadow-sm shadow-gold/25"
                         >
-                          {contactingTalentId === t.id ? (
+                          {contactingTalentId === talent.id ? (
                             <Loader2 className="h-3.5 w-3.5 mr-1.5 animate-spin" />
                           ) : (
                             <Send className="h-3.5 w-3.5 mr-1.5" />
                           )}
                           {contactingTalentId === t.id ? tr("clientUi.favorites.openConversation") : tr("clientUi.favorites.contact")}
+                          {contactingTalentId === talent.id ? t("favorites.openingConversation") : t("favorites.contactAction")}
                         </Button>
                       </div>
                     </CardFooter>

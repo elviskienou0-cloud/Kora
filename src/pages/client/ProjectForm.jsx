@@ -10,6 +10,7 @@ import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
 import { Badge } from "@/components/ui/badge"
 import { useAuth } from "@/lib/AuthContext"
+import { useI18n } from "@/i18n/kora-i18n.jsx"
 import { supabase } from "@/lib/supabase"
 import { useI18n } from "@/i18n/kora-i18n.jsx"
 
@@ -66,12 +67,14 @@ export default function ProjectForm() {
       if (error) {
         console.error("Erreur chargement projet :", error)
         toast.error(t("clientUi.projects.loadError"))
+        toast.error(t("projects.cannotLoad"))
         navigate("/client/projects", { replace: true })
         return
       }
 
       if (!data) {
         toast.error(t("clientUi.projects.projectNotFound"))
+        toast.error(t("projects.notFoundOrNoAccess"))
         navigate("/client/projects", { replace: true })
         return
       }
@@ -96,6 +99,7 @@ export default function ProjectForm() {
 
     if (!authUserId) {
       toast.error(t("errors.unauthorized"))
+      toast.error(t("projects.connectionRequired"))
       navigate("/login")
       return
     }
@@ -107,26 +111,31 @@ export default function ProjectForm() {
 
     if (!title) {
       toast.error(t("clientUi.projects.titleRequired"))
+      toast.error(t("requestForm.titleRequired"))
       return
     }
 
     if (!description) {
       toast.error(t("clientUi.projects.descriptionRequired"))
+      toast.error(t("requestForm.descriptionRequired"))
       return
     }
 
     if (min !== null && (!Number.isFinite(min) || min < 0)) {
       toast.error(t("clientUi.projects.minBudgetInvalid"))
+      toast.error(t("projects.minimumBudgetInvalid"))
       return
     }
 
     if (max !== null && (!Number.isFinite(max) || max < 0)) {
       toast.error(t("clientUi.projects.maxBudgetInvalid"))
+      toast.error(t("projects.maximumBudgetInvalid"))
       return
     }
 
     if (min !== null && max !== null && min > max) {
       toast.error(t("clientUi.projects.budgetRangeInvalid"))
+      toast.error(t("projects.minimumBudgetExceedsMax"))
       return
     }
 
@@ -154,6 +163,7 @@ export default function ProjectForm() {
         if (error) throw error
 
         toast.success(t("clientUi.projects.updated"))
+        toast.success(t("projects.editingSaved"))
         navigate(`/client/projects/${id}`)
       } else {
         const createPayload = {
@@ -172,12 +182,14 @@ export default function ProjectForm() {
         if (error) throw error
 
         toast.success(t("clientUi.projects.created"))
+        toast.success(t("projects.createdSaved"))
         navigate(`/client/projects/${data.id}`)
       }
     } catch (error) {
       console.error("Erreur enregistrement projet :", error)
       console.error("KORA: project save failed", error)
       toast.error(t("clientUi.projects.saveError"))
+      toast.error(t("projects.saveError"))
     } finally {
       setSaving(false)
     }
@@ -187,6 +199,7 @@ export default function ProjectForm() {
     return (
       <div className="min-h-[60vh] flex items-center justify-center">
         <Loader2 className="h-7 w-7 animate-spin text-gold" aria-label={t("clientUi.projects.loading")} />
+        <Loader2 className="h-7 w-7 animate-spin text-gold" aria-label={t("common.loading")} />
       </div>
     )
   }
@@ -202,6 +215,9 @@ export default function ProjectForm() {
             <p className="text-xs font-bold uppercase tracking-[0.18em] text-gold">{t("projects.title")}</p>
             <h1 className="text-2xl font-black tracking-tight">
               {editing ? t("clientUi.projects.edit") : t("clientUi.projects.newProject")}
+            <p className="text-xs font-bold uppercase tracking-[0.18em] text-gold">{t("navigation.projects")}</p>
+            <h1 className="text-2xl font-black tracking-tight">
+              {editing ? t("projects.edit") : t("projects.new")}
             </h1>
           </div>
         </div>
@@ -213,11 +229,16 @@ export default function ProjectForm() {
                 <CardTitle>{t("clientUi.projects.projectInfo")}</CardTitle>
                 <p className="mt-1 text-sm text-muted-foreground">
                   {t("clientUi.projects.formDescription")}
+                <CardTitle>{t("projects.projectInfoTitle")}</CardTitle>
+                <p className="mt-1 text-sm text-muted-foreground">
+                  {t("projects.projectInfoDescription")}
                 </p>
               </div>
               {editing && (
                 <Badge variant="outline" className="capitalize border-gold/30 text-gold-dark">
                   {t(({ draft: "projects.draft", open: "projects.open", pending: "projects.pending", active: "projects.active", completed: "projects.completed", cancelled: "projects.cancelled" })[form.status] || "projects.status")}
+
+                  {t(`projects.${form.status}`)}
                 </Badge>
               )}
             </div>
@@ -228,11 +249,13 @@ export default function ProjectForm() {
               <div className="grid gap-5 md:grid-cols-2">
                 <div className="md:col-span-2 space-y-2">
                   <Label htmlFor="project-title">{t("clientUi.projects.titleLabel")}</Label>
+                  <Label htmlFor="project-title">{t("projects.titleLabel")}</Label>
                   <Input
                     id="project-title"
                     value={form.title}
                     onChange={(event) => setField("title", event.target.value)}
                     placeholder={t("clientUi.projects.titlePlaceholder")}
+                    placeholder={t("projects.titlePlaceholder")}
                     maxLength={160}
                     required
                   />
@@ -240,11 +263,13 @@ export default function ProjectForm() {
 
                 <div className="md:col-span-2 space-y-2">
                   <Label htmlFor="project-description">{t("clientUi.projects.descriptionLabel")}</Label>
+                  <Label htmlFor="project-description">{t("projects.descriptionLabel")}</Label>
                   <Textarea
                     id="project-description"
                     value={form.description}
                     onChange={(event) => setField("description", event.target.value)}
                     placeholder={t("clientUi.projects.descriptionPlaceholder")}
+                    placeholder={t("projects.descriptionPlaceholder")}
                     className="min-h-36"
                     maxLength={5000}
                     required
@@ -253,6 +278,7 @@ export default function ProjectForm() {
 
                 <div className="space-y-2">
                   <Label htmlFor="budget-min">{t("clientUi.projects.minBudget")}</Label>
+                  <Label htmlFor="budget-min">{t("projects.minBudget")}</Label>
                   <Input
                     id="budget-min"
                     type="number"
@@ -266,6 +292,7 @@ export default function ProjectForm() {
 
                 <div className="space-y-2">
                   <Label htmlFor="budget-max">{t("clientUi.projects.maxBudget")}</Label>
+                  <Label htmlFor="budget-max">{t("projects.maxBudget")}</Label>
                   <Input
                     id="budget-max"
                     type="number"
@@ -279,6 +306,7 @@ export default function ProjectForm() {
 
                 <div className="space-y-2">
                   <Label htmlFor="currency">{t("clientUi.projects.currency")}</Label>
+                  <Label htmlFor="currency">{t("projects.currency")}</Label>
                   <select
                     id="currency"
                     value={form.currency}
@@ -295,6 +323,7 @@ export default function ProjectForm() {
                   <Label htmlFor="due-date" className="flex items-center gap-2">
                     <CalendarDays className="h-4 w-4 text-gold-dark" />
                     {t("clientUi.projects.dueDate")}
+                    {t("projects.dueDateLabel")}
                   </Label>
                   <Input
                     id="due-date"
@@ -306,11 +335,13 @@ export default function ProjectForm() {
 
                 <div className="space-y-2">
                   <Label>{t("clientUi.projects.status")}</Label>
+                  <Label>{t("projects.stateLabel")}</Label>
                   <div className="h-10 flex items-center rounded-md border border-input bg-muted/40 px-3 text-sm font-semibold capitalize text-muted-foreground">
-                    {form.status || "open"}
+                    {t(`projects.${form.status || "open"}`)}
                   </div>
                   <p className="text-xs text-muted-foreground">
                     {t("clientUi.projects.managedStatus")}
+                    {t("projects.stateManagedAutomatically")}
                   </p>
                 </div>
               </div>
@@ -322,6 +353,11 @@ export default function ProjectForm() {
                 <Button type="submit" disabled={saving} className="gold-gradient text-primary-foreground">
                   {saving ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Save className="mr-2 h-4 w-4" />}
                   {saving ? t("common.saving") : editing ? t("clientUi.projects.saveChanges") : t("clientUi.projects.create")}
+                  {t("common.cancel")}
+                </Button>
+                <Button type="submit" disabled={saving} className="gold-gradient text-primary-foreground">
+                  {saving ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Save className="mr-2 h-4 w-4" />}
+                  {editing ? t("projects.update") : t("projects.create")}
                 </Button>
               </div>
             </form>

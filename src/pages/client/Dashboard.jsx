@@ -86,6 +86,10 @@ function formatCurrency(value, locale = "fr-FR") {
   const amount = Number(value || 0)
 
   return new Intl.NumberFormat(locale, {
+function formatCurrency(value, language = "fr") {
+  const amount = Number(value || 0)
+
+  return new Intl.NumberFormat(language === "en" ? "en-GB" : "fr-FR", {
     style: "currency",
     currency: "XOF",
     maximumFractionDigits: 0,
@@ -96,6 +100,10 @@ function formatDate(value, locale = "fr-FR") {
   if (!value) return locale === "en-GB" ? "Unknown date" : "Date inconnue"
 
   return new Intl.DateTimeFormat(locale, {
+function formatDate(value, language = "fr") {
+  if (!value) return language === "en" ? "Unknown date" : "Date inconnue"
+
+  return new Intl.DateTimeFormat(language === "en" ? "en-GB" : "fr-FR", {
     day: "2-digit",
     month: "short",
     year: "numeric",
@@ -283,6 +291,8 @@ export default function ClientDashboard() {
 
         setError(
           "clientUi.dashboard.loadingError"
+          err?.message ||
+            t("errors.loading")
         )
       } finally {
         if (mounted) {
@@ -318,6 +328,10 @@ export default function ClientDashboard() {
           />
           <p className="text-sm text-muted-foreground">
             {t("clientUi.dashboard.loading")}
+            aria-label={t("common.loading")}
+          />
+          <p className="text-sm text-muted-foreground">
+            {t("common.loading")}
           </p>
         </div>
       </div>
@@ -359,6 +373,7 @@ export default function ClientDashboard() {
 
               <p className="text-sm text-muted-foreground">
                 {t("clientUi.dashboard.welcome")}
+                {t("dashboard.greeting")}
               </p>
             </div>
           </div>
@@ -371,6 +386,7 @@ export default function ClientDashboard() {
             >
               <Search className="mr-2 h-4 w-4" />
               {t("clientUi.dashboard.search")}
+              {t("dashboard.searchAction")}
             </Button>
 
             <Button
@@ -379,6 +395,7 @@ export default function ClientDashboard() {
             >
               <Send className="mr-2 h-4 w-4" />
               {t("clientUi.dashboard.newRequest")}
+              {t("dashboard.newRequest")}
             </Button>
           </div>
         </motion.div>
@@ -389,6 +406,7 @@ export default function ClientDashboard() {
         >
           <StatCard
             title={t("clientUi.dashboard.requestsSent")}
+            title={t("dashboard.clientRequestsSent")}
             value={stats.requests}
             icon={Send}
             iconClass="bg-gold/15 text-gold-dark"
@@ -396,6 +414,7 @@ export default function ClientDashboard() {
 
           <StatCard
             title={t("clientUi.dashboard.requestsAccepted")}
+            title={t("dashboard.clientRequestsAccepted")}
             value={stats.accepted}
             icon={Briefcase}
             iconClass="bg-emerald-500/15 text-emerald-600"
@@ -403,6 +422,7 @@ export default function ClientDashboard() {
 
           <StatCard
             title={t("clientUi.dashboard.favoriteTalents")}
+            title={t("dashboard.clientFavorites")}
             value={stats.favorites}
             icon={Heart}
             iconClass="bg-rose-500/15 text-rose-500"
@@ -411,6 +431,8 @@ export default function ClientDashboard() {
           <StatCard
             title={t("clientUi.dashboard.spentBudget")}
             value={formatCurrency(stats.spent, locale)}
+            title={t("dashboard.clientBudgetSpent")}
+            value={formatCurrency(stats.spent, language)}
             icon={TrendingUp}
             iconClass="bg-amber-500/15 text-amber-600"
           />
@@ -430,6 +452,11 @@ export default function ClientDashboard() {
 
                 <CardDescription>
                   {t("clientUi.dashboard.recentRequestsDescription")}
+                  {t("dashboard.recentRequests")}
+                </CardTitle>
+
+                <CardDescription>
+                  {t("dashboard.recentRequestsDescription")}
                 </CardDescription>
               </div>
 
@@ -439,6 +466,7 @@ export default function ClientDashboard() {
                 onClick={() => navigate("/client/requests")}
               >
                 {t("clientUi.dashboard.seeAll")}
+                {t("dashboard.viewAll")}
                 <ChevronRight className="ml-1 h-4 w-4" />
               </Button>
             </CardHeader>
@@ -450,6 +478,9 @@ export default function ClientDashboard() {
                   title={t("clientUi.dashboard.noRequests")}
                   description={t("clientUi.dashboard.noRequestsDescription")}
                   actionLabel={t("clientUi.dashboard.exploreTalents")}
+                  title={t("dashboard.noClientRequests")}
+                  description={t("dashboard.noRequestDescription")}
+                  actionLabel={t("dashboard.exploreTalents")}
                   onAction={() => navigate("/categories")}
                 />
               ) : (
@@ -501,6 +532,7 @@ export default function ClientDashboard() {
 
                               <p className="text-xs text-muted-foreground">
                                 {formatDate(request.created_at, locale)}
+                                {formatDate(request.created_at, language)}
                               </p>
                             </div>
                           )}
@@ -511,7 +543,7 @@ export default function ClientDashboard() {
                               status.className
                             )}
                           >
-                            {status.label}
+                            {status.labelKey ? t(status.labelKey) : t("common.unknown")}
                           </Badge>
                         </div>
                       </button>
@@ -531,6 +563,11 @@ export default function ClientDashboard() {
 
               <CardDescription>
                 {t("clientUi.dashboard.recentTalentsDescription")}
+                {t("dashboard.recentTalents")}
+              </CardTitle>
+
+              <CardDescription>
+                {t("dashboard.currentTalentsDescription")}
               </CardDescription>
             </CardHeader>
 
@@ -540,6 +577,8 @@ export default function ClientDashboard() {
                   icon={Users}
                   title={t("clientUi.dashboard.noTalents")}
                   description={t("clientUi.dashboard.noPublicProfiles")}
+                  title={t("dashboard.noAvailableTalents")}
+                  description={t("dashboard.noPublicProfiles")}
                 />
               ) : (
                 <>
@@ -596,6 +635,7 @@ export default function ClientDashboard() {
                     onClick={() => navigate("/categories")}
                   >
                     {t("clientUi.dashboard.viewAllTalents")}
+                    {t("dashboard.seeAllTalents")}
                     <ChevronRight className="ml-1 h-4 w-4" />
                   </Button>
                 </>
@@ -610,6 +650,10 @@ export default function ClientDashboard() {
               <CardTitle>{t("clientUi.dashboard.activity")}</CardTitle>
               <CardDescription>
                 {t("clientUi.dashboard.activityDescription")}
+
+              <CardTitle>{t("dashboard.yourActivity")}</CardTitle>
+              <CardDescription>
+                {t("dashboard.activityDescription")}
               </CardDescription>
             </CardHeader>
 
@@ -620,6 +664,9 @@ export default function ClientDashboard() {
                   label={t("clientUi.dashboard.searches")}
                   value={stats.searches}
                   description={t("clientUi.dashboard.savedSearches")}
+                  label={t("dashboard.searches")}
+                  value={stats.searches}
+                  description={t("dashboard.searchHistoryDescription")}
                 />
 
                 <ActivityItem
@@ -627,6 +674,9 @@ export default function ClientDashboard() {
                   label={t("clientUi.dashboard.favorites")}
                   value={stats.favorites}
                   description={t("clientUi.dashboard.savedTalents")}
+                  label={t("favorites.title")}
+                  value={stats.favorites}
+                  description={t("dashboard.savedTalents")}
                 />
 
                 <ActivityItem
@@ -634,6 +684,9 @@ export default function ClientDashboard() {
                   label={t("clientUi.dashboard.requests")}
                   value={stats.requests}
                   description={t("clientUi.dashboard.noSentRequests")}
+                  label={t("requests.title")}
+                  value={stats.requests}
+                  description={t("dashboard.requestsSentDescription")}
                 />
               </div>
             </CardContent>

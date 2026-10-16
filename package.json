@@ -10,6 +10,7 @@
     "lint:fix": "eslint . --fix",
     "preview": "vite preview",
     "test:i18n": "node scripts/check-i18n.mjs && node --test tests/i18n/language-preferences.test.mjs",
+    "test:i18n": "node scripts/check-i18n.mjs",
     "test": "npm run test:i18n"
   },
   "dependencies": {
@@ -65,7 +66,6 @@
     "react-hot-toast": "^2.6.0",
     "react-leaflet": "^4.2.1",
     "react-markdown": "^9.0.1",
-    "react-quill": "^2.0.0",
     "react-resizable-panels": "^2.1.7",
     "react-router-dom": "^6.26.0",
     "recharts": "^2.15.4",

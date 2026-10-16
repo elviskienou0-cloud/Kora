@@ -61,47 +61,9 @@ async function removePrefix(storage, bucket, prefix) {
   return removed
 }
 
-async function removeOwnedStorageObjects(adminClient, userId) {
-  let removed = 0
-  let offset = 0
-
-  while (true) {
-    const { data, error } = await adminClient
-      .from("storage.objects")
-      .select("bucket_id,name")
-      .eq("owner_id", userId)
-      .range(offset, offset + 999)
-
-    if (error) throw error
-
-    const objects = data || []
-    if (!objects.length) break
-
-    const byBucket = new Map()
-    for (const object of objects) {
-      if (!object?.bucket_id || !object?.name) continue
-      if (!byBucket.has(object.bucket_id)) byBucket.set(object.bucket_id, [])
-      byBucket.get(object.bucket_id).push(object.name)
-    }
-
-    for (const [bucket, paths] of byBucket) {
-      const { error: removeError } = await adminClient.storage
-        .from(bucket)
-        .remove(paths)
-
-      if (removeError) throw removeError
-      removed += paths.length
-    }
-
-    if (objects.length < 1000) break
-    offset += objects.length
-  }
-
-  return removed
-}
-
 async function removeUserStorage(adminClient, userId, talentIds = []) {
   let removed = 0
+  removed += await removePrefix(adminClient.storage, "avatars", `${userId}/`)
   removed += await removePrefix(adminClient.storage, "profile-media", `${userId}/`)
   removed += await removePrefix(adminClient.storage, "talent-profile-media", `${userId}/`)
   for (const talentId of talentIds) {
@@ -420,6 +382,33 @@ Deno.serve(async (req) => {
         )
       }
 
+      // Register a short-lived pending invitation record before Auth creates
+      // the user. The database consent trigger trusts this server-created row,
+      // not the client-controlled kora_admin_invitation metadata flag.
+      const preflightInvitationId = crypto.randomUUID()
+      const { error: preflightError } = await adminClient
+        .from("admin_invitations")
+        .insert({
+          id: preflightInvitationId,
+          email: email.toLowerCase(),
+          invited_by: callerId,
+          message: message || null,
+          access_level: accessLevel,
+          permissions: permissions || {},
+          max_users: maxUsers,
+          max_payment_validations: maxPaymentValidations,
+          access_expires_at: accessExpiresAt,
+          scope: {},
+          status: "pending",
+        })
+
+      if (preflightError) {
+        return jsonResponse(
+          { error: "Impossible de préparer l'invitation administrateur." },
+          400,
+        )
+      }
+
       const {
         data: invitedUser,
         error: inviteError,
@@ -440,6 +429,7 @@ Deno.serve(async (req) => {
         (inviteError.code === "email_exists" ||
           inviteError.status === 422)
       ) {
+        await adminClient.from("admin_invitations").delete().eq("id", preflightInvitationId)
         return jsonResponse(
           {
             error:
@@ -454,6 +444,7 @@ Deno.serve(async (req) => {
         inviteError ||
         !invitedUser?.user
       ) {
+        await adminClient.from("admin_invitations").delete().eq("id", preflightInvitationId)
         return jsonResponse(
           {
             error:
@@ -461,6 +452,21 @@ Deno.serve(async (req) => {
               "Impossible d'envoyer l'invitation.",
           },
           400,
+        )
+      }
+
+      // The Auth trigger has already checked the pending invite row.
+      // Remove the preflight row before the canonical invitation RPC creates
+      // the fully configured record.
+      const { error: preflightCleanupError } = await adminClient
+        .from("admin_invitations")
+        .delete()
+        .eq("id", preflightInvitationId)
+      if (preflightCleanupError) {
+        await adminClient.auth.admin.deleteUser(invitedUser.user.id, true)
+        return jsonResponse(
+          { error: "Impossible de finaliser l'invitation en toute sécurité." },
+          500,
         )
       }
 
@@ -674,24 +680,10 @@ Deno.serve(async (req) => {
     // Supabase Auth ne supprime pas un utilisateur tant que des objets
     // Storage lui appartiennent. On traite d'abord owner_id (tous les buckets),
     // puis les anciens chemins KORA créés via service role sans owner_id.
-    const ownedStorageObjects = await removeOwnedStorageObjects(adminClient, userId)
-    const prefixedStorageObjects = await removeUserStorage(adminClient, userId, talentIds)
-    const deletedStorageObjects =
-      ownedStorageObjects + prefixedStorageObjects
-
-    const { count: remainingOwnedObjects, error: remainingStorageError } =
-      await adminClient
-        .from("storage.objects")
-        .select("id", { count: "exact", head: true })
-        .eq("owner_id", userId)
-
-    if (remainingStorageError) throw remainingStorageError
-
-    if ((remainingOwnedObjects || 0) > 0) {
-      throw new Error(
-        "Des fichiers Storage appartiennent encore à ce compte.",
-      )
-    }
+    // Storage schema is not guaranteed to be exposed through PostgREST.
+    // Clean up the known user/talent path prefixes via the Storage API instead
+    // of querying admin-only storage.objects through the REST data API.
+    const deletedStorageObjects = await removeUserStorage(adminClient, userId, talentIds)
 
     // ==========================================================
     // AUDIT AVANT SUPPRESSION

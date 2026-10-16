@@ -2,6 +2,52 @@ import { supabase } from "@/lib/supabase"
 
 export const TALENT_PROFILE_MEDIA_BUCKET = "talent-profile-media"
 
+export const TALENT_PROFILE_MEDIA_SCHEME = "storage://talent-profile-media/"
+
+function extractTalentMediaPath(value) {
+  if (typeof value !== "string" || !value.trim()) return null
+  if (value.startsWith(TALENT_PROFILE_MEDIA_SCHEME)) {
+    return value.slice(TALENT_PROFILE_MEDIA_SCHEME.length)
+  }
+
+  try {
+    const pathname = new URL(value).pathname
+    const match = pathname.match(/\/storage\/v1\/object\/(?:public|sign)\/talent-profile-media\/(.+)$/)
+    return match ? decodeURIComponent(match[1]) : null
+  } catch {
+    return null
+  }
+}
+
+/**
+ * Resolve a stored media reference to a short-lived signed URL.
+ * Supports legacy public URLs already stored in talent_profiles and the
+ * storage:// references written by the private-bucket upload flow.
+ */
+export async function resolveTalentProfileMediaUrl(value, expiresIn = 3600) {
+  const path = extractTalentMediaPath(value)
+  if (!path) return value || null
+
+  const { data, error } = await supabase.storage
+    .from(TALENT_PROFILE_MEDIA_BUCKET)
+    .createSignedUrl(path, expiresIn)
+
+  if (error) {
+    console.warn("Impossible de signer le média du talent :", error.message)
+    return null
+  }
+  return data?.signedUrl || null
+}
+
+export async function resolveTalentProfileMedia(talent) {
+  if (!talent) return talent
+  const [avatar_url, cover_url] = await Promise.all([
+    resolveTalentProfileMediaUrl(talent.avatar_url),
+    resolveTalentProfileMediaUrl(talent.cover_url),
+  ])
+  return { ...talent, avatar_url, cover_url }
+}
+
 function safeName(name = "image") {
   return String(name || "image")
     .trim()
@@ -79,17 +125,8 @@ export async function uploadTalentProfileMedia(
       )
     }
 
-    const { data } = supabase.storage
-      .from(TALENT_PROFILE_MEDIA_BUCKET)
-      .getPublicUrl(path)
-
-    if (!data?.publicUrl) {
-      throw new Error(
-        `Impossible de récupérer l'URL de ${field}.`
-      )
-    }
-
-    result[field] = data.publicUrl
+    // Persist a stable storage reference, never a short-lived signed URL.
+    result[field] = `${TALENT_PROFILE_MEDIA_SCHEME}${path}`
   }
 
   return result

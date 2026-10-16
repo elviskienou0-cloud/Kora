@@ -57,8 +57,8 @@ export default function Register() {
       return
     }
 
-    if (form.password.length < 6) {
-      setError("Le mot de passe doit contenir au moins 6 caractères.")
+    if (form.password.length < 8) {
+      setError("Le mot de passe doit contenir au moins 8 caractères.")
       return
     }
 
@@ -171,9 +171,9 @@ export default function Register() {
                       value={form.password}
                       onChange={handleChange}
                       required
-                      minLength={6}
+                      minLength={8}
                       autoComplete="new-password"
-                      placeholder="6 caractères minimum"
+                      placeholder="8 caractères minimum"
                       className="pl-10 pr-10"
                     />
                     <button
