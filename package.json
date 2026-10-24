@@ -10,7 +10,6 @@
     "lint:fix": "eslint . --fix",
     "preview": "vite preview",
     "test:i18n": "node scripts/check-i18n.mjs && node --test tests/i18n/language-preferences.test.mjs",
-    "test:i18n": "node scripts/check-i18n.mjs",
     "test": "npm run test:i18n"
   },
   "dependencies": {
