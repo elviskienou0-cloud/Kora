@@ -1389,8 +1389,7 @@ const fr = {
       "loadingError": "Impossible de charger vos favoris pour le moment.",
       "contactError": "Impossible d'ouvrir la conversation."
     },
-  },,
-
+  },
 }
 
 const en = {
