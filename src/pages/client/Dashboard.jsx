@@ -442,11 +442,6 @@ export default function ClientDashboard() {
 
                 <CardDescription>
                   {t("clientUi.dashboard.recentRequestsDescription")}
-                  {t("dashboard.recentRequests")}
-                </CardTitle>
-
-                <CardDescription>
-                  {t("dashboard.recentRequestsDescription")}
                 </CardDescription>
               </div>
 
