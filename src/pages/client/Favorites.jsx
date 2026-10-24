@@ -158,14 +158,13 @@ export default function ClientFavorites() {
     return () => {
       mounted = false;
     };
-  }, [user?.authId, tr]);
   }, [user?.authId, t]);
 
   const categories = useMemo(() => {
     const seen = new Map();
-    favorites.forEach((t) => {
-      if (t.categoryId && !seen.has(t.categoryId)) {
-        seen.set(t.categoryId, t.categoryLabel || t("favorites.categoryOther"));
+    favorites.forEach((favorite) => {
+      if (favorite.categoryId && !seen.has(favorite.categoryId)) {
+        seen.set(favorite.categoryId, favorite.categoryLabel || t("clientUi.browse.categoryNames.creative"));
       }
     });
     return [
