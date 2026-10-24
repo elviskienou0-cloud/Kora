@@ -287,11 +287,7 @@ export default function ClientDashboard() {
 
         if (!mounted) return
 
-        setError(
-          "clientUi.dashboard.loadingError"
-          err?.message ||
-            t("errors.loading")
-        )
+        setError("clientUi.dashboard.loadingError")
       } finally {
         if (mounted) {
           setIsLoading(false)
