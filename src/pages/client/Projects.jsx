@@ -297,15 +297,12 @@ export default function ClientProjects() {
                 {search
                   ? t("clientUi.projects.noResults")
                   : t("clientUi.projects.none")}
-                  ? t("projects.noSearchResults")
-                  : t("projects.noProjects")}
               </h2>
 
               <p className="mt-2 max-w-md text-sm text-muted-foreground">
                 {search
                   ? t("clientUi.projects.searchNoMatch")
                   : t("clientUi.projects.createFirst")}
-                  ? t("projects.noSearchResultsDescription")
                   : t("projects.emptyDescription")}
               </p>
 
