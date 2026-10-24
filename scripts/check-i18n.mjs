@@ -1,73 +1,63 @@
 import assert from "node:assert/strict"
 import fs from "node:fs"
 import path from "node:path"
-import vm from "node:vm"
+import * as ts from "typescript"
 import { fileURLToPath } from "node:url"
 import { normalizeLanguage, persistLanguage, resolveInitialLanguage, STORAGE_KEY } from "../src/i18n/language.js"
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..")
 const i18nPath = path.join(root, "src/i18n/kora-i18n.jsx")
 const i18nSource = fs.readFileSync(i18nPath, "utf8")
+const i18nAst = ts.createSourceFile(i18nPath, i18nSource, ts.ScriptTarget.Latest, true, ts.ScriptKind.TSX)
 
-function extractObject(source, declaration) {
-  const declarationIndex = source.indexOf(declaration)
-  assert.notEqual(declarationIndex, -1, `Missing dictionary declaration: ${declaration}`)
-  const start = source.indexOf("{", declarationIndex)
-  let depth = 0
-  let quote = null
-  let escaped = false
-  let lineComment = false
-  let blockComment = false
+assert.equal(
+  i18nAst.parseDiagnostics.length,
+  0,
+  `Invalid syntax in i18n source: ${i18nAst.parseDiagnostics.map((diagnostic) => {
+    const position = diagnostic.start ?? 0
+    const location = i18nAst.getLineAndCharacterOfPosition(position)
+    return `${location.line + 1}:${location.character + 1} ${ts.flattenDiagnosticMessageText(diagnostic.messageText, "\n")}`
+  }).join("\n")}`,
+)
 
-  for (let index = start; index < source.length; index += 1) {
-    const char = source[index]
-    const next = source[index + 1]
+function extractObject(sourceFile, variableName) {
+  for (const statement of sourceFile.statements) {
+    if (!ts.isVariableStatement(statement)) continue
+    for (const item of statement.declarationList.declarations) {
+      if (ts.isIdentifier(item.name) && item.name.text === variableName && item.initializer) {
+        assert.ok(ts.isObjectLiteralExpression(item.initializer), `Dictionary must be an object literal: ${variableName}`)
+        return item.initializer
+      }
+    }
+  }
+  assert.fail(`Missing dictionary declaration: ${variableName}`)
+}
 
-    if (lineComment) {
-      if (char === "\n") lineComment = false
-      continue
-    }
-    if (blockComment) {
-      if (char === "*" && next === "/") {
-        blockComment = false
-        index += 1
-      }
-      continue
-    }
-    if (quote) {
-      if (escaped) {
-        escaped = false
-        continue
-      }
-      if (char === "\\") {
-        escaped = true
-        continue
-      }
-      if (char === quote) quote = null
-      continue
-    }
-    if (char === "/" && next === "/") {
-      lineComment = true
-      index += 1
-      continue
-    }
-    if (char === "/" && next === "*") {
-      blockComment = true
-      index += 1
-      continue
-    }
-    if (char === "'" || char === '"' || char === "`") {
-      quote = char
-      continue
-    }
-    if (char === "{") depth += 1
-    if (char === "}") {
-      depth -= 1
-      if (depth === 0) return source.slice(start, index + 1)
+// Read translation values from the TypeScript AST rather than evaluating source code.
+// This avoids VM parser failures and never executes the application module.
+function objectLiteralToValue(node, variableName) {
+  assert.ok(ts.isObjectLiteralExpression(node), `Expected an object literal in dictionary ${variableName}`)
+  const result = {}
+
+  for (const property of node.properties) {
+    assert.ok(ts.isPropertyAssignment(property), `Unsupported property syntax in dictionary ${variableName}`)
+    const keyNode = property.name
+    const key = ts.isIdentifier(keyNode) || ts.isStringLiteral(keyNode) || ts.isNumericLiteral(keyNode)
+      ? keyNode.text
+      : null
+    assert.ok(key !== null, `Unsupported dictionary key in ${variableName}`)
+
+    const initializer = property.initializer
+    if (ts.isObjectLiteralExpression(initializer)) {
+      result[key] = objectLiteralToValue(initializer, variableName)
+    } else if (ts.isStringLiteral(initializer) || ts.isNoSubstitutionTemplateLiteral(initializer)) {
+      result[key] = initializer.text
+    } else {
+      assert.fail(`Translation value must be a string or nested object: ${variableName}.${key}`)
     }
   }
 
-  throw new Error(`Unclosed dictionary object: ${declaration}`)
+  return result
 }
 
 function flatten(value, prefix = "", result = {}) {
@@ -82,8 +72,8 @@ function flatten(value, prefix = "", result = {}) {
   return result
 }
 
-const fr = flatten(vm.runInNewContext(`(${extractObject(i18nSource, "const fr =")})`))
-const en = flatten(vm.runInNewContext(`(${extractObject(i18nSource, "const en =")})`))
+const fr = flatten(objectLiteralToValue(extractObject(i18nAst, "fr"), "fr"))
+const en = flatten(objectLiteralToValue(extractObject(i18nAst, "en"), "en"))
 const frKeys = Object.keys(fr).sort()
 const enKeys = Object.keys(en).sort()
 const missingInEnglish = frKeys.filter((key) => !Object.hasOwn(en, key))
@@ -110,7 +100,7 @@ function sourceFiles(directory) {
 const missingStaticReferences = []
 for (const file of sourceFiles(path.join(root, "src"))) {
   const source = fs.readFileSync(file, "utf8")
-  const expression = /\bt\s*\(\s*(?:(["\'])(.*?)\1|`([^`]*)`)/g
+  const expression = /\bt\s*\(\s*(?:(["'])((?:\\.|[^\\])*?)\1|\x60([^\x60]*)\x60)/g
 
   for (const match of source.matchAll(expression)) {
     const key = match[2] ?? match[3] ?? ""
