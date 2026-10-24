@@ -22,16 +22,15 @@ const STATUS_CONFIG = {
 
 function formatMoney(value, currency, locale = "fr-FR") {
   if (value === null || value === undefined) return "—"
+
   try {
-    return new Intl.NumberFormat(locale, { style: "currency", currency: currency || "XOF", maximumFractionDigits: 0 }).format(Number(value))
+    return new Intl.NumberFormat(locale, {
+      style: "currency",
+      currency: currency || "XOF",
+      maximumFractionDigits: 0,
+    }).format(Number(value))
   } catch {
     return `${Number(value).toLocaleString(locale)} ${currency || "XOF"}`
-function formatMoney(value, currency, language = "fr") {
-  if (value === null || value === undefined) return "—"
-  try {
-    return new Intl.NumberFormat(language === "en" ? "en-GB" : "fr-FR", { style: "currency", currency: currency || "XOF", maximumFractionDigits: 0 }).format(Number(value))
-  } catch {
-    return `${Number(value).toLocaleString(language === "en" ? "en-GB" : "fr-FR")} ${currency || "XOF"}`
   }
 }
 
