@@ -474,11 +474,7 @@ export default function ClientBrowse() {
         )
 
         if (mounted) {
-          setLoadError(
-            "clientUi.browse.filterLoadError"
-            error?.message ||
-              t("errors.loading")
-          )
+          setLoadError("clientUi.browse.filterLoadError")
         }
       }
     }
