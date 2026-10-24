@@ -81,31 +81,37 @@ export default function ClientSettings({ initialTab = "profile" }) {
     setUploadingImage(kind)
     try {
       const url = await uploadProfileImage(authUserId, file, kind)
-      setProfile((p) => ({ ...p, ...(kind === "avatar" ? { avatar: url } : { cover_url: url }) }))
-      toast.success(kind === "avatar" ? t("clientSettings.success.avatar") : t("clientSettings.success.cover"))
-    } catch (error) { console.error(error); toast.error(t("clientSettings.errors.upload")) }
-      toast.success(kind === "avatar" ? t("settings.success.avatar") : t("settings.success.cover"))
-    } catch (error) { console.error(error); toast.error(t("errors.saving")) }
-    finally { setUploadingImage(null) }
+      setProfile((current) => ({
+        ...current,
+        ...(kind === "avatar" ? { avatar: url } : { cover_url: url }),
+      }))
+      toast.success(
+        kind === "avatar"
+          ? t("clientSettings.success.avatar")
+          : t("clientSettings.success.cover"),
+      )
+    } catch (error) {
+      console.error("KORA: profile image upload failed", error)
+      toast.error(t("clientSettings.errors.upload"))
+    } finally {
+      setUploadingImage(null)
+    }
   }
 
   const saveProfile = async () => {
     if (!authUserId) return
     if (!profile.name.trim()) return toast.error(t("clientSettings.errors.nameRequired"))
-    if (!profile.name.trim()) return toast.error(t("settings.errors.nameRequired"))
     setSaving(true)
     try {
       const { error } = await supabase.from("profiles").update({ name: profile.name.trim(), avatar: profile.avatar || null, cover_url: profile.cover_url || null, phone: profile.phone.trim() || null, city: profile.city.trim() || null, company: profile.company.trim() || null, bio: profile.bio.trim() || null }).eq("id", authUserId)
       if (error) throw error
       toast.success(t("clientSettings.success.profile"))
     } catch (error) {
-      console.error("Erreur profil client :", error)
+      console.error("KORA: client profile save failed", error)
       toast.error(t("clientSettings.errors.profileSave"))
-      toast.success(t("settings.success.profile"))
-    } catch (error) {
-      console.error("Erreur profil client :", error)
-      toast.error(t("settings.errors.save"))
-    } finally { setSaving(false) }
+    } finally {
+      setSaving(false)
+    }
   }
 
   const savePreferences = async () => {
