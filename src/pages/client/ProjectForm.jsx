@@ -12,7 +12,6 @@ import { Badge } from "@/components/ui/badge"
 import { useAuth } from "@/lib/AuthContext"
 import { useI18n } from "@/i18n/kora-i18n.jsx"
 import { supabase } from "@/lib/supabase"
-import { useI18n } from "@/i18n/kora-i18n.jsx"
 
 const CURRENCIES = ["XOF", "XAF", "GHS", "NGN", "KES", "USD", "EUR"]
 const EMPTY_FORM = {
