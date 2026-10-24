@@ -95,7 +95,6 @@ export default function ReviewProject() {
       } catch (error) {
         console.error("Erreur préparation avis :", error)
         if (mounted) setLoadError(error?.message === "PROJECT_NOT_FOUND" ? "clientUi.review.projectNotFound" : "clientUi.review.loadError")
-        if (mounted) setLoadError(t("projects.cannotLoad"))
       } finally {
         if (mounted) setLoading(false)
       }
@@ -131,16 +130,6 @@ export default function ReviewProject() {
     }
     if (!comment.trim()) {
       toast.error(t("clientUi.review.commentRequired"))
-
-      toast.error(t("projects.noEligibleTalent"))
-      return
-    }
-    if (!rating) {
-      toast.error(t("projects.chooseRating"))
-      return
-    }
-    if (!comment.trim()) {
-      toast.error(t("projects.commentRequired"))
       return
     }
 
@@ -158,15 +147,9 @@ export default function ReviewProject() {
       toast.success(t("clientUi.review.saved"))
       navigate(`/client/projects/${id}`)
     } catch (error) {
-      console.error("Erreur création avis :", error)
       console.error("KORA: project review save failed", error)
       toast.error(t("clientUi.review.saveError"))
-      toast.success(t("projects.reviewSaved"))
-      navigate(`/client/projects/${id}`)
-    } catch (error) {
-      console.error("Erreur création avis :", error)
-      toast.error(t("projects.reviewSaveError"))
-    } finally {
+        } finally {
       setSaving(false)
     }
   }
@@ -184,10 +167,6 @@ export default function ReviewProject() {
             <h1 className="text-xl font-black">{t("clientUi.review.unavailable")}</h1>
             <p className="text-sm text-muted-foreground">{t(loadError)}</p>
             <Button onClick={() => navigate(`/client/projects/${id}`)}><ArrowLeft className="mr-2 h-4 w-4" /> {t("clientUi.review.backToProject")}</Button>
-
-            <h1 className="text-xl font-black">{t("projects.reviewNotAvailable")}</h1>
-            <p className="text-sm text-muted-foreground">{loadError}</p>
-            <Button onClick={() => navigate(`/client/projects/${id}`)}><ArrowLeft className="mr-2 h-4 w-4" /> {t("projects.returnToProject")}</Button>
           </CardContent>
         </Card>
       </div>
@@ -203,12 +182,7 @@ export default function ReviewProject() {
           <CardContent className="p-8 text-center space-y-4">
             <Badge variant="outline" className="mx-auto">{t("projects.status")}: {t(({ draft: "projects.draft", open: "projects.open", pending: "projects.pending", active: "projects.active", completed: "projects.completed", cancelled: "projects.cancelled" })[project.status] || "projects.status")}</Badge>
             <h1 className="text-xl font-black">{t("clientUi.review.notComplete")}</h1>
-            <Badge variant="outline" className="mx-auto">Statut : {t(`projects.${project.status || "open"}`)}</Badge>
-            <h1 className="text-xl font-black">{t("projects.projectNotCompleted")}</h1>
-            <p className="text-sm text-muted-foreground">
-              {t("clientUi.review.ratingAvailableWhenCompleted")}
-            </p>
-            <Button onClick={() => navigate(`/client/projects/${id}`)}><ArrowLeft className="mr-2 h-4 w-4" /> {t("projects.returnToProject")}</Button>
+            <p className="text-sm text-muted-foreground">{t("clientUi.review.ratingAvailableWhenCompleted")}</p>
           </CardContent>
         </Card>
       </div>
