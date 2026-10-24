@@ -259,11 +259,7 @@ export default function ClientFavorites() {
                   {t("clientUi.favorites.title")}
                 </h1>
                 <p className="mt-1 text-sm text-muted-foreground">
-                  {t("clientUi.favorites.savedCount", "{count} saved talent(s)", { count: favorites.length })}
-                  {t("favorites.title")}
-                </h1>
-                <p className="mt-1 text-sm text-muted-foreground">
-                  {favorites.length === 1 ? t("favorites.savedOne", undefined, { count: favorites.length }) : t("favorites.savedMany", undefined, { count: favorites.length })}
+                  {t("clientUi.favorites.savedCount", "{count} talent(s) enregistré(s)", { count: favorites.length })}
                 </p>
               </div>
             </div>
