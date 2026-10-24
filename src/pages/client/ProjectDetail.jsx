@@ -173,12 +173,11 @@ export default function ProjectDetail() {
               <h1 className="text-2xl font-black tracking-tight">{project.title}</h1>
             </div>
           </div>
-          <Badge variant="outline" className={status.className}>{status.labelKey ? t(status.labelKey) : status.label}</Badge>
               <p className="text-xs font-bold uppercase tracking-[0.18em] text-gold">{t("projects.projectLabel")}</p>
               <h1 className="text-2xl font-black tracking-tight">{project.title}</h1>
             </div>
           </div>
-          <Badge variant="outline" className={status.className}>{t(status.labelKey)}</Badge>
+          <Badge variant="outline" className={status.className}>{status.labelKey ? t(status.labelKey) : status.label}</Badge>
         </div>
 
         <Card className="border-gold/20">
