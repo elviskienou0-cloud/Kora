@@ -211,12 +211,9 @@ export default function ProjectForm() {
             <ArrowLeft className="h-4 w-4" />
           </Button>
           <div>
-            <p className="text-xs font-bold uppercase tracking-[0.18em] text-gold">{t("projects.title")}</p>
+            <p className="text-xs font-bold uppercase tracking-[0.18em] text-gold">{t("clientUi.projects.area")}</p>
             <h1 className="text-2xl font-black tracking-tight">
               {editing ? t("clientUi.projects.edit") : t("clientUi.projects.newProject")}
-            <p className="text-xs font-bold uppercase tracking-[0.18em] text-gold">{t("navigation.projects")}</p>
-            <h1 className="text-2xl font-black tracking-tight">
-              {editing ? t("projects.edit") : t("projects.new")}
             </h1>
           </div>
         </div>
@@ -228,9 +225,6 @@ export default function ProjectForm() {
                 <CardTitle>{t("clientUi.projects.projectInfo")}</CardTitle>
                 <p className="mt-1 text-sm text-muted-foreground">
                   {t("clientUi.projects.formDescription")}
-                <CardTitle>{t("projects.projectInfoTitle")}</CardTitle>
-                <p className="mt-1 text-sm text-muted-foreground">
-                  {t("projects.projectInfoDescription")}
                 </p>
               </div>
               {editing && (
