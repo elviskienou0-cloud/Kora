@@ -53,7 +53,7 @@ const STATUS_CONFIG = {
     className: "border-gold text-gold-dark bg-gold/10",
   },
   en_attente: {
-    labelKey: "requests.pending",
+    label: "En attente",
     className: "border-gold text-gold-dark bg-gold/10",
   },
   accepted: {
@@ -61,7 +61,7 @@ const STATUS_CONFIG = {
     className: "bg-emerald-500 text-white",
   },
   acceptee: {
-    labelKey: "requests.accepted",
+    label: "Acceptée",
     className: "bg-emerald-500 text-white",
   },
   rejected: {
@@ -69,7 +69,7 @@ const STATUS_CONFIG = {
     className: "bg-red-500 text-white",
   },
   refusee: {
-    labelKey: "requests.rejected",
+    label: "Refusée",
     className: "bg-red-500 text-white",
   },
   completed: {
@@ -77,31 +77,25 @@ const STATUS_CONFIG = {
     className: "bg-slate-600 text-white",
   },
   terminee: {
-    labelKey: "projects.completed",
+    label: "Terminée",
     className: "bg-slate-600 text-white",
   },
 }
 
-function resolveLocale(localeOrLanguage = "fr-FR") {
-  return localeOrLanguage === "en" || localeOrLanguage === "en-GB" ? "en-GB" : "fr-FR"
-}
-
-function formatCurrency(value, localeOrLanguage = "fr-FR") {
+function formatCurrency(value, language = "fr") {
   const amount = Number(value || 0)
-  const locale = resolveLocale(localeOrLanguage)
 
-  return new Intl.NumberFormat(locale, {
+  return new Intl.NumberFormat(language === "en" ? "en-GB" : "fr-FR", {
     style: "currency",
     currency: "XOF",
     maximumFractionDigits: 0,
   }).format(amount)
 }
 
-function formatDate(value, localeOrLanguage = "fr-FR") {
-  const locale = resolveLocale(localeOrLanguage)
-  if (!value) return locale === "en-GB" ? "Unknown date" : "Date inconnue"
+function formatDate(value, language = "fr") {
+  if (!value) return language === "en" ? "Unknown date" : "Date inconnue"
 
-  return new Intl.DateTimeFormat(locale, {
+  return new Intl.DateTimeFormat(language === "en" ? "en-GB" : "fr-FR", {
     day: "2-digit",
     month: "short",
     year: "numeric",
@@ -162,7 +156,6 @@ function getTalentCountry(talent) {
 export default function ClientDashboard() {
   const navigate = useNavigate()
   const { t, language } = useI18n()
-  const locale = language === "en" ? "en-GB" : "fr-FR"
 
   const [profile, setProfile] = useState(null)
   const [stats, setStats] = useState({
@@ -287,7 +280,10 @@ export default function ClientDashboard() {
 
         if (!mounted) return
 
-        setError("clientUi.dashboard.loadingError")
+        setError(
+          err?.message ||
+            t("errors.loading")
+        )
       } finally {
         if (mounted) {
           setIsLoading(false)
@@ -303,14 +299,14 @@ export default function ClientDashboard() {
   }, [navigate, t])
 
   const firstName = useMemo(() => {
-    if (!profile) return t("clientUi.dashboard.you")
+    if (!profile) return "vous"
 
     if (profile.name) {
       return profile.name.split(" ")[0]
     }
 
-    return t("clientUi.dashboard.you")
-  }, [profile, t])
+    return "vous"
+  }, [profile])
 
   if (isLoading) {
     return (
@@ -318,10 +314,10 @@ export default function ClientDashboard() {
         <div className="flex flex-col items-center gap-3">
           <Loader2
             className="h-10 w-10 text-gold animate-spin"
-            aria-label={t("clientUi.dashboard.loading")}
+            aria-label={t("common.loading")}
           />
           <p className="text-sm text-muted-foreground">
-            {t("clientUi.dashboard.loading")}
+            {t("common.loading")}
           </p>
         </div>
       </div>
@@ -341,7 +337,7 @@ export default function ClientDashboard() {
             <Card className="border-red-500/30 bg-red-500/5">
               <CardContent className="flex items-center gap-3 p-4">
                 <AlertCircle className="h-5 w-5 text-red-500 shrink-0" />
-                <p className="text-sm text-red-600">{t(error)}</p>
+                <p className="text-sm text-red-600">{error}</p>
               </CardContent>
             </Card>
           </motion.div>
@@ -358,11 +354,11 @@ export default function ClientDashboard() {
 
             <div>
               <h1 className="text-2xl font-bold tracking-tight md:text-3xl">
-                {t("clientUi.dashboard.hello", "Bonjour, {name}", { name: firstName })}
+                Bonjour,{" "}
+                <span className="text-gold-dark">{firstName}</span>
               </h1>
 
               <p className="text-sm text-muted-foreground">
-                {t("clientUi.dashboard.welcome")}
                 {t("dashboard.greeting")}
               </p>
             </div>
@@ -375,7 +371,6 @@ export default function ClientDashboard() {
               onClick={() => navigate("/categories")}
             >
               <Search className="mr-2 h-4 w-4" />
-              {t("clientUi.dashboard.search")}
               {t("dashboard.searchAction")}
             </Button>
 
@@ -384,7 +379,6 @@ export default function ClientDashboard() {
               onClick={() => navigate("/categories")}
             >
               <Send className="mr-2 h-4 w-4" />
-              {t("clientUi.dashboard.newRequest")}
               {t("dashboard.newRequest")}
             </Button>
           </div>
@@ -395,7 +389,6 @@ export default function ClientDashboard() {
           className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4"
         >
           <StatCard
-            title={t("clientUi.dashboard.requestsSent")}
             title={t("dashboard.clientRequestsSent")}
             value={stats.requests}
             icon={Send}
@@ -403,7 +396,6 @@ export default function ClientDashboard() {
           />
 
           <StatCard
-            title={t("clientUi.dashboard.requestsAccepted")}
             title={t("dashboard.clientRequestsAccepted")}
             value={stats.accepted}
             icon={Briefcase}
@@ -411,7 +403,6 @@ export default function ClientDashboard() {
           />
 
           <StatCard
-            title={t("clientUi.dashboard.favoriteTalents")}
             title={t("dashboard.clientFavorites")}
             value={stats.favorites}
             icon={Heart}
@@ -419,8 +410,6 @@ export default function ClientDashboard() {
           />
 
           <StatCard
-            title={t("clientUi.dashboard.spentBudget")}
-            value={formatCurrency(stats.spent, locale)}
             title={t("dashboard.clientBudgetSpent")}
             value={formatCurrency(stats.spent, language)}
             icon={TrendingUp}
@@ -437,11 +426,11 @@ export default function ClientDashboard() {
               <div>
                 <CardTitle className="flex items-center gap-2 text-xl">
                   <Clock className="h-5 w-5 text-gold-dark" />
-                  {t("clientUi.dashboard.recentRequests")}
+                  {t("dashboard.recentRequests")}
                 </CardTitle>
 
                 <CardDescription>
-                  {t("clientUi.dashboard.recentRequestsDescription")}
+                  {t("dashboard.recentRequestsDescription")}
                 </CardDescription>
               </div>
 
@@ -450,7 +439,6 @@ export default function ClientDashboard() {
                 className="text-gold-dark hover:bg-gold/10"
                 onClick={() => navigate("/client/requests")}
               >
-                {t("clientUi.dashboard.seeAll")}
                 {t("dashboard.viewAll")}
                 <ChevronRight className="ml-1 h-4 w-4" />
               </Button>
@@ -460,9 +448,6 @@ export default function ClientDashboard() {
               {recentRequests.length === 0 ? (
                 <EmptyState
                   icon={Briefcase}
-                  title={t("clientUi.dashboard.noRequests")}
-                  description={t("clientUi.dashboard.noRequestsDescription")}
-                  actionLabel={t("clientUi.dashboard.exploreTalents")}
                   title={t("dashboard.noClientRequests")}
                   description={t("dashboard.noRequestDescription")}
                   actionLabel={t("dashboard.exploreTalents")}
@@ -474,7 +459,6 @@ export default function ClientDashboard() {
                     const status =
                       STATUS_CONFIG[request.status] || {
                         labelKey: null,
-                        label: request.status || t("clientUi.dashboard.unknown"),
                         className: "bg-muted text-muted-foreground",
                       }
 
@@ -512,11 +496,10 @@ export default function ClientDashboard() {
                           {request.budget != null && (
                             <div className="text-right">
                               <p className="font-semibold">
-                                {formatCurrency(request.budget, locale)}
+                                {formatCurrency(request.budget)}
                               </p>
 
                               <p className="text-xs text-muted-foreground">
-                                {formatDate(request.created_at, locale)}
                                 {formatDate(request.created_at, language)}
                               </p>
                             </div>
@@ -543,11 +526,6 @@ export default function ClientDashboard() {
             <CardHeader className="pb-2">
               <CardTitle className="flex items-center gap-2 text-xl">
                 <Users className="h-5 w-5 text-gold-dark" />
-                {t("clientUi.dashboard.recentTalents")}
-              </CardTitle>
-
-              <CardDescription>
-                {t("clientUi.dashboard.recentTalentsDescription")}
                 {t("dashboard.recentTalents")}
               </CardTitle>
 
@@ -560,8 +538,6 @@ export default function ClientDashboard() {
               {recommendedTalents.length === 0 ? (
                 <EmptyState
                   icon={Users}
-                  title={t("clientUi.dashboard.noTalents")}
-                  description={t("clientUi.dashboard.noPublicProfiles")}
                   title={t("dashboard.noAvailableTalents")}
                   description={t("dashboard.noPublicProfiles")}
                 />
@@ -619,7 +595,6 @@ export default function ClientDashboard() {
                     className="w-full text-gold-dark hover:bg-gold/10"
                     onClick={() => navigate("/categories")}
                   >
-                    {t("clientUi.dashboard.viewAllTalents")}
                     {t("dashboard.seeAllTalents")}
                     <ChevronRight className="ml-1 h-4 w-4" />
                   </Button>
@@ -632,10 +607,6 @@ export default function ClientDashboard() {
         <motion.div variants={itemVariants}>
           <Card className="border-gold/20 shadow-sm">
             <CardHeader>
-              <CardTitle>{t("clientUi.dashboard.activity")}</CardTitle>
-              <CardDescription>
-                {t("clientUi.dashboard.activityDescription")}
-
               <CardTitle>{t("dashboard.yourActivity")}</CardTitle>
               <CardDescription>
                 {t("dashboard.activityDescription")}
@@ -646,9 +617,6 @@ export default function ClientDashboard() {
               <div className="grid gap-4 sm:grid-cols-3">
                 <ActivityItem
                   icon={Search}
-                  label={t("clientUi.dashboard.searches")}
-                  value={stats.searches}
-                  description={t("clientUi.dashboard.savedSearches")}
                   label={t("dashboard.searches")}
                   value={stats.searches}
                   description={t("dashboard.searchHistoryDescription")}
@@ -656,9 +624,6 @@ export default function ClientDashboard() {
 
                 <ActivityItem
                   icon={Heart}
-                  label={t("clientUi.dashboard.favorites")}
-                  value={stats.favorites}
-                  description={t("clientUi.dashboard.savedTalents")}
                   label={t("favorites.title")}
                   value={stats.favorites}
                   description={t("dashboard.savedTalents")}
@@ -666,9 +631,6 @@ export default function ClientDashboard() {
 
                 <ActivityItem
                   icon={Send}
-                  label={t("clientUi.dashboard.requests")}
-                  value={stats.requests}
-                  description={t("clientUi.dashboard.noSentRequests")}
                   label={t("requests.title")}
                   value={stats.requests}
                   description={t("dashboard.requestsSentDescription")}
