@@ -34,42 +34,12 @@ const STATUS_CONFIG = {
   cancelled: { labelKey: "projects.cancelled", className: "bg-red-500/10 text-red-600 border-red-500/30" },
 }
 
-function formatMoney(value, currency, locale = "fr-FR") {
+function formatMoney(value, currency, language = "fr") {
   if (value === null || value === undefined) return "—"
+  const locale = language === "en" ? "en-GB" : "fr-FR"
 
   try {
     return new Intl.NumberFormat(locale, {
-  draft: {
-    labelKey: "projects.draft",
-    className: "bg-slate-500/10 text-slate-600 border-slate-500/30",
-  },
-  open: {
-    labelKey: "projects.open",
-    className: "bg-emerald-500/10 text-emerald-600 border-emerald-500/30",
-  },
-  pending: {
-    labelKey: "projects.pending",
-    className: "bg-amber-500/10 text-amber-700 border-amber-500/30",
-  },
-  active: {
-    labelKey: "projects.active",
-    className: "bg-blue-500/10 text-blue-600 border-blue-500/30",
-  },
-  completed: {
-    labelKey: "projects.completed",
-    className: "bg-violet-500/10 text-violet-600 border-violet-500/30",
-  },
-  cancelled: {
-    labelKey: "projects.cancelled",
-    className: "bg-red-500/10 text-red-600 border-red-500/30",
-  },
-}
-
-function formatMoney(value, currency, language = "fr") {
-  if (value === null || value === undefined) return "—"
-
-  try {
-    return new Intl.NumberFormat(language === "en" ? "en-GB" : "fr-FR", {
       style: "currency",
       currency: currency || "XOF",
       maximumFractionDigits: 0,
@@ -79,41 +49,25 @@ function formatMoney(value, currency, language = "fr") {
   }
 }
 
-function budgetLabel(project, locale, t) {
-    return `${Number(value).toLocaleString(language === "en" ? "en-GB" : "fr-FR")} ${currency || "XOF"}`
-  }
-}
-
 function budgetLabel(project, t, language) {
   const min = project.budget_min
   const max = project.budget_max
 
-  if (min == null && max == null) {
-    return t("clientUi.projects.undefinedBudget")
-    return t("projects.budgetUndefined")
-  }
+  if (min == null && max == null) return t("clientUi.projects.undefinedBudget")
 
   if (min != null && max != null) {
-    return `${formatMoney(min, project.currency, locale)} — ${formatMoney(
-      max,
-      project.currency,
-      locale
-    )}`
+    return `${formatMoney(min, project.currency, language)} — ${formatMoney(max, project.currency, language)}`
   }
 
   return min != null
-    ? `${t("clientUi.projects.from")} ${formatMoney(min, project.currency, locale)}`
-    : `${t("clientUi.projects.upTo")} ${formatMoney(max, project.currency, locale)}`
-    ? t("projects.startingAt", undefined, { amount: formatMoney(min, project.currency, language) })
-    : t("projects.upTo", undefined, { amount: formatMoney(max, project.currency, language) })
+    ? `${t("clientUi.projects.from")} ${formatMoney(min, project.currency, language)}`
+    : `${t("clientUi.projects.upTo")} ${formatMoney(max, project.currency, language)}`
 }
 
 export default function ClientProjects() {
   const navigate = useNavigate()
   const { t, language } = useI18n()
-  const locale = language === "en" ? "en-GB" : "fr-FR"
   const { user } = useAuth()
-  const { t, language } = useI18n()
 
   const authUserId = user?.authId || user?.id
 
@@ -406,7 +360,6 @@ export default function ClientProjects() {
                           variant="outline"
                           className={status.className}
                         >
-                          {status.labelKey ? t(status.labelKey) : status.label}
                           {status.labelKey ? t(status.labelKey) : project.status || "—"}
                         </Badge>
                       </div>
@@ -418,11 +371,6 @@ export default function ClientProjects() {
                           </span>
 
                           <span className="text-right font-medium">
-                            {budgetLabel(project, locale, t)}
-                            {t("projects.budget")}
-                          </span>
-
-                          <span className="text-right font-medium">
                             {budgetLabel(project, t, language)}
                           </span>
                         </div>
@@ -431,7 +379,6 @@ export default function ClientProjects() {
                           <span className="flex items-center gap-2 text-muted-foreground">
                             <CalendarDays className="h-3.5 w-3.5" />
                             {t("clientUi.projects.dueDate")}
-                            {t("projects.dueDateLabel")}
                           </span>
 
                           <span>
