@@ -214,8 +214,6 @@ export default function ReviewProject() {
           <div>
             <p className="text-xs font-bold uppercase tracking-[0.18em] text-gold">{t("clientUi.review.reputation")}</p>
             <h1 className="text-2xl font-black tracking-tight">{t("clientUi.review.title")}</h1>
-            <p className="text-xs font-bold uppercase tracking-[0.18em] text-gold">{t("projects.reputation")}</p>
-            <h1 className="text-2xl font-black tracking-tight">{t("projects.reviewProjectTitle")}</h1>
           </div>
         </div>
 
@@ -227,9 +225,6 @@ export default function ReviewProject() {
                 <CardDescription className="mt-1">{t("clientUi.review.projectComplete")}</CardDescription>
               </div>
               <Badge className="bg-emerald-500/10 text-emerald-600 border border-emerald-500/30">{t("clientUi.review.finished")}</Badge>
-                <CardDescription className="mt-1">{t("projects.reviewDescription")}</CardDescription>
-              </div>
-              <Badge className="bg-emerald-500/10 text-emerald-600 border border-emerald-500/30">{t("projects.completed")}</Badge>
             </div>
           </CardHeader>
         </Card>
@@ -238,8 +233,6 @@ export default function ReviewProject() {
           <CardHeader>
             <CardTitle className="font-black">{t("clientUi.review.yourReview")}</CardTitle>
             <CardDescription>{t("clientUi.review.ratingCommentRequired")}</CardDescription>
-            <CardTitle className="font-black">{t("reviews.title")}</CardTitle>
-            <CardDescription>{t("projects.ratingRequired")}</CardDescription>
           </CardHeader>
           <CardContent>
             <form onSubmit={submit} className="space-y-6">
