@@ -165,16 +165,12 @@ export default function ClientProjects() {
     if (updateError) {
       console.error("Erreur annulation projet :", updateError)
 
-      toast.error(
-        t("clientUi.projects.cancelError")
-        t("projects.saveError")
-      )
+      toast.error(t("clientUi.projects.cancelError"))
 
       return
     }
 
     toast.success(t("clientUi.projects.cancelled"))
-    toast.success(t("projects.cancelledToast"))
 
     await queryClient.invalidateQueries({
       queryKey: ["projects"],
