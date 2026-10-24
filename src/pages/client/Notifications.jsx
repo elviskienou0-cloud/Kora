@@ -198,11 +198,6 @@ export default function ClientNotifications() {
                 {unreadOnly
                   ? t("clientUi.notifications.noUnread")
                   : t("clientUi.notifications.emptyDescription")}
-              <p className="font-semibold">{t("notifications.noNotifications")}</p>
-              <p className="mt-1 text-sm text-muted-foreground">
-                {unreadOnly
-                  ? t("notifications.noUnread")
-                  : t("notifications.descriptionEmpty")}
               </p>
             </CardContent>
           </Card>
