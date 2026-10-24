@@ -268,7 +268,6 @@ export default function ClientRequests() {
                 ]
                   .filter(Boolean)
                   .join(" ") || t("clientUi.dashboard.talent")
-                  .join(" ") || t("talents.talent")
 
                 return (
                   <Card
@@ -279,19 +278,12 @@ export default function ClientRequests() {
                       <div className="flex items-start justify-between gap-3">
                         <div className="min-w-0">
                           <h2 className="line-clamp-2 font-bold">
-                            {request.title ||
-                              t("clientUi.requests.invitation")}
-                              t("requests.invitation")}
+                            {request.title || t("clientUi.requests.invitation")}
                           </h2>
 
                           <p className="mt-1 text-xs text-muted-foreground">
                             {request.created_at
-                              ? new Date(
-                                  request.created_at
-                                ).toLocaleDateString(locale)
-                                ).toLocaleDateString(
-                                  language === "en" ? "en-GB" : "fr-FR"
-                                )
+                              ? new Date(request.created_at).toLocaleDateString(locale)
                               : "—"}
                           </p>
                         </div>
@@ -300,8 +292,7 @@ export default function ClientRequests() {
                           variant="outline"
                           className={status.className}
                         >
-                          {status.labelKey ? t(status.labelKey) : (request.status || "—")}
-                          {status.labelKey ? t(status.labelKey) : t("common.unknown")}
+                          {status.labelKey ? t(status.labelKey) : (request.status || t("common.unknown"))}
                         </Badge>
                       </div>
 
