@@ -258,7 +258,6 @@ export default function ReviewProject() {
                     const active = (hoverRating || rating) >= value
                     return (
                       <button key={value} type="button" aria-label={t("clientUi.review.stars", "{count} star(s)", { count: value })} onMouseEnter={() => setHoverRating(value)} onClick={() => setRating(value)} className="rounded-md p-1.5 transition-transform hover:scale-110">
-                      <button key={value} type="button" aria-label={t("projects.starRating", undefined, { count: value })} onMouseEnter={() => setHoverRating(value)} onClick={() => setRating(value)} className="rounded-md p-1.5 transition-transform hover:scale-110">
                         <Star className={active ? "h-8 w-8 fill-amber-400 text-amber-400" : "h-8 w-8 text-muted-foreground/40"} />
                       </button>
                     )
@@ -269,7 +268,6 @@ export default function ReviewProject() {
               <div className="space-y-2">
                 <Label htmlFor="review-comment">{t("clientUi.review.comment")}</Label>
                 <Textarea id="review-comment" value={comment} onChange={(event) => setComment(event.target.value)} placeholder={t("clientUi.review.commentPlaceholder")} maxLength={3000} className="min-h-36" disabled={saving} />
-                <Label htmlFor="review-comment">{t("reviews.comment")}</Label>
                 <Textarea id="review-comment" value={comment} onChange={(event) => setComment(event.target.value)} placeholder={t("projects.reviewCommentPlaceholder")} maxLength={3000} className="min-h-36" disabled={saving} />
                 <p className="text-right text-[11px] text-muted-foreground">{comment.length}/3000</p>
               </div>
