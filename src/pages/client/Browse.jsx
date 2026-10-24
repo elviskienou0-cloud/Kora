@@ -888,12 +888,7 @@ export default function ClientBrowse() {
               </h1>
 
               <p className="mt-1 text-sm text-muted-foreground">
-                {t(totalTalents === 1 ? "clientUi.browse.availableCountOne" : "clientUi.browse.availableCountMany", "{count} professional(s) available across Africa", { count: totalTalents })}
-                {t("browse.title")}
-              </h1>
-
-              <p className="mt-1 text-sm text-muted-foreground">
-                {totalTalents === 1 ? t("browse.availableCountOne", undefined, { count: totalTalents }) : t("browse.availableCountMany", undefined, { count: totalTalents })}
+                {t(totalTalents === 1 ? "clientUi.browse.availableCountOne" : "clientUi.browse.availableCountMany", "{count} professionnel(s) disponible(s) à travers toute l'Afrique", { count: totalTalents })}
               </p>
             </div>
 
