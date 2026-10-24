@@ -15,15 +15,6 @@ import { useAuth } from "@/lib/AuthContext"
 import { useI18n } from "@/i18n/kora-i18n.jsx"
 import { uploadProfileImage } from "@/lib/profileMedia"
 
-export default function ClientSettings({ initialTab = "profile" }) {
-  const { user } = useAuth()
-  const { t, language, setLanguage, theme, setTheme } = useI18n()
-  const tabs = [
-    ["profile", t("clientSettings.tabs.profile"), User],
-    ["preferences", t("clientSettings.tabs.preferences"), Palette],
-    ["notifications", t("clientSettings.tabs.notifications"), Bell],
-    ["security", t("clientSettings.tabs.security"), Lock],
-  ]
 const TABS = [
   ["profile", "settings.profileTab", User],
   ["preferences", "settings.preferencesTab", Palette],
