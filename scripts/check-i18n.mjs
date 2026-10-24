@@ -2,72 +2,27 @@ import assert from "node:assert/strict"
 import fs from "node:fs"
 import path from "node:path"
 import vm from "node:vm"
+import * as ts from "typescript"
 import { fileURLToPath } from "node:url"
 import { normalizeLanguage, persistLanguage, resolveInitialLanguage, STORAGE_KEY } from "../src/i18n/language.js"
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..")
 const i18nPath = path.join(root, "src/i18n/kora-i18n.jsx")
 const i18nSource = fs.readFileSync(i18nPath, "utf8")
+const i18nAst = ts.createSourceFile(i18nPath, i18nSource, ts.ScriptTarget.Latest, true, ts.ScriptKind.TSX)
 
-function extractObject(source, declaration) {
-  const declarationIndex = source.indexOf(declaration)
-  assert.notEqual(declarationIndex, -1, `Missing dictionary declaration: ${declaration}`)
-  const start = source.indexOf("{", declarationIndex)
-  let depth = 0
-  let quote = null
-  let escaped = false
-  let lineComment = false
-  let blockComment = false
-
-  for (let index = start; index < source.length; index += 1) {
-    const char = source[index]
-    const next = source[index + 1]
-
-    if (lineComment) {
-      if (char === "\n") lineComment = false
-      continue
-    }
-    if (blockComment) {
-      if (char === "*" && next === "/") {
-        blockComment = false
-        index += 1
+function extractObject(sourceFile, declaration) {
+  const variableName = declaration.replace(/^const\s+/, "").trim().replace(/\s*=\s*$/, "")
+  for (const statement of sourceFile.statements) {
+    if (!ts.isVariableStatement(statement)) continue
+    for (const item of statement.declarationList.declarations) {
+      if (ts.isIdentifier(item.name) && item.name.text === variableName && item.initializer) {
+        assert.ok(ts.isObjectLiteralExpression(item.initializer), `Dictionary must be an object literal: ${declaration}`)
+        return item.initializer.getText(sourceFile)
       }
-      continue
-    }
-    if (quote) {
-      if (escaped) {
-        escaped = false
-        continue
-      }
-      if (char === "\\") {
-        escaped = true
-        continue
-      }
-      if (char === quote) quote = null
-      continue
-    }
-    if (char === "/" && next === "/") {
-      lineComment = true
-      index += 1
-      continue
-    }
-    if (char === "/" && next === "*") {
-      blockComment = true
-      index += 1
-      continue
-    }
-    if (char === "'" || char === '"' || char === "`") {
-      quote = char
-      continue
-    }
-    if (char === "{") depth += 1
-    if (char === "}") {
-      depth -= 1
-      if (depth === 0) return source.slice(start, index + 1)
     }
   }
-
-  throw new Error(`Unclosed dictionary object: ${declaration}`)
+  assert.fail(`Missing dictionary declaration: ${declaration}`)
 }
 
 function flatten(value, prefix = "", result = {}) {
@@ -82,8 +37,8 @@ function flatten(value, prefix = "", result = {}) {
   return result
 }
 
-const fr = flatten(vm.runInNewContext(`(${extractObject(i18nSource, "const fr =")})`))
-const en = flatten(vm.runInNewContext(`(${extractObject(i18nSource, "const en =")})`))
+const fr = flatten(vm.runInNewContext(`(${extractObject(i18nAst, "const fr =")})`))
+const en = flatten(vm.runInNewContext(`(${extractObject(i18nAst, "const en =")})`))
 const frKeys = Object.keys(fr).sort()
 const enKeys = Object.keys(en).sort()
 const missingInEnglish = frKeys.filter((key) => !Object.hasOwn(en, key))
