@@ -1328,11 +1328,6 @@ export default function ClientBrowse() {
 
                       <p className="mt-1 text-sm text-muted-foreground max-w-sm">
                         {t("clientUi.browse.noTalentsDescription")}
-                        {t("browse.noResultsTitle")}
-                      </h3>
-
-                      <p className="mt-1 text-sm text-muted-foreground max-w-sm">
-                        {t("browse.noResultsDescription")}
                       </p>
 
                       <Button
