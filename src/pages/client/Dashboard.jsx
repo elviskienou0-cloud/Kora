@@ -82,28 +82,26 @@ const STATUS_CONFIG = {
   },
 }
 
-function formatCurrency(value, locale = "fr-FR") {
+function resolveLocale(localeOrLanguage = "fr-FR") {
+  return localeOrLanguage === "en" || localeOrLanguage === "en-GB" ? "en-GB" : "fr-FR"
+}
+
+function formatCurrency(value, localeOrLanguage = "fr-FR") {
   const amount = Number(value || 0)
+  const locale = resolveLocale(localeOrLanguage)
 
   return new Intl.NumberFormat(locale, {
-function formatCurrency(value, language = "fr") {
-  const amount = Number(value || 0)
-
-  return new Intl.NumberFormat(language === "en" ? "en-GB" : "fr-FR", {
     style: "currency",
     currency: "XOF",
     maximumFractionDigits: 0,
   }).format(amount)
 }
 
-function formatDate(value, locale = "fr-FR") {
+function formatDate(value, localeOrLanguage = "fr-FR") {
+  const locale = resolveLocale(localeOrLanguage)
   if (!value) return locale === "en-GB" ? "Unknown date" : "Date inconnue"
 
   return new Intl.DateTimeFormat(locale, {
-function formatDate(value, language = "fr") {
-  if (!value) return language === "en" ? "Unknown date" : "Date inconnue"
-
-  return new Intl.DateTimeFormat(language === "en" ? "en-GB" : "fr-FR", {
     day: "2-digit",
     month: "short",
     year: "numeric",
