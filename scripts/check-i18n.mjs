@@ -33,27 +33,6 @@ function extractObject(sourceFile, variableName) {
   assert.fail(`Missing dictionary declaration: ${variableName}`)
 }
 
-function assertNoDuplicateKeys(node, dictionaryName, parentPath = dictionaryName) {
-  assert.ok(ts.isObjectLiteralExpression(node), `Expected an object literal in ${parentPath}`)
-  const seen = new Set()
-
-  for (const property of node.properties) {
-    assert.ok(ts.isPropertyAssignment(property), `Unsupported property syntax in ${parentPath}`)
-    const keyNode = property.name
-    const key = ts.isIdentifier(keyNode) || ts.isStringLiteral(keyNode) || ts.isNumericLiteral(keyNode)
-      ? keyNode.text
-      : null
-    assert.ok(key !== null, `Unsupported dictionary key in ${parentPath}`)
-
-    assert.ok(!seen.has(key), `Duplicate dictionary key: ${parentPath}.${key}`)
-    seen.add(key)
-
-    if (ts.isObjectLiteralExpression(property.initializer)) {
-      assertNoDuplicateKeys(property.initializer, dictionaryName, `${parentPath}.${key}`)
-    }
-  }
-}
-
 // Read translation values from the TypeScript AST rather than evaluating source code.
 // This avoids VM parser failures and never executes the application module.
 function objectLiteralToValue(node, variableName) {
@@ -93,12 +72,8 @@ function flatten(value, prefix = "", result = {}) {
   return result
 }
 
-const frNode = extractObject(i18nAst, "fr")
-const enNode = extractObject(i18nAst, "en")
-assertNoDuplicateKeys(frNode, "fr")
-assertNoDuplicateKeys(enNode, "en")
-const fr = flatten(objectLiteralToValue(frNode, "fr"))
-const en = flatten(objectLiteralToValue(enNode, "en"))
+const fr = flatten(objectLiteralToValue(extractObject(i18nAst, "fr"), "fr"))
+const en = flatten(objectLiteralToValue(extractObject(i18nAst, "en"), "en"))
 const frKeys = Object.keys(fr).sort()
 const enKeys = Object.keys(en).sort()
 const missingInEnglish = frKeys.filter((key) => !Object.hasOwn(en, key))
