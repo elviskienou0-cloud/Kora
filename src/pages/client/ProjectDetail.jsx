@@ -123,8 +123,7 @@ export default function ProjectDetail() {
 
   const cancelProject = async () => {
     if (!project || ["completed", "cancelled"].includes(project.status)) return
-    if (!window.confirm(t("clientUi.projects.cancelConfirm", "Cancel project “{title}”? ", { title: project.title }))) return
-    if (!window.confirm(t("projects.cancelConfirm"))) return
+    if (!window.confirm(t("clientUi.projects.cancelConfirm", "Annuler le projet « {title} » ?", { title: project.title }))) return
 
     const { error } = await supabase
       .from("projects")
@@ -139,11 +138,6 @@ export default function ProjectDetail() {
     }
 
     toast.success(t("clientUi.projects.cancelled"))
-      toast.error(t("projects.saveError"))
-      return
-    }
-
-    toast.success(t("projects.cancelledToast"))
     loadProject()
   }
 
