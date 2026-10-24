@@ -524,7 +524,9 @@ const fr = {
       emailTitle: "Notifications par email", emailDescription: "Tâches, réponses et rappels importants.", pushTitle: "Notifications push", pushDescription: "Alertes instantanées du navigateur.",
       marketingTitle: "Offres et actualités KORA", marketingDescription: "Nouveautés, événements et offres.", securityTitle: "Alertes de sécurité", securityDescription: "Connexions et changements sensibles.",
     },
-    "notifications": {
+  },
+
+  "notifications": {
       "title": "Notifications",
       "refresh": "Actualiser",
       "markAllRead": "Tout marquer comme lu",
@@ -655,8 +657,7 @@ const fr = {
       "ratingAvailableWhenCompleted": "La note et l’avis deviennent disponibles lorsque le manager marque ce projet comme terminé.",
       "finished": "Terminé",
       "stars": "{count} étoile(s)"
-    }
-  },
+    },
   "dashboard": {
     "title": "Tableau de bord",
     "welcome": "Bienvenue sur KORA.",
