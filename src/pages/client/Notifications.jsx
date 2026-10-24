@@ -246,8 +246,6 @@ export default function ClientNotifications() {
                         {unread && (
                           <Button variant="ghost" size="sm" className="mt-3" onClick={() => markRead(notification)}>
                             <Check className="mr-2 h-4 w-4" /> {t("clientUi.notifications.markRead")}
-
-                            <Check className="mr-2 h-4 w-4" /> {t("notifications.markRead")}
                           </Button>
                         )}
                       </div>
