@@ -268,7 +268,6 @@ export default function ReviewProject() {
               <div className="space-y-2">
                 <Label htmlFor="review-comment">{t("clientUi.review.comment")}</Label>
                 <Textarea id="review-comment" value={comment} onChange={(event) => setComment(event.target.value)} placeholder={t("clientUi.review.commentPlaceholder")} maxLength={3000} className="min-h-36" disabled={saving} />
-                <Textarea id="review-comment" value={comment} onChange={(event) => setComment(event.target.value)} placeholder={t("projects.reviewCommentPlaceholder")} maxLength={3000} className="min-h-36" disabled={saving} />
                 <p className="text-right text-[11px] text-muted-foreground">{comment.length}/3000</p>
               </div>
 
@@ -277,10 +276,6 @@ export default function ReviewProject() {
                 <Button type="submit" className="gap-2 gold-gradient text-white" disabled={saving}>
                   {saving ? <Loader2 className="h-4 w-4 animate-spin" /> : <Send className="h-4 w-4" />}
                   {saving ? t("common.saving") : t("clientUi.review.submit")}
-                <Button type="button" variant="outline" onClick={() => navigate(-1)} disabled={saving}>{t("common.cancel")}</Button>
-                <Button type="submit" className="gap-2 gold-gradient text-white" disabled={saving}>
-                  {saving ? <Loader2 className="h-4 w-4 animate-spin" /> : <Send className="h-4 w-4" />}
-                  {saving ? t("common.saving") : t("reviews.submit")}
                 </Button>
               </div>
             </form>
