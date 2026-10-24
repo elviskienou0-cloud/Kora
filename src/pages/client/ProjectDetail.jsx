@@ -20,12 +20,6 @@ const STATUS_CONFIG = {
   cancelled: { labelKey: "projects.cancelled", className: "bg-red-500/10 text-red-600 border-red-500/30" },
 }
 
-function formatMoney(value, currency, locale = "fr-FR") {
-  if (value === null || value === undefined) return "—"
-  try {
-    return new Intl.NumberFormat(locale, { style: "currency", currency: currency || "XOF", maximumFractionDigits: 0 }).format(Number(value))
-  } catch {
-    return `${Number(value).toLocaleString(locale)} ${currency || "XOF"}`
 function formatMoney(value, currency, language = "fr") {
   if (value === null || value === undefined) return "—"
   try {
@@ -40,7 +34,6 @@ export default function ProjectDetail() {
   const navigate = useNavigate()
   const { user } = useAuth()
   const { t, language } = useI18n()
-  const locale = language === "en" ? "en-GB" : "fr-FR"
   const authUserId = user?.authId || user?.id
 
   const [project, setProject] = useState(null)
@@ -108,8 +101,6 @@ export default function ProjectDetail() {
       }
     } catch (error) {
       console.error("Erreur détail projet :", error)
-      console.error("KORA: project detail load failed", error)
-      toast.error(error?.message === "PROJECT_NOT_FOUND" ? t("clientUi.projects.projectNotFound") : t("clientUi.projects.loadError"))
       toast.error(t("projects.cannotLoad"))
       navigate("/client/projects", { replace: true })
       return
@@ -124,7 +115,6 @@ export default function ProjectDetail() {
 
   const cancelProject = async () => {
     if (!project || ["completed", "cancelled"].includes(project.status)) return
-    if (!window.confirm(t("clientUi.projects.cancelConfirm", "Cancel project “{title}”? ", { title: project.title }))) return
     if (!window.confirm(t("projects.cancelConfirm"))) return
 
     const { error } = await supabase
@@ -134,12 +124,6 @@ export default function ProjectDetail() {
       .eq("client_id", authUserId)
 
     if (error) {
-      console.error("KORA: project cancellation failed", error)
-      toast.error(t("clientUi.projects.cancelError"))
-      return
-    }
-
-    toast.success(t("clientUi.projects.cancelled"))
       toast.error(t("projects.saveError"))
       return
     }
@@ -154,14 +138,8 @@ export default function ProjectDetail() {
 
   if (!project) return null
 
-  const status = STATUS_CONFIG[project.status] || { label: project.status || "—", labelKey: null, className: "bg-muted text-muted-foreground" }
+  const status = STATUS_CONFIG[project.status] || { label: project.status || "—", className: "bg-muted text-muted-foreground" }
   const budget = project.budget_min != null && project.budget_max != null
-    ? `${formatMoney(project.budget_min, project.currency, locale)} — ${formatMoney(project.budget_max, project.currency, locale)}`
-    : project.budget_min != null
-    ? `${t("clientUi.projects.from")} ${formatMoney(project.budget_min, project.currency, locale)}`
-    : project.budget_max != null
-    ? `${t("clientUi.projects.upTo")} ${formatMoney(project.budget_max, project.currency, locale)}`
-     : t("clientUi.projects.undefinedBudget")
     ? `${formatMoney(project.budget_min, project.currency, language)} — ${formatMoney(project.budget_max, project.currency, language)}`
     : project.budget_min != null
     ? t("projects.startingAt", undefined, { amount: formatMoney(project.budget_min, project.currency, language) })
@@ -176,11 +154,6 @@ export default function ProjectDetail() {
           <div className="flex items-center gap-3">
             <Button variant="outline" size="icon" onClick={() => navigate(-1)} className="rounded-xl"><ArrowLeft className="h-4 w-4" /></Button>
             <div>
-              <p className="text-xs font-bold uppercase tracking-[0.18em] text-gold">{t("clientUi.projects.title")}</p>
-              <h1 className="text-2xl font-black tracking-tight">{project.title}</h1>
-            </div>
-          </div>
-          <Badge variant="outline" className={status.className}>{status.labelKey ? t(status.labelKey) : status.label}</Badge>
               <p className="text-xs font-bold uppercase tracking-[0.18em] text-gold">{t("projects.projectLabel")}</p>
               <h1 className="text-2xl font-black tracking-tight">{project.title}</h1>
             </div>
@@ -195,14 +168,6 @@ export default function ProjectDetail() {
 
         <div className="grid gap-4 md:grid-cols-2">
           <Card className="border-gold/15">
-            <CardHeader><CardTitle className="text-base">{t("clientUi.projects.budget")}</CardTitle></CardHeader>
-            <CardContent className="text-sm font-medium">{budget}</CardContent>
-          </Card>
-          <Card className="border-gold/15">
-            <CardHeader><CardTitle className="text-base">{t("clientUi.projects.dueDate")}</CardTitle></CardHeader>
-            <CardContent className="flex items-center gap-2 text-sm font-medium">
-              <CalendarDays className="h-4 w-4 text-gold-dark" />
-              {project.due_date ? new Date(`${project.due_date}T00:00:00`).toLocaleDateString(locale) : t("clientUi.projects.dueDateMissing")}
             <CardHeader><CardTitle className="text-base">{t("projects.budget")}</CardTitle></CardHeader>
             <CardContent className="text-sm font-medium">{budget}</CardContent>
           </Card>
@@ -218,24 +183,17 @@ export default function ProjectDetail() {
         {project.status === "completed" && (
           <Card className="border-gold/20 bg-gold/5">
             <CardHeader>
-              <CardTitle className="flex items-center gap-2"><Star className="h-5 w-5 text-gold" /> {t("clientUi.projects.rateProject")}</CardTitle>
               <CardTitle className="flex items-center gap-2"><Star className="h-5 w-5 text-gold" /> {t("projects.evaluateProject")}</CardTitle>
             </CardHeader>
             <CardContent>
               <p className="text-sm text-muted-foreground mb-4">
                 {eligibleTalents.length
-                  ? t("clientUi.projects.completedReviewPrompt")
-                  : t("clientUi.projects.noEligibleTalents")
                   ? t("projects.reviewDescription")
                   : t("projects.noEligibleTalent")
                 }
               </p>
               {eligibleTalents.length > 0 && !alreadyReviewed ? (
                 <Button className="gap-2" asChild>
-                  <Link to={`/client/projects/${project.id}/review`}><Star className="h-4 w-4" /> {t("clientUi.projects.leaveReview")}</Link>
-                </Button>
-              ) : eligibleTalents.length > 0 ? (
-                <Badge variant="outline" className="border-emerald-500/30 bg-emerald-500/10 text-emerald-700">{t("clientUi.projects.reviewsAlreadySaved")}</Badge>
                   <Link to={`/client/projects/${project.id}/review`}><Star className="h-4 w-4" /> {t("reviews.submit")}</Link>
                 </Button>
               ) : eligibleTalents.length > 0 ? (
@@ -248,16 +206,6 @@ export default function ProjectDetail() {
         <Card className="border-gold/15">
           <CardContent className="p-5">
             <div className="flex flex-wrap items-center justify-between gap-3 text-sm">
-              <div><p className="text-muted-foreground">{t("clientUi.projects.createdAt")}</p><p className="font-medium">{new Date(project.created_at).toLocaleString(locale)}</p></div>
-              <div><p className="text-muted-foreground">{t("clientUi.projects.updatedAt")}</p><p className="font-medium">{project.updated_at ? new Date(project.updated_at).toLocaleString(locale) : "—"}</p></div>
-              <div><p className="text-muted-foreground">{t("clientUi.projects.manager")}</p><p className="font-medium">{project.manager_id ? t("clientUi.projects.assigned") : t("clientUi.projects.notAssigned")}</p></div>
-            </div>
-            <Separator className="my-5" />
-            <div className="flex flex-wrap justify-end gap-2">
-              <Button variant="outline" asChild><Link to={`/client/projects/${project.id}/edit`}><Edit3 className="mr-2 h-4 w-4" /> {t("clientUi.projects.edit")}</Link></Button>
-              <Button variant="outline" onClick={() => navigate("/messages")}><MessageCircle className="mr-2 h-4 w-4" /> {t("clientUi.projects.messages")}</Button>
-              {!['completed', 'cancelled'].includes(project.status) && (
-                <Button variant="ghost" onClick={cancelProject} className="text-red-600 hover:bg-red-50 hover:text-red-700"><XCircle className="mr-2 h-4 w-4" /> {t("clientUi.projects.cancelProject")}</Button>
               <div><p className="text-muted-foreground">{t("projects.createdAt")}</p><p className="font-medium">{new Date(project.created_at).toLocaleString("fr-FR")}</p></div>
               <div><p className="text-muted-foreground">{t("projects.lastUpdated")}</p><p className="font-medium">{project.updated_at ? new Date(project.updated_at).toLocaleString("fr-FR") : "—"}</p></div>
               <div><p className="text-muted-foreground">{t("requests.manager")}</p><p className="font-medium">{project.manager_id ? t("projects.assigned") : t("projects.unassigned")}</p></div>
