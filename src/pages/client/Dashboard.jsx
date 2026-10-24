@@ -322,10 +322,6 @@ export default function ClientDashboard() {
           />
           <p className="text-sm text-muted-foreground">
             {t("clientUi.dashboard.loading")}
-            aria-label={t("common.loading")}
-          />
-          <p className="text-sm text-muted-foreground">
-            {t("common.loading")}
           </p>
         </div>
       </div>
