@@ -303,7 +303,6 @@ export default function ClientProjects() {
                 {search
                   ? t("clientUi.projects.searchNoMatch")
                   : t("clientUi.projects.createFirst")}
-                  : t("projects.emptyDescription")}
               </p>
 
               {!search && (
