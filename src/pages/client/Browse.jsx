@@ -68,20 +68,6 @@ function formatMoney(value, currency, language = "fr") {
 
 const ALL_COUNTRIES_LABEL = "all"
 
-function formatBrowseCurrency(value, currency = "XOF", locale = "fr-FR") {
-  const amount = Number(value || 0)
-  try {
-    return new Intl.NumberFormat(locale, {
-      style: "currency",
-      currency: currency || "XOF",
-      maximumFractionDigits: 0,
-    }).format(amount)
-  } catch {
-    return `${amount.toLocaleString(locale)} ${currency || "XOF"}`
-  }
-}
-
-
 /*
  * IMPORTANT :
  * Le talent KORA actuellement présent peut dépasser 500 000 XOF.
@@ -123,8 +109,6 @@ export default function ClientBrowse() {
   const navigate = useNavigate()
   const { user } = useAuth()
   const { t, language } = useI18n()
-  const locale = language === "en" ? "en-GB" : "fr-FR"
-  const countryDisplayNames = useMemo(() => new Intl.DisplayNames([locale], { type: "region" }), [locale])
 
   const authUserId =
     user?.authId || user?.id
@@ -273,10 +257,6 @@ export default function ClientBrowse() {
           talent.countries?.name ||
           "",
 
-        countryCode:
-          talent.countries?.code ||
-          "",
-
         city:
           talent.city || "",
 
@@ -405,7 +385,7 @@ export default function ClientBrowse() {
 
           supabase
             .from("countries")
-            .select("id, code, name")
+            .select("id, name")
             .order("name"),
 
           supabase
@@ -434,14 +414,12 @@ export default function ClientBrowse() {
         setCategoryOptions([
           {
             id: "all",
-            slug: null,
             label: "Toutes",
             icon: Users,
           },
           ...(categoriesResult.data || [])
             .map((category) => ({
               id: category.id,
-              slug: category.slug,
               label: category.name,
               icon: getCategoryIcon(
                 category.slug
@@ -474,7 +452,10 @@ export default function ClientBrowse() {
         )
 
         if (mounted) {
-          setLoadError("clientUi.browse.filterLoadError")
+          setLoadError(
+            error?.message ||
+              t("errors.loading")
+          )
         }
       }
     }
@@ -881,14 +862,11 @@ export default function ClientBrowse() {
           <div className="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
             <div>
               <h1 className="text-2xl font-bold tracking-tight md:text-3xl">
-                {t("clientUi.browse.titleStart")}{" "}
-                <span className="text-gold-dark">
-                  {t("clientUi.browse.titleHighlight")}
-                </span>
+                {t("browse.title")}
               </h1>
 
               <p className="mt-1 text-sm text-muted-foreground">
-                {t(totalTalents === 1 ? "clientUi.browse.availableCountOne" : "clientUi.browse.availableCountMany", "{count} professionnel(s) disponible(s) à travers toute l'Afrique", { count: totalTalents })}
+                {totalTalents === 1 ? t("browse.availableCountOne", undefined, { count: totalTalents }) : t("browse.availableCountMany", undefined, { count: totalTalents })}
               </p>
             </div>
 
@@ -896,7 +874,6 @@ export default function ClientBrowse() {
             !loading ? (
               <div className="flex items-center gap-2 text-xs text-muted-foreground">
                 <Loader2 className="h-3.5 w-3.5 animate-spin" />
-                {t("clientUi.browse.refreshing")}
                 {t("browse.refresh")}
               </div>
             ) : null}
@@ -907,7 +884,6 @@ export default function ClientBrowse() {
               <Search className="absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-muted-foreground" />
 
               <Input
-                placeholder={t("clientUi.browse.searchPlaceholder")}
                 placeholder={t("browse.searchLong")}
                 value={search}
                 onChange={
@@ -941,19 +917,6 @@ export default function ClientBrowse() {
                 className="h-12 rounded-xl border border-border bg-card px-4 pr-9 text-sm font-medium text-foreground focus:outline-none focus:ring-2 focus:ring-gold/30"
               >
                 <option value="recommended">
-                  {t("clientUi.browse.sortRecommended")}
-                </option>
-                <option value="rating">
-                  {t("clientUi.browse.sortRating")}
-                </option>
-                <option value="projects">
-                  {t("clientUi.browse.sortProjects")}
-                </option>
-                <option value="rate-asc">
-                  {t("clientUi.browse.sortRateAsc")}
-                </option>
-                <option value="rate-desc">
-                  {t("clientUi.browse.sortRateDesc")}
                   {t("browse.recommendedSort")}
                 </option>
                 <option value="rating">
@@ -988,8 +951,6 @@ export default function ClientBrowse() {
                 )}
               >
                 <Filter className="h-4 w-4" />
-                {t("clientUi.browse.filters")}
-
                 {t("browse.filters")}
 
                 {activeFiltersCount >
@@ -1038,7 +999,9 @@ export default function ClientBrowse() {
                       )}
                     >
                       <Icon className="h-4 w-4" />
-                      {category.id === "all" ? t("clientUi.browse.allCategories") : t(`clientUi.browse.categoryNames.${category.slug}`, category.label)}
+                      {
+                        category.label
+                      }
                     </TabsTrigger>
                   )
                 }
@@ -1072,7 +1035,6 @@ export default function ClientBrowse() {
                     <div className="space-y-2">
                       <label className="text-sm font-semibold text-foreground flex items-center gap-2">
                         <MapPin className="h-4 w-4 text-gold-dark" />
-                        {t("clientUi.browse.country")}
                         {t("browse.country")}
                       </label>
 
@@ -1098,7 +1060,9 @@ export default function ClientBrowse() {
                                 country.id
                               }
                             >
-                              {country.id === "all" ? t("clientUi.browse.allCountries") : country.code ? (countryDisplayNames.of(String(country.code).toUpperCase()) || country.name) : country.name}
+                              {
+                                country.name
+                              }
                             </option>
                           )
                         )}
@@ -1107,7 +1071,6 @@ export default function ClientBrowse() {
 
                     <div className="space-y-2 md:col-span-2">
                       <label className="text-sm font-semibold text-foreground">
-                        {t("clientUi.browse.rateRange")}
                         {t("browse.rateRange")}
                       </label>
 
@@ -1176,12 +1139,6 @@ export default function ClientBrowse() {
 
                       <div className="flex justify-between text-[11px] text-muted-foreground">
                         <span>
-                          {formatBrowseCurrency(minRate, "XOF", locale)}
-                        </span>
-
-                        <span>
-                          {t("clientUi.browse.maxRate")}{" "}
-                          {formatBrowseCurrency(rateCeiling, "XOF", locale)}
                           {formatMoney(minRate, "XOF", language)}
                         </span>
 
@@ -1208,7 +1165,6 @@ export default function ClientBrowse() {
                             }}
                             className="h-4 w-4 rounded accent-gold"
                           />
-                          {t("clientUi.browse.availableOnly")}
                           {t("browse.availableOnly")}
                         </label>
 
@@ -1227,7 +1183,6 @@ export default function ClientBrowse() {
                             }}
                             className="h-4 w-4 rounded accent-gold"
                           />
-                          {t("clientUi.browse.verifiedOnly")}
                           {t("browse.verifiedOnly")}
                         </label>
                       </div>
@@ -1240,7 +1195,6 @@ export default function ClientBrowse() {
                         className="text-sm text-muted-foreground hover:text-foreground"
                       >
                         <X className="mr-1 h-3.5 w-3.5" />
-                        {t("clientUi.browse.reset")}
                         {t("browse.resetFiltersAction")}
                       </Button>
                     </div>
@@ -1260,7 +1214,6 @@ export default function ClientBrowse() {
               <CardContent className="flex items-center gap-3 p-4">
                 <AlertCircle className="h-5 w-5 text-red-500 shrink-0" />
                 <p className="text-sm text-red-600">
-                  {loadError ? t(loadError) : t("clientUi.browse.loadError")}
                   {loadError ||
                     talentsError?.message ||
                     t("errors.loading")}
@@ -1274,7 +1227,6 @@ export default function ClientBrowse() {
           <div className="flex items-center justify-center py-20">
             <Loader2
               className="h-8 w-8 text-gold animate-spin"
-              aria-label={t("clientUi.browse.loading")}
               aria-label={t("common.loading")}
             />
           </div>
@@ -1285,7 +1237,6 @@ export default function ClientBrowse() {
               className="flex flex-wrap items-center justify-between gap-3 text-sm"
             >
               <p className="text-muted-foreground">
-                {t("clientUi.browse.displayedCount", "Showing {shown} of {total} talents", { shown: filteredTalents.length, total: totalTalents })}
                 <span className="font-semibold text-foreground">
                   {filteredTalents.length}
                 </span>{" "}
@@ -1294,7 +1245,6 @@ export default function ClientBrowse() {
 
               {totalPages > 1 ? (
                 <p className="text-xs text-muted-foreground">
-{t("clientUi.browse.page", "Page {page}", { page })} {t("clientUi.browse.of", "of {totalPages}", { totalPages })}
 {t("browse.pageOf", undefined, { page, total: totalPages })}
                 </p>
               ) : null}
@@ -1323,11 +1273,11 @@ export default function ClientBrowse() {
                       </div>
 
                       <h3 className="text-lg font-semibold">
-                        {t("clientUi.browse.noTalents")}
+                        {t("browse.noResultsTitle")}
                       </h3>
 
                       <p className="mt-1 text-sm text-muted-foreground max-w-sm">
-                        {t("clientUi.browse.noTalentsDescription")}
+                        {t("browse.noResultsDescription")}
                       </p>
 
                       <Button
@@ -1337,7 +1287,6 @@ export default function ClientBrowse() {
                         variant="outline"
                         className="mt-5 border-gold/50 text-gold-dark hover:bg-accent"
                       >
-                        {t("clientUi.browse.resetFilters")}
                         {t("browse.resetFiltersAction")}
                       </Button>
                     </CardContent>
@@ -1398,12 +1347,14 @@ export default function ClientBrowse() {
                                     <MapPin className="h-3 w-3" />
                                     {[
                                       talent.city,
-                                      talent.countryCode
-                                        ? (countryDisplayNames.of(String(talent.countryCode).toUpperCase()) || talent.country)
-                                        : talent.country,
+                                      talent.country,
                                     ]
-                                      .filter(Boolean)
-                                      .join(", ")}
+                                      .filter(
+                                        Boolean
+                                      )
+                                      .join(
+                                        ", "
+                                      )}
                                   </div>
                                 ) : null}
                               </div>
@@ -1421,8 +1372,6 @@ export default function ClientBrowse() {
                                 favorites.has(
                                   talent.id
                                 )
-                                  ? t("clientUi.browse.removeFavorite")
-                                  : t("clientUi.browse.addFavorite")
                                   ? t("browse.favoriteRemove")
                                   : t("browse.favoriteAdd")
                               }
@@ -1520,7 +1469,6 @@ export default function ClientBrowse() {
                                 {
                                   talent.completedProjects
                                 }{" "}
-                                {t(talent.completedProjects === 1 ? "clientUi.browse.projectsOne" : "clientUi.browse.projectsMany", "{count} completed projects", { count: talent.completedProjects })}
                                 {t("browse.projectsCompleted")}
                               </div>
                             </div>
@@ -1530,7 +1478,6 @@ export default function ClientBrowse() {
                                 variant="outline"
                                 className="border-emerald-500/30 bg-emerald-500/10 text-emerald-600 text-[10px]"
                               >
-                                {t("clientUi.browse.available")}
                                 {t("common.available")}
                               </Badge>
                             ) : (
@@ -1538,8 +1485,6 @@ export default function ClientBrowse() {
                                 variant="outline"
                                 className="border-muted text-muted-foreground text-[10px]"
                               >
-                                {t("clientUi.browse.busy")}
-
                                 {t("browse.busy")}
                               </Badge>
                             )}
@@ -1551,11 +1496,6 @@ export default function ClientBrowse() {
                         <CardFooter className="flex items-center justify-between py-4">
                           <div>
                             <p className="text-xs text-muted-foreground">
-                              {t("clientUi.browse.dailyRate")}
-                            </p>
-
-                            <p className="text-lg font-bold text-gold-dark">
-                              {formatBrowseCurrency(talent.rate, talent.currency, locale)}
                               {t("browse.dailyRate")}
                             </p>
 
@@ -1578,7 +1518,6 @@ export default function ClientBrowse() {
                                 )
                               }
                               className="text-gold-dark hover:bg-accent h-9 w-9 p-0"
-                              title={t("clientUi.browse.viewProfile")} aria-label={t("clientUi.browse.viewProfile")}
                               title={t("browse.viewProfile")} aria-label={t("browse.viewProfile")}
                             >
                               <Eye className="h-4 w-4" />
@@ -1594,7 +1533,6 @@ export default function ClientBrowse() {
                               className="h-9 bg-foreground text-background hover:bg-foreground/90 shadow-sm"
                             >
                               <Send className="h-3.5 w-3.5 mr-1.5" />
-                              {t("clientUi.browse.contact")}
                               {t("browse.contactAction")}
                             </Button>
                           </div>
@@ -1625,12 +1563,11 @@ export default function ClientBrowse() {
                   className="gap-2 border-border"
                 >
                   <ChevronLeft className="h-4 w-4" />
-                  {t("clientUi.browse.previous")}
+                  {t("common.previous")}
                 </Button>
 
                 <div className="rounded-xl border border-border bg-card px-4 py-2 text-sm">
-                  {t("clientUi.browse.page", "Page {page}", { page })} {t("clientUi.browse.of", "of {totalPages}", { totalPages })}
-                </div>
+{t("browse.pageOf", undefined, { page, total: totalPages })}
                 </div>
 
                 <Button
@@ -1645,7 +1582,6 @@ export default function ClientBrowse() {
                   }
                   className="gap-2 border-border"
                 >
-                  {t("clientUi.browse.next")}
                   {t("common.next")}
                   <ChevronRight className="h-4 w-4" />
                 </Button>
