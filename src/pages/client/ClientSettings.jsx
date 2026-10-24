@@ -127,13 +127,11 @@ export default function ClientSettings({ initialTab = "profile" }) {
       setStoredPreferences((current) => ({ ...current, language, theme, notifications: preferences }))
       toast.success(t("clientSettings.success.preferences"))
     } catch (error) {
-      console.error("Erreur préférences client :", error)
+      console.error("KORA: client preferences save failed", error)
       toast.error(t("clientSettings.errors.preferencesSave"))
-      toast.success(t("settings.success.preferences"))
-    } catch (error) {
-      console.error("Erreur préférences client :", error)
-      toast.error(t("settings.errors.save"))
-    } finally { setSaving(false) }
+    } finally {
+      setSaving(false)
+    }
   }
 
   const savePassword = async () => {
