@@ -1224,7 +1224,7 @@ const fr = {
     "hoursAgo": "il y a {count}h",
     "daysAgo": "il y a {count}j",
     "yesterday": "hier"
-  }
+  },
   "clientUi": {
     "browse": {
       "titleStart": "Découvrez nos",
