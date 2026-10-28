@@ -33,6 +33,40 @@ function extractObject(sourceFile, variableName) {
   assert.fail(`Missing dictionary declaration: ${variableName}`)
 }
 
+function findDuplicateKeys(node, path, duplicates = []) {
+  if (!ts.isObjectLiteralExpression(node)) return duplicates
+
+  const seen = new Set()
+  for (const property of node.properties) {
+    if (!ts.isPropertyAssignment(property)) continue
+
+    const keyNode = property.name
+    const key = ts.isIdentifier(keyNode) || ts.isStringLiteral(keyNode) || ts.isNumericLiteral(keyNode)
+      ? keyNode.text
+      : null
+    if (key === null) continue
+
+    if (seen.has(key)) duplicates.push(`${path}.${key}`)
+    seen.add(key)
+
+    if (ts.isObjectLiteralExpression(property.initializer)) {
+      findDuplicateKeys(property.initializer, `${path}.${key}`, duplicates)
+    }
+  }
+
+  return duplicates
+}
+
+const duplicateDictionaryKeys = [
+  ...findDuplicateKeys(extractObject(i18nAst, "fr"), "fr"),
+  ...findDuplicateKeys(extractObject(i18nAst, "en"), "en"),
+]
+assert.deepEqual(
+  duplicateDictionaryKeys,
+  [],
+  `Duplicate translation keys in dictionary source:\n${duplicateDictionaryKeys.join("\n")}`,
+)
+
 // Read translation values from the TypeScript AST rather than evaluating source code.
 // This avoids VM parser failures and never executes the application module.
 function objectLiteralToValue(node, variableName) {
