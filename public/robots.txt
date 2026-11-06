@@ -11,4 +11,4 @@ Disallow: /client/
 Disallow: /manager/
 Disallow: /messages
 
-Sitemap: https://kora.africa/sitemap.xml
+Sitemap: https://www.koratalent.online/sitemap.xml
