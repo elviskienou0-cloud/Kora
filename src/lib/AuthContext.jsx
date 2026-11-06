@@ -417,6 +417,9 @@ export function AuthProvider({ children }) {
           email: cleanEmail,
           password,
           options: {
+            // Après confirmation, revenir sur le domaine canonique KORA.
+            // Supabase échange automatiquement le code PKCE au chargement.
+            emailRedirectTo: "https://koratalent.online/auth/callback",
             data: {
               name,
               first_name: cleanFirstName,
