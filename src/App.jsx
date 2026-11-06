@@ -18,6 +18,7 @@ import TalentDetail from "@/pages/talent/Detail.jsx"
 
 import Login from "@/pages/Login.jsx"
 import Register from "@/pages/Register.jsx"
+import AuthCallback from "@/pages/AuthCallback.jsx"
 import ForgotPassword from "@/pages/ForgotPassword.jsx"
 import ResetPassword from "@/pages/ResetPassword.jsx"
 import OAuthConsent from "@/pages/OAuthConsent.jsx"
@@ -169,6 +170,12 @@ export default function App() {
           <Route
             path="/register"
             element={<Register />}
+          />
+
+          {/* Retour sécurisé après confirmation de l'adresse email */}
+          <Route
+            path="/auth/callback"
+            element={<AuthCallback />}
           />
 
           <Route
