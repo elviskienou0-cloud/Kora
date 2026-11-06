@@ -35,8 +35,6 @@ export default function AuthCallback() {
     }
 
     startedRef.current = true
-    let active = true
-
     async function finalizeAuthentication() {
       setProcessing(true)
       setCallbackError("")
@@ -64,22 +62,17 @@ export default function AuthCallback() {
           throw new Error("Votre profil KORA ne possède aucun rôle autorisé.")
         }
 
-        if (active) navigate(destination, { replace: true })
+        navigate(destination, { replace: true })
       } catch (error) {
-        if (active) {
-          setCallbackError(
-            error?.message ||
-              "Impossible de finaliser la confirmation de votre compte KORA."
-          )
-          setProcessing(false)
-        }
+        setCallbackError(
+          error?.message ||
+            "Impossible de finaliser la confirmation de votre compte KORA."
+        )
+        setProcessing(false)
       }
     }
 
     void finalizeAuthentication()
-    return () => {
-      active = false
-    }
   }, [authError, authStatus, isLoading, user, navigate, refreshProfile])
 
   const failed =
