@@ -1,6 +1,7 @@
-import { useEffect } from "react"
+import { useEffect, useRef, useState } from "react"
 import { Link, useNavigate } from "react-router-dom"
 import { useAuth } from "@/lib/AuthContext.jsx"
+import { supabase } from "@/lib/supabase"
 
 const ROLE_DASHBOARDS = {
   client: "/client/dashboard",
@@ -11,7 +12,10 @@ const ROLE_DASHBOARDS = {
 
 export default function AuthCallback() {
   const navigate = useNavigate()
-  const { user, authStatus, isLoading } = useAuth()
+  const { user, authStatus, isLoading, refreshProfile } = useAuth()
+  const [callbackError, setCallbackError] = useState("")
+  const [processing, setProcessing] = useState(false)
+  const startedRef = useRef(false)
 
   const params = new URLSearchParams(window.location.search)
   const authError =
@@ -20,21 +24,63 @@ export default function AuthCallback() {
     params.get("error_code")
 
   useEffect(() => {
-    if (authError || isLoading || authStatus !== "AUTHENTICATED" || !user) {
+    if (
+      authError ||
+      isLoading ||
+      authStatus !== "AUTHENTICATED" ||
+      !user ||
+      startedRef.current
+    ) {
       return
     }
 
-    const destination = ROLE_DASHBOARDS[String(user.role || "").toLowerCase()]
-    if (destination) {
-      navigate(destination, { replace: true })
-    } else {
-      navigate("/login", { replace: true })
+    startedRef.current = true
+    async function finalizeAuthentication() {
+      setProcessing(true)
+      setCallbackError("")
+
+      try {
+        // Only the authenticated invitee can activate their own confirmed
+        // pending invitation. Ordinary account confirmations return accepted=false.
+        const { data, error } = await supabase.rpc("accept_my_admin_invitation")
+        if (error) throw error
+
+        if (data?.expired) {
+          throw new Error(
+            "Cette invitation administrateur a expiré. Contactez le Super Admin de KORA."
+          )
+        }
+
+        const currentUser = data?.accepted
+          ? await refreshProfile()
+          : user
+
+        const destination =
+          ROLE_DASHBOARDS[String(currentUser.role || "").toLowerCase()]
+
+        if (!destination) {
+          throw new Error("Votre profil KORA ne possède aucun rôle autorisé.")
+        }
+
+        navigate(destination, { replace: true })
+      } catch (error) {
+        setCallbackError(
+          error?.message ||
+            "Impossible de finaliser la confirmation de votre compte KORA."
+        )
+        setProcessing(false)
+      }
     }
-  }, [authError, authStatus, isLoading, user, navigate])
+
+    void finalizeAuthentication()
+  }, [authError, authStatus, isLoading, user, navigate, refreshProfile])
 
   const failed =
     Boolean(authError) ||
-    (!isLoading && authStatus !== "AUTHENTICATED" && authStatus !== "INITIALIZING")
+    Boolean(callbackError) ||
+    (!isLoading &&
+      authStatus !== "AUTHENTICATED" &&
+      authStatus !== "INITIALIZING")
 
   return (
     <main className="min-h-screen flex items-center justify-center bg-background px-4">
@@ -43,9 +89,9 @@ export default function AuthCallback() {
           <>
             <h1 className="text-xl font-bold">Confirmation non finalisée</h1>
             <p className="mt-3 text-sm text-muted-foreground">
-              {authError
-                ? authError
-                : "Le lien est peut-être expiré ou déjà utilisé. Vous pouvez vous connecter ou demander un nouveau lien."}
+              {authError ||
+                callbackError ||
+                "Le lien est peut-être expiré ou déjà utilisé. Vous pouvez vous connecter ou demander un nouveau lien."}
             </p>
             <Link
               to="/login"
@@ -57,9 +103,11 @@ export default function AuthCallback() {
         ) : (
           <>
             <div className="mx-auto mb-4 h-10 w-10 animate-spin rounded-full border-4 border-muted border-t-primary" />
-            <h1 className="text-xl font-bold">Confirmation réussie</h1>
+            <h1 className="text-xl font-bold">
+              {processing ? "Activation de votre accès" : "Confirmation réussie"}
+            </h1>
             <p className="mt-2 text-sm text-muted-foreground">
-              Nous préparons votre espace KORA. Vous allez être redirigé automatiquement.
+              Nous vérifions votre confirmation et préparons votre espace KORA.
             </p>
           </>
         )}

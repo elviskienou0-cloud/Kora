@@ -246,7 +246,7 @@ export default function AdminAdministrators() {
         access_expires_at: inviteForm.access_expires_at
           ? new Date(inviteForm.access_expires_at).toISOString()
           : null,
-        redirect_to: window.location.origin,
+        redirect_to: `${window.location.origin}/auth/callback`,
       },
     })
 
@@ -256,7 +256,7 @@ export default function AdminAdministrators() {
       return
     }
 
-    setMessage("Invitation envoyée par email. Le compte est préparé comme Admin associé.")
+    setMessage("Invitation envoyée. Les droits administrateur seront activés uniquement après confirmation de l’email et acceptation de l’invitation.")
     setInviteForm({
       email: "",
       message: DEFAULT_MESSAGE,
