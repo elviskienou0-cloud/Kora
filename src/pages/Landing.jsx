@@ -302,7 +302,7 @@ export default function Landing() {
                     <div className="w-3 h-3 rounded-full bg-amber-400/70" />
                     <div className="w-3 h-3 rounded-full bg-emerald-400/70" />
                   </div>
-                  <span className="text-xs font-mono text-muted-foreground ml-3">app.kora.africa — Talents recommandés</span>
+                  <span className="text-xs font-mono text-muted-foreground ml-3">KORA — Talents recommandés</span>
                 </div>
                 <div className="p-6 sm:p-8 grid grid-cols-1 md:grid-cols-3 gap-5">
                   {featuredTalents.length === 0 ? (
