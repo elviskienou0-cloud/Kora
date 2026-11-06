@@ -663,7 +663,8 @@ export function AuthProvider({ children }) {
       if (
         (event === "SIGNED_IN" || event === "USER_UPDATED") &&
         userRef.current &&
-        sessionRef.current
+        sessionRef.current &&
+        sessionRef.current.user?.id === nextSession?.user?.id
       ) {
         setAuthStatus("AUTHENTICATED")
         setUser((currentUser) => {
