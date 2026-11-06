@@ -512,6 +512,31 @@ export function AuthProvider({ children }) {
     []
   )
 
+  const refreshProfile = useCallback(async () => {
+    if (!user?.authId) {
+      throw new Error("Utilisateur non connecté.")
+    }
+
+    const profile = await fetchProfile(user.authId)
+    if (!profile) {
+      throw new Error("Impossible de recharger votre profil KORA.")
+    }
+
+    const authUser = sessionRef.current?.user || {
+      id: user.authId,
+      email: user.email || "",
+    }
+    const refreshedUser = buildUser(profile, authUser)
+
+    if (!refreshedUser) {
+      throw new Error("Impossible de synchroniser votre profil KORA.")
+    }
+
+    setUser(refreshedUser)
+    writeCachedUser(refreshedUser)
+    return refreshedUser
+  }, [user])
+
   const logout = useCallback(async () => {
     const { error } =
       await supabase.auth.signOut({
@@ -780,6 +805,7 @@ export function AuthProvider({ children }) {
     register,
     logout,
     updateUser,
+    refreshProfile,
     handleInvalidSession,
   }
 
