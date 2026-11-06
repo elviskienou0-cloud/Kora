@@ -31,13 +31,36 @@ function getSecretKey(): string | null {
     null
 }
 
+function getPublishableKey(): string {
+  const raw = Deno.env.get("SUPABASE_PUBLISHABLE_KEYS")
+
+  if (raw) {
+    try {
+      const keys = JSON.parse(raw)
+      if (
+        keys &&
+        typeof keys === "object" &&
+        typeof keys.default === "string" &&
+        keys.default.trim()
+      ) {
+        return keys.default
+      }
+    } catch (error) {
+      console.error("SUPABASE_PUBLISHABLE_KEYS invalide", error)
+    }
+  }
+
+  // Backward-compatible fallback while legacy anon keys are still supported.
+  return Deno.env.get("SUPABASE_ANON_KEY") || ""
+}
+
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") return new Response("ok", { headers: corsHeaders })
   if (req.method !== "POST") return jsonResponse({ error: "Méthode non autorisée" }, 405)
 
   try {
     const supabaseUrl = Deno.env.get("SUPABASE_URL")
-    const anonKey = Deno.env.get("SUPABASE_ANON_KEY") || Deno.env.get("SUPABASE_PUBLISHABLE_KEY")
+    const anonKey = getPublishableKey()
     const secretKey = getSecretKey()
 
     if (!supabaseUrl || !anonKey || !secretKey) {
