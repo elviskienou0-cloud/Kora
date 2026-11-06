@@ -44,7 +44,7 @@ export default function AuthCallback() {
             <h1 className="text-xl font-bold">Confirmation non finalisée</h1>
             <p className="mt-3 text-sm text-muted-foreground">
               {authError
-                ? decodeURIComponent(String(authError).replace(/\+/g, " "))
+                ? authError
                 : "Le lien est peut-être expiré ou déjà utilisé. Vous pouvez vous connecter ou demander un nouveau lien."}
             </p>
             <Link
