@@ -1,6 +1,6 @@
 import { useEffect } from "react"
 import { useI18n } from "@/i18n/kora-i18n.jsx"
-const SITE_URL = "https://kora.africa"
+const SITE_URL = "https://www.koratalent.online"
 const DEFAULT_IMAGE = `${SITE_URL}/favicon.svg`
 
 function upsertMeta({

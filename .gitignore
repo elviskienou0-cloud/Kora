@@ -34,3 +34,6 @@ dist-ssr
 .env
 .vite
 node_modules
+
+# Supabase CLI local metadata
+/supabase/.temp/

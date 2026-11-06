@@ -89,6 +89,29 @@ function normalizeAdminRole(role: unknown) {
   return value
 }
 
+function getPublishableKey(): string {
+  const raw = Deno.env.get("SUPABASE_PUBLISHABLE_KEYS")
+
+  if (raw) {
+    try {
+      const keys = JSON.parse(raw)
+      if (
+        keys &&
+        typeof keys === "object" &&
+        typeof keys.default === "string" &&
+        keys.default.trim()
+      ) {
+        return keys.default
+      }
+    } catch (error) {
+      console.error("SUPABASE_PUBLISHABLE_KEYS invalide", error)
+    }
+  }
+
+  // Backward-compatible fallback while legacy anon keys are still supported.
+  return Deno.env.get("SUPABASE_ANON_KEY") || ""
+}
+
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") {
     return new Response("ok", {
@@ -106,7 +129,7 @@ Deno.serve(async (req) => {
 
   try {
     const supabaseUrl = Deno.env.get("SUPABASE_URL")
-    const anonKey = Deno.env.get("SUPABASE_ANON_KEY")
+    const anonKey = getPublishableKey()
     // Supabase's current secret API keys are injected into Edge Functions
     // through SUPABASE_SECRET_KEYS as a JSON dictionary. Prefer the platform
     // managed secret key instead of duplicating it into a custom environment
