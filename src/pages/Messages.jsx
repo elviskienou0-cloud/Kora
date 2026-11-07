@@ -317,10 +317,7 @@ export default function Messages() {
                 conversationId
             ) {
               queryClient.invalidateQueries({
-                queryKey: [
-                  "messages",
-                  conversationId,
-                ],
+                queryKey: ["messages"],
               })
             }
 
@@ -562,8 +559,18 @@ export default function Messages() {
         error
       )
 
+      const expiredManager =
+        user?.role === "manager" &&
+        (error?.status === 403 ||
+          error?.code === "42501" ||
+          String(error?.message || "").includes("SUBSCRIPTION_EXPIRED"))
+
       toast.error(
-        t("clientUi.messaging.sendError")
+        expiredManager
+          ? language === "en"
+            ? "Your subscription has expired. Renew it to send messages. Your conversations are still saved."
+            : "Votre abonnement a expiré. Renouvelez-le pour envoyer des messages. Vos conversations sont conservées."
+          : t("clientUi.messaging.sendError")
       )
     } finally {
       setSending(false)
