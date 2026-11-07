@@ -8,6 +8,10 @@ on:
 permissions:
   contents: read
 
+concurrency:
+  group: kora-subscription-notifications
+  cancel-in-progress: false
+
 jobs:
   send-subscription-notifications:
     runs-on: ubuntu-latest
