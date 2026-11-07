@@ -2,7 +2,8 @@ import { useEffect, useMemo, useState } from "react"
 import { Link, useNavigate } from "react-router-dom"
 import { motion } from "framer-motion"
 import {
-  Sparkles,
+  Award,
+  Grid3X3,
   Search,
   ChevronRight,
   Users,
@@ -163,7 +164,7 @@ export default function Categories() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
           <Link to="/home" className="flex items-center gap-2.5">
             <div className="w-9 h-9 rounded-xl gold-gradient flex items-center justify-center shadow-md shadow-gold/25">
-              <Sparkles className="h-5 w-5 text-primary-foreground" strokeWidth={2.5} />
+              <Award className="h-5 w-5 text-primary-foreground" strokeWidth={2.5} />
             </div>
             <span className="text-xl font-black gold-text-gradient">{APP_PARAMS.name}</span>
           </Link>
@@ -234,7 +235,7 @@ export default function Categories() {
             >
               <div className="flex items-center justify-between mb-3">
                 <div className="w-12 h-12 rounded-xl gold-gradient flex items-center justify-center shadow-md shadow-gold/20">
-                  <Sparkles className="h-6 w-6 text-primary-foreground" />
+                  <Grid3X3 className="h-6 w-6 text-primary-foreground" />
                 </div>
                 {active === "all" && <Badge variant="gold" className="text-[10px] font-bold">Sélectionné</Badge>}
               </div>
