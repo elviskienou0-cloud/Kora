@@ -20,28 +20,36 @@ function money(value, currency = "XOF") {
 }
 
 export default function SubscriptionExpired() {
-  const { t } = useI18n()
+  const { t, language } = useI18n()
   const navigate = useNavigate()
   const { logout } = useAuth()
   const [plans, setPlans] = useState([])
+  const [subscription, setSubscription] = useState(null)
   const [loading, setLoading] = useState(true)
   const [paying, setPaying] = useState(null)
 
   useEffect(() => {
     let cancelled = false
     async function load() {
-      const { data, error } = await supabase
-        .from("plans")
-        .select("id,name,price,currency,duration_months,talent_limit,features,is_active")
-        .in("id", ["PRO", "BUSINESS"])
-        .eq("is_active", true)
-        .order("price")
+      const [
+        { data, error },
+        { data: subscriptionRows, error: subscriptionError },
+      ] = await Promise.all([
+        supabase
+          .from("plans")
+          .select("id,name,price,currency,duration_months,talent_limit,features,is_active")
+          .in("id", ["PRO", "BUSINESS"])
+          .eq("is_active", true)
+          .order("price"),
+        supabase.rpc("get_my_subscription"),
+      ])
 
-      if (error) {
-        console.error("KORA expired subscription plans:", error)
-        toast.error("Impossible de charger les abonnements.")
+      if (error || subscriptionError) {
+        console.error("KORA expired subscription load:", error || subscriptionError)
+        toast.error("Impossible de charger les informations de l'abonnement.")
       } else if (!cancelled) {
         setPlans(data || [])
+        setSubscription(subscriptionRows?.[0] || null)
       }
       if (!cancelled) setLoading(false)
     }
@@ -92,6 +100,13 @@ export default function SubscriptionExpired() {
     }
   }
 
+  const expiresAt = subscription?.status === "trialing"
+    ? subscription?.trial_end || subscription?.current_period_end
+    : subscription?.current_period_end || subscription?.ends_at
+  const expiryDate = expiresAt
+    ? new Date(expiresAt).toLocaleDateString(language === "en" ? "en-GB" : "fr-FR", { dateStyle: "long" })
+    : "—"
+
   if (loading) {
     return <div className="min-h-screen flex items-center justify-center"><Loader2 className="h-8 w-8 animate-spin text-gold" /></div>
   }
@@ -121,6 +136,15 @@ export default function SubscriptionExpired() {
             <CardDescription className="max-w-2xl text-base">
               Votre accès manager est temporairement suspendu. Réabonnez-vous pour retrouver vos talents, demandes, projets et outils KORA.
             </CardDescription>
+            <div className="mt-4 rounded-xl border border-amber-500/20 bg-background/70 p-4">
+              <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+                {language === "en" ? "Expiration date" : "Date d'expiration"}
+              </p>
+              <p className="mt-1 text-lg font-black">{expiryDate}</p>
+              <p className="mt-1 text-sm text-muted-foreground">
+                {language === "en" ? "Status: Expired" : "Statut : Expiré"}
+              </p>
+            </div>
           </CardHeader>
           <CardContent className="p-7">
             <div className="grid gap-3 md:grid-cols-3">
@@ -155,7 +179,7 @@ export default function SubscriptionExpired() {
                   </div>
                   <Button className="w-full gold-gradient text-primary-foreground" disabled={paying === plan.id} onClick={() => subscribe(plan)}>
                     {paying === plan.id ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <CreditCard className="mr-2 h-4 w-4" />}
-                    {paying === plan.id ? t("manager.preparing") : t("manager.resubscribe")}
+                    {paying === plan.id ? t("manager.preparing") : t("subscriptions.renew")}
                   </Button>
                 </CardContent>
               </Card>
