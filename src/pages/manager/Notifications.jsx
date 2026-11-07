@@ -35,6 +35,27 @@ function translateNotificationText(value, t) {
 }
 
 
+function getSubscriptionNotificationText(notification, t, language) {
+  const eventType = notification?.data?.kora_subscription_event
+  const keyByEvent = {
+    expiry_7_days: ["subscriptionExpiry7DaysTitle", "subscriptionExpiry7DaysMessage"],
+    expiry_3_days: ["subscriptionExpiry3DaysTitle", "subscriptionExpiry3DaysMessage"],
+    expired: ["subscriptionExpiredTitle", "subscriptionExpiredMessage"],
+  }
+  const keys = keyByEvent[eventType]
+  if (!keys) return null
+
+  const expiresAt = notification?.data?.expires_at
+  const date = expiresAt
+    ? new Date(expiresAt).toLocaleDateString(language === "en" ? "en-GB" : "fr-FR", { dateStyle: "long" })
+    : "—"
+
+  return {
+    title: t(`notifications.${keys[0]}`),
+    message: t(`notifications.${keys[1]}`, undefined, { date }),
+  }
+}
+
 export default function ManagerNotifications() {
   const { t, language } = useI18n()
   const { user } = useAuth()
@@ -213,6 +234,7 @@ export default function ManagerNotifications() {
           <div className="space-y-3">
             {notifications.map((notification) => {
               const unread = !notification.is_read && !notification.read_at
+              const subscriptionText = getSubscriptionNotificationText(notification, t, language)
 
               return (
                 <Card
@@ -232,7 +254,7 @@ export default function ManagerNotifications() {
                       <div className="min-w-0 flex-1">
                         <div className="flex flex-wrap items-start justify-between gap-3">
                           <div>
-                            <h2 className="font-bold">{translateNotificationText(notification.title || "Notification KORA", t)}</h2>
+                            <h2 className="font-bold">{subscriptionText?.title || translateNotificationText(notification.title || "Notification KORA", t)}</h2>
                             <p className="mt-1 text-xs text-muted-foreground">
                               {new Date(notification.created_at).toLocaleString(language === "en" ? "en-GB" : "fr-FR")}
                             </p>
@@ -241,7 +263,7 @@ export default function ManagerNotifications() {
                         </div>
 
                         <p className="mt-3 whitespace-pre-line text-sm leading-6 text-muted-foreground">
-                          {translateNotificationText(notification.message || "", t)}
+                          {subscriptionText?.message || translateNotificationText(notification.message || "", t)}
                         </p>
 
                         {unread && (
