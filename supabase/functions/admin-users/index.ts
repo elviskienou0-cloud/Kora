@@ -107,7 +107,7 @@ function getPublishableKey(): string {
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") return corsPreflightResponse(req)
   if (!isAllowedCorsOrigin(req)) {
-    return jsonResponse({ error: "Origine non autorisée." }, 403, req, req)
+    return jsonResponse({ error: "Origine non autorisée." }, 403, req)
   }
 
   if (req.method !== "POST") {
