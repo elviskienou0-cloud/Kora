@@ -3,7 +3,12 @@
 [functions.admin-users]
 verify_jwt = true
 
-# Le webhook de paiement est appelé par le prestataire (pas de JWT Supabase) :
+# Le webhook de paiement est appelé par le prestataire (pas de JWT Supabase) : 
 # l'authenticité repose sur la signature HMAC vérifiée dans index.ts.
 [functions.payment-webhook]
+verify_jwt = false
+
+# Appel planifié par GitHub Actions. Le handler vérifie le secret privé
+# x-kora-cron-secret avant tout accès aux données et à Resend.
+[functions.subscription-notifications]
 verify_jwt = false
