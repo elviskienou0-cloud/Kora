@@ -33,10 +33,12 @@ function getPlanDetails(plan, t) {
   return Array.isArray(plan?.features) ? plan.features : []
 }
 
-function formatDate(value) {
+function formatDate(value, language = "fr") {
   if (!value) return "—"
   const d = new Date(value)
-  return Number.isNaN(d.getTime()) ? "—" : d.toLocaleDateString("fr-FR")
+  return Number.isNaN(d.getTime())
+    ? "—"
+    : d.toLocaleDateString(language === "en" ? "en-GB" : "fr-FR", { dateStyle: "long" })
 }
 
 export default function ManagerSubscription() {
@@ -83,7 +85,12 @@ export default function ManagerSubscription() {
 
   const currentPlanId = String(subscription?.plan_id || subscription?.plan || "FREE").toUpperCase()
   const currentIsActive = ["trialing", "active"].includes(subscription?.status)
-  const expiresAt = subscription?.current_period_end || subscription?.trial_end
+  const expiresAt = subscription?.status === "trialing"
+    ? subscription?.trial_end || subscription?.current_period_end
+    : subscription?.current_period_end || subscription?.trial_end
+  const isExpired = subscription?.status === "expired" || Boolean(
+    expiresAt && new Date(expiresAt).getTime() <= nowMs
+  )
   const remainingMs = expiresAt ? Math.max(0, new Date(expiresAt).getTime() - nowMs) : null
   const remainingDays = remainingMs === null ? null : Math.floor(remainingMs / 86_400_000)
   const remainingHours = remainingMs === null ? null : Math.floor((remainingMs % 86_400_000) / 3_600_000)
@@ -92,11 +99,7 @@ export default function ManagerSubscription() {
     ? `${remainingDays}d ${remainingHours}h ${remainingMinutes}m remaining`
     : `${remainingDays} j ${remainingHours} h ${remainingMinutes} min restantes`
   const freeTrialExpired =
-    String(subscription?.plan_id || subscription?.plan || "").toUpperCase() === "FREE" &&
-    Boolean(
-      subscription?.current_period_end &&
-      new Date(subscription.current_period_end).getTime() <= Date.now()
-    )
+    String(subscription?.plan_id || subscription?.plan || "").toUpperCase() === "FREE" && isExpired
 
   const activateFree = async () => {
     setLoadingPlan("FREE")
@@ -182,14 +185,30 @@ export default function ManagerSubscription() {
         </Card>
       )}
 
-      {subscription?.status === "expired" && (
+      {isExpired && (
         <Card className="border-amber-500/30 bg-amber-500/5">
-          <CardContent className="p-5 flex items-center gap-3">
-            <Clock3 className="h-5 w-5 text-amber-600" />
-            <div>
-              <p className="font-black">{t("subscriptions.expired")}</p>
-              <p className="text-sm text-muted-foreground">{t("manager.subscription")}</p>
+          <CardContent className="p-5 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+            <div className="flex items-start gap-3">
+              <Clock3 className="mt-0.5 h-5 w-5 shrink-0 text-amber-600" />
+              <div>
+                <p className="font-black">{t("subscriptions.expired")}</p>
+                <p className="text-sm text-muted-foreground">
+                  {language === "en" ? "Expired on" : "Expiré le"} {formatDate(expiresAt, language)}
+                </p>
+                <p className="mt-1 text-sm text-muted-foreground">
+                  {language === "en"
+                    ? "Your information and talents are retained. Choose a paid plan below to renew access after payment validation."
+                    : "Vos informations et vos talents sont conservés. Choisissez un forfait payant ci-dessous pour renouveler votre accès après validation du paiement."}
+                </p>
+              </div>
             </div>
+            <Button
+              className="shrink-0 gap-2"
+              onClick={() => document.getElementById("kora-subscription-plans")?.scrollIntoView({ behavior: "smooth", block: "start" })}
+            >
+              <CreditCard className="h-4 w-4" />
+              {t("subscriptions.renew")}
+            </Button>
           </CardContent>
         </Card>
       )}
@@ -207,7 +226,7 @@ export default function ManagerSubscription() {
         </Card>
       )}
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-5">
+      <div id="kora-subscription-plans" className="grid grid-cols-1 lg:grid-cols-3 gap-5">
         {plans.map((plan) => {
           const id = String(plan.id).toUpperCase()
           const isCurrent = currentPlanId === id && currentIsActive
@@ -215,11 +234,13 @@ export default function ManagerSubscription() {
           const price = Number(plan.price || 0)
           const buttonLabel = isCurrent
             ? t("manager.activePlan")
-            : isExpiredFree
-              ? t("manager.trialEnded")
-              : id === "FREE"
-                ? t("manager.useFree")
-                : t("manager.choosePlanButton", { name: plan.name })
+            : isExpired && id !== "FREE"
+              ? t("subscriptions.renew")
+              : isExpiredFree
+                ? t("manager.trialEnded")
+                : id === "FREE"
+                  ? t("manager.useFree")
+                  : t("manager.choosePlanButton", { name: plan.name })
 
           return (
             <Card key={plan.id} className={`h-full border-border/60 ${isCurrent ? "border-gold/50 shadow-xl shadow-gold/10" : ""}`}>
