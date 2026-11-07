@@ -5,13 +5,14 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "npm run test:i18n && npm run lint && vite build && npm run security:secrets",
+    "build": "npm run test:i18n && npm run test:unit && npm run lint && vite build && npm run security:secrets",
     "lint": "eslint . --quiet",
     "lint:fix": "eslint . --fix",
     "preview": "vite preview",
     "test:i18n": "node scripts/check-i18n.mjs && node --test tests/i18n/language-preferences.test.mjs",
+    "test:unit": "node --test tests/payments/*.test.mjs",
     "security:secrets": "node scripts/check-secrets.mjs",
-    "test": "npm run test:i18n"
+    "test": "npm run test:i18n && npm run test:unit"
   },
   "dependencies": {
     "@hello-pangea/dnd": "^17.0.0",

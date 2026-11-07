@@ -9,6 +9,7 @@ import { Separator } from "@/components/ui/separator"
 import { useAuth } from "@/lib/AuthContext"
 import { useI18n } from "@/i18n/kora-i18n.jsx"
 import { supabase } from "@/lib/supabase"
+import { getSasPayCheckoutUrl } from "@/lib/saspayCheckout"
 
 function formatMoney(value, currency = "XOF") {
   return new Intl.NumberFormat("fr-FR", {
@@ -140,13 +141,9 @@ export default function ManagerSubscription() {
       const payload = await response.json().catch(() => ({}))
       if (!response.ok) throw new Error(payload?.error || "Impossible d'initialiser le paiement.")
 
-      if (payload.checkout_url) {
-        window.location.href = payload.checkout_url
-        return
-      }
-
-      toast.success(t("manager.paymentRecorded"))
-      await load()
+      const checkoutUrl = getSasPayCheckoutUrl(payload)
+      window.location.assign(checkoutUrl)
+      return
     } catch (error) {
       console.error("Erreur initialisation paiement :", error)
       toast.error(error?.message || t("errors.generic"))
