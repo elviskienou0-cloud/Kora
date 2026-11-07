@@ -8,6 +8,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Badge } from "@/components/ui/badge"
 import { Separator } from "@/components/ui/separator"
 import { supabase } from "@/lib/supabase"
+import { getSasPayCheckoutUrl } from "@/lib/saspayCheckout"
 import { useAuth } from "@/lib/AuthContext"
 import { useI18n } from "@/i18n/kora-i18n.jsx"
 
@@ -77,12 +78,9 @@ export default function SubscriptionExpired() {
       const payload = await response.json().catch(() => ({}))
       if (!response.ok) throw new Error(payload?.error || "Impossible d'initialiser le paiement.")
 
-      if (payload.checkout_url) {
-        window.location.href = payload.checkout_url
-        return
-      }
-
-      toast.success("Paiement enregistré. Il doit maintenant être validé par KORA.")
+      const checkoutUrl = getSasPayCheckoutUrl(payload)
+      window.location.assign(checkoutUrl)
+      return
     } catch (error) {
       console.error("KORA expired subscription payment:", error)
       toast.error(error?.message || "Impossible d'initialiser le paiement.")
