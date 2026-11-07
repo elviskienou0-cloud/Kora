@@ -115,7 +115,7 @@ Deno.serve(async (req) => {
 
   if (req.method !== "POST") {
     return jsonResponse({ error: "Méthode non autorisée." },
-      405,, req)
+      405, req)
   }
 
   try {
@@ -157,7 +157,7 @@ Deno.serve(async (req) => {
           error:
             "Variables Supabase Edge Function manquantes.",
         },
-        500,, req)
+        500, req)
     }
 
     const authHeader =
@@ -169,7 +169,7 @@ Deno.serve(async (req) => {
 
     if (!accessToken) {
       return jsonResponse({ error: "Authorization manquante." },
-        401,, req)
+        401, req)
     }
 
     const callerClient = createClient(
@@ -193,7 +193,7 @@ Deno.serve(async (req) => {
 
     if (callerError || !callerData?.user) {
       return jsonResponse({ error: "Session invalide ou expirée." },
-        401,, req)
+        401, req)
     }
 
     const callerId = callerData.user.id
@@ -238,7 +238,7 @@ Deno.serve(async (req) => {
           error:
             "Accès administrateur requis.",
         },
-        403,, req)
+        403, req)
     }
 
     if (callerProfile.is_suspended === true) {
@@ -246,7 +246,7 @@ Deno.serve(async (req) => {
           error:
             "Compte administrateur suspendu.",
         },
-        403,, req)
+        403, req)
     }
 
     let payload: JsonRecord
@@ -258,7 +258,7 @@ Deno.serve(async (req) => {
           error:
             "Corps de requête JSON invalide.",
         },
-        400,, req)
+        400, req)
     }
 
     const action =
@@ -268,7 +268,7 @@ Deno.serve(async (req) => {
 
     if (!action) {
       return jsonResponse({ error: "Action manquante." },
-        400,, req)
+        400, req)
     }
 
     // ==========================================================
@@ -329,7 +329,7 @@ Deno.serve(async (req) => {
             error:
               "Adresse email invalide.",
           },
-          400,, req)
+          400, req)
       }
 
       if (accessLevel === "super_admin") {
@@ -337,7 +337,7 @@ Deno.serve(async (req) => {
             error:
               "La création d'un Super Admin doit rester une action CEO protégée.",
           },
-          403,, req)
+          403, req)
       }
 
       if (
@@ -348,7 +348,7 @@ Deno.serve(async (req) => {
             error:
               "Limite utilisateurs invalide.",
           },
-          400,, req)
+          400, req)
       }
 
       if (
@@ -361,7 +361,7 @@ Deno.serve(async (req) => {
             error:
               "Limite de validations invalide.",
           },
-          400,, req)
+          400, req)
       }
 
       if (callerRole !== "superadmin") {
@@ -369,7 +369,7 @@ Deno.serve(async (req) => {
             error:
               "Seul le Super Admin peut inviter un administrateur.",
           },
-          403,, req)
+          403, req)
       }
 
       // Register a short-lived pending invitation record before Auth creates
@@ -394,7 +394,7 @@ Deno.serve(async (req) => {
 
       if (preflightError) {
         return jsonResponse({ error: "Impossible de préparer l'invitation administrateur." },
-          400,, req)
+          400, req)
       }
 
       const {
@@ -423,7 +423,7 @@ Deno.serve(async (req) => {
               "Cette adresse email a déjà un compte KORA. Une invitation ne peut être envoyée qu'à une nouvelle adresse : utilisez un autre email.",
             code: "email_exists",
           },
-          409,, req)
+          409, req)
       }
 
       if (
@@ -436,7 +436,7 @@ Deno.serve(async (req) => {
               inviteError?.message ||
               "Impossible d'envoyer l'invitation.",
           },
-          400,, req)
+          400, req)
       }
 
       // The Auth trigger has already checked the pending invite row.
@@ -449,7 +449,7 @@ Deno.serve(async (req) => {
       if (preflightCleanupError) {
         await adminClient.auth.admin.deleteUser(invitedUser.user.id, true)
         return jsonResponse({ error: "Impossible de finaliser l'invitation en toute sécurité." },
-          500,, req)
+          500, req)
       }
 
       const invitationId =
@@ -487,7 +487,7 @@ Deno.serve(async (req) => {
             error:
               registerError.message,
           },
-          400,, req)
+          400, req)
       }
 
       return jsonResponse({
@@ -515,7 +515,7 @@ Deno.serve(async (req) => {
           error:
             "Utilisateur manquant.",
         },
-        400,, req)
+        400, req)
     }
 
     if (userId === callerId) {
@@ -523,7 +523,7 @@ Deno.serve(async (req) => {
           error:
             "Cette action n'est pas autorisée sur votre propre compte.",
         },
-        409,, req)
+        409, req)
     }
 
     if (action !== "delete") {
@@ -531,7 +531,7 @@ Deno.serve(async (req) => {
           error:
             `Action inconnue : ${action}`,
         },
-        400,, req)
+        400, req)
     }
 
     const {
@@ -554,7 +554,7 @@ Deno.serve(async (req) => {
           error:
             "Utilisateur introuvable.",
         },
-        404,, req)
+        404, req)
     }
 
     const targetRole = normalizeAdminRole(
@@ -576,7 +576,7 @@ Deno.serve(async (req) => {
           error:
             "Un Super Admin/CEO ne peut pas être supprimé depuis cette interface.",
         },
-        403,, req)
+        403, req)
     }
 
     // Seul le CEO peut supprimer un autre admin
@@ -588,7 +588,7 @@ Deno.serve(async (req) => {
           error:
             "Seul le Super Admin (CEO) peut supprimer un autre administrateur.",
         },
-        403,, req)
+        403, req)
     }
 
     // Les admins associés doivent avoir users.manage
@@ -616,7 +616,7 @@ Deno.serve(async (req) => {
             details:
               permissionError.message,
           },
-          500,, req)
+          500, req)
       }
 
       if (canManageUsers !== true) {
@@ -626,7 +626,7 @@ Deno.serve(async (req) => {
             code:
               "MISSING_PERMISSION",
           },
-          403,, req)
+          403, req)
       }
     }
 
@@ -752,6 +752,6 @@ Deno.serve(async (req) => {
             ? error.message
             : "Erreur serveur.",
       },
-      500,, req)
+      500, req)
   }
 })
