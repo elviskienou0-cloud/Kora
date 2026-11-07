@@ -1,0 +1,38 @@
+name: KORA subscription expiry notifications
+
+on:
+  schedule:
+    - cron: "0 8 * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  send-subscription-notifications:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Validate required secrets
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_PUBLISHABLE_KEY: ${{ secrets.SUPABASE_PUBLISHABLE_KEY }}
+          KORA_SUBSCRIPTION_CRON_SECRET: ${{ secrets.KORA_SUBSCRIPTION_CRON_SECRET }}
+        run: |
+          test -n "$SUPABASE_URL" || { echo "::error::Missing SUPABASE_URL repository secret"; exit 1; }
+          test -n "$SUPABASE_PUBLISHABLE_KEY" || { echo "::error::Missing SUPABASE_PUBLISHABLE_KEY repository secret"; exit 1; }
+          test -n "$KORA_SUBSCRIPTION_CRON_SECRET" || { echo "::error::Missing KORA_SUBSCRIPTION_CRON_SECRET repository secret"; exit 1; }
+
+      - name: Process subscription reminders
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_PUBLISHABLE_KEY: ${{ secrets.SUPABASE_PUBLISHABLE_KEY }}
+          KORA_SUBSCRIPTION_CRON_SECRET: ${{ secrets.KORA_SUBSCRIPTION_CRON_SECRET }}
+        run: |
+          curl --fail-with-body --silent --show-error \
+            "$SUPABASE_URL/functions/v1/subscription-notifications" \
+            -X POST \
+            -H "Content-Type: application/json" \
+            -H "apikey: $SUPABASE_PUBLISHABLE_KEY" \
+            -H "x-kora-cron-secret: $KORA_SUBSCRIPTION_CRON_SECRET" \
+            --data '{}'
