@@ -1,20 +1,14 @@
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2"
 import { corsHeadersForRequest, corsPreflightResponse, isAllowedCorsOrigin } from "../_shared/cors.ts"
-const corsHeaders = {
-  "Access-Control-Allow-Origin": "*",
-  "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
-  "Access-Control-Allow-Methods": "POST, OPTIONS",
-}
-
 const SASPAY_LINKS: Record<string, string> = {
   PRO: "https://link.saspay.me/ozk-dberun4",
   BUSINESS: "https://link.saspay.me/byms-p2qna0",
 }
 
-function jsonResponse(body: Record<string, unknown>, status = 200) {
+function jsonResponse(body: Record<string, unknown>, status = 200, request: Request) {
   return new Response(JSON.stringify(body), {
     status,
-    headers: { ...corsHeaders, "Content-Type": "application/json" },
+    headers: { ...corsHeadersForRequest(request), "Content-Type": "application/json" },
   })
 }
 
@@ -56,7 +50,7 @@ function getPublishableKey(): string {
 
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") return corsPreflightResponse(req)
-  if (!isAllowedCorsOrigin(req)) return jsonResponse({ error: "Origine non autorisée." }, 403, req, req)
+  if (!isAllowedCorsOrigin(req)) return jsonResponse({ error: "Origine non autorisée." }, 403, req)
   if (req.method !== "POST") return jsonResponse({ error: "Méthode non autorisée" }, 405, req)
 
   try {
