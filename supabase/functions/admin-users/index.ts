@@ -1,19 +1,14 @@
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2"
-
+import { corsHeadersForRequest, corsPreflightResponse, isAllowedCorsOrigin } from "../_shared/cors.ts"
 type JsonRecord = Record<string, unknown>
 
-const corsHeaders = {
-  "Access-Control-Allow-Origin": "*",
-  "Access-Control-Allow-Headers":
-    "authorization, x-client-info, apikey, content-type",
-  "Access-Control-Allow-Methods": "POST, OPTIONS",
-  "Content-Type": "application/json",
-}
-
-function jsonResponse(body: JsonRecord, status = 200) {
+function jsonResponse(body: JsonRecord, statusOrRequest: number | Request = 200, request?: Request) {
+  const status = typeof statusOrRequest === "number" ? statusOrRequest : 200
+  const currentRequest = statusOrRequest instanceof Request ? statusOrRequest : request
+  if (!currentRequest) throw new Error("Request context required for CORS")
   return new Response(JSON.stringify(body), {
     status,
-    headers: corsHeaders,
+    headers: { ...corsHeadersForRequest(currentRequest), "Content-Type": "application/json" },
   })
 }
 
@@ -113,18 +108,14 @@ function getPublishableKey(): string {
 }
 
 Deno.serve(async (req) => {
-  if (req.method === "OPTIONS") {
-    return new Response("ok", {
-      status: 200,
-      headers: corsHeaders,
-    })
+  if (req.method === "OPTIONS") return corsPreflightResponse(req)
+  if (!isAllowedCorsOrigin(req)) {
+    return jsonResponse({ error: "Origine non autorisée." }, 403, req)
   }
 
   if (req.method !== "POST") {
-    return jsonResponse(
-      { error: "Méthode non autorisée." },
-      405,
-    )
+    return jsonResponse({ error: "Méthode non autorisée." },
+      405, req)
   }
 
   try {
@@ -162,13 +153,11 @@ Deno.serve(async (req) => {
       ""
 
     if (!supabaseUrl || !anonKey || !serviceRoleKey) {
-      return jsonResponse(
-        {
+      return jsonResponse({
           error:
             "Variables Supabase Edge Function manquantes.",
         },
-        500,
-      )
+        500, req)
     }
 
     const authHeader =
@@ -179,10 +168,8 @@ Deno.serve(async (req) => {
       .trim()
 
     if (!accessToken) {
-      return jsonResponse(
-        { error: "Authorization manquante." },
-        401,
-      )
+      return jsonResponse({ error: "Authorization manquante." },
+        401, req)
     }
 
     const callerClient = createClient(
@@ -205,10 +192,8 @@ Deno.serve(async (req) => {
       await callerClient.auth.getUser(accessToken)
 
     if (callerError || !callerData?.user) {
-      return jsonResponse(
-        { error: "Session invalide ou expirée." },
-        401,
-      )
+      return jsonResponse({ error: "Session invalide ou expirée." },
+        401, req)
     }
 
     const callerId = callerData.user.id
@@ -249,23 +234,19 @@ Deno.serve(async (req) => {
         callerRole,
       )
     ) {
-      return jsonResponse(
-        {
+      return jsonResponse({
           error:
             "Accès administrateur requis.",
         },
-        403,
-      )
+        403, req)
     }
 
     if (callerProfile.is_suspended === true) {
-      return jsonResponse(
-        {
+      return jsonResponse({
           error:
             "Compte administrateur suspendu.",
         },
-        403,
-      )
+        403, req)
     }
 
     let payload: JsonRecord
@@ -273,13 +254,11 @@ Deno.serve(async (req) => {
     try {
       payload = await req.json()
     } catch {
-      return jsonResponse(
-        {
+      return jsonResponse({
           error:
             "Corps de requête JSON invalide.",
         },
-        400,
-      )
+        400, req)
     }
 
     const action =
@@ -288,10 +267,8 @@ Deno.serve(async (req) => {
         : ""
 
     if (!action) {
-      return jsonResponse(
-        { error: "Action manquante." },
-        400,
-      )
+      return jsonResponse({ error: "Action manquante." },
+        400, req)
     }
 
     // ==========================================================
@@ -348,36 +325,30 @@ Deno.serve(async (req) => {
           : undefined
 
       if (!email || !email.includes("@")) {
-        return jsonResponse(
-          {
+        return jsonResponse({
             error:
               "Adresse email invalide.",
           },
-          400,
-        )
+          400, req)
       }
 
       if (accessLevel === "super_admin") {
-        return jsonResponse(
-          {
+        return jsonResponse({
             error:
               "La création d'un Super Admin doit rester une action CEO protégée.",
           },
-          403,
-        )
+          403, req)
       }
 
       if (
         (!Number.isFinite(maxUsers ?? 0) &&
           maxUsers !== null)
       ) {
-        return jsonResponse(
-          {
+        return jsonResponse({
             error:
               "Limite utilisateurs invalide.",
           },
-          400,
-        )
+          400, req)
       }
 
       if (
@@ -386,23 +357,19 @@ Deno.serve(async (req) => {
         ) &&
           maxPaymentValidations !== null)
       ) {
-        return jsonResponse(
-          {
+        return jsonResponse({
             error:
               "Limite de validations invalide.",
           },
-          400,
-        )
+          400, req)
       }
 
       if (callerRole !== "superadmin") {
-        return jsonResponse(
-          {
+        return jsonResponse({
             error:
               "Seul le Super Admin peut inviter un administrateur.",
           },
-          403,
-        )
+          403, req)
       }
 
       // Register a short-lived pending invitation record before Auth creates
@@ -426,10 +393,8 @@ Deno.serve(async (req) => {
         })
 
       if (preflightError) {
-        return jsonResponse(
-          { error: "Impossible de préparer l'invitation administrateur." },
-          400,
-        )
+        return jsonResponse({ error: "Impossible de préparer l'invitation administrateur." },
+          400, req)
       }
 
       const {
@@ -453,14 +418,12 @@ Deno.serve(async (req) => {
           inviteError.status === 422)
       ) {
         await adminClient.from("admin_invitations").delete().eq("id", preflightInvitationId)
-        return jsonResponse(
-          {
+        return jsonResponse({
             error:
               "Cette adresse email a déjà un compte KORA. Une invitation ne peut être envoyée qu'à une nouvelle adresse : utilisez un autre email.",
             code: "email_exists",
           },
-          409,
-        )
+          409, req)
       }
 
       if (
@@ -468,14 +431,12 @@ Deno.serve(async (req) => {
         !invitedUser?.user
       ) {
         await adminClient.from("admin_invitations").delete().eq("id", preflightInvitationId)
-        return jsonResponse(
-          {
+        return jsonResponse({
             error:
               inviteError?.message ||
               "Impossible d'envoyer l'invitation.",
           },
-          400,
-        )
+          400, req)
       }
 
       // The Auth trigger has already checked the pending invite row.
@@ -487,10 +448,8 @@ Deno.serve(async (req) => {
         .eq("id", preflightInvitationId)
       if (preflightCleanupError) {
         await adminClient.auth.admin.deleteUser(invitedUser.user.id, true)
-        return jsonResponse(
-          { error: "Impossible de finaliser l'invitation en toute sécurité." },
-          500,
-        )
+        return jsonResponse({ error: "Impossible de finaliser l'invitation en toute sécurité." },
+          500, req)
       }
 
       const invitationId =
@@ -524,13 +483,11 @@ Deno.serve(async (req) => {
           true,
         )
 
-        return jsonResponse(
-          {
+        return jsonResponse({
             error:
               registerError.message,
           },
-          400,
-        )
+          400, req)
       }
 
       return jsonResponse({
@@ -541,7 +498,7 @@ Deno.serve(async (req) => {
           invitedUser.user.id,
         message:
           "Invitation administrateur envoyée.",
-      })
+      }, req)
     }
 
     // ==========================================================
@@ -554,33 +511,27 @@ Deno.serve(async (req) => {
         : ""
 
     if (!userId) {
-      return jsonResponse(
-        {
+      return jsonResponse({
           error:
             "Utilisateur manquant.",
         },
-        400,
-      )
+        400, req)
     }
 
     if (userId === callerId) {
-      return jsonResponse(
-        {
+      return jsonResponse({
           error:
             "Cette action n'est pas autorisée sur votre propre compte.",
         },
-        409,
-      )
+        409, req)
     }
 
     if (action !== "delete") {
-      return jsonResponse(
-        {
+      return jsonResponse({
           error:
             `Action inconnue : ${action}`,
         },
-        400,
-      )
+        400, req)
     }
 
     const {
@@ -599,13 +550,11 @@ Deno.serve(async (req) => {
     }
 
     if (!targetProfile) {
-      return jsonResponse(
-        {
+      return jsonResponse({
           error:
             "Utilisateur introuvable.",
         },
-        404,
-      )
+        404, req)
     }
 
     const targetRole = normalizeAdminRole(
@@ -623,13 +572,11 @@ Deno.serve(async (req) => {
 
     // Protection absolue du CEO
     if (targetIsSuperAdmin) {
-      return jsonResponse(
-        {
+      return jsonResponse({
           error:
             "Un Super Admin/CEO ne peut pas être supprimé depuis cette interface.",
         },
-        403,
-      )
+        403, req)
     }
 
     // Seul le CEO peut supprimer un autre admin
@@ -637,13 +584,11 @@ Deno.serve(async (req) => {
       targetIsAdmin &&
       !isSuperAdmin
     ) {
-      return jsonResponse(
-        {
+      return jsonResponse({
           error:
             "Seul le Super Admin (CEO) peut supprimer un autre administrateur.",
         },
-        403,
-      )
+        403, req)
     }
 
     // Les admins associés doivent avoir users.manage
@@ -665,27 +610,23 @@ Deno.serve(async (req) => {
           permissionError,
         )
 
-        return jsonResponse(
-          {
+        return jsonResponse({
             error:
               "Impossible de vérifier la permission users.manage.",
             details:
               permissionError.message,
           },
-          500,
-        )
+          500, req)
       }
 
       if (canManageUsers !== true) {
-        return jsonResponse(
-          {
+        return jsonResponse({
             error:
               "Permission users.manage requise pour cet administrateur.",
             code:
               "MISSING_PERMISSION",
           },
-          403,
-        )
+          403, req)
       }
     }
 
@@ -797,22 +738,20 @@ Deno.serve(async (req) => {
       storage_cleanup: "effectué",
       message:
         "Utilisateur, profil, données liées et compte Auth supprimés avec succès.",
-    })
+    }, req)
   } catch (error) {
     console.error(
       "Erreur Edge Function admin-users:",
       error,
     )
 
-    return jsonResponse(
-      {
+    return jsonResponse({
         ok: false,
         error:
           error instanceof Error
             ? error.message
             : "Erreur serveur.",
       },
-      500,
-    )
+      500, req)
   }
 })

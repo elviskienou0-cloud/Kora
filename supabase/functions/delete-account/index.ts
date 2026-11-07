@@ -1,14 +1,13 @@
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2"
-
-const corsHeaders = {
-  "Access-Control-Allow-Origin": "*",
-  "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
-  "Access-Control-Allow-Methods": "POST, OPTIONS",
-  "Content-Type": "application/json",
-}
-
-function json(body, status = 200) {
-  return new Response(JSON.stringify(body), { status, headers: corsHeaders })
+import { corsHeadersForRequest, corsPreflightResponse, isAllowedCorsOrigin } from "../_shared/cors.ts"
+function json(body: Record<string, unknown>, statusOrRequest: number | Request = 200, request?: Request) {
+  const status = typeof statusOrRequest === "number" ? statusOrRequest : 200
+  const currentRequest = statusOrRequest instanceof Request ? statusOrRequest : request
+  if (!currentRequest) throw new Error("Request context required for CORS")
+  return new Response(JSON.stringify(body), {
+    status,
+    headers: { ...corsHeadersForRequest(currentRequest), "Content-Type": "application/json" },
+  })
 }
 
 async function removePrefix(storage, bucket, prefix) {
@@ -152,8 +151,9 @@ function getPublishableKey(): string {
 }
 
 Deno.serve(async (req) => {
-  if (req.method === "OPTIONS") return new Response("ok", { headers: corsHeaders })
-  if (req.method !== "POST") return json({ error: "Méthode non autorisée." }, 405)
+  if (req.method === "OPTIONS") return corsPreflightResponse(req)
+  if (!isAllowedCorsOrigin(req)) return json({ error: "Origine non autorisée." }, 403, req)
+  if (req.method !== "POST") return json({ error: "Méthode non autorisée." }, 405, req)
 
   try {
     const supabaseUrl = Deno.env.get("SUPABASE_URL")
@@ -179,12 +179,12 @@ Deno.serve(async (req) => {
       ""
 
     if (!supabaseUrl || !anonKey || !serviceRoleKey) {
-      return json({ error: "Configuration Supabase Edge Function manquante." }, 500)
+      return json({ error: "Configuration Supabase Edge Function manquante." }, 500, req)
     }
 
     const authHeader = req.headers.get("Authorization") || ""
     const accessToken = authHeader.replace(/^Bearer\s+/i, "").trim()
-    if (!accessToken) return json({ error: "Authorization manquante." }, 401)
+    if (!accessToken) return json({ error: "Authorization manquante." }, 401, req)
 
     const callerClient = createClient(supabaseUrl, anonKey, {
       global: { headers: { Authorization: `Bearer ${accessToken}` } },
@@ -195,7 +195,7 @@ Deno.serve(async (req) => {
       await callerClient.auth.getUser(accessToken)
 
     if (authError || !authData?.user) {
-      return json({ error: "Session invalide ou expirée." }, 401)
+      return json({ error: "Session invalide ou expirée." }, 401, req)
     }
 
     const userId = authData.user.id
@@ -211,13 +211,13 @@ Deno.serve(async (req) => {
       .maybeSingle()
 
     if (profileError) throw profileError
-    if (!profile) return json({ error: "Profil utilisateur introuvable." }, 404)
+    if (!profile) return json({ error: "Profil utilisateur introuvable." }, 404, req)
 
     const role = String(profile.role || "").trim().toLowerCase()
     if (role === "admin" || role === "superadmin") {
       return json({
         error: "La suppression d'un compte administrateur doit passer par le processus administrateur sécurisé.",
-      }, 403)
+      }, 403, req)
     }
 
     // Supabase refuse la suppression d'un Auth user tant qu'il possède des
@@ -265,12 +265,12 @@ Deno.serve(async (req) => {
       deleted_rows: cleanup.deleted_rows || 0,
       deleted_storage_objects: storageObjects,
       message: "Compte, données liées, médias Storage et compte Auth supprimés.",
-    })
+    }, req)
   } catch (error) {
     console.error("delete-account:", error)
     return json({
       ok: false,
       error: error instanceof Error ? error.message : "Erreur serveur.",
-    }, 500)
+    }, 500, req)
   }
 })
