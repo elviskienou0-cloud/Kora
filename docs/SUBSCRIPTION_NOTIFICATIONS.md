@@ -29,7 +29,7 @@ Dans Supabase Edge Function Secrets, configurer :
 - `RESEND_API_KEY` : clé API Resend (serveur uniquement).
 - `KORA_EMAIL_FROM` (facultatif) : expéditeur vérifié, par exemple `KORA <no-reply@auth.koratalent.online>`.
 
-Le projet doit également disposer de sa clé serveur Supabase gérée par la plateforme (`SUPABASE_SECRET_KEYS` ou variable de compatibilité service role). Aucune clé serveur ne doit être ajoutée au frontend.
+Le projet doit également disposer de sa clé serveur Supabase gérée par la plateforme (`SUPABASE_SECRET_KEYS` ou variable de compatibilité service role). Aucune clé serveur ne doit être ajoutée au frontend. Configure `RESEND_API_KEY` uniquement après vérification du domaine d'envoi dans Resend ; sinon les cinq premières tentatives d'envoi pourraient échouer et être conservées pour inspection.
 
 ## Secrets GitHub
 
