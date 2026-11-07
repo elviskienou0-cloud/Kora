@@ -188,6 +188,7 @@ Deno.serve(async (req) => {
     const { data: notificationEvents, error: notificationQueryError } = await admin
       .from("subscription_notification_events")
       .select("id,user_id,event_type,expires_at")
+      .eq("event_type", "expired")
       .is("notification_created_at", null)
       .order("created_at", { ascending: true })
       .limit(500)
@@ -262,12 +263,16 @@ Deno.serve(async (req) => {
       if (event.email_status === "sending" && event.updated_at > retryBefore) continue
 
       const nextAttempt = Number(event.email_attempts || 0) + 1
-      const { error: lockError } = await admin
+      const { data: lockData, error: lockError } = await admin
         .from("subscription_notification_events")
         .update({ email_status: "sending", email_attempts: nextAttempt, updated_at: new Date().toISOString() })
         .eq("id", event.id)
-      if (lockError) {
-        emailsFailed += 1
+        .eq("email_status", event.email_status)
+        .eq("email_attempts", event.email_attempts)
+        .select("id")
+        .maybeSingle()
+      if (lockError || !lockData?.id) {
+        if (lockError) emailsFailed += 1
         continue
       }
 
