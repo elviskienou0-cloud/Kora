@@ -311,7 +311,7 @@ export default function ManagerSubscription() {
                     <td className="px-6 py-3.5">{payment.provider}</td>
                     <td className="px-6 py-3.5 font-black">{formatMoney(payment.amount, payment.currency)}</td>
                     <td className="px-6 py-3.5"><Badge variant="outline">{payment.status}</Badge></td>
-                    <td className="px-6 py-3.5 text-muted-foreground">{formatDate(payment.created_at)}</td>
+                    <td className="px-6 py-3.5 text-muted-foreground">{formatDate(payment.created_at, language)}</td>
                   </tr>
                 ))}
               </tbody>
