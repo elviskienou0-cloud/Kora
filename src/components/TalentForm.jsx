@@ -25,6 +25,7 @@ import { cn } from "@/lib/utils.js"
 import { supabase } from "@/lib/supabase"
 import FileUpload from "@/components/FileUpload.jsx"
 import { APP_PARAMS } from "@/lib/app-params"
+import { resolveTalentProfileMediaUrl } from "@/lib/talentMedia"
 
 const talentSchema = z.object({
   displayName: z.string().min(2, "Le nom doit contenir au moins 2 caractères").max(100),
@@ -120,8 +121,8 @@ export default function TalentForm({
     setPortfolioFiles([])
     setAvatarFile(null)
     setCoverFile(null)
-    setAvatarPreview(initialValues?.avatar_url || "")
-    setCoverPreview(initialValues?.cover_url || "")
+    setAvatarPreview("")
+    setCoverPreview("")
     setPortfolioLinks(
       initialValues?.portfolioLinks?.length
         ? initialValues.portfolioLinks.map((item) => ({
@@ -131,6 +132,22 @@ export default function TalentForm({
           }))
         : [{ id: createLocalId(), title: "", url: "" }]
     )
+
+    let active = true
+    Promise.all([
+      resolveTalentProfileMediaUrl(initialValues?.avatar_url),
+      resolveTalentProfileMediaUrl(initialValues?.cover_url),
+    ]).then(([avatarUrl, coverUrl]) => {
+      if (!active) return
+      setAvatarPreview(avatarUrl || "")
+      setCoverPreview(coverUrl || "")
+    }).catch((error) => {
+      console.warn("Impossible de charger les aperçus du talent :", error)
+    })
+
+    return () => {
+      active = false
+    }
   }, [initialValues, reset])
 
   useEffect(() => {
@@ -238,8 +255,10 @@ export default function TalentForm({
       portfolioLinks: normalizedLinks,
       avatarFile,
       coverFile,
-      avatar_url: avatarPreview,
-      cover_url: coverPreview,
+      // Keep the stable storage reference in the database. Signed URLs are
+      // preview-only and expire; newly selected files are handled by the uploader.
+      avatar_url: avatarFile ? null : initialValues?.avatar_url || null,
+      cover_url: coverFile ? null : initialValues?.cover_url || null,
     })
   }
 
