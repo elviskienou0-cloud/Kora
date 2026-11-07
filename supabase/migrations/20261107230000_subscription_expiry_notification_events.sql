@@ -17,7 +17,7 @@ create table if not exists public.subscription_notification_events (
   created_at timestamptz not null default now(),
   updated_at timestamptz not null default now(),
   constraint subscription_notification_events_unique
-    unique (subscription_id, event_type)
+    unique (subscription_id, event_type, expires_at)
 );
 
 create index if not exists subscription_notification_events_pending_email_idx

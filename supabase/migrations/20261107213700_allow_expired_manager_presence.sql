@@ -31,6 +31,8 @@ BEGIN
     IF TG_OP = 'UPDATE'
        AND TG_TABLE_SCHEMA = 'public'
        AND TG_TABLE_NAME = 'profiles'
+       AND OLD.id = actor_id
+       AND NEW.id = actor_id
        AND NEW.last_seen IS DISTINCT FROM OLD.last_seen
        AND (to_jsonb(NEW) - 'last_seen' - 'updated_at') = (to_jsonb(OLD) - 'last_seen' - 'updated_at') THEN
       RETURN NEW;

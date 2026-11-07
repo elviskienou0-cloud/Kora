@@ -188,7 +188,6 @@ Deno.serve(async (req) => {
     const { data: notificationEvents, error: notificationQueryError } = await admin
       .from("subscription_notification_events")
       .select("id,user_id,event_type,expires_at")
-      .eq("event_type", "expired")
       .is("notification_created_at", null)
       .order("created_at", { ascending: true })
       .limit(500)
