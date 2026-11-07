@@ -10,10 +10,17 @@ const ALLOWED_ORIGINS = new Set([
   "http://127.0.0.1:5173",
 ])
 
+function isAllowedOrigin(origin: string): boolean {
+  if (ALLOWED_ORIGINS.has(origin)) return true
+
+  // Allow only KORA project preview deployments in the linked Vercel team.
+  return /^https:\/\/kora-[a-z0-9-]+-elviskienou0-2186s-projects\.vercel\.app$/.test(origin)
+}
+
 export function isAllowedCorsOrigin(request: Request): boolean {
   const origin = request.headers.get("Origin")
   // Native clients and server-to-server calls may not send Origin.
-  return !origin || ALLOWED_ORIGINS.has(origin)
+  return !origin || isAllowedOrigin(origin)
 }
 
 export function corsHeadersForRequest(request: Request): Record<string, string> {
@@ -24,7 +31,7 @@ export function corsHeadersForRequest(request: Request): Record<string, string> 
     "Vary": "Origin",
   }
 
-  if (origin && ALLOWED_ORIGINS.has(origin)) {
+  if (origin && isAllowedOrigin(origin)) {
     headers["Access-Control-Allow-Origin"] = origin
   }
 
