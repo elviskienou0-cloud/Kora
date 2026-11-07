@@ -20,7 +20,7 @@ export const APP_PARAMS = {
     { id: "cinema", name: "Cinéma & Audiovisuel", icon: "clapperboard" },
     { id: "voice", name: "Voix & Doublage", icon: "mic" },
     { id: "comedy", name: "Humour & Animation", icon: "laugh" },
-    { id: "beauty", name: "Beauté & Image", icon: "sparkles" },
+    { id: "beauty", name: "Beauté & Image", icon: "camera" },
     { id: "gastronomy", name: "Gastronomie & Traiteur", icon: "utensils" },
   ],
   plans: {

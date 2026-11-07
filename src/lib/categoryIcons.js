@@ -8,8 +8,9 @@ import {
   Clapperboard,
   Mic2,
   Laugh,
-  Sparkles,
+  Camera,
   UtensilsCrossed,
+  BriefcaseBusiness,
 } from "lucide-react"
 
 export const CATEGORY_ICONS = {
@@ -22,10 +23,10 @@ export const CATEGORY_ICONS = {
   clapperboard: Clapperboard,
   mic: Mic2,
   laugh: Laugh,
-  sparkles: Sparkles,
+  camera: Camera,
   utensils: UtensilsCrossed,
 }
 
 export function getCategoryIcon(key) {
-  return CATEGORY_ICONS[key] || Sparkles
+  return CATEGORY_ICONS[key] || BriefcaseBusiness
 }
