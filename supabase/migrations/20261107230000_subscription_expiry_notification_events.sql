@@ -1,6 +1,6 @@
 -- KORA: idempotent events for subscription expiry notices and email delivery.
 -- Email delivery is handled by the subscription-notifications Edge Function.
--- A unique (subscription_id, event_type) pair prevents duplicate reminders.
+-- A unique (subscription_id, event_type, expires_at) pair prevents duplicate reminders.
 
 create table if not exists public.subscription_notification_events (
   id uuid primary key default gen_random_uuid(),
