@@ -26,6 +26,8 @@ BEGIN
     -- The presence heartbeat is non-business metadata. Allow this one-column
     -- update so expired managers can still appear online, while preventing
     -- any simultaneous edit to profile identity, role, subscription or status.
+    -- The identity-protection trigger runs first and updates updated_at, so
+    -- compare all other columns except last_seen and that managed timestamp.
     IF TG_OP = 'UPDATE'
        AND TG_TABLE_SCHEMA = 'public'
        AND TG_TABLE_NAME = 'profiles'
