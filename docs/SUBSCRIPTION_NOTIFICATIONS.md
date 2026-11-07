@@ -4,8 +4,8 @@
 
 - Un rappel e-mail est préparé 7 jours avant l'échéance.
 - Un second rappel e-mail est préparé 3 jours avant l'échéance.
-- Le jour de l'expiration, KORA crée une notification interne et envoie un e-mail de confirmation.
-- Les événements sont uniques par abonnement et par type : les exécutions répétées ne créent pas de doublons.
+- Le jour de l'expiration, KORA crée une notification interne et envoie un e-mail de confirmation. Les rappels à 7 et 3 jours sont envoyés par e-mail uniquement.
+- Les événements sont uniques par abonnement, type et date d'échéance : chaque nouveau cycle peut recevoir ses propres rappels sans doublons.
 - Les rappels sont envoyés uniquement aux comptes Manager.
 - Le traitement quotidien est déclenché par GitHub Actions à 08:00 UTC (heure du Burkina Faso).
 - Aucun bandeau n'est ajouté au tableau de bord.
