@@ -1,9 +1,12 @@
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2"
 import { corsHeadersForRequest, corsPreflightResponse, isAllowedCorsOrigin } from "../_shared/cors.ts"
-function json(body: Record<string, unknown>, status = 200, request: Request) {
+function json(body: Record<string, unknown>, statusOrRequest: number | Request = 200, request?: Request) {
+  const status = typeof statusOrRequest === "number" ? statusOrRequest : 200
+  const currentRequest = statusOrRequest instanceof Request ? statusOrRequest : request
+  if (!currentRequest) throw new Error("Request context required for CORS")
   return new Response(JSON.stringify(body), {
     status,
-    headers: { ...corsHeadersForRequest(request), "Content-Type": "application/json" },
+    headers: { ...corsHeadersForRequest(currentRequest), "Content-Type": "application/json" },
   })
 }
 
