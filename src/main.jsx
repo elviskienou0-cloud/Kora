@@ -9,7 +9,10 @@ import { ThemeProvider } from "@/lib/ThemeContext.jsx"
 import FormDraftPersistence from "@/components/FormDraftPersistence.jsx"
 import GlobalI18nBridge from "@/components/GlobalI18nBridge.jsx"
 import { queryClient } from "@/lib/queryClient.js"
+import { showConsoleSecurityWarning } from "@/lib/consoleSecurityWarning.js"
 import "./index.css"
+
+showConsoleSecurityWarning()
 
 ReactDOM.createRoot(
   document.getElementById("root")
