@@ -129,6 +129,7 @@ export default function TalentReviews({ talentId }) {
 
         {showForm && (
           <form onSubmit={submit} className="space-y-4 rounded-2xl border border-gold/20 bg-gold/5 p-4">
+            <p className="text-xs text-muted-foreground">Seuls les clients ayant terminé un projet avec ce talent peuvent publier un avis.</p>
             <div className="space-y-2">
               <Label>Votre note</Label>
               <div className="flex items-center gap-1" onMouseLeave={() => setHoverRating(0)}>
@@ -157,7 +158,7 @@ export default function TalentReviews({ talentId }) {
                 id="talent-review-comment"
                 value={comment}
                 onChange={(event) => setComment(event.target.value)}
-                placeholder="Partagez votre expérience avec ce talent…"
+                placeholder="Décrivez votre expérience après un projet terminé avec ce talent…"
                 maxLength={3000}
                 className="min-h-28"
                 disabled={saving}
