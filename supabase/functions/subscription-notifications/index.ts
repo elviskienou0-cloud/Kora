@@ -113,6 +113,16 @@ function emailContent(eventType: EventType, name: string, date: string, language
   return { subject, html }
 }
 
+function constantTimeEqual(left: string, right: string): boolean {
+  const encoder = new TextEncoder()
+  const a = encoder.encode(left)
+  const b = encoder.encode(right)
+  if (a.length !== b.length) return false
+  let difference = 0
+  for (let index = 0; index < a.length; index += 1) difference |= a[index] ^ b[index]
+  return difference === 0
+}
+
 async function createAdminClient() {
   const url = Deno.env.get("SUPABASE_URL")
   const key = getServiceKey()
@@ -125,15 +135,14 @@ Deno.serve(async (req) => {
 
   const expectedSecret = Deno.env.get("KORA_SUBSCRIPTION_CRON_SECRET")
   const receivedSecret = req.headers.get("x-kora-cron-secret")
-  if (!expectedSecret || !receivedSecret || receivedSecret !== expectedSecret) {
+  if (!expectedSecret || !receivedSecret || !constantTimeEqual(receivedSecret, expectedSecret)) {
     return json({ error: "Accès non autorisé." }, 401)
   }
 
-  const resendApiKey = Deno.env.get("RESEND_API_KEY")
-  const admin = await createAdminClient()
-  const now = Date.now()
-
   try {
+    const resendApiKey = Deno.env.get("RESEND_API_KEY")
+    const admin = await createAdminClient()
+    const now = Date.now()
     const { error: expireError } = await admin.rpc("expire_due_subscriptions")
     if (expireError) throw expireError
 
@@ -346,8 +355,7 @@ Deno.serve(async (req) => {
       email_configured: true,
     })
   } catch (error) {
-    const message = error instanceof Error ? error.message : "Erreur inconnue."
-    console.error("KORA subscription notifications failed:", message)
-    return json({ success: false, error: message }, 500)
+    console.error("KORA subscription notifications failed:", error)
+    return json({ success: false, error: "Une erreur interne est survenue.", code: "SUBSCRIPTION_NOTIFICATION_FAILED" }, 500)
   }
 })
