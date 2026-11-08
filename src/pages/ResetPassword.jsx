@@ -62,8 +62,8 @@ export default function ResetPassword() {
     const p = form.password
     if (!p) return 0
     let s = 0
-    if (p.length >= 6) s++
-    if (p.length >= 10) s++
+    if (p.length >= 12) s++
+    if (p.length >= 16) s++
     if (/[A-Z]/.test(p)) s++
     if (/[0-9]/.test(p)) s++
     if (/[^A-Za-z0-9]/.test(p)) s++
@@ -86,8 +86,8 @@ export default function ResetPassword() {
       return
     }
 
-    if (password.length < 8) {
-      toast.error("8 caractères minimum requis")
+    if (password.length < 12) {
+      toast.error("12 caractères minimum requis")
       return
     }
 
@@ -187,7 +187,7 @@ export default function ResetPassword() {
                   <Label htmlFor="pwd">Nouveau mot de passe</Label>
                   <div className="relative">
                     <Lock className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4.5 w-4.5 text-muted-foreground" />
-                    <Input id="pwd" type={showPwd ? "text" : "password"} placeholder="••••••••" value={form.password} onChange={update("password")} className="pl-11 pr-11" autoComplete="new-password" minLength={8} required />
+                    <Input id="pwd" type={showPwd ? "text" : "password"} placeholder="12 caractères minimum" value={form.password} onChange={update("password")} className="pl-11 pr-11" autoComplete="new-password" minLength={12} required />
                     <button type="button" onClick={() => setShowPwd((value) => !value)} className="absolute right-3 top-1/2 -translate-y-1/2 p-1 text-muted-foreground hover:text-gold-dark transition-colors" aria-label={showPwd ? "Masquer le mot de passe" : "Afficher le mot de passe"}>
                       {showPwd ? <EyeOff className="h-4.5 w-4.5" /> : <Eye className="h-4.5 w-4.5" />}
                     </button>
@@ -203,7 +203,7 @@ export default function ResetPassword() {
                   <Label htmlFor="confirm">Confirmer le mot de passe</Label>
                   <div className="relative">
                     <Lock className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4.5 w-4.5 text-muted-foreground" />
-                    <Input id="confirm" type={showConfirm ? "text" : "password"} placeholder="••••••••" value={form.confirm} onChange={update("confirm")} className="pl-11 pr-11" autoComplete="new-password" minLength={8} required />
+                    <Input id="confirm" type={showConfirm ? "text" : "password"} placeholder="••••••••" value={form.confirm} onChange={update("confirm")} className="pl-11 pr-11" autoComplete="new-password" minLength={12} required />
                     <button type="button" onClick={() => setShowConfirm((value) => !value)} className="absolute right-3 top-1/2 -translate-y-1/2 p-1 text-muted-foreground hover:text-gold-dark transition-colors" aria-label={showConfirm ? "Masquer la confirmation" : "Afficher la confirmation"}>
                       {showConfirm ? <EyeOff className="h-4.5 w-4.5" /> : <Eye className="h-4.5 w-4.5" />}
                     </button>
