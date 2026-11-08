@@ -46,6 +46,9 @@ import AnnouncementTicker from "@/components/AnnouncementTicker.jsx"
 import koraLogo from "@/assets/kora-logo.svg"
 import { useTheme } from "@/lib/ThemeContext.jsx"
 
+// Évite les heartbeats dupliqués lors des remontages rapides du layout.
+let lastPresenceRequestAt = 0
+
 function getMenuItems(t) {
   return {
     client: [
@@ -443,6 +446,13 @@ export default function KoraLayout() {
 
     const touchPresence = async () => {
       if (cancelled || document.visibilityState !== "visible") return
+
+      // Le layout peut être remonté plusieurs fois (notamment avec StrictMode
+      // ou lors des changements d'état d'authentification). Partager ce délai
+      // au niveau du module empêche les appels immédiats en double/triple.
+      const now = Date.now()
+      if (now - lastPresenceRequestAt < 30000) return
+      lastPresenceRequestAt = now
 
       try {
         const { error } = await supabase.rpc("touch_presence")
