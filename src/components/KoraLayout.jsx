@@ -442,6 +442,8 @@ export default function KoraLayout() {
     let heartbeatTimer = null
 
     const touchPresence = async () => {
+      if (cancelled || document.visibilityState !== "visible") return
+
       try {
         const { error } = await supabase.rpc("touch_presence")
 
@@ -463,22 +465,42 @@ export default function KoraLayout() {
       }
     }
 
-    // Premier heartbeat immédiatement
-    touchPresence()
-
-    // Puis toutes les 30 secondes
-    heartbeatTimer = window.setInterval(() => {
-      if (!cancelled) {
-        touchPresence()
+    const stopHeartbeat = () => {
+      if (heartbeatTimer) {
+        window.clearInterval(heartbeatTimer)
+        heartbeatTimer = null
       }
-    }, 30000)
+    }
+
+    const startHeartbeat = () => {
+      stopHeartbeat()
+
+      if (cancelled || document.visibilityState !== "visible") return
+
+      // Une seule mise à jour à l'ouverture/reprise de l'onglet.
+      void touchPresence()
+
+      // Rythme réduit : pas de requête lorsque l'onglet est masqué.
+      heartbeatTimer = window.setInterval(() => {
+        void touchPresence()
+      }, 120000)
+    }
+
+    const handleVisibilityChange = () => {
+      if (document.visibilityState === "visible") {
+        startHeartbeat()
+      } else {
+        stopHeartbeat()
+      }
+    }
+
+    startHeartbeat()
+    document.addEventListener("visibilitychange", handleVisibilityChange)
 
     return () => {
       cancelled = true
-
-      if (heartbeatTimer) {
-        window.clearInterval(heartbeatTimer)
-      }
+      stopHeartbeat()
+      document.removeEventListener("visibilitychange", handleVisibilityChange)
     }
   }, [user?.id])
 
@@ -505,6 +527,8 @@ export default function KoraLayout() {
     let refreshTimer = null
 
     const loadOnlineUsers = async () => {
+      if (cancelled || document.visibilityState !== "visible") return
+
       try {
         const { data, error } = await supabase.rpc(
           "get_online_users"
@@ -540,21 +564,39 @@ export default function KoraLayout() {
       }
     }
 
-    // Chargement immédiat
-    loadOnlineUsers()
+    const stopRefresh = () => {
+      if (refreshTimer) {
+        window.clearInterval(refreshTimer)
+        refreshTimer = null
+      }
+    }
 
-    // Actualisation toutes les 30 secondes
-    refreshTimer = window.setInterval(
-      loadOnlineUsers,
-      30000
-    )
+    const startRefresh = () => {
+      stopRefresh()
+
+      if (cancelled || document.visibilityState !== "visible") return
+
+      void loadOnlineUsers()
+      refreshTimer = window.setInterval(() => {
+        void loadOnlineUsers()
+      }, 60000)
+    }
+
+    const handleVisibilityChange = () => {
+      if (document.visibilityState === "visible") {
+        startRefresh()
+      } else {
+        stopRefresh()
+      }
+    }
+
+    startRefresh()
+    document.addEventListener("visibilitychange", handleVisibilityChange)
 
     return () => {
       cancelled = true
-
-      if (refreshTimer) {
-        window.clearInterval(refreshTimer)
-      }
+      stopRefresh()
+      document.removeEventListener("visibilitychange", handleVisibilityChange)
     }
   }, [role])
 
