@@ -154,10 +154,13 @@ Deno.serve(async (req) => {
       plan_id: planId,
       billing_cycle: "monthly",
     }, req)
-  } catch (error) {
-    console.error("create-payment fatal error:", error)
+  } catch {
+    // Never return database/provider exception details to the browser.
+    // Keep the client response stable and non-revealing.
+    console.error("create-payment: échec interne pendant la création du paiement.")
     return jsonResponse({
-      error: error instanceof Error ? error.message : "Erreur inattendue lors de la création du paiement.",
+      error: "Une erreur interne est survenue. Réessaie plus tard ou contacte le support KORA.",
+      code: "PAYMENT_CREATION_FAILED",
     }, 500, req)
   }
 })
