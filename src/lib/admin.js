@@ -87,7 +87,7 @@ export async function reactivateAdminUser(userId) {
 
 export async function validateAdminPayment(paymentId, status, note = "") {
   if (!paymentId) throw new Error("Paiement manquant.")
-  if (!["paid", "failed", "cancelled", "refunded"].includes(status)) {
+  if (!["paid", "failed", "cancelled"].includes(status)) {
     throw new Error("Statut de paiement invalide.")
   }
 
