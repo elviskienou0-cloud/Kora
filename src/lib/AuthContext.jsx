@@ -119,7 +119,7 @@ function getAuthErrorMessage(error, action = "login") {
     lower.includes("password should be at least") ||
     lower.includes("password is too weak")
   ) {
-    return "Le mot de passe est trop faible. Utilisez au moins 6 caractères."
+    return "Le mot de passe est trop faible. Utilisez au moins 12 caractères."
   }
 
   if (
@@ -397,9 +397,9 @@ export function AuthProvider({ children }) {
         )
       }
 
-      if (password.length < 6) {
+      if (password.length < 12) {
         throw new Error(
-          "Le mot de passe doit contenir au moins 6 caractères."
+          "Le mot de passe doit contenir au moins 12 caractères."
         )
       }
 
