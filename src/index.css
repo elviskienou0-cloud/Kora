@@ -98,6 +98,17 @@
 
   html {
     scroll-behavior: smooth;
+    -webkit-text-size-adjust: 100%;
+  }
+
+  body {
+    min-width: 320px;
+    overflow-x: clip;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  .kora-mobile-nav {
+    padding-bottom: max(0.5rem, env(safe-area-inset-bottom));
   }
 
   body {
