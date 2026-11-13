@@ -37,6 +37,7 @@ import {
   UserCog,
   WalletCards,
   Megaphone,
+  Menu,
 } from "lucide-react"
 import { useAuth } from "@/lib/AuthContext.jsx"
 import { supabase } from "@/lib/supabase"
@@ -416,6 +417,17 @@ export default function KoraLayout() {
         )
 
   const roleInfo = roleLabels[role] || roleLabels.client
+
+  const mobileNavPaths =
+    role === "client"
+      ? ["/client/browse", "/client/favorites", "/client/projects", "/messages"]
+      : role === "manager"
+        ? ["/manager/dashboard", "/manager/talents", "/manager/requests", "/messages"]
+        : []
+
+  const mobileNavItems = mobileNavPaths
+    .map((href) => menu.find((item) => item.href === href))
+    .filter(Boolean)
 
   const homeHref =
     role === "superadmin"
@@ -863,9 +875,54 @@ export default function KoraLayout() {
           </div>
         </header>
 
-        <main className="flex-1 p-4 sm:p-6 lg:p-8">
+        <main className={cn("flex-1 min-w-0 p-4 sm:p-6 lg:p-8", isMobile && mobileNavItems.length > 0 && "pb-28")}>
           <Outlet />
         </main>
+
+        {isMobile && mobileNavItems.length > 0 && (
+          <nav
+            aria-label="Navigation principale"
+            className="kora-mobile-nav fixed inset-x-0 bottom-0 z-40 grid grid-cols-5 border-t border-border bg-background/95 px-2 pt-2 shadow-[0_-8px_24px_rgba(0,0,0,0.06)] backdrop-blur-xl"
+          >
+            {mobileNavItems.map((item) => {
+              const Icon = item.icon
+              return (
+                <NavLink
+                  key={item.href}
+                  to={item.href}
+                  end={item.href === "/messages"}
+                  className={({ isActive }) =>
+                    cn(
+                      "flex min-h-12 min-w-0 flex-col items-center justify-center gap-1 rounded-xl px-1 py-1 text-[10px] font-medium transition-colors",
+                      isActive ? "text-gold-dark" : "text-muted-foreground hover:text-foreground"
+                    )
+                  }
+                >
+                  {({ isActive }) => (
+                    <>
+                      <span className={cn("flex h-7 w-9 items-center justify-center rounded-full", isActive && "bg-gold/15")}>
+                        <Icon className="h-5 w-5" aria-hidden="true" />
+                      </span>
+                      <span className="max-w-full truncate">{item.label}</span>
+                    </>
+                  )}
+                </NavLink>
+              )
+            })}
+
+            <button
+              type="button"
+              onClick={() => setSidebarOpen(true)}
+              className="flex min-h-12 min-w-0 flex-col items-center justify-center gap-1 rounded-xl px-1 py-1 text-[10px] font-medium text-muted-foreground transition-colors hover:text-foreground"
+              aria-label="Ouvrir le menu"
+            >
+              <span className="flex h-7 w-9 items-center justify-center rounded-full">
+                <Menu className="h-5 w-5" aria-hidden="true" />
+              </span>
+              <span>Menu</span>
+            </button>
+          </nav>
+        )}
       </div>
     </div>
   )
