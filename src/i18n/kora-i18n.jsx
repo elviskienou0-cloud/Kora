@@ -10,7 +10,7 @@ const DEFAULT_THEME = "light"
 
 export const SUPPORTED_LANGUAGES = {
   fr: { code: "fr", label: "Français", flag: "🇫🇷", htmlLang: "fr", locale: "fr_FR" },
-  en: { code: "en", label: "English", flag: "🇬🇧", htmlLang: "en", locale: "en_GB" },
+  en: { code: "en", label: "English", flag: "EN", htmlLang: "en", locale: "en_GB" },
 }
 
 const fr = {
@@ -2907,7 +2907,7 @@ export function LanguageSelect({ className = "" }) {
         className="h-10 rounded-xl border border-border bg-background px-3 text-sm font-semibold outline-none transition-colors focus:border-gold"
       >
         <option value="fr">🇫🇷 Français</option>
-        <option value="en">🇬🇧 English</option>
+        <option value="en">EN English</option>
       </select>
     </div>
   )
