@@ -657,7 +657,6 @@ export default function KoraLayout() {
             </p>
 
             <p className="mt-1 text-[11px] leading-snug text-muted-foreground">
-              Connecter les talents africains aux opportunités du monde.
             </p>
           </div>
         </div>
