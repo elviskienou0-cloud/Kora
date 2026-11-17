@@ -1,7 +1,9 @@
+
 # Environment variables
 .env
 .env.*
 !.env.example
+
 # Logs
 /logs
 *.log
@@ -11,11 +13,14 @@ yarn-error.log*
 pnpm-debug.log*
 lerna-debug.log*
 
-node_modules
-dist
-dist-ssr
-.vercel
+# Dependencies and build outputs
+node_modules/
+dist/
+dist-ssr/
+.vercel/
 *.local
+
+# Secrets and certificates
 *.pem
 *.key
 /secrets/
@@ -23,7 +28,7 @@ dist-ssr
 # Editor directories and files
 .vscode/*
 !.vscode/extensions.json
-.idea
+.idea/
 .DS_Store
 *.suo
 *.ntvs*
@@ -31,9 +36,17 @@ dist-ssr
 *.sln
 *.sw?
 
-.env
-.vite
-node_modules
+# Vite
+.vite/
 
 # Supabase CLI local metadata
 /supabase/.temp/
+
+# Android: ignore generated files, keep native source code
+android/.gradle/
+android/**/build/
+android/local.properties
+android/.idea/
+android/captures/
+android/.externalNativeBuild/
+android/.cxx/
