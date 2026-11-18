@@ -45,6 +45,7 @@ import { cn } from "@/lib/utils.js"
 import AnnouncementTicker from "@/components/AnnouncementTicker.jsx"
 import koraLogo from "@/assets/kora-logo.svg"
 import { useTheme } from "@/lib/ThemeContext.jsx"
+import "@/styles/superadmin-glass.css"
 
 function getMenuItems(t) {
   return {
@@ -298,6 +299,48 @@ function getMenuItems(t) {
   }
 }
 
+
+const SUPERADMIN_NAV_GROUPS = [
+  {
+    label: "Gestion globale",
+    icon: Users,
+    items: [
+      { label: "Utilisateurs", href: "/admin?view=users", icon: Users, view: "users" },
+      { label: "Managers", href: "/admin?view=managers", icon: UserCog, view: "managers" },
+      { label: "Clients", href: "/admin?view=clients", icon: UserCheck, view: "clients" },
+      { label: "Talents", href: "/admin?view=talents", icon: ContactRound, view: "talents" },
+      { label: "Administrateurs", href: "/admin?view=administrators", icon: ShieldCheck, view: "administrators" },
+    ],
+  },
+  {
+    label: "Activité",
+    icon: BriefcaseBusiness,
+    items: [
+      { label: "Demandes", href: "/admin?view=requests", icon: ClipboardList, view: "requests" },
+      { label: "Messages", href: "/admin?view=messages", icon: MessageCircle, view: "messages" },
+      { label: "Projets", href: "/admin?view=projects", icon: BriefcaseBusiness, view: "projects" },
+      { label: "Paiements", href: "/admin?view=payments", icon: WalletCards, view: "payments" },
+      { label: "Abonnements", href: "/admin?view=subscriptions", icon: CreditCard, view: "subscriptions" },
+    ],
+  },
+  {
+    label: "Contenus",
+    icon: FileText,
+    items: [
+      { label: "Annonces", href: "/admin?view=announcements", icon: Megaphone, view: "announcements" },
+      { label: "Modération", href: "/admin?view=moderation", icon: ShieldCheck, view: "moderation" },
+      { label: "Journaux", href: "/admin?view=logs", icon: ScrollText, view: "logs" },
+    ],
+  },
+  {
+    label: "Paramètres",
+    icon: Settings,
+    items: [
+      { label: "Configuration", href: "/admin?view=settings", icon: Settings, view: "settings" },
+    ],
+  },
+]
+
 function getRoleLabels(t) {
   return {
     client: {
@@ -337,6 +380,7 @@ export default function KoraLayout() {
   const [sidebarOpen, setSidebarOpen] = useState(false)
   const [menuOpen, setMenuOpen] = useState(false)
   const [adminAccess, setAdminAccess] = useState(null)
+  const [expandedAdminGroups, setExpandedAdminGroups] = useState({})
 
   const role = user?.role
 
@@ -463,73 +507,103 @@ export default function KoraLayout() {
         </Link>
       </div>
 
-      <nav className="flex-1 p-3 overflow-y-auto">
-        <ul className="space-y-1">
-          {menu.map((item) => (
-            <li key={item.href}>
-              <NavLink
-                to={item.href}
-                end
-                onClick={() => {
-                  if (isMobile) {
-                    setSidebarOpen(false)
-                  }
-                }}
-                className={({ isActive }) => {
-                  const currentView =
-                    new URLSearchParams(
-                      location.search
-                    ).get("view") || "dashboard"
+      <nav className="flex-1 overflow-y-auto px-3 py-4">
+        {role === "superadmin" ? (
+          <div className="space-y-2">
+            <NavLink
+              to="/superadmin"
+              end
+              onClick={() => isMobile && setSidebarOpen(false)}
+              className={({ isActive }) => cn(
+                "flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-semibold transition-all",
+                isActive
+                  ? "kora-superadmin-active-nav"
+                  : "text-sidebar-foreground/75 hover:bg-white/5 hover:text-white"
+              )}
+            >
+              <Crown className="h-[18px] w-[18px]" />
+              <span>Tableau de bord</span>
+            </NavLink>
 
-                  const active =
-                    role === "admin"
-                      ? currentView ===
-                        (item.view || "dashboard")
-                      : isActive
+            {SUPERADMIN_NAV_GROUPS.map((group) => {
+              const currentView = new URLSearchParams(location.search).get("view") || "dashboard"
+              const groupIsActive = group.items.some((item) => item.view === currentView)
+              const isOpen = Boolean(expandedAdminGroups[group.label] || groupIsActive)
+              const GroupIcon = group.icon
 
-                  return cn(
-                    "flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all duration-200 group",
-                    active
-                      ? "bg-sidebar-accent text-sidebar-foreground shadow-sm"
-                      : "text-sidebar-foreground/70 hover:bg-sidebar-accent/50 hover:text-sidebar-foreground"
-                  )
-                }}
-              >
-                <item.icon
-                  className={cn(
-                    "h-5 w-5 transition-colors",
-                    "text-sidebar-foreground/70 group-hover:text-gold"
+              return (
+                <section key={group.label} className="pt-1">
+                  <button
+                    type="button"
+                    onClick={() => setExpandedAdminGroups((current) => ({
+                      ...current,
+                      [group.label]: !isOpen,
+                    }))}
+                    aria-expanded={isOpen}
+                    className="flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-left text-xs font-semibold uppercase tracking-[0.12em] text-sidebar-foreground/55 transition-colors hover:bg-white/5 hover:text-white"
+                  >
+                    <GroupIcon className="h-4 w-4 text-gold" />
+                    <span className="flex-1">{group.label}</span>
+                    <ChevronDown className={cn("h-4 w-4 transition-transform", isOpen && "rotate-180")} />
+                  </button>
+
+                  {isOpen && (
+                    <ul className="mt-1 space-y-1 pl-3">
+                      {group.items.map((item) => {
+                        const ItemIcon = item.icon
+                        const active = currentView === item.view && location.pathname === "/admin"
+                        return (
+                          <li key={item.view}>
+                            <NavLink
+                              to={item.href}
+                              onClick={() => isMobile && setSidebarOpen(false)}
+                              className={cn(
+                                "flex items-center gap-3 rounded-lg px-3 py-2 text-sm transition-all",
+                                active
+                                  ? "kora-superadmin-active-nav"
+                                  : "text-sidebar-foreground/70 hover:bg-white/5 hover:text-white"
+                              )}
+                            >
+                              <ItemIcon className="h-4 w-4 shrink-0" />
+                              <span>{item.label}</span>
+                            </NavLink>
+                          </li>
+                        )
+                      })}
+                    </ul>
                   )}
-                />
-
-                <span>{item.label}</span>
-
-                <ChevronRight className="ml-auto h-4 w-4 opacity-0 -translate-x-2 group-hover:opacity-100 group-hover:translate-x-0 transition-all duration-200 text-gold" />
-              </NavLink>
-            </li>
-          ))}
-        </ul>
-      </nav>
-
-      {(role === "admin" || role === "superadmin") && (
-        <div className="p-3">
-          <div className="rounded-2xl border border-gold/30 bg-gradient-to-br from-gold/20 via-transparent to-transparent p-4 text-center">
-            <img
-              src={koraLogo}
-              alt=""
-              className="mx-auto mb-2 h-10 w-10 rounded-xl"
-            />
-
-            <p className="text-lg font-black tracking-tight">
-              KORA
-            </p>
-
-            <p className="mt-1 text-[11px] leading-snug text-muted-foreground">
-              Connecter les talents africains aux opportunités du monde.
-            </p>
+                </section>
+              )
+            })}
           </div>
-        </div>
-      )}
+        ) : (
+          <ul className="space-y-1">
+            {menu.map((item) => (
+              <li key={item.href}>
+                <NavLink
+                  to={item.href}
+                  end
+                  onClick={() => isMobile && setSidebarOpen(false)}
+                  className={({ isActive }) => {
+                    const currentView = new URLSearchParams(location.search).get("view") || "dashboard"
+                    const active = role === "admin" ? currentView === (item.view || "dashboard") : isActive
+                    return cn(
+                      "flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition-all duration-200 group",
+                      active
+                        ? "bg-sidebar-accent text-sidebar-foreground shadow-sm"
+                        : "text-sidebar-foreground/70 hover:bg-sidebar-accent/50 hover:text-sidebar-foreground"
+                    )
+                  }}
+                >
+                  <item.icon className="h-5 w-5 text-sidebar-foreground/70 transition-colors group-hover:text-gold" />
+                  <span>{item.label}</span>
+                  <ChevronRight className="ml-auto h-4 w-4 -translate-x-2 text-gold opacity-0 transition-all duration-200 group-hover:translate-x-0 group-hover:opacity-100" />
+                </NavLink>
+              </li>
+            ))}
+          </ul>
+        )}
+      </nav>
 
       {role !== "admin" && role !== "superadmin" && (
         <div className="p-3 border-t border-sidebar-border">
@@ -689,7 +763,7 @@ export default function KoraLayout() {
   // ==========================================================
 
   return (
-    <div className="min-h-screen bg-background flex">
+    <div className={cn("min-h-screen flex", role === "superadmin" ? "kora-superadmin-glass" : "bg-background")}>
       {!isMobile && (
         <div className="w-64 shrink-0 h-screen sticky top-0 border-r border-sidebar-border bg-sidebar text-sidebar-foreground">
           <SidebarContent />
@@ -796,6 +870,7 @@ export default function KoraLayout() {
             <div className="flex items-center gap-2">
               <LanguageSwitcher compact />
 
+              {role !== "superadmin" && (
               <button
                 type="button"
                 onClick={() =>
@@ -831,6 +906,7 @@ export default function KoraLayout() {
                   <Monitor className="h-5 w-5" />
                 )}
               </button>
+              )}
 
               {role !== "admin" &&
                 role !== "superadmin" && (
