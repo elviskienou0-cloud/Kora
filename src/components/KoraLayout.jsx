@@ -603,7 +603,7 @@ export default function KoraLayout() {
             ))}
           </ul>
         )}
-      </nav></nav>
+      </nav>
 
       {role !== "admin" && role !== "superadmin" && (
         <div className="p-3 border-t border-sidebar-border">
