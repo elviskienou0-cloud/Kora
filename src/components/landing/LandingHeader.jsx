@@ -2,7 +2,7 @@ import { useEffect, useState } from "react"
 import { Link, useNavigate } from "react-router-dom"
 import { Menu, X, LogIn, UserPlus } from "lucide-react"
 import useIsMobile from "@/hooks/use-mobile.jsx"
-import { LanguageSwitcher } from "@/i18n/kora-i18n.jsx"
+import { LanguageSwitcher, useI18n } from "@/i18n/kora-i18n.jsx"
 import koraLogo from "@/assets/kora-logo.svg"
 
 const NAV_LINKS = [
@@ -16,7 +16,8 @@ export default function LandingHeader() {
   const [mobileOpen, setMobileOpen] = useState(false)
   const isMobile = useIsMobile()
   const navigate = useNavigate()
-  const isEnglish = document.documentElement.lang === "en"
+  const { language } = useI18n()
+  const isEnglish = language === "en"
 
   useEffect(() => {
     const closeOnEscape = (event) => {
