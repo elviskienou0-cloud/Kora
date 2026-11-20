@@ -1,179 +1,114 @@
 import { useState, useEffect } from "react"
 import { Link, useNavigate } from "react-router-dom"
-import { motion, AnimatePresence } from "framer-motion"
-import {
-  Menu,
-  X,
-  ChevronRight,
-  LogIn,
-  UserPlus,
-  Home,
-  Grid3X3,
-  Users,
-} from "lucide-react"
+import { Menu, X, LogIn, UserPlus } from "lucide-react"
 import { cn } from "@/lib/utils.js"
 import useIsMobile from "@/hooks/use-mobile.jsx"
 import koraLogo from "@/assets/kora-logo.svg"
 
 const NAV_LINKS = [
-  { href: "/", label: "Accueil", icon: Home },
-  { href: "/categories", label: "Catégories", icon: Grid3X3 },
-  { href: "#talents", label: "Talents", icon: Users },
+  { href: "/", label: "Accueil", type: "route" },
+  { href: "/faq", label: "FAQ", type: "route" },
+  { href: "#pricing", label: "Abonnement", type: "anchor" },
 ]
 
 export default function LandingHeader() {
-  const [scrolled, setScrolled] = useState(false)
   const [mobileOpen, setMobileOpen] = useState(false)
   const isMobile = useIsMobile()
   const navigate = useNavigate()
 
   useEffect(() => {
-    const onScroll = () => setScrolled(window.scrollY > 20)
-    onScroll()
-    window.addEventListener("scroll", onScroll, { passive: true })
-    return () => window.removeEventListener("scroll", onScroll)
+    const closeOnEscape = (event) => {
+      if (event.key === "Escape") setMobileOpen(false)
+    }
+    window.addEventListener("keydown", closeOnEscape)
+    return () => window.removeEventListener("keydown", closeOnEscape)
   }, [])
 
-  return (
-    <>
-      <header
-        className={cn(
-          "fixed top-0 left-0 right-0 z-50 transition-all duration-300",
-          scrolled ? "glass border-b border-border shadow-sm" : "bg-transparent"
-        )}
-      >
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="h-16 sm:h-20 flex items-center justify-between gap-4">
-            <Link to="/" className="flex items-center gap-2 group shrink-0">
-              <img src={koraLogo} alt="KORA" className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl object-contain" />
-              <span className="text-xl sm:text-2xl font-bold tracking-tight gold-text-gradient font-display">
-                KORA
-              </span>
-            </Link>
+  const goToLink = (link) => {
+    setMobileOpen(false)
+    if (link.type === "anchor") {
+      if (window.location.pathname !== "/") {
+        navigate("/")
+        window.setTimeout(() => document.querySelector(link.href)?.scrollIntoView({ behavior: "smooth" }), 100)
+      } else {
+        document.querySelector(link.href)?.scrollIntoView({ behavior: "smooth" })
+      }
+      return
+    }
+    navigate(link.href)
+  }
 
-            {!isMobile && (
-              <nav className="flex items-center gap-1">
+  return (
+    <header className="fixed top-0 left-0 right-0 z-50 border-b border-white/10 bg-[#090909] text-white">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="h-16 sm:h-[76px] flex items-center justify-between gap-5">
+          <Link to="/" className="flex items-center gap-2 shrink-0" aria-label="KORA, accueil">
+            <img src={koraLogo} alt="" className="w-9 h-9 sm:w-10 sm:h-10 object-contain" />
+            <span className="text-xl sm:text-2xl font-bold tracking-tight text-white">KORA</span>
+          </Link>
+
+          {!isMobile && (
+            <>
+              <nav aria-label="Navigation principale" className="flex items-center gap-8">
                 {NAV_LINKS.map((link) => (
-                  <Link
-                    key={link.href}
-                    to={link.href}
-                    className="px-4 py-2 rounded-lg text-sm font-medium text-foreground/80 hover:text-foreground hover:bg-accent/50 transition-all duration-200"
-                  >
-                    {link.label}
-                  </Link>
+                  link.type === "anchor" ? (
+                    <a key={link.href} href={link.href} className="text-sm font-medium text-white/80 hover:text-[#e8b72d] transition-colors">
+                      {link.label}
+                    </a>
+                  ) : (
+                    <Link key={link.href} to={link.href} className="text-sm font-medium text-white/80 hover:text-[#e8b72d] transition-colors">
+                      {link.label}
+                    </Link>
+                  )
                 ))}
               </nav>
-            )}
 
-            <div className="flex items-center gap-2 sm:gap-3">
-              {!isMobile && (
-                <>
-                  <Link
-                    to="/login"
-                    className="px-4 py-2 rounded-lg text-sm font-medium text-foreground hover:bg-accent hover:text-accent-foreground transition-all duration-200 inline-flex items-center gap-2"
-                  >
-                    <LogIn className="h-4 w-4" />
-                    <span>Connexion</span>
-                  </Link>
-                  <Link
-                    to="/register"
-                    className="px-4 py-2 rounded-lg text-sm font-semibold gold-gradient text-white shadow-md shadow-gold/25 hover:shadow-gold/40 hover:opacity-95 transition-all duration-200 inline-flex items-center gap-2"
-                  >
-                    <UserPlus className="h-4 w-4" />
-                    <span>Inscription</span>
-                    <ChevronRight className="h-4 w-4 -mr-1" />
-                  </Link>
-                </>
-              )}
+              <div className="flex items-center gap-3">
+                <Link to="/login" className="inline-flex items-center gap-2 rounded-md border border-white/30 px-4 py-2 text-sm font-medium text-white hover:border-[#e8b72d] hover:text-[#e8b72d] transition-colors">
+                  <LogIn className="h-4 w-4" />
+                  Se connecter
+                </Link>
+                <Link to="/register" className="inline-flex items-center gap-2 rounded-md bg-[#e8b72d] px-4 py-2 text-sm font-semibold text-[#111] hover:bg-[#f0c94f] transition-colors">
+                  <UserPlus className="h-4 w-4" />
+                  S'inscrire
+                </Link>
+              </div>
+            </>
+          )}
 
-              {isMobile && (
-                <button
-                  onClick={() => setMobileOpen(true)}
-                  className="p-2 rounded-lg hover:bg-accent hover:text-accent-foreground transition-colors"
-                  aria-label="Ouvrir le menu"
-                >
-                  <Menu className="h-6 w-6" />
-                </button>
-              )}
-            </div>
+          {isMobile && (
+            <button
+              type="button"
+              onClick={() => setMobileOpen((open) => !open)}
+              className="rounded-md p-2 text-white hover:bg-white/10"
+              aria-label={mobileOpen ? "Fermer le menu" : "Ouvrir le menu"}
+              aria-expanded={mobileOpen}
+            >
+              {mobileOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
+            </button>
+          )}
+        </div>
+      </div>
+
+      {isMobile && mobileOpen && (
+        <div className="border-t border-white/10 bg-[#090909] px-4 py-4 shadow-xl">
+          <nav aria-label="Navigation mobile" className="flex flex-col gap-1">
+            {NAV_LINKS.map((link) => (
+              <button key={link.href} type="button" onClick={() => goToLink(link)} className="rounded-md px-3 py-3 text-left text-sm font-medium text-white/85 hover:bg-white/5 hover:text-[#e8b72d]">
+                {link.label}
+              </button>
+            ))}
+          </nav>
+          <div className="mt-3 grid grid-cols-2 gap-2 border-t border-white/10 pt-4">
+            <Link to="/login" onClick={() => setMobileOpen(false)} className="flex items-center justify-center gap-2 rounded-md border border-white/25 px-3 py-3 text-sm font-medium text-white">
+              <LogIn className="h-4 w-4" /> Se connecter
+            </Link>
+            <Link to="/register" onClick={() => setMobileOpen(false)} className="flex items-center justify-center gap-2 rounded-md bg-[#e8b72d] px-3 py-3 text-sm font-semibold text-[#111]">
+              <UserPlus className="h-4 w-4" /> S'inscrire
+            </Link>
           </div>
         </div>
-      </header>
-
-      <AnimatePresence>
-        {isMobile && mobileOpen && (
-          <>
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              onClick={() => setMobileOpen(false)}
-              className="fixed inset-0 z-[60] bg-black/50 backdrop-blur-sm"
-            />
-            <motion.aside
-              initial={{ x: "100%" }}
-              animate={{ x: 0 }}
-              exit={{ x: "100%" }}
-              transition={{ type: "spring", damping: 25, stiffness: 250 }}
-              className="fixed top-0 right-0 bottom-0 z-[70] w-full max-w-sm bg-background border-l border-border flex flex-col"
-            >
-              <div className="h-16 px-5 flex items-center justify-between border-b border-border">
-                <div className="flex items-center gap-2">
-                  <div className="w-9 h-9 rounded-xl gold-gradient flex items-center justify-center">
-                    <img src={koraLogo} alt="KORA" className="h-full w-full rounded-xl object-contain" />
-                  </div>
-                  <span className="text-xl font-bold gold-text-gradient font-display">KORA</span>
-                </div>
-                <button
-                  onClick={() => setMobileOpen(false)}
-                  className="p-2 rounded-lg hover:bg-accent transition-colors"
-                  aria-label="Fermer le menu"
-                >
-                  <X className="h-5 w-5" />
-                </button>
-              </div>
-
-              <nav className="flex-1 p-4 space-y-1 overflow-y-auto">
-                {NAV_LINKS.map((link, i) => (
-                  <motion.button
-                    key={link.href}
-                    initial={{ opacity: 0, x: 20 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    transition={{ delay: 0.05 * i }}
-                    onClick={() => {
-                      navigate(link.href)
-                      setMobileOpen(false)
-                    }}
-                    className="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-base font-medium text-foreground/80 hover:bg-accent hover:text-foreground transition-colors"
-                  >
-                    <link.icon className="h-5 w-5 text-gold" />
-                    <span>{link.label}</span>
-                  </motion.button>
-                ))}
-              </nav>
-
-              <div className="p-4 border-t border-border space-y-2">
-                <Link
-                  to="/login"
-                  onClick={() => setMobileOpen(false)}
-                  className="w-full flex items-center justify-center gap-2 px-4 py-3 rounded-xl border border-border font-medium hover:bg-accent transition-colors"
-                >
-                  <LogIn className="h-5 w-5" />
-                  <span>Connexion</span>
-                </Link>
-                <Link
-                  to="/register"
-                  onClick={() => setMobileOpen(false)}
-                  className="w-full flex items-center justify-center gap-2 px-4 py-3 rounded-xl gold-gradient text-white font-semibold shadow-md shadow-gold/25"
-                >
-                  <UserPlus className="h-5 w-5" />
-                  <span>Créer un compte</span>
-                </Link>
-              </div>
-            </motion.aside>
-          </>
-        )}
-      </AnimatePresence>
-    </>
+      )}
+    </header>
   )
 }
