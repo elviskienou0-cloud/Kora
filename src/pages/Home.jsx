@@ -230,20 +230,20 @@ export default function Home() {
 
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-10">
         <motion.section initial="hidden" animate="visible" variants={stagger}>
-          <motion.div variants={fadeInUp} custom={0} className="relative rounded-3xl overflow-hidden">
-            <div className="absolute inset-0 gold-gradient opacity-95" />
-            <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(255,255,255,0.3),transparent_60%)]" />
-            <div className="relative p-8 sm:p-10 text-primary-foreground">
+          <motion.div variants={fadeInUp} custom={0} className={cn("relative rounded-3xl overflow-hidden border", user.role === "client" ? "border-amber-200/80 bg-gradient-to-br from-[#fffaf0] via-white to-[#f7efd9] shadow-sm" : "border-transparent")}>
+            <div className={cn("absolute inset-0 gold-gradient opacity-95", user.role === "client" && "hidden")} />
+            <div className={cn("absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(255,255,255,0.3),transparent_60%)]", user.role === "client" && "hidden")} />
+            <div className={cn("relative p-5 sm:p-10", user.role === "client" ? "text-[#29251d]" : "text-primary-foreground")}>
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-6">
                 <div>
                   <div className="inline-flex items-center gap-2 mb-3">
-                    <HandWaving className="h-6 w-6 animate-pulse" />
-                    <span className="font-black text-sm uppercase tracking-wider">{t("home.welcomeBack", undefined, { name: APP_PARAMS.name })}</span>
+                    <HandWaving className={cn("h-5 w-5 sm:h-6 sm:w-6", user.role === "client" ? "text-[#a77b1d]" : "animate-pulse")} />
+                    <span className={cn("text-[10px] sm:text-sm font-black uppercase tracking-wider", user.role === "client" ? "text-[#96701e]" : "text-current")}>{t("home.welcomeBack", undefined, { name: APP_PARAMS.name })}</span>
                   </div>
-                  <h1 className="text-3xl sm:text-4xl font-black mb-2">
+                  <h1 className="mb-2 text-2xl font-black leading-tight tracking-tight sm:text-4xl">
                     {t("home.welcomeUser", undefined, { name: firstName })} 👋
                   </h1>
-                  <p className="text-base font-medium opacity-90 max-w-xl">
+                  <p className={cn("max-w-xl text-sm font-medium leading-relaxed sm:text-base", user.role === "client" ? "text-[#625b4c]" : "opacity-90")}>
                     {user.role === "client"
                       ? t("home.clientIntro")
                       : user.role === "manager"
@@ -251,22 +251,22 @@ export default function Home() {
                       : t("home.adminIntro")}
                   </p>
                 </div>
-                <div className="flex gap-3 shrink-0">
-                  <Button size="lg" className="bg-background text-foreground hover:bg-background/90 gap-2 font-black" onClick={() => navigate("/categories")}>
+                <div className="flex w-full shrink-0 sm:w-auto">
+                  <Button size="lg" className={cn("w-full gap-2 font-black sm:w-auto", user.role === "client" ? "bg-[#e8b72d] text-[#29251d] hover:bg-[#d9a91f]" : "bg-background text-foreground hover:bg-background/90")} onClick={() => navigate("/categories")}>
                     Explorer <ArrowRight className="h-5 w-5" />
                   </Button>
                 </div>
               </div>
-              <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mt-8">
+              <div className="mt-6 grid grid-cols-2 gap-2.5 sm:mt-8 sm:grid-cols-4 sm:gap-3">
                 {globalStats.slice(0, 4).map((s, index) => {
                   const Icon = [Users, Briefcase, Star, TrendingUp][index] || Star
                   return (
-                    <div key={s.label} className="rounded-2xl bg-white/15 backdrop-blur-sm border border-white/25 p-4">
-                      <div className="flex items-center gap-2 mb-1.5 opacity-90">
-                        <Icon className="h-4 w-4" />
-                        <p className="text-xs font-bold uppercase tracking-wide">{s.label}</p>
+                    <div key={s.label} className={cn("min-w-0 rounded-2xl border p-3 sm:p-4", user.role === "client" ? "border-amber-200/80 bg-white/85 shadow-[0_2px_10px_rgba(92,68,20,0.04)]" : "border-white/25 bg-white/15 backdrop-blur-sm")}>
+                      <div className={cn("mb-1.5 flex items-center gap-2", user.role === "client" ? "text-[#8b6a24]" : "opacity-90")}>
+                        <Icon className="h-4 w-4 shrink-0" />
+                        <p className="min-w-0 text-[9px] font-bold uppercase leading-snug tracking-wide sm:text-xs">{s.label}</p>
                       </div>
-                      <p className="text-2xl font-black">{s.value}</p>
+                      <p className={cn("text-xl font-black tabular-nums sm:text-2xl", user.role === "client" ? "text-[#29251d]" : "text-current")}>{s.value}</p>
                     </div>
                   )
                 })}
