@@ -325,7 +325,7 @@ export default function ClientDashboard() {
   }
 
   return (
-    <div className="min-h-screen bg-background p-4 md:p-8">
+    <div className="min-h-screen bg-background p-3 sm:p-4 md:p-8">
       <motion.div
         variants={containerVariants}
         initial="hidden"
@@ -348,12 +348,12 @@ export default function ClientDashboard() {
           className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between"
         >
           <div className="flex items-center gap-3">
-            <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-foreground shadow-sm">
-              <LayoutDashboard className="h-6 w-6 text-white" />
+            <div className="flex h-11 w-11 items-center justify-center rounded-2xl border border-gold/25 bg-gold/15 shadow-sm sm:h-12 sm:w-12">
+              <LayoutDashboard className="h-5 w-5 text-gold-dark sm:h-6 sm:w-6" />
             </div>
 
             <div>
-              <h1 className="text-2xl font-bold tracking-tight md:text-3xl">
+              <h1 className="text-xl font-bold tracking-tight sm:text-2xl md:text-3xl">
                 Bonjour,{" "}
                 <span className="text-gold-dark">{firstName}</span>
               </h1>
@@ -364,10 +364,10 @@ export default function ClientDashboard() {
             </div>
           </div>
 
-          <div className="flex flex-wrap items-center gap-3">
+          <div className="grid w-full grid-cols-1 gap-2 sm:flex sm:w-auto sm:flex-wrap sm:items-center sm:gap-3">
             <Button
               variant="outline"
-              className="w-full sm:w-auto border-gold/50 text-gold-dark hover:bg-gold/10"
+              className="w-full border-gold/50 text-gold-dark hover:bg-gold/10 sm:w-auto"
               onClick={() => navigate("/categories")}
             >
               <Search className="mr-2 h-4 w-4" />
@@ -375,7 +375,7 @@ export default function ClientDashboard() {
             </Button>
 
             <Button
-              className="w-full sm:w-auto bg-foreground text-background shadow-sm hover:bg-foreground/90"
+              className="w-full bg-gold text-[#29251d] shadow-sm hover:bg-gold-dark hover:text-white sm:w-auto"
               onClick={() => navigate("/categories")}
             >
               <Send className="mr-2 h-4 w-4" />
@@ -386,7 +386,7 @@ export default function ClientDashboard() {
 
         <motion.div
           variants={itemVariants}
-          className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4"
+          className="grid grid-cols-2 gap-3 sm:grid-cols-2 sm:gap-4 lg:grid-cols-4"
         >
           <StatCard
             title={t("dashboard.clientRequestsSent")}
@@ -422,9 +422,9 @@ export default function ClientDashboard() {
           className="grid gap-6 lg:grid-cols-3"
         >
           <Card className="lg:col-span-2 border-border shadow-sm">
-            <CardHeader className="flex flex-row items-center justify-between">
+            <CardHeader className="flex flex-col items-start justify-between gap-3 sm:flex-row sm:items-center">
               <div>
-                <CardTitle className="flex items-center gap-2 text-xl">
+                <CardTitle className="flex items-center gap-2 text-base sm:text-xl">
                   <Clock className="h-5 w-5 text-gold-dark" />
                   {t("dashboard.recentRequests")}
                 </CardTitle>
@@ -524,7 +524,7 @@ export default function ClientDashboard() {
 
           <Card className="border-gold/20 shadow-sm">
             <CardHeader className="pb-2">
-              <CardTitle className="flex items-center gap-2 text-xl">
+              <CardTitle className="flex items-center gap-2 text-base sm:text-xl">
                 <Users className="h-5 w-5 text-gold-dark" />
                 {t("dashboard.recentTalents")}
               </CardTitle>
@@ -647,21 +647,21 @@ export default function ClientDashboard() {
 function StatCard({ title, value, icon: Icon, iconClass }) {
   return (
     <Card className="border-gold/20 shadow-sm">
-      <CardContent className="p-6">
+      <CardContent className="p-4 sm:p-6">
         <div className="flex items-start justify-between">
           <div>
             <p className="text-sm font-medium text-muted-foreground">
               {title}
             </p>
 
-            <h3 className="mt-2 text-3xl font-bold tracking-tight">
+            <h3 className="mt-2 break-words text-2xl font-bold tracking-tight sm:text-3xl">
               {value}
             </h3>
           </div>
 
           <div
             className={cn(
-              "flex h-11 w-11 items-center justify-center rounded-xl",
+              "flex h-9 w-9 shrink-0 items-center justify-center rounded-xl sm:h-11 sm:w-11",
               iconClass
             )}
           >
@@ -675,7 +675,7 @@ function StatCard({ title, value, icon: Icon, iconClass }) {
 
 function ActivityItem({ icon: Icon, label, value, description }) {
   return (
-    <div className="rounded-2xl border border-border/60 p-5">
+    <div className="rounded-2xl border border-border/60 p-4 sm:p-5">
       <div className="flex items-center gap-3">
         <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gold/10 text-gold-dark">
           <Icon className="h-5 w-5" />
