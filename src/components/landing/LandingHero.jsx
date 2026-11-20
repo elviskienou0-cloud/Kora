@@ -3,7 +3,6 @@ import {
   ArrowDown,
   ArrowRight,
   Bell,
-  BriefcaseBusiness,
   FolderKanban,
   MessageCircle,
   Search,
