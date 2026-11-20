@@ -1,7 +1,6 @@
 import { useState, useEffect } from "react"
 import { Link, useNavigate } from "react-router-dom"
 import { Menu, X, LogIn, UserPlus } from "lucide-react"
-import { cn } from "@/lib/utils.js"
 import useIsMobile from "@/hooks/use-mobile.jsx"
 import koraLogo from "@/assets/kora-logo.svg"
 
