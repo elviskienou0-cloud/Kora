@@ -6,7 +6,6 @@ import {
   Search,
   ChevronRight,
   Users,
-  Filter,
   ArrowRight,
   X,
   Star,
