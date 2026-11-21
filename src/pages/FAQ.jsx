@@ -2,6 +2,7 @@ import { useState } from "react"
 import { Link } from "react-router-dom"
 import { ChevronDown } from "lucide-react"
 import LandingFooter from "@/components/landing/LandingFooter.jsx"
+import LandingHeader from "@/components/landing/LandingHeader.jsx"
 
 const FAQS = [
   {
@@ -126,32 +127,21 @@ export default function FAQ() {
   }
 
   return (
-    <div className="min-h-screen bg-background text-foreground">
+    <div className="min-h-screen bg-background text-foreground kora-public-shell">
 
       {/* =========================
           HEADER
       ========================== */}
 
-      <header className="border-b border-border bg-card/50">
-        <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-5">
-
-          <Link
-            to="/"
-            className="inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors"
-          >
-            ← Retour à l'accueil
-          </Link>
-
-        </div>
-      </header>
+      <LandingHeader />
 
       {/* =========================
           CONTENT
       ========================== */}
 
-      <main className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12 sm:py-16">
+      <main className="kora-content-page kora-faq-page">
 
-        <div className="text-center mb-12">
+        <div className="text-center mb-12 kora-page-intro">
           <p className="text-sm font-medium text-gold mb-3">
             Centre d'aide
           </p>
@@ -177,7 +167,7 @@ export default function FAQ() {
             return (
               <div
                 key={item.question}
-                className="border border-border rounded-2xl bg-card overflow-hidden"
+                className="border border-border rounded-2xl bg-card overflow-hidden kora-faq-item"
               >
                 <button
                   type="button"
