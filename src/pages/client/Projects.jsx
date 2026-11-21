@@ -36,7 +36,7 @@ const STATUS_CONFIG = {
   },
   pending: {
     labelKey: "projects.pending",
-    className: "bg-amber-500/10 text-amber-700 border-amber-500/30",
+    className: "bg-primary/10 text-primary border-primary/20",
   },
   active: {
     labelKey: "projects.active",
