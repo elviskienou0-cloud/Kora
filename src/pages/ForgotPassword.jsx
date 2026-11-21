@@ -56,7 +56,7 @@ export default function ForgotPassword() {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center relative overflow-hidden bg-gradient-to-br from-background via-accent/30 to-background py-12 px-4">
+    <div className="min-h-screen flex items-center justify-center relative overflow-hidden bg-gradient-to-br from-background via-accent/30 to-background py-12 px-4 kora-public-shell kora-auth-page">
       <div className="absolute inset-0 pointer-events-none">
         <div className="absolute -top-40 -left-40 w-96 h-96 rounded-full bg-gold/20 blur-3xl" />
         <div className="absolute -bottom-40 -right-40 w-96 h-96 rounded-full bg-amber-400/15 blur-3xl" />
