@@ -258,7 +258,7 @@ export default function ReviewProject() {
                     const active = (hoverRating || rating) >= value
                     return (
                       <button key={value} type="button" aria-label={t("projects.starRating", undefined, { count: value })} onMouseEnter={() => setHoverRating(value)} onClick={() => setRating(value)} className="rounded-md p-1.5 transition-transform hover:scale-110">
-                        <Star className={active ? "h-8 w-8 fill-amber-400 text-amber-400" : "h-8 w-8 text-muted-foreground/40"} />
+                        <Star className={active ? "h-8 w-8 fill-primary text-primary" : "h-8 w-8 text-muted-foreground/40"} />
                       </button>
                     )
                   })}
