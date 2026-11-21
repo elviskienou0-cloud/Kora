@@ -58,6 +58,8 @@ export default function ReviewSection({ reviews = DEFAULT_REVIEWS, showForm = tr
     toast.success("Merci pour votre avis !")
   }
 
+  if (!showForm && allReviews.length === 0) return null
+
   const average = allReviews.length
     ? allReviews.reduce((s, r) => s + r.rating, 0) / allReviews.length
     : 0
@@ -110,7 +112,7 @@ export default function ReviewSection({ reviews = DEFAULT_REVIEWS, showForm = tr
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 mb-10 sm:mb-14">
-        {allReviews.slice(0, 6).map((review, i) => (
+        {allReviews.slice().sort((a, b) => Number(b.rating || 0) - Number(a.rating || 0)).slice(0, 3).map((review, i) => (
           <motion.article
             key={review.id}
             initial={{ opacity: 0, y: 20 }}
