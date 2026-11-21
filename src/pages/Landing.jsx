@@ -22,6 +22,7 @@ import { Card, CardContent } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import LandingHeader from "@/components/landing/LandingHeader"
 import LandingHero from "@/components/landing/LandingHero"
+import LandingEvolution from "@/components/landing/LandingEvolution.jsx"
 import LandingFooter from "@/components/landing/LandingFooter"
 import ReviewSection from "@/components/ReviewSection.jsx"
 import { APP_PARAMS } from "@/lib/app-params"
@@ -234,85 +235,13 @@ export default function Landing() {
 
   return (
     <div className="min-h-screen flex flex-col kora-public-shell">
-      <LandingHeader />
+          <LandingHero />
 
-      <main id="kora-content" className="flex-1">
-        <LandingHero />
-
-        <section id="categories" className="py-24 lg:py-32 bg-gradient-to-b from-transparent via-accent/20 to-transparent">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <motion.div
-              initial="hidden"
-              whileInView="visible"
-              viewport={{ once: true, margin: "-100px" }}
-              variants={staggerContainer}
-              className="text-center max-w-3xl mx-auto mb-16"
-            >
-              <motion.div variants={fadeInUp} custom={0}>
-                <Badge variant="default" className="mb-5 px-4 py-1.5 text-xs font-bold uppercase tracking-wider">
-                  {t("landing.categoriesEyebrow")}
-                </Badge>
-              </motion.div>
-              <motion.h2
-                variants={fadeInUp}
-                custom={1}
-                className="text-4xl sm:text-5xl font-black tracking-tight mb-5"
-              >
-                {APP_PARAMS.categories.length} {t("landing.categoriesTitle")}{" "}
-                <span className="gold-text-gradient">{t("landing.categoriesTitleEmphasis")}</span>
-              </motion.h2>
-              <motion.p
-                variants={fadeInUp}
-                custom={2}
-                className="text-lg text-muted-foreground"
-              >
-                {t("landing.categoriesDescription")}
-              </motion.p>
-            </motion.div>
-
-            <motion.div
-              initial="hidden"
-              whileInView="visible"
-              viewport={{ once: true, margin: "-100px" }}
-              variants={staggerContainer}
-              className="grid grid-cols-2 md:grid-cols-4 gap-5"
-            >
-              {APP_PARAMS.categories.map((cat, i) => {
-                const Icon = getCategoryIcon(cat.icon)
-                return (
-                  <motion.div
-                    key={cat.id}
-                    variants={fadeInUp}
-                    custom={i}
-                    whileHover={{ y: -5, scale: 1.02 }}
-                    transition={{ type: "spring", stiffness: 300 }}
-                  >
-                    <Link to="/categories" className="block h-full">
-                      <Card className="h-full cursor-pointer group">
-                        <CardContent className="p-0 text-left">
-                          <div className="flex flex-col items-center justify-center gap-4 px-5 py-8 text-center">
-                            <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-primary/10 text-primary">
-                              <Icon className="h-8 w-8" strokeWidth={1.7} />
-                            </div>
-                          <h3 className="font-bold text-foreground mb-2 line-clamp-2 min-h-[3.5rem]">{categoryLabels[cat.id] || cat.name}</h3>
-                          <p className="text-sm font-semibold text-primary">
-                            {(categoryCounts[cat.id] ?? 0).toLocaleString(language === "en" ? "en-GB" : "fr-FR")} {t("landing.talentsCount")}
-                          </p>
-                          </div>
-                        </CardContent>
-                      </Card>
-                    </Link>
-                  </motion.div>
-                )
-              })}
-            </motion.div>
-
-          </div>
-        </section>
+        <LandingEvolution stats={stats} t={t} />
 
         <section id="how-it-works" className="kora-process-section">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div className="kora-page-intro">
+            <div className="kora-page-intro text-center mx-auto max-w-3xl mb-12">
               <p className="kora-hero-eyebrow">{t("landing.processEyebrow")}</p>
               <h2 className="text-4xl sm:text-5xl font-black tracking-tight mb-5">{t("landing.processTitle")}</h2>
               <p className="text-lg text-muted-foreground leading-relaxed">{t("landing.processDescription")}</p>
@@ -340,7 +269,13 @@ export default function Landing() {
           </div>
         </section>
 
-        <section id="features" className="py-24 lg:py-32">
+
+
+        <LandingHero />
+
+
+
+        <section id="why-kora" className="py-24 lg:py-32">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <motion.div
               initial="hidden"
@@ -351,7 +286,7 @@ export default function Landing() {
             >
               <motion.div variants={fadeInUp} custom={0}>
                 <Badge variant="gold" className="mb-5 px-4 py-1.5 text-xs font-bold uppercase tracking-wider">
-                  {t("landing.featureBadge")}
+                  {t("landing.whyKoraEyebrow", "Notre différence")}
                 </Badge>
               </motion.div>
               <motion.h2
@@ -359,15 +294,15 @@ export default function Landing() {
                 custom={1}
                 className="text-4xl sm:text-5xl font-black tracking-tight mb-5"
               >
-                {t("landing.featureTitle")}{" "}
-                <span className="gold-text-gradient">{t("landing.featureTitleEmphasis")}</span>
+                {t("landing.whyKoraTitle", "Pourquoi KORA ?")}{" "}
+                <span className="gold-text-gradient">{t("landing.whyKoraTitleEmphasis", "")}</span>
               </motion.h2>
               <motion.p
                 variants={fadeInUp}
                 custom={2}
                 className="text-lg text-muted-foreground leading-relaxed"
               >
-                {t("landing.featureDescription")}
+                {t("landing.whyKoraDescription", "Une plateforme pensée pour faciliter la découverte des talents et les collaborations professionnelles.")}
               </motion.p>
             </motion.div>
 
@@ -404,51 +339,7 @@ export default function Landing() {
           </div>
         </section>
 
-        <section id="evolutions" className="py-16 border-y border-gold/15 bg-gradient-to-b from-accent/20 via-transparent to-transparent">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <h2 className="mb-8 text-center text-2xl font-black tracking-tight sm:text-3xl">
-              {t("landing.evolutionTitle")}
-            </h2>
-            <motion.div
-              initial="hidden"
-              whileInView="visible"
-              viewport={{ once: true, margin: "-100px" }}
-              variants={staggerContainer}
-              className="grid grid-cols-2 lg:grid-cols-4 gap-8"
-            >
-              {stats.map((stat, i) => {
-                const Icon = stat.icon
-                return (
-                  <motion.div
-                    key={stat.label}
-                    variants={fadeInUp}
-                    custom={i}
-                    className="text-center group"
-                  >
-                    <div className="inline-flex items-center justify-center w-14 h-14 rounded-2xl bg-gold/10 mb-4 group-hover:bg-gold/20 transition-colors">
-                      <Icon className="h-7 w-7 text-gold-dark" strokeWidth={2} />
-                    </div>
-                    <div className="text-3xl sm:text-4xl font-black gold-text-gradient mb-2">{stat.value}</div>
-                    <div className="text-sm font-semibold text-muted-foreground">{stat.label}</div>
-                  </motion.div>
-                )
-              })}
-            </motion.div>
-          </div>
-        </section>
 
-        <section id="testimonials" className="py-24 lg:py-32 relative overflow-hidden">
-          <div className="absolute inset-0 pointer-events-none">
-            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] rounded-full bg-gradient-to-br from-gold/8 via-amber-300/5 to-transparent blur-3xl" />
-          </div>
-
-          <div className="relative px-4 sm:px-6 lg:px-8">
-            <ReviewSection
-              title={t("landing.testimonialsTitle")}
-              showForm={false}
-            />
-          </div>
-        </section>
 
         <section id="pricing" className="py-24 lg:py-32 bg-gradient-to-b from-accent/20 to-transparent">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -543,60 +434,6 @@ export default function Landing() {
           </div>
         </section>
 
-        <section id="final-cta" className="py-24 lg:py-32">
-          <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
-            <motion.div
-              initial="hidden"
-              whileInView="visible"
-              viewport={{ once: true, margin: "-100px" }}
-              variants={staggerContainer}
-              className="relative rounded-[2.5rem] overflow-hidden"
-            >
-              <div className="absolute inset-0 gold-gradient opacity-95" />
-              <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(255,255,255,0.3),transparent_50%)]" />
-              <div className="absolute -bottom-20 -right-20 w-80 h-80 rounded-full bg-white/10 blur-3xl" />
-              <div className="absolute -top-16 -left-16 w-72 h-72 rounded-full bg-white/10 blur-3xl" />
-
-              <motion.div
-                variants={fadeInUp}
-                custom={0}
-                className="relative p-10 sm:p-14 lg:p-20 text-center text-primary-foreground"
-              >
-                <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/20 backdrop-blur-sm mb-8 border border-white/30">
-                  <Heart className="h-4 w-4 fill-current" />
-                  <span className="text-sm font-bold">{t("landing.ctaCommunity", undefined, { count: liveStats.find((stat) => stat.label === "Talents inscrits")?.value ?? "0" })}</span>
-                </div>
-                <h2 className="text-4xl sm:text-5xl lg:text-6xl font-black tracking-tight mb-6 leading-[1.1]">
-                  {t("landing.ctaTitle")}
-                </h2>
-                <p className="text-lg sm:text-xl opacity-90 max-w-2xl mx-auto mb-10 font-medium leading-relaxed">
-                  {t("landing.ctaDescription")}
-                </p>
-                <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
-                  <Button
-                    size="lg"
-                    className="bg-background text-foreground hover:bg-background/90 gap-2 font-black"
-                    onClick={() => navigate("/register?role=client")}
-                  >
-                    {t("landing.clients")} <ArrowRight className="h-5 w-5" />
-                  </Button>
-                  <Button
-                    size="lg"
-                    variant="outline"
-                    className="border-2 border-white/60 text-primary-foreground hover:bg-white/20 gap-2 font-black"
-                    onClick={() => navigate("/register?role=manager")}
-                  >
-                    <Sparkles className="h-5 w-5" />
-                    {t("landing.managers")}
-                  </Button>
-                </div>
-                <p className="mt-6 text-sm opacity-80 font-medium">
-                  {t("landing.ctaNote")}
-                </p>
-              </motion.div>
-            </motion.div>
-          </div>
-        </section>
       </main>
 
       <LandingFooter />
