@@ -5,12 +5,6 @@ import { Link } from "react-router-dom"
 import { Card, CardContent } from "@/components/ui/card"
 import { supabase } from "@/lib/supabase"
 
-const icons = {
-  "Talents inscrits": Users,
-  Projets: BriefcaseBusiness,
-  "Pays représentés": Globe2,
-  "Satisfaction moyenne": Star,
-}
 
 function getName(talent) {
   return `${talent.first_name || ""} ${talent.last_name || ""}`.trim() || talent.title || "Talent"
