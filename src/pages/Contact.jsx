@@ -1,11 +1,12 @@
 import { Link } from "react-router-dom"
 import { Mail, ArrowLeft } from "lucide-react"
 import LandingFooter from "@/components/landing/LandingFooter.jsx"
+import LandingHeader from "@/components/landing/LandingHeader.jsx"
 
 export default function Contact() {
   return (
-    <div className="min-h-screen bg-white text-gray-900 dark:bg-gray-950 dark:text-white">
-      <main className="mx-auto max-w-4xl px-6 py-16">
+    <div className="min-h-screen kora-public-shell kora-contact-page">
+      <main className="kora-content-page">\n        <LandingHeader />
         <Link
           to="/"
           className="mb-8 inline-flex items-center gap-2 text-sm text-gray-500 transition hover:text-gray-900 dark:hover:text-white"
@@ -14,7 +15,7 @@ export default function Contact() {
           Retour à l'accueil
         </Link>
 
-        <div className="mb-10">
+        <div className="mb-10 kora-page-intro">
           <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-xl bg-gray-100 dark:bg-gray-900">
             <Mail className="h-6 w-6" />
           </div>
@@ -30,7 +31,7 @@ export default function Contact() {
         </div>
 
         <div className="grid gap-6 md:grid-cols-2">
-          <section className="rounded-2xl border border-gray-200 p-6 dark:border-gray-800">
+          <section className="kora-contact-card">
             <h2 className="text-xl font-semibold">
               Nous contacter
             </h2>
@@ -50,7 +51,7 @@ export default function Contact() {
             </a>
           </section>
 
-          <section className="rounded-2xl border border-gray-200 p-6 dark:border-gray-800">
+          <section className="kora-contact-card">
             <h2 className="text-xl font-semibold">
               Besoin d'aide ?
             </h2>
@@ -62,7 +63,7 @@ export default function Contact() {
 
             <Link
               to="/faq"
-              className="mt-6 inline-flex rounded-xl bg-black px-5 py-3 text-sm font-medium text-white transition hover:opacity-90 dark:bg-white dark:text-black"
+              className="mt-6 inline-flex rounded-xl bg-primary px-5 py-3 text-sm font-semibold text-primary-foreground transition hover:opacity-90"
             >
               Consulter la FAQ
             </Link>
