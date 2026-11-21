@@ -118,7 +118,7 @@ export default function Landing() {
 
   const formatPlanPrice = (plan) => {
     const price = Number(plan?.price)
-    if (!Number.isFinite(price) || price <= 0) return "Gratuit"
+    if (!Number.isFinite(price) || price <= 0) return t("landing.planFreeName")
 
     return new Intl.NumberFormat(language === "en" ? "en-GB" : "fr-FR", {
       maximumFractionDigits: 0,
@@ -130,6 +130,7 @@ export default function Landing() {
     .filter(Boolean)
     .map((plan) => ({
       ...plan,
+      displayName: plan.name === "Gratuit" ? t("landing.planFreeName") : plan.name === "Pro" ? t("landing.planProName") : t("landing.planBusinessName"),
       description:
         plan.name === "Gratuit"
           ? t("landing.planFreeDescription")
@@ -140,6 +141,20 @@ export default function Landing() {
       highlighted: plan.name === "Pro",
       period: plan.name === "Gratuit" ? "" : t("landing.perMonth"),
     }))
+
+  const categoryLabels = {
+    music: t("landing.categoryMusic"),
+    fashion: t("landing.categoryFashion"),
+    influence: t("landing.categoryInfluence"),
+    sport: t("landing.categorySport"),
+    events: t("landing.categoryEvents"),
+    culture: t("landing.categoryCulture"),
+    cinema: t("landing.categoryCinema"),
+    voice: t("landing.categoryVoice"),
+    comedy: t("landing.categoryComedy"),
+    beauty: t("landing.categoryBeauty"),
+    gastronomy: t("landing.categoryGastronomy"),
+  }
 
   const features = [
     {
@@ -374,7 +389,7 @@ export default function Landing() {
                             <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-primary/10 text-primary">
                               <Icon className="h-8 w-8" strokeWidth={1.7} />
                             </div>
-                          <h3 className="font-bold text-foreground mb-2 line-clamp-2 min-h-[3.5rem]">{t(`landing.category${cat.id.charAt(0).toUpperCase()}${cat.id.slice(1)}`, cat.name)}</h3>
+                          <h3 className="font-bold text-foreground mb-2 line-clamp-2 min-h-[3.5rem]">{categoryLabels[cat.id] || cat.name}</h3>
                           <p className="text-sm font-semibold text-primary">
                             {(categoryCounts[cat.id] ?? 0).toLocaleString(language === "en" ? "en-GB" : "fr-FR")} {t("landing.talentsCount")}
                           </p>
@@ -461,7 +476,7 @@ export default function Landing() {
                   <Card className={cn("h-full", plan.highlighted && "ring-2 ring-gold shadow-2xl shadow-gold/15")}>
                     <CardContent className="p-7">
                       <div className="mb-6">
-                        <h3 className="text-xl font-bold mb-2">{plan.name}</h3>
+                        <h3 className="text-xl font-bold mb-2">{plan.displayName}</h3>
                         <p className="text-sm text-muted-foreground">{plan.description}</p>
                       </div>
                       <div className="mb-6 pb-6 border-b border-border/60">
