@@ -46,6 +46,7 @@ export default function LandingEvolution({ stats = [], t }) {
   }, [])
 
   const visibleStats = useMemo(() => stats.slice(0, 4), [stats])
+  const statIcons = [Users, BriefcaseBusiness, Globe2, Star]
   const currentTalent = talents.length ? talents[activeIndex % talents.length] : null
   const nextTalent = talents.length > 1 ? talents[(activeIndex + 1) % talents.length] : null
   const previousTalent = () => setActiveIndex((index) => talents.length ? (index - 1 + talents.length) % talents.length : 0)
@@ -73,7 +74,7 @@ export default function LandingEvolution({ stats = [], t }) {
             className="grid grid-cols-2 gap-4 sm:gap-5"
           >
             {visibleStats.map((stat, index) => {
-              const Icon = icons[stat.label] || Heart
+              const Icon = statIcons[index] || Heart
               return (
                 <motion.div
                   key={stat.label}
