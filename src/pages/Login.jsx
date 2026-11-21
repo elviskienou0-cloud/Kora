@@ -49,6 +49,17 @@ export default function Login() {
         description: "Bienvenue sur KORA.",
       })
 
+      const pendingPlan = sessionStorage.getItem("kora_pending_subscription_plan")
+      if (connectedUser?.role === "manager" && ["PRO", "BUSINESS"].includes(pendingPlan)) {
+        navigate(`/manager/subscription?checkout=${pendingPlan}`, { replace: true })
+        return
+      }
+
+      if (pendingPlan && connectedUser?.role !== "manager") {
+        sessionStorage.removeItem("kora_pending_subscription_plan")
+        toast.error("Cette offre est réservée aux comptes Manager.")
+      }
+
       const destination =
         connectedUser?.role === "superadmin"
           ? "/superadmin"
