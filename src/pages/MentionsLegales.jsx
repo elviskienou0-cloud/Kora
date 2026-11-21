@@ -5,7 +5,7 @@ import LandingHeader from "@/components/landing/LandingHeader.jsx"
 
 export default function MentionsLegales() {
   return (
-    <div className="min-h-screen bg-white text-gray-900 dark:bg-gray-950 dark:text-white" kora-public-shell kora-legal-page>
+    <div className="min-h-screen bg-white text-gray-900 dark:bg-gray-950 dark:text-white kora-public-shell kora-legal-page">
       <main className="kora-content-page">
         <LandingHeader />
         <Link to="/" className="mb-8 inline-flex items-center gap-2 text-sm text-gray-500 hover:text-gray-900 dark:hover:text-white"><ArrowLeft className="h-4 w-4" />Retour à l'accueil</Link>
