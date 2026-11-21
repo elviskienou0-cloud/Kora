@@ -247,12 +247,12 @@ export default function Landing() {
               <p className="text-lg text-muted-foreground leading-relaxed">{t("landing.processDescription")}</p>
             </div>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
-              <article className="kora-process-card">
+              <motion.article initial={{ opacity: 0, y: 24 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true, amount: 0.35 }} whileHover={{ y: -6 }} transition={{ duration: 0.45 }} className="kora-process-card">
                 <span className="kora-process-number">01</span>
                 <Users className="h-6 w-6" strokeWidth={1.7} />
                 <h3>{t("landing.processStep1Title")}</h3>
                 <p>{t("landing.processStep1Description")}</p>
-              </article>
+              </motion.article>
               <article className="kora-process-card">
                 <span className="kora-process-number">02</span>
                 <Target className="h-6 w-6" strokeWidth={1.7} />
