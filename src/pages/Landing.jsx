@@ -275,6 +275,78 @@ export default function Landing() {
 
 
 
+        <section id="categories" className="py-24 lg:py-32 bg-gradient-to-b from-transparent via-accent/20 to-transparent">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <motion.div
+              initial="hidden"
+              whileInView="visible"
+              viewport={{ once: true, margin: "-100px" }}
+              variants={staggerContainer}
+              className="text-center max-w-3xl mx-auto mb-16"
+            >
+              <motion.div variants={fadeInUp} custom={0}>
+                <Badge variant="default" className="mb-5 px-4 py-1.5 text-xs font-bold uppercase tracking-wider">
+                  {t("landing.categoriesEyebrow")}
+                </Badge>
+              </motion.div>
+              <motion.h2
+                variants={fadeInUp}
+                custom={1}
+                className="text-4xl sm:text-5xl font-black tracking-tight mb-5"
+              >
+                {APP_PARAMS.categories.length} {t("landing.categoriesTitle")}{" "}
+                <span className="gold-text-gradient">{t("landing.categoriesTitleEmphasis")}</span>
+              </motion.h2>
+              <motion.p
+                variants={fadeInUp}
+                custom={2}
+                className="text-lg text-muted-foreground"
+              >
+                {t("landing.categoriesDescription")}
+              </motion.p>
+            </motion.div>
+
+            <motion.div
+              initial="hidden"
+              whileInView="visible"
+              viewport={{ once: true, margin: "-100px" }}
+              variants={staggerContainer}
+              className="grid grid-cols-2 md:grid-cols-4 gap-5"
+            >
+              {APP_PARAMS.categories.map((cat, i) => {
+                const Icon = getCategoryIcon(cat.icon)
+                return (
+                  <motion.div
+                    key={cat.id}
+                    variants={fadeInUp}
+                    custom={i}
+                    whileHover={{ y: -5, scale: 1.02 }}
+                    transition={{ type: "spring", stiffness: 300 }}
+                  >
+                    <Link to="/categories" className="block h-full">
+                      <Card className="h-full cursor-pointer group">
+                        <CardContent className="p-0 text-left">
+                          <div className="flex flex-col items-center justify-center gap-4 px-5 py-8 text-center">
+                            <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-primary/10 text-primary">
+                              <Icon className="h-8 w-8" strokeWidth={1.7} />
+                            </div>
+                          <h3 className="font-bold text-foreground mb-2 line-clamp-2 min-h-[3.5rem]">{categoryLabels[cat.id] || cat.name}</h3>
+                          <p className="text-sm font-semibold text-primary">
+                            {(categoryCounts[cat.id] ?? 0).toLocaleString(language === "en" ? "en-GB" : "fr-FR")} {t("landing.talentsCount")}
+                          </p>
+                          </div>
+                        </CardContent>
+                      </Card>
+                    </Link>
+                  </motion.div>
+                )
+              })}
+            </motion.div>
+
+          </div>
+        </section>
+
+
         <section id="why-kora" className="py-24 lg:py-32">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <motion.div
