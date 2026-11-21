@@ -20,7 +20,7 @@ function PhoneFrame({ type, t }) {
             <div className="kora-phone-search"><Search className="h-3.5 w-3.5" /><span>{t("landing.searchTalent")}</span></div>
             <div className="kora-phone-row"><span>{t("landing.exploreCategories")}</span><span className="kora-phone-link">{t("landing.seeAll")}</span></div>
             <div className="kora-phone-category-grid">
-              {["Artistes", "Créateurs", "Influenceurs", "Sportifs"].map((item) => (
+              {[t("landing.phoneArtists"), t("landing.phoneCreators"), t("landing.phoneInfluencers"), t("landing.phoneAthletes")].map((item) => (
                 <div className="kora-phone-category" key={item}><span className="kora-phone-category-mark" /><span>{item}</span></div>
               ))}
             </div>
