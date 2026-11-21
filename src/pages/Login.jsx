@@ -51,6 +51,7 @@ export default function Login() {
 
       const pendingPlan = sessionStorage.getItem("kora_pending_subscription_plan")
       if (connectedUser?.role === "manager" && ["PRO", "BUSINESS"].includes(pendingPlan)) {
+        sessionStorage.removeItem("kora_pending_subscription_plan")
         navigate(`/manager/subscription?checkout=${pendingPlan}`, { replace: true })
         return
       }
