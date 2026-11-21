@@ -1,4 +1,5 @@
-import { useEffect, useState } from "react"
+import { useEffect, useRef, useState } from "react"
+import { useSearchParams } from "react-router-dom"
 import { CheckCircle2, Clock3, CreditCard, Crown, Loader2, ShieldCheck } from "lucide-react"
 import { toast } from "sonner"
 
@@ -10,6 +11,17 @@ import { useAuth } from "@/lib/AuthContext"
 import { useI18n } from "@/i18n/kora-i18n.jsx"
 import { supabase } from "@/lib/supabase"
 import { getSasPayCheckoutUrl } from "@/lib/saspayCheckout"
+
+const PENDING_PAYMENT_KEY = "kora_pending_saspay_payment"
+
+function readPendingPayment() {
+  try {
+    const value = JSON.parse(sessionStorage.getItem(PENDING_PAYMENT_KEY) || "null")
+    return value && typeof value.paymentId === "string" ? value : null
+  } catch {
+    return null
+  }
+}
 
 function formatMoney(value, currency = "XOF") {
   return new Intl.NumberFormat("fr-FR", {
@@ -45,6 +57,9 @@ function formatDate(value, language = "fr") {
 export default function ManagerSubscription() {
   const { t, language } = useI18n()
   const { user } = useAuth()
+  const [searchParams, setSearchParams] = useSearchParams()
+  const autoCheckoutStarted = useRef(false)
+  const requestPaymentRef = useRef(null)
   const managerId = user?.authId || user?.id
 
   const [plans, setPlans] = useState([])
@@ -53,6 +68,7 @@ export default function ManagerSubscription() {
   const [loading, setLoading] = useState(true)
   const [loadingPlan, setLoadingPlan] = useState(null)
   const [nowMs, setNowMs] = useState(Date.now())
+  const [pendingPayment, setPendingPayment] = useState(readPendingPayment)
 
   const load = async () => {
     if (!managerId) return
@@ -142,6 +158,16 @@ export default function ManagerSubscription() {
       if (!response.ok) throw new Error(payload?.error || "Impossible d'initialiser le paiement.")
 
       const checkoutUrl = getSasPayCheckoutUrl(payload)
+      const pending = {
+        paymentId: String(payload.payment_id || ""),
+        reference: String(payload.reference || ""),
+        planId,
+        confirmed: false,
+        createdAt: new Date().toISOString(),
+      }
+      if (!pending.paymentId) throw new Error("Référence de paiement KORA manquante.")
+      sessionStorage.setItem(PENDING_PAYMENT_KEY, JSON.stringify(pending))
+      setPendingPayment(pending)
       window.location.assign(checkoutUrl)
       return
     } catch (error) {
@@ -150,6 +176,43 @@ export default function ManagerSubscription() {
     } finally {
       setLoadingPlan(null)
     }
+  }
+
+  requestPaymentRef.current = requestPayment
+
+  useEffect(() => {
+    const planId = String(searchParams.get("checkout") || "").toUpperCase()
+    if (!managerId || loading || !plans.length || !["PRO", "BUSINESS"].includes(planId) || autoCheckoutStarted.current) return
+
+    const selectedPlan = plans.find((plan) => String(plan.id).toUpperCase() === planId)
+    autoCheckoutStarted.current = true
+    const nextParams = new URLSearchParams(searchParams)
+    nextParams.delete("checkout")
+    setSearchParams(nextParams, { replace: true })
+
+    if (!selectedPlan) {
+      toast.error(t("manager.paymentPlanUnavailable"))
+      return
+    }
+
+    void requestPaymentRef.current?.(selectedPlan)
+  }, [managerId, loading, plans, searchParams, setSearchParams, t])
+
+  useEffect(() => {
+    if (!pendingPayment?.paymentId || !payments.length) return
+    const latest = payments.find((payment) => String(payment.id) === pendingPayment.paymentId)
+    if (latest && ["paid", "failed", "cancelled"].includes(String(latest.status).toLowerCase())) {
+      sessionStorage.removeItem(PENDING_PAYMENT_KEY)
+      setPendingPayment(null)
+    }
+  }, [payments, pendingPayment?.paymentId])
+
+  const confirmPaymentSubmitted = () => {
+    if (!pendingPayment) return
+    const confirmed = { ...pendingPayment, confirmed: true, declaredAt: new Date().toISOString() }
+    sessionStorage.setItem(PENDING_PAYMENT_KEY, JSON.stringify(confirmed))
+    setPendingPayment(confirmed)
+    toast.success(t("manager.paymentAwaitingValidation"))
   }
 
   if (loading) {
@@ -169,6 +232,34 @@ export default function ManagerSubscription() {
           {subscription?.plan_name || (currentPlanId === "BUSINESS" ? "Business" : currentPlanId === "PRO" ? "Pro" : "Gratuit")}
         </Badge>
       </div>
+
+      {pendingPayment && (
+        <Card className={pendingPayment.confirmed ? "border-primary/25 bg-primary/5" : "border-border bg-muted/30"}>
+          <CardContent className="p-5 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+            <div className="flex items-start gap-3">
+              <Clock3 className="mt-0.5 h-5 w-5 shrink-0 text-primary" />
+              <div>
+                <p className="font-black">
+                  {pendingPayment.confirmed ? t("manager.paymentAwaitingValidation") : t("manager.paymentReturnTitle")}
+                </p>
+                <p className="mt-1 text-sm text-muted-foreground">
+                  {pendingPayment.confirmed ? t("manager.paymentReturnConfirmed") : t("manager.paymentReturnInstructions")}
+                </p>
+                {pendingPayment.reference && (
+                  <p className="mt-2 text-xs font-semibold text-muted-foreground">
+                    {t("manager.paymentReference")}: {pendingPayment.reference}
+                  </p>
+                )}
+              </div>
+            </div>
+            {!pendingPayment.confirmed && (
+              <Button className="shrink-0" onClick={confirmPaymentSubmitted}>
+                {t("manager.paymentDoneButton")}
+              </Button>
+            )}
+          </CardContent>
+        </Card>
+      )}
 
       {subscription?.status === "pending" && (
         <Card className="border-amber-500/30 bg-amber-500/5">
