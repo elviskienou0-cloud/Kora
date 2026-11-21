@@ -388,7 +388,7 @@
   gap: 18px;
   border: 1px solid hsl(var(--border) / .72);
   border-radius: 20px;
-  background: hsl(var(--background) / .76);
+  background: hsl(0 0% 100% / .82);
   color: hsl(var(--foreground));
   box-shadow: 0 12px 38px hsl(25 20% 12% / .08), inset 0 1px 0 hsl(0 0% 100% / .62);
   backdrop-filter: blur(22px) saturate(155%);
@@ -476,7 +476,7 @@
   padding: 14px;
   border: 1px solid hsl(var(--border) / .75);
   border-radius: 18px;
-  background: hsl(var(--background) / .9);
+  background: hsl(0 0% 100% / .94);
   box-shadow: 0 18px 48px hsl(25 20% 12% / .13);
   backdrop-filter: blur(24px);
   pointer-events: auto;
