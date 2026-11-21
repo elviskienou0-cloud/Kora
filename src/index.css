@@ -614,7 +614,7 @@
 .kora-public-footer a:hover { color:#FFFFFF !important; }
 .kora-public-footer .gold-text-gradient { background:none; color:#fff; -webkit-text-fill-color:#fff; }
 .kora-public-footer .border-border { border-color:rgb(255 255 255 / .18) !important; }
-.kora-public-footer .text-gold { color:#FFFFFF !important; }
+.kora-public-footer .text-gold { color:hsl(var(--gold)) !important; }
 
 /* Public information pages */
 .kora-content-page { width:min(1440px,100%); margin:0 auto; padding:clamp(112px,12vw,160px) clamp(20px,4vw,64px) clamp(76px,8vw,120px); }
@@ -881,4 +881,8 @@
 .kora-public-shell .kora-landing-hero .kora-start-button:hover {
   background: #F1F3F6 !important;
   color: #172B4D !important;
+}
+
+.dark .kora-public-shell .kora-landing-hero {
+  background: #172B4D !important;
 }
