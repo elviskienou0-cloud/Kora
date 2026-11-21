@@ -670,3 +670,46 @@
 .kora-category-selected { position:absolute; right:10px; top:10px; }
 .dark .kora-landing-category-fallback, .dark .kora-category-card-fallback { background:linear-gradient(145deg,#243248,#1a273b); color:#d8b66b; }
 @media (max-width:560px) { .kora-landing-category-media { height:138px; } .kora-category-card-media { height:96px; } }
+
+
+/* Complete dark-theme adaptation for the public experience */
+.dark .kora-public-shell .kora-landing-hero { background:#101d32 !important; color:#f4f7fb !important; }
+.dark .kora-public-shell .kora-landing-copy h1 { color:#f4f7fb !important; }
+.dark .kora-public-shell .kora-hero-description { color:#bac6d6 !important; }
+.dark .kora-public-shell .kora-hero-eyebrow { color:#d8b66b; }
+.dark .kora-public-shell .kora-phone { border-color:#33445d; background:#0d192b; box-shadow:0 24px 55px rgb(0 0 0 / .3); }
+.dark .kora-public-shell .kora-phone-screen { background:#17263d; color:#f4f7fb; }
+.dark .kora-public-shell .kora-phone-brand,
+.dark .kora-public-shell .kora-phone-title,
+.dark .kora-public-shell .kora-phone-row { color:#f4f7fb; }
+.dark .kora-public-shell .kora-phone-search,
+.dark .kora-public-shell .kora-phone-category,
+.dark .kora-public-shell .kora-phone-profile,
+.dark .kora-public-shell .kora-phone-manager-grid > div { background:#1d304b; border-color:#31435d; color:#c3cfdd; }
+.dark .kora-public-shell .kora-phone-category-mark,
+.dark .kora-public-shell .kora-phone-avatar { background:#30445f; color:#c3cfdd; }
+.dark .kora-public-shell .kora-phone-skeleton i { background:#536780; }
+.dark .kora-public-shell .kora-phone-manager-grid span,
+.dark .kora-public-shell .kora-phone-bottomline { color:#b4c1d1; }
+.dark .kora-public-shell .kora-phone-notch { background:#07101d; }
+.dark .kora-public-shell .kora-phone-home { background:#66758a; }
+.dark .kora-public-shell .kora-start-button { background:#c49a42 !important; color:#172b4d !important; }
+.dark .kora-public-shell #features .rounded-2xl,
+.dark .kora-public-shell #pricing .rounded-2xl { background:#172338; color:#f4f7fb; }
+.dark .kora-public-shell #features p,
+.dark .kora-public-shell #pricing p { color:#aeb9c8; }
+.dark .kora-public-shell #features h3,
+.dark .kora-public-shell #pricing h3 { color:#f4f7fb; }
+.dark .kora-public-shell #testimonials .kora-review-section { color:#f4f7fb; }
+.dark .kora-public-shell .kora-public-footer { background:#0b1729 !important; }
+.dark .kora-public-shell .kora-contact-card { color:#f4f7fb; }
+.dark .kora-public-shell .kora-contact-card p { color:#b7c3d2; }
+.dark .kora-public-shell .kora-faq-item { background:#172338; }
+.dark .kora-public-shell .kora-faq-item button:hover { background:#20324b; }
+.dark .kora-public-shell .kora-faq-item button { color:#f4f7fb; }
+.dark .kora-public-shell .kora-faq-item .text-muted-foreground { color:#b7c3d2; }
+.dark .kora-public-shell .kora-page-intro p { color:#b7c3d2; }
+.kora-categories-page > .relative.overflow-hidden { padding-top:76px; }
+.dark .kora-public-shell #kora-content > section:last-child .gold-gradient { background:#172B4D; }
+.kora-public-shell #kora-content > section:last-child > div > div:first-child { border:1px solid #e1e6ee; box-shadow:0 20px 60px rgb(23 43 77 / .12); }
+.dark .kora-public-shell #kora-content > section:last-child > div > div:first-child { border-color:#2b3a50; }
