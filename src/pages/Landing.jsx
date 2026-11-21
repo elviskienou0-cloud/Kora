@@ -29,6 +29,7 @@ import { getCategoryIcon } from "@/lib/categoryIcons"
 import { cn } from "@/lib/utils"
 import { useKoraStats } from "@/lib/useKoraStats"
 import { supabase } from "@/lib/supabase"
+import { useI18n } from "@/i18n/kora-i18n.jsx"
 
 const fadeInUp = {
   hidden: { opacity: 0, y: 30 },
@@ -46,6 +47,7 @@ const staggerContainer = {
 
 export default function Landing() {
   const navigate = useNavigate()
+  const { t, language } = useI18n()
 
   useEffect(() => {
     window.scrollTo(0, 0)
@@ -117,25 +119,13 @@ export default function Landing() {
 
   const PLAN_DETAILS = {
     "Gratuit": [
-      "1 talent maximum",
-      "Profil manager et outils essentiels",
-      "Gestion des demandes",
-      "Accès gratuit",
-      "Sans paiement",
+      t("landing.planFreeFeature1"), t("landing.planFreeFeature2"), t("landing.planFreeFeature3"), t("landing.planFreeFeature4"), t("landing.planFreeFeature5"),
     ],
     "Pro": [
-      "Jusqu’à 3 talents",
-      "Outils professionnels complets",
-      "Gestion des profils et projets",
-      "0 % de commission KORA",
-      "Paiement d’abonnement mensuel",
+      t("landing.planProFeature1"), t("landing.planProFeature2"), t("landing.planProFeature3"), t("landing.planProFeature4"), t("landing.planProFeature5"),
     ],
     "Business": [
-      "Talents illimités",
-      "Tous les outils professionnels",
-      "Gestion professionnelle des talents",
-      "Suivi des abonnements et demandes",
-      "Sans commission KORA sur les prestations",
+      t("landing.planBusinessFeature1"), t("landing.planBusinessFeature2"), t("landing.planBusinessFeature3"), t("landing.planBusinessFeature4"), t("landing.planBusinessFeature5"),
     ],
   }
 
@@ -143,7 +133,7 @@ export default function Landing() {
     const price = Number(plan?.price)
     if (!Number.isFinite(price) || price <= 0) return "Gratuit"
 
-    return new Intl.NumberFormat("fr-FR", {
+    return new Intl.NumberFormat(language === "en" ? "en-GB" : "fr-FR", {
       maximumFractionDigits: 0,
     }).format(price)
   }
@@ -155,57 +145,57 @@ export default function Landing() {
       ...plan,
       description:
         plan.name === "Gratuit"
-          ? "Pour découvrir KORA gratuitement"
+          ? t("landing.planFreeDescription")
           : plan.name === "Pro"
-            ? "Pour développer votre activité"
-            : "Pour développer votre activité sur KORA",
+            ? t("landing.planProDescription")
+            : t("landing.planBusinessDescription"),
       featureList: PLAN_DETAILS[plan.name] || [],
       highlighted: plan.name === "Pro",
-      period: plan.name === "Gratuit" ? "" : "/ mois",
+      period: plan.name === "Gratuit" ? "" : t("landing.perMonth"),
     }))
 
   const features = [
     {
       icon: Shield,
-      title: "Profils structurés",
-      description: "Des profils organisés avec compétences, catégories, portfolio et informations utiles pour décider plus vite.",
-      color: "from-emerald-400/20 to-emerald-500/10",
-      iconColor: "text-emerald-600",
+      title: t("landing.featureProfilesTitle"),
+      description: t("landing.featureProfilesDescription"),
+      color: "from-primary/10 to-primary/5",
+      iconColor: "text-primary",
     },
     {
       icon: Zap,
-      title: "Recherche ciblée",
-      description: "Filtrez les profils selon vos besoins et contactez le manager du talent qui correspond à votre projet.",
-      color: "from-amber-400/20 to-amber-500/10",
-      iconColor: "text-amber-600",
+      title: t("landing.featureSearchTitle"),
+      description: t("landing.featureSearchDescription"),
+      color: "from-primary/10 to-primary/5",
+      iconColor: "text-primary",
     },
     {
       icon: TrendingUp,
-      title: "Paiement d’abonnement clair",
-      description: "Les abonnements Manager sont affichés clairement et les paiements KORA passent actuellement par SasPay.",
-      color: "from-blue-400/20 to-blue-500/10",
-      iconColor: "text-blue-600",
+      title: t("landing.featureSubscriptionTitle"),
+      description: t("landing.featureSubscriptionDescription"),
+      color: "from-primary/10 to-primary/5",
+      iconColor: "text-primary",
     },
     {
       icon: Target,
-      title: "Suivi des collaborations",
-      description: "Centralisez demandes, projets, messages et notifications dans votre espace KORA.",
-      color: "from-rose-400/20 to-rose-500/10",
-      iconColor: "text-rose-600",
+      title: t("landing.featureCollaborationTitle"),
+      description: t("landing.featureCollaborationDescription"),
+      color: "from-primary/10 to-primary/5",
+      iconColor: "text-primary",
     },
     {
       icon: Award,
-      title: "Profils publiés",
-      description: "Les profils publiés et les fonctionnalités disponibles sont affichés selon les données actuelles de KORA.",
-      color: "from-violet-400/20 to-violet-500/10",
-      iconColor: "text-violet-600",
+      title: t("landing.featurePublishedTitle"),
+      description: t("landing.featurePublishedDescription"),
+      color: "from-primary/10 to-primary/5",
+      iconColor: "text-primary",
     },
     {
       icon: Rocket,
-      title: "Espace de collaboration",
-      description: "Centralisez demandes, projets, messages et notifications dans votre espace KORA.",
-      color: "from-cyan-400/20 to-cyan-500/10",
-      iconColor: "text-cyan-600",
+      title: t("landing.featureWorkspaceTitle"),
+      description: t("landing.featureWorkspaceDescription"),
+      color: "from-primary/10 to-primary/5",
+      iconColor: "text-primary",
     },
   ]
 
@@ -259,7 +249,7 @@ export default function Landing() {
             >
               <motion.div variants={fadeInUp} custom={0}>
                 <Badge variant="gold" className="mb-5 px-4 py-1.5 text-xs font-bold uppercase tracking-wider">
-                  Pourquoi KORA ?
+                  {t("landing.featureBadge")}
                 </Badge>
               </motion.div>
               <motion.h2
@@ -267,15 +257,15 @@ export default function Landing() {
                 custom={1}
                 className="text-4xl sm:text-5xl font-black tracking-tight mb-5"
               >
-                Tout ce qu'il faut pour{" "}
-                <span className="gold-text-gradient">collaborer en confiance</span>
+                {t("landing.featureTitle")}{" "}
+                <span className="gold-text-gradient">{t("landing.featureTitleEmphasis")}</span>
               </motion.h2>
               <motion.p
                 variants={fadeInUp}
                 custom={2}
                 className="text-lg text-muted-foreground leading-relaxed"
               >
-                Une plateforme qui centralise les profils publiés, les recherches, les demandes, les projets et les échanges entre clients et managers.
+                {t("landing.featureDescription")}
               </motion.p>
             </motion.div>
 
@@ -315,28 +305,28 @@ export default function Landing() {
         <section id="how-it-works" className="kora-process-section">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="kora-page-intro">
-              <p className="kora-hero-eyebrow">UN PARCOURS SIMPLE</p>
-              <h2 className="text-4xl sm:text-5xl font-black tracking-tight mb-5">De la recherche à la collaboration</h2>
-              <p className="text-lg text-muted-foreground leading-relaxed">KORA facilite la mise en relation entre les clients et les managers qui accompagnent les talents.</p>
+              <p className="kora-hero-eyebrow">{t("landing.processEyebrow")}</p>
+              <h2 className="text-4xl sm:text-5xl font-black tracking-tight mb-5">{t("landing.processTitle")}</h2>
+              <p className="text-lg text-muted-foreground leading-relaxed">{t("landing.processDescription")}</p>
             </div>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
               <article className="kora-process-card">
                 <span className="kora-process-number">01</span>
                 <Users className="h-6 w-6" strokeWidth={1.7} />
-                <h3>Explorez les profils publiés</h3>
-                <p>Parcourez les catégories et recherchez des talents dont les compétences correspondent à votre besoin.</p>
+                <h3>{t("landing.processStep1Title")}</h3>
+                <p>{t("landing.processStep1Description")}</p>
               </article>
               <article className="kora-process-card">
                 <span className="kora-process-number">02</span>
                 <Target className="h-6 w-6" strokeWidth={1.7} />
-                <h3>Contactez leur manager</h3>
-                <p>Consultez les informations du profil puis adressez votre demande au manager du talent.</p>
+                <h3>{t("landing.processStep2Title")}</h3>
+                <p>{t("landing.processStep2Description")}</p>
               </article>
               <article className="kora-process-card">
                 <span className="kora-process-number">03</span>
                 <Briefcase className="h-6 w-6" strokeWidth={1.7} />
-                <h3>Faites avancer votre projet</h3>
-                <p>Retrouvez vos demandes, projets et échanges dans votre espace KORA.</p>
+                <h3>{t("landing.processStep3Title")}</h3>
+                <p>{t("landing.processStep3Description")}</p>
               </article>
             </div>
           </div>
@@ -353,7 +343,7 @@ export default function Landing() {
             >
               <motion.div variants={fadeInUp} custom={0}>
                 <Badge variant="default" className="mb-5 px-4 py-1.5 text-xs font-bold uppercase tracking-wider">
-                  Explorer par domaine
+                  {t("landing.categoriesEyebrow")}
                 </Badge>
               </motion.div>
               <motion.h2
@@ -361,15 +351,15 @@ export default function Landing() {
                 custom={1}
                 className="text-4xl sm:text-5xl font-black tracking-tight mb-5"
               >
-                {APP_PARAMS.categories.length} catégories,{" "}
-                <span className="gold-text-gradient">une communauté en croissance</span>
+                {APP_PARAMS.categories.length} {t("landing.categoriesTitle")}{" "}
+                <span className="gold-text-gradient">{t("landing.categoriesTitleEmphasis")}</span>
               </motion.h2>
               <motion.p
                 variants={fadeInUp}
                 custom={2}
                 className="text-lg text-muted-foreground"
               >
-                Parcourez les expertises les plus demandées sur le continent
+                {t("landing.categoriesDescription")}
               </motion.p>
             </motion.div>
 
@@ -382,7 +372,6 @@ export default function Landing() {
             >
               {APP_PARAMS.categories.map((cat, i) => {
                 const Icon = getCategoryIcon(cat.icon)
-                const categoryTalent = featuredTalents.find((talent) => Boolean(talent.avatar_url) && talent.categories?.slug === cat.id)
                 return (
                   <motion.div
                     key={cat.id}
@@ -394,17 +383,13 @@ export default function Landing() {
                     <Link to="/categories" className="block h-full">
                       <Card className="h-full cursor-pointer group">
                         <CardContent className="p-0 text-left">
-                          <div className="kora-landing-category-media">
-                            {categoryTalent?.avatar_url ? (
-                              <img src={categoryTalent.avatar_url} alt="" loading="lazy" />
-                            ) : (
-                              <div className="kora-landing-category-fallback"><Icon className="h-8 w-8" strokeWidth={1.7} /></div>
-                            )}
-                          </div>
-                          <div className="p-5">
-                          <h3 className="font-bold text-foreground mb-2 line-clamp-2 min-h-[3.5rem]">{cat.name}</h3>
-                          <p className="text-sm font-semibold gold-text-gradient">
-                            {(categoryCounts[cat.id] ?? 0).toLocaleString("fr-FR")} talents
+                          <div className="flex flex-col items-center justify-center gap-4 px-5 py-8 text-center">
+                            <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-primary/10 text-primary">
+                              <Icon className="h-8 w-8" strokeWidth={1.7} />
+                            </div>
+                          <h3 className="font-bold text-foreground mb-2 line-clamp-2 min-h-[3.5rem]">{t(`landing.category${cat.id.charAt(0).toUpperCase()}${cat.id.slice(1)}`, cat.name)}</h3>
+                          <p className="text-sm font-semibold text-primary">
+                            {(categoryCounts[cat.id] ?? 0).toLocaleString(language === "en" ? "en-GB" : "fr-FR")} {t("landing.talentsCount")}
                           </p>
                           </div>
                         </CardContent>
@@ -425,7 +410,7 @@ export default function Landing() {
 
           <div className="relative px-4 sm:px-6 lg:px-8">
             <ReviewSection
-              title="L'avis de notre communauté"
+              title={t("landing.testimonialsTitle")}
               showForm={false}
             />
           </div>
@@ -442,7 +427,7 @@ export default function Landing() {
             >
               <motion.div variants={fadeInUp} custom={0}>
                 <Badge variant="default" className="mb-5 px-4 py-1.5 text-xs font-bold uppercase tracking-wider">
-                  Nos tarifs
+                  {t("landing.pricingEyebrow")}
                 </Badge>
               </motion.div>
               <motion.h2
@@ -450,7 +435,7 @@ export default function Landing() {
                 custom={1}
                 className="text-4xl sm:text-5xl font-black tracking-tight mb-5"
               >
-                Des plans simples, <span className="gold-text-gradient">sans surprise</span>
+                {t("landing.pricingTitle")} <span className="gold-text-gradient">{t("landing.pricingTitleEmphasis")}</span>
               </motion.h2>
             </motion.div>
 
@@ -463,11 +448,11 @@ export default function Landing() {
             >
               {landingDataLoading ? (
                 <div className="md:col-span-3 text-center py-12 text-sm text-muted-foreground">
-                  Chargement des offres…
+                  {t("landing.loadingPlans")}
                 </div>
               ) : planCards.length === 0 ? (
                 <div className="md:col-span-3 text-center py-12 text-sm text-muted-foreground">
-                  Les offres publiques ne sont pas disponibles pour le moment.
+                  {t("landing.unavailablePlans")}
                 </div>
               ) : (
                 planCards.map((plan, i) => (
@@ -482,7 +467,7 @@ export default function Landing() {
                   {plan.highlighted && (
                     <div className="absolute -top-4 left-1/2 -translate-x-1/2 z-10">
                       <div className="px-4 py-1.5 rounded-full gold-gradient text-xs font-black text-primary-foreground shadow-lg shadow-gold/30">
-                        ⭐ LE PLUS POPULAIRE
+                        {t("landing.mostPopular")}
                       </div>
                     </div>
                   )}
@@ -513,7 +498,7 @@ export default function Landing() {
                         variant={plan.highlighted ? "default" : "outline"}
                         onClick={() => navigate("/register")}
                       >
-                        {plan.name === "Pro" ? "Choisir Pro" : plan.name === "Business" ? "Activer Business" : "Commencer gratuitement"} <ArrowRight className="h-4 w-4" />
+                        {plan.name === "Pro" ? t("landing.choosePro") : plan.name === "Business" ? t("landing.activateBusiness") : t("landing.startFree")} <ArrowRight className="h-4 w-4" />
                       </Button>
                     </CardContent>
                   </Card>
@@ -545,15 +530,13 @@ export default function Landing() {
               >
                 <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/20 backdrop-blur-sm mb-8 border border-white/30">
                   <Heart className="h-4 w-4 fill-current" />
-                  <span className="text-sm font-bold">Rejoignez la communauté de {liveStats.find((stat) => stat.label === "Talents inscrits")?.value ?? "0"} talents africains</span>
+                  <span className="text-sm font-bold">{t("landing.ctaCommunity", undefined, { count: liveStats.find((stat) => stat.label === "Talents inscrits")?.value ?? "0" })}</span>
                 </div>
                 <h2 className="text-4xl sm:text-5xl lg:text-6xl font-black tracking-tight mb-6 leading-[1.1]">
-                  Prêt à transformer
-                  <br />
-                  votre façon de travailler ?
+                  {t("landing.ctaTitle")}
                 </h2>
                 <p className="text-lg sm:text-xl opacity-90 max-w-2xl mx-auto mb-10 font-medium leading-relaxed">
-                  Inscrivez-vous en moins de 2 minutes et commencez à trouver les opportunités ou les talents dont vous avez besoin.
+                  {t("landing.ctaDescription")}
                 </p>
                 <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
                   <Button
@@ -561,7 +544,7 @@ export default function Landing() {
                     className="bg-background text-foreground hover:bg-background/90 gap-2 font-black"
                     onClick={() => navigate("/register?role=client")}
                   >
-                    Clients <ArrowRight className="h-5 w-5" />
+                    {t("landing.clients")} <ArrowRight className="h-5 w-5" />
                   </Button>
                   <Button
                     size="lg"
@@ -570,11 +553,11 @@ export default function Landing() {
                     onClick={() => navigate("/register?role=manager")}
                   >
                     <Sparkles className="h-5 w-5" />
-                    Managers
+                    {t("landing.managers")}
                   </Button>
                 </div>
                 <p className="mt-6 text-sm opacity-80 font-medium">
-                  Sans engagement • Abonnement mensuel sans renouvellement automatique
+                  {t("landing.ctaNote")}
                 </p>
               </motion.div>
             </motion.div>
