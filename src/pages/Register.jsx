@@ -88,6 +88,7 @@ export default function Register() {
       if (result?.role === "manager") {
         const storedPlan = sessionStorage.getItem("kora_pending_subscription_plan")
         if (storedPlan && ["PRO", "BUSINESS"].includes(storedPlan)) {
+          sessionStorage.removeItem("kora_pending_subscription_plan")
           navigate(`/manager/subscription?checkout=${storedPlan}`, { replace: true })
         } else {
           navigate("/manager/dashboard", { replace: true })
@@ -202,6 +203,7 @@ export default function Register() {
                     name="role"
                     value={form.role}
                     onChange={handleChange}
+                    disabled={Boolean(pendingPlan)}
                     className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm outline-none transition-colors focus:ring-2 focus:ring-ring"
                   >
                     <option value="client">Client — je recherche des talents</option>
