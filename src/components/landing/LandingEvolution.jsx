@@ -129,15 +129,15 @@ export default function LandingEvolution({ stats = [], language = "fr" }) {
                         {currentTalent.avatar_url
                           ? <img src={currentTalent.avatar_url} alt={getName(currentTalent)} draggable="false" />
                           : <div className="kora-talent-card-placeholder"><UserRound size={48}/></div>}
-                        <span>{currentTalent.categories?.name || language === "en" ? "Featured talent" : "Talent à découvrir"}</span>
+                        <span>{currentTalent.categories?.name || (language === "en" ? "Featured talent" : "Talent à découvrir")}</span>
                       </div>
                       <div className="kora-talent-card-content">
                         <div>
                           <h4>{getName(currentTalent)}</h4>
-                          <p>{currentTalent.title || language === "en" ? "Talent profile" : "Profil talent"}</p>
+                          <p>{currentTalent.title || (language === "en" ? "Talent profile" : "Profil talent")}</p>
                         </div>
                         <div className="kora-talent-card-meta">
-                          <span><MapPin size={14}/>{currentTalent.countries?.name || currentTalent.city || language === "en" ? "Location not provided" : "Localisation non renseignée"}</span>
+                          <span><MapPin size={14}/>{currentTalent.countries?.name || currentTalent.city || (language === "en" ? "Location not provided" : "Localisation non renseignée")}</span>
                           <span><Star size={14}/>{Number(currentTalent.rating || 0) > 0 ? Number(currentTalent.rating).toFixed(1) : "—"}</span>
                         </div>
                       </div>
