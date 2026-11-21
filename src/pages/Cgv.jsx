@@ -4,7 +4,7 @@ import LandingHeader from "@/components/landing/LandingHeader.jsx"
 
 export default function Cgv() {
   return (
-    <div className="min-h-screen bg-white text-gray-900 dark:bg-gray-950 dark:text-white" kora-public-shell kora-legal-page>
+    <div className="min-h-screen bg-white text-gray-900 dark:bg-gray-950 dark:text-white kora-public-shell kora-legal-page">
       <main className="kora-content-page">
         <LandingHeader />
         <Link to="/" className="mb-8 inline-flex text-sm text-gray-500 hover:text-gray-900 dark:hover:text-white">← Retour à l'accueil</Link>
