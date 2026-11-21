@@ -2,7 +2,6 @@ import { useEffect, useState } from "react"
 import { Link, useNavigate } from "react-router-dom"
 import { motion } from "framer-motion"
 import {
-  Sparkles,
   ArrowRight,
   CheckCircle2,
   Shield,
@@ -15,7 +14,6 @@ import {
   Award,
   Target,
   Rocket,
-  Heart,
 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
@@ -24,7 +22,6 @@ import LandingHeader from "@/components/landing/LandingHeader"
 import LandingHero from "@/components/landing/LandingHero"
 import LandingEvolution from "@/components/landing/LandingEvolution.jsx"
 import LandingFooter from "@/components/landing/LandingFooter"
-import ReviewSection from "@/components/ReviewSection.jsx"
 import { APP_PARAMS } from "@/lib/app-params"
 import { getCategoryIcon } from "@/lib/categoryIcons"
 import { cn } from "@/lib/utils"
