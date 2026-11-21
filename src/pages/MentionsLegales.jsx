@@ -1,13 +1,15 @@
 import { Link } from "react-router-dom"
 import { Scale, ArrowLeft } from "lucide-react"
 import LandingFooter from "@/components/landing/LandingFooter.jsx"
+import LandingHeader from "@/components/landing/LandingHeader.jsx"
 
 export default function MentionsLegales() {
   return (
-    <div className="min-h-screen bg-white text-gray-900 dark:bg-gray-950 dark:text-white">
-      <main className="mx-auto max-w-4xl px-6 py-16">
+    <div className="min-h-screen bg-white text-gray-900 dark:bg-gray-950 dark:text-white kora-public-shell kora-legal-page">
+      <main className="kora-content-page">
+        <LandingHeader />
         <Link to="/" className="mb-8 inline-flex items-center gap-2 text-sm text-gray-500 hover:text-gray-900 dark:hover:text-white"><ArrowLeft className="h-4 w-4" />Retour à l'accueil</Link>
-        <div className="mb-10"><div className="mb-4 flex h-12 w-12 items-center justify-center rounded-xl bg-gray-100 dark:bg-gray-900"><Scale className="h-6 w-6" /></div><h1 className="text-4xl font-bold tracking-tight">Mentions légales</h1><p className="mt-4 text-sm text-gray-500">Dernière mise à jour : 5 octobre 2026</p></div>
+        <div className="mb-10 kora-page-intro"><div className="mb-4 flex h-12 w-12 items-center justify-center rounded-xl bg-gray-100 dark:bg-gray-900"><Scale className="h-6 w-6" /></div><h1 className="text-4xl font-bold tracking-tight">Mentions légales</h1><p className="mt-4 text-sm text-gray-500">Dernière mise à jour : 5 octobre 2026</p></div>
         <div className="space-y-10 leading-7 text-gray-700 dark:text-gray-300">
           <section><h2 className="mb-3 text-2xl font-semibold text-gray-900 dark:text-white">1. Éditeur</h2><p>KORA est exploité par <strong>Kienou Elvis Dan Aurèle</strong>, personne physique établie à Ouagadougou, Burkina Faso.</p><div className="mt-4 rounded-xl bg-gray-50 p-5 dark:bg-gray-900"><p><strong>Adresse :</strong> Ouagadougou, Burkina Faso</p><p><strong>Téléphone professionnel :</strong> +226 70 27 18 10</p><p><strong>E-mail :</strong> kora.contact1@gmail.com</p><p><strong>RCCM :</strong> Non communiqué à ce stade.</p><p><strong>IFU :</strong> Non communiqué à ce stade.</p></div></section>
           <section><h2 className="mb-3 text-2xl font-semibold text-gray-900 dark:text-white">2. Directeur de publication</h2><p><strong>Directeur de publication :</strong> Kienou Elvis Dan Aurèle.</p></section>

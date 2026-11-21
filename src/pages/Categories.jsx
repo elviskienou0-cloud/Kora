@@ -1,13 +1,11 @@
 import { useEffect, useMemo, useState } from "react"
-import { Link, useNavigate } from "react-router-dom"
+import { useNavigate } from "react-router-dom"
 import { motion } from "framer-motion"
 import {
-  Award,
   Grid3X3,
   Search,
   ChevronRight,
   Users,
-  Filter,
   ArrowRight,
   X,
   Star,
@@ -17,8 +15,9 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Badge } from "@/components/ui/badge"
-import { Avatar, AvatarFallback } from "@/components/ui/avatar"
-import { useAuth } from "@/lib/AuthContext"
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
+import LandingHeader from "@/components/landing/LandingHeader.jsx"
+import LandingFooter from "@/components/landing/LandingFooter.jsx"
 import { supabase } from "@/lib/supabase"
 import { APP_PARAMS } from "@/lib/app-params"
 import { getCategoryIcon } from "@/lib/categoryIcons"
@@ -71,19 +70,17 @@ function getInitials(name = "Talent") {
 
 export default function Categories() {
   const navigate = useNavigate()
-  const { isAuthenticated } = useAuth()
+
   const [active, setActive] = useState("all")
   const [search, setSearch] = useState("")
   const [showMobile, setShowMobile] = useState(false)
-  const { categoryCounts } = useKoraStats({ enabled: isAuthenticated })
+  const { categoryCounts } = useKoraStats()
 
   const [talents, setTalents] = useState([])
   const [talentsLoading, setTalentsLoading] = useState(true)
   const [talentsError, setTalentsError] = useState("")
 
   useEffect(() => {
-    if (!isAuthenticated) return undefined
-
     let mounted = true
     let channel
 
@@ -105,6 +102,7 @@ export default function Categories() {
           reviews_count,
           verified,
           available,
+          avatar_url,
           category_id,
           categories ( id, slug, name ),
           countries ( name ),
@@ -139,7 +137,7 @@ export default function Categories() {
       mounted = false
       if (channel) supabase.removeChannel(channel)
     }
-  }, [isAuthenticated])
+  }, [])
 
   const filtered = APP_PARAMS.categories.filter((c) =>
     c.name.toLowerCase().includes(search.toLowerCase())
@@ -159,22 +157,8 @@ export default function Categories() {
   const activeTalentCount = active === "all" ? allTalentCount : (categoryCounts[active] ?? 0)
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-background via-accent/10 to-background">
-      <header className="sticky top-0 z-40 bg-background/85 backdrop-blur-2xl border-b border-gold/15">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
-          <Link to="/home" className="flex items-center gap-2.5">
-            <div className="w-9 h-9 rounded-xl gold-gradient flex items-center justify-center shadow-md shadow-gold/25">
-              <Award className="h-5 w-5 text-primary-foreground" strokeWidth={2.5} />
-            </div>
-            <span className="text-xl font-black gold-text-gradient">{APP_PARAMS.name}</span>
-          </Link>
-          <div className="flex items-center gap-3">
-            <Button variant="ghost" size="icon" className="md:hidden" onClick={() => setShowMobile(!showMobile)}>
-              <Filter className="h-5 w-5" />
-            </Button>
-          </div>
-        </div>
-      </header>
+    <div className="min-h-screen bg-gradient-to-b from-background via-accent/10 to-background kora-public-shell kora-categories-page">
+      <LandingHeader />
 
       <div className="relative overflow-hidden">
         <div className="absolute inset-0 pointer-events-none">
@@ -247,6 +231,7 @@ export default function Categories() {
             {filtered.map((cat, i) => {
               const Icon = getCategoryIcon(cat.icon)
               const isActive = active === cat.id
+              const categoryTalent = talents.find((talent) => Boolean(talent.avatar_url) && categoryMatches(talent, cat.id))
               return (
                 <motion.button
                   key={cat.id}
@@ -261,11 +246,13 @@ export default function Categories() {
                       : "border-border/60 hover:border-gold/30 hover:bg-gold/5"
                   )}
                 >
-                  <div className="flex items-center justify-between mb-3">
-                    <div className="w-12 h-12 rounded-xl gold-gradient flex items-center justify-center shadow-md shadow-gold/20">
-                      <Icon className="h-6 w-6 text-primary-foreground" strokeWidth={2} />
-                    </div>
-                    {isActive && <Badge variant="gold" className="text-[10px] font-bold">Sélectionné</Badge>}
+                  <div className="kora-category-card-media">
+                    {categoryTalent?.avatar_url ? (
+                      <img src={categoryTalent.avatar_url} alt="" loading="lazy" />
+                    ) : (
+                      <div className="kora-category-card-fallback"><Icon className="h-7 w-7" strokeWidth={1.7} /></div>
+                    )}
+                    {isActive && <Badge variant="gold" className="kora-category-selected">Sélectionné</Badge>}
                   </div>
                   <h3 className="font-black text-base mb-1 line-clamp-2 min-h-[2.5rem]">{cat.name}</h3>
                   <p className="text-sm font-bold gold-text-gradient">{(categoryCounts[cat.id] ?? 0).toLocaleString("fr-FR")} talents</p>
@@ -339,6 +326,7 @@ export default function Categories() {
                     <CardContent className="p-5 space-y-4">
                       <div className="flex items-start gap-3">
                         <Avatar className="h-14 w-14 ring-2 ring-gold/30">
+                          <AvatarImage src={t.avatar_url || undefined} alt="" />
                           <AvatarFallback className="text-base">{getInitials(`${t.first_name || ""} ${t.last_name || ""}`.trim() || t.title)}</AvatarFallback>
                         </Avatar>
                         <div className="flex-1 min-w-0">
@@ -374,6 +362,7 @@ export default function Categories() {
           )}
         </motion.section>
       </main>
+      <LandingFooter />
     </div>
   )
 }

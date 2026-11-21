@@ -1,9 +1,11 @@
 import { Link } from "react-router-dom"
 import LandingFooter from "@/components/landing/LandingFooter.jsx"
+import LandingHeader from "@/components/landing/LandingHeader.jsx"
 export default function Conditions() {
   return (
-    <div className="min-h-screen bg-background text-foreground">
-      <main className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-16 sm:py-24">
+    <div className="min-h-screen bg-background text-foreground kora-public-shell kora-legal-page">
+      <main className="kora-content-page">
+        <LandingHeader />
         <Link
           to="/"
           className="inline-flex items-center text-sm text-muted-foreground hover:text-gold transition-colors mb-10"
@@ -11,7 +13,7 @@ export default function Conditions() {
           ← Retour à l'accueil
         </Link>
 
-        <div className="mb-12">
+        <div className="mb-12 kora-page-intro">
           <p className="text-sm font-medium text-gold mb-3">
             KORA
           </p>

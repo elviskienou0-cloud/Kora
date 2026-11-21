@@ -1,11 +1,13 @@
 import { Link } from "react-router-dom"
 import LandingFooter from "@/components/landing/LandingFooter.jsx"
+import LandingHeader from "@/components/landing/LandingHeader.jsx"
 
 export default function Confidentialite() {
   return (
-    <div className="min-h-screen bg-white text-gray-900 dark:bg-gray-950 dark:text-white">
-      <main className="mx-auto max-w-4xl px-6 py-16">
-        <div className="mb-10">
+    <div className="min-h-screen bg-white text-gray-900 dark:bg-gray-950 dark:text-white kora-public-shell kora-legal-page">
+      <main className="kora-content-page">
+        <LandingHeader />
+        <div className="mb-10 kora-page-intro">
           <p className="mb-3 text-sm font-medium uppercase tracking-wider text-gray-500">KORA</p>
           <h1 className="text-4xl font-bold tracking-tight">Politique de confidentialité</h1>
           <p className="mt-4 text-sm text-gray-500">Dernière mise à jour : 5 octobre 2026</p>

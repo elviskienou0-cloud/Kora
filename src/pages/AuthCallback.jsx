@@ -83,7 +83,7 @@ export default function AuthCallback() {
       authStatus !== "INITIALIZING")
 
   return (
-    <main className="min-h-screen flex items-center justify-center bg-background px-4">
+    <main className="min-h-screen flex items-center justify-center bg-background px-4 kora-public-shell kora-auth-page">
       <section className="w-full max-w-md rounded-2xl border border-border bg-card p-8 text-center shadow-sm">
         {failed ? (
           <>

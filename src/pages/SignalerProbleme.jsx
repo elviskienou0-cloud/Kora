@@ -1,11 +1,13 @@
 import { Link } from "react-router-dom"
 import { Bug, ArrowLeft, Mail } from "lucide-react"
 import LandingFooter from "@/components/landing/LandingFooter.jsx"
+import LandingHeader from "@/components/landing/LandingHeader.jsx"
 
 export default function SignalerProbleme() {
   return (
-    <div className="min-h-screen bg-white text-gray-900 dark:bg-gray-950 dark:text-white">
-      <main className="mx-auto max-w-4xl px-6 py-16">
+    <div className="min-h-screen bg-white text-gray-900 dark:bg-gray-950 dark:text-white kora-public-shell kora-legal-page">
+      <main className="kora-content-page">
+        <LandingHeader />
         <Link
           to="/"
           className="mb-8 inline-flex items-center gap-2 text-sm text-gray-500 transition hover:text-gray-900 dark:hover:text-white"
@@ -14,7 +16,7 @@ export default function SignalerProbleme() {
           Retour à l'accueil
         </Link>
 
-        <div className="mb-10">
+        <div className="mb-10 kora-page-intro">
           <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-xl bg-gray-100 dark:bg-gray-900">
             <Bug className="h-6 w-6" />
           </div>

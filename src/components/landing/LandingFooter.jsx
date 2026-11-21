@@ -35,7 +35,7 @@ const SOCIAL_LINKS = []
 
 export default function LandingFooter() {
   return (
-    <footer className="relative border-t border-border bg-card/50 mt-20">
+    <footer className="relative border-t border-border bg-card/50 mt-20 kora-public-footer">
       <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-gold/50 to-transparent" />
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 sm:py-16">

@@ -81,7 +81,7 @@ export default function Landing() {
 
           supabase
             .from("talent_profiles")
-            .select("id, first_name, last_name, title, city, daily_rate, currency, rating, reviews_count, verified, categories(name), countries(name), talent_profile_skills(skills(name))")
+            .select("id, first_name, last_name, title, city, daily_rate, currency, rating, reviews_count, verified, avatar_url, category_id, categories(name, slug), countries(name), talent_profile_skills(skills(name))")
             .eq("status", "published")
             .eq("is_visible", true)
             .order("rating", { ascending: false })
@@ -212,7 +212,7 @@ export default function Landing() {
 
 
   return (
-    <div className="min-h-screen flex flex-col">
+    <div className="min-h-screen flex flex-col kora-public-shell">
       <LandingHeader />
 
       <main id="kora-content" className="flex-1">
@@ -312,6 +312,36 @@ export default function Landing() {
           </div>
         </section>
 
+        <section id="how-it-works" className="kora-process-section">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="kora-page-intro">
+              <p className="kora-hero-eyebrow">UN PARCOURS SIMPLE</p>
+              <h2 className="text-4xl sm:text-5xl font-black tracking-tight mb-5">De la recherche à la collaboration</h2>
+              <p className="text-lg text-muted-foreground leading-relaxed">KORA facilite la mise en relation entre les clients et les managers qui accompagnent les talents.</p>
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
+              <article className="kora-process-card">
+                <span className="kora-process-number">01</span>
+                <Users className="h-6 w-6" strokeWidth={1.7} />
+                <h3>Explorez les profils publiés</h3>
+                <p>Parcourez les catégories et recherchez des talents dont les compétences correspondent à votre besoin.</p>
+              </article>
+              <article className="kora-process-card">
+                <span className="kora-process-number">02</span>
+                <Target className="h-6 w-6" strokeWidth={1.7} />
+                <h3>Contactez leur manager</h3>
+                <p>Consultez les informations du profil puis adressez votre demande au manager du talent.</p>
+              </article>
+              <article className="kora-process-card">
+                <span className="kora-process-number">03</span>
+                <Briefcase className="h-6 w-6" strokeWidth={1.7} />
+                <h3>Faites avancer votre projet</h3>
+                <p>Retrouvez vos demandes, projets et échanges dans votre espace KORA.</p>
+              </article>
+            </div>
+          </div>
+        </section>
+
         <section id="categories" className="py-24 lg:py-32 bg-gradient-to-b from-transparent via-accent/20 to-transparent">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <motion.div
@@ -352,6 +382,7 @@ export default function Landing() {
             >
               {APP_PARAMS.categories.map((cat, i) => {
                 const Icon = getCategoryIcon(cat.icon)
+                const categoryTalent = featuredTalents.find((talent) => Boolean(talent.avatar_url) && talent.categories?.slug === cat.id)
                 return (
                   <motion.div
                     key={cat.id}
@@ -362,14 +393,20 @@ export default function Landing() {
                   >
                     <Link to="/categories" className="block h-full">
                       <Card className="h-full cursor-pointer group">
-                        <CardContent className="p-6 text-center">
-                          <div className="w-16 h-16 mx-auto rounded-2xl gold-gradient flex items-center justify-center mb-4 shadow-lg shadow-gold/25 group-hover:shadow-xl group-hover:shadow-gold/40 transition-all duration-300">
-                            <Icon className="h-8 w-8 text-primary-foreground" strokeWidth={2} />
+                        <CardContent className="p-0 text-left">
+                          <div className="kora-landing-category-media">
+                            {categoryTalent?.avatar_url ? (
+                              <img src={categoryTalent.avatar_url} alt="" loading="lazy" />
+                            ) : (
+                              <div className="kora-landing-category-fallback"><Icon className="h-8 w-8" strokeWidth={1.7} /></div>
+                            )}
                           </div>
+                          <div className="p-5">
                           <h3 className="font-bold text-foreground mb-2 line-clamp-2 min-h-[3.5rem]">{cat.name}</h3>
                           <p className="text-sm font-semibold gold-text-gradient">
                             {(categoryCounts[cat.id] ?? 0).toLocaleString("fr-FR")} talents
                           </p>
+                          </div>
                         </CardContent>
                       </Card>
                     </Link>
@@ -389,7 +426,7 @@ export default function Landing() {
           <div className="relative px-4 sm:px-6 lg:px-8">
             <ReviewSection
               title="L'avis de notre communauté"
-              showForm
+              showForm={false}
             />
           </div>
         </section>

@@ -75,7 +75,7 @@ export default function Login() {
   const loading = isLoading || authLoading
 
   return (
-    <div className="min-h-screen flex items-center justify-center relative overflow-hidden bg-background py-12 px-4">
+    <div className="min-h-screen flex items-center justify-center relative overflow-hidden bg-background py-12 px-4 kora-public-shell kora-auth-page">
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
