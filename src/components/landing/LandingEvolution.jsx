@@ -106,7 +106,12 @@ export default function LandingEvolution({ stats = [], t }) {
 
             {currentTalent ? (
               <div className="kora-talent-stack" aria-label={t("landing.talentStackInstructions", "Faites glisser la carte pour découvrir d'autres talents")}>
-                {nextTalent && <div className="kora-talent-stack-card kora-talent-stack-card-back" aria-hidden="true" />}
+                {nextTalent && (
+                  <div className="kora-talent-stack-card kora-talent-stack-card-back" aria-hidden="true">
+                    {nextTalent.avatar_url && <img src={nextTalent.avatar_url} alt="" draggable="false" />}
+                    <span>{getName(nextTalent)}</span>
+                  </div>
+                )}
                 <AnimatePresence mode="popLayout">
                   <motion.div
                     key={currentTalent.id}
