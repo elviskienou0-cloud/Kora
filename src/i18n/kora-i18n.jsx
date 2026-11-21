@@ -2568,7 +2568,7 @@ const en = {
     "paymentAwaitingValidation": "Payment completed. Please wait for validation by the KORA team.",
     "paymentReturnConfirmed": "Your confirmation has been recorded. The KORA team must still verify and validate the payment before activating your subscription.",
     "paymentReference": "Reference",
-    "paymentPlanUnavailable": "The selected plan is no longer available. Please choose another plan."
+    "paymentPlanUnavailable": "The selected plan is no longer available. Please choose another plan.",
     "paymentHistory": "Payment history",
     "saspayPending": "SasPay payments remain pending until validated by an authorized administrator.",
     "choosePlan": "Choose your plan. Pro and Business subscription payments are manually validated by KORA.",
