@@ -212,7 +212,7 @@ export default function Landing() {
 
 
   return (
-    <div className="min-h-screen flex flex-col">
+    <div className="min-h-screen flex flex-col kora-public-shell">
       <LandingHeader />
 
       <main id="kora-content" className="flex-1">
@@ -312,6 +312,36 @@ export default function Landing() {
           </div>
         </section>
 
+        <section id="how-it-works" className="kora-process-section">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="kora-page-intro">
+              <p className="kora-hero-eyebrow">UN PARCOURS SIMPLE</p>
+              <h2 className="text-4xl sm:text-5xl font-black tracking-tight mb-5">De la recherche à la collaboration</h2>
+              <p className="text-lg text-muted-foreground leading-relaxed">KORA facilite la mise en relation entre les clients et les managers qui accompagnent les talents.</p>
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
+              <article className="kora-process-card">
+                <span className="kora-process-number">01</span>
+                <Users className="h-6 w-6" strokeWidth={1.7} />
+                <h3>Explorez les profils publiés</h3>
+                <p>Parcourez les catégories et recherchez des talents dont les compétences correspondent à votre besoin.</p>
+              </article>
+              <article className="kora-process-card">
+                <span className="kora-process-number">02</span>
+                <Target className="h-6 w-6" strokeWidth={1.7} />
+                <h3>Contactez leur manager</h3>
+                <p>Consultez les informations du profil puis adressez votre demande au manager du talent.</p>
+              </article>
+              <article className="kora-process-card">
+                <span className="kora-process-number">03</span>
+                <Briefcase className="h-6 w-6" strokeWidth={1.7} />
+                <h3>Faites avancer votre projet</h3>
+                <p>Retrouvez vos demandes, projets et échanges dans votre espace KORA.</p>
+              </article>
+            </div>
+          </div>
+        </section>
+
         <section id="categories" className="py-24 lg:py-32 bg-gradient-to-b from-transparent via-accent/20 to-transparent">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <motion.div
@@ -389,7 +419,7 @@ export default function Landing() {
           <div className="relative px-4 sm:px-6 lg:px-8">
             <ReviewSection
               title="L'avis de notre communauté"
-              showForm
+              showForm={false}
             />
           </div>
         </section>
