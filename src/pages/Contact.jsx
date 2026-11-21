@@ -6,7 +6,8 @@ import LandingHeader from "@/components/landing/LandingHeader.jsx"
 export default function Contact() {
   return (
     <div className="min-h-screen kora-public-shell kora-contact-page">
-      <main className="kora-content-page">\n        <LandingHeader />
+      <main className="kora-content-page">
+        <LandingHeader />
         <Link
           to="/"
           className="mb-8 inline-flex items-center gap-2 text-sm text-gray-500 transition hover:text-gray-900 dark:hover:text-white"
