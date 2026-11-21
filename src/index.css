@@ -280,7 +280,7 @@
   min-width: 172px;
   border-radius: 7px !important;
   background: #172B4D !important;
-  color: #151515 !important;
+  color: #FFFFFF !important;
   font-weight: 700 !important;
   box-shadow: none !important;
 }
@@ -508,7 +508,7 @@
   --background: 0 0% 100%; --foreground: 218 48% 20%;
   --card: 0 0% 100%; --card-foreground: 218 48% 20%;
   --popover: 0 0% 100%; --popover-foreground: 218 48% 20%;
-  --primary: 218 53% 20%; --primary-foreground: 0 0% 100%;
+  --primary: 218 54% 19.6%; --primary-foreground: 0 0% 100%;
   --secondary: 210 22% 96%; --secondary-foreground: 218 48% 20%;
   --muted: 210 22% 96%; --muted-foreground: 215 14% 43%;
   --accent: 210 22% 96%; --accent-foreground: 218 48% 20%;
@@ -536,7 +536,7 @@
 .kora-glass-header-inner { background:hsl(0 0% 100% / .88) !important; color:#172B4D !important; border-color:#dfe5ed !important; box-shadow:0 12px 34px rgb(23 43 77 / .09),inset 0 1px 0 rgb(255 255 255 / .8) !important; }
 .kora-brand-link, .kora-glass-nav-link, .kora-login-link { color:#172B4D !important; }
 .kora-glass-nav { background:rgb(241 243 246 / .72) !important; border-color:#e4e9f0 !important; }
-.kora-glass-nav-link:hover { background:rgb(196 154 66 / .12) !important; color:#172B4D !important; }
+.kora-glass-nav-link:hover { background:rgb(23 43 77 / .08) !important; color:#172B4D !important; }
 .kora-register-link { background:#172B4D !important; border-color:#172B4D !important; color:#fff !important; }
 .kora-mobile-glass-menu { background:rgb(255 255 255 / .96) !important; color:#172B4D !important; border-color:#dfe5ed !important; }
 .kora-mobile-nav-link { color:#172B4D !important; }
@@ -739,35 +739,35 @@
 
 /* KORA global design system: shared by public, client, manager and administration */
 :root {
-  --background: 210 20% 95%;
-  --foreground: 218 53% 20%;
+  --background: 216 22% 95.5%;
+  --foreground: 218 54% 19.6%;
   --card: 0 0% 100%;
-  --card-foreground: 218 53% 20%;
+  --card-foreground: 218 54% 19.6%;
   --popover: 0 0% 100%;
-  --popover-foreground: 218 53% 20%;
-  --primary: 218 53% 20%;
+  --popover-foreground: 218 54% 19.6%;
+  --primary: 218 54% 19.6%;
   --primary-foreground: 0 0% 100%;
-  --secondary: 210 20% 95%;
-  --secondary-foreground: 218 53% 20%;
-  --muted: 210 20% 95%;
+  --secondary: 216 22% 95.5%;
+  --secondary-foreground: 218 54% 19.6%;
+  --muted: 216 22% 95.5%;
   --muted-foreground: 218 20% 42%;
-  --accent: 210 20% 95%;
-  --accent-foreground: 218 53% 20%;
+  --accent: 216 22% 95.5%;
+  --accent-foreground: 218 54% 19.6%;
   --border: 218 18% 86%;
   --input: 218 18% 86%;
-  --ring: 218 53% 20%;
+  --ring: 218 54% 19.6%;
   /* Legacy gold utilities are retained as compatibility aliases, not as a brand color. */
-  --gold: 218 53% 20%;
-  --gold-light: 218 53% 20%;
-  --gold-dark: 218 53% 20%;
+  --gold: 218 54% 19.6%;
+  --gold-light: 218 54% 19.6%;
+  --gold-dark: 218 54% 19.6%;
   --sidebar-background: 0 0% 100%;
-  --sidebar-foreground: 218 53% 20%;
-  --sidebar-primary: 218 53% 20%;
+  --sidebar-foreground: 218 54% 19.6%;
+  --sidebar-primary: 218 54% 19.6%;
   --sidebar-primary-foreground: 0 0% 100%;
-  --sidebar-accent: 210 20% 95%;
-  --sidebar-accent-foreground: 218 53% 20%;
+  --sidebar-accent: 216 22% 95.5%;
+  --sidebar-accent-foreground: 218 54% 19.6%;
   --sidebar-border: 218 18% 86%;
-  --sidebar-ring: 218 53% 20%;
+  --sidebar-ring: 218 54% 19.6%;
   --font-heading: 'Manrope', system-ui, sans-serif;
   --font-body: 'Manrope', system-ui, sans-serif;
   --font-display: 'Manrope', system-ui, sans-serif;
@@ -780,7 +780,7 @@
   --popover: 218 40% 18%;
   --popover-foreground: 0 0% 100%;
   --primary: 0 0% 100%;
-  --primary-foreground: 218 53% 20%;
+  --primary-foreground: 218 54% 19.6%;
   --secondary: 218 35% 22%;
   --secondary-foreground: 0 0% 100%;
   --muted: 218 35% 22%;
@@ -796,30 +796,30 @@
   --sidebar-background: 218 47% 12%;
   --sidebar-foreground: 0 0% 100%;
   --sidebar-primary: 0 0% 100%;
-  --sidebar-primary-foreground: 218 53% 20%;
+  --sidebar-primary-foreground: 218 54% 19.6%;
   --sidebar-accent: 218 35% 22%;
   --sidebar-accent-foreground: 0 0% 100%;
   --sidebar-border: 218 24% 30%;
   --sidebar-ring: 0 0% 100%;
 }
 .kora-public-shell {
-  --background: 210 20% 95%;
-  --foreground: 218 53% 20%;
+  --background: 216 22% 95.5%;
+  --foreground: 218 54% 19.6%;
   --card: 0 0% 100%;
-  --card-foreground: 218 53% 20%;
+  --card-foreground: 218 54% 19.6%;
   --popover: 0 0% 100%;
-  --popover-foreground: 218 53% 20%;
-  --primary: 218 53% 20%;
+  --popover-foreground: 218 54% 19.6%;
+  --primary: 218 54% 19.6%;
   --primary-foreground: 0 0% 100%;
-  --secondary: 210 20% 95%;
-  --secondary-foreground: 218 53% 20%;
-  --muted: 210 20% 95%;
+  --secondary: 216 22% 95.5%;
+  --secondary-foreground: 218 54% 19.6%;
+  --muted: 216 22% 95.5%;
   --muted-foreground: 218 20% 42%;
-  --accent: 210 20% 95%;
-  --accent-foreground: 218 53% 20%;
-  --gold: 218 53% 20%;
-  --gold-light: 218 53% 20%;
-  --gold-dark: 218 53% 20%;
+  --accent: 216 22% 95.5%;
+  --accent-foreground: 218 54% 19.6%;
+  --gold: 218 54% 19.6%;
+  --gold-light: 218 54% 19.6%;
+  --gold-dark: 218 54% 19.6%;
 }
 .dark .kora-public-shell {
   --background: 218 47% 12%;
@@ -829,7 +829,7 @@
   --popover: 218 40% 18%;
   --popover-foreground: 0 0% 100%;
   --primary: 0 0% 100%;
-  --primary-foreground: 218 53% 20%;
+  --primary-foreground: 218 54% 19.6%;
   --secondary: 218 35% 22%;
   --secondary-foreground: 0 0% 100%;
   --muted: 218 35% 22%;
