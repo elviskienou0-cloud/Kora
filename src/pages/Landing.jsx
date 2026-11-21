@@ -81,7 +81,7 @@ export default function Landing() {
 
           supabase
             .from("talent_profiles")
-            .select("id, first_name, last_name, title, city, daily_rate, currency, rating, reviews_count, verified, categories(name), countries(name), talent_profile_skills(skills(name))")
+            .select("id, first_name, last_name, title, city, daily_rate, currency, rating, reviews_count, verified, avatar_url, category_id, categories(name, slug), countries(name), talent_profile_skills(skills(name))")
             .eq("status", "published")
             .eq("is_visible", true)
             .order("rating", { ascending: false })
@@ -382,6 +382,7 @@ export default function Landing() {
             >
               {APP_PARAMS.categories.map((cat, i) => {
                 const Icon = getCategoryIcon(cat.icon)
+                const categoryTalent = featuredTalents.find((talent) => Boolean(talent.avatar_url) && talent.categories?.slug === cat.id)
                 return (
                   <motion.div
                     key={cat.id}
@@ -392,14 +393,20 @@ export default function Landing() {
                   >
                     <Link to="/categories" className="block h-full">
                       <Card className="h-full cursor-pointer group">
-                        <CardContent className="p-6 text-center">
-                          <div className="w-16 h-16 mx-auto rounded-2xl gold-gradient flex items-center justify-center mb-4 shadow-lg shadow-gold/25 group-hover:shadow-xl group-hover:shadow-gold/40 transition-all duration-300">
-                            <Icon className="h-8 w-8 text-primary-foreground" strokeWidth={2} />
+                        <CardContent className="p-0 text-left">
+                          <div className="kora-landing-category-media">
+                            {categoryTalent?.avatar_url ? (
+                              <img src={categoryTalent.avatar_url} alt="" loading="lazy" />
+                            ) : (
+                              <div className="kora-landing-category-fallback"><Icon className="h-8 w-8" strokeWidth={1.7} /></div>
+                            )}
                           </div>
+                          <div className="p-5">
                           <h3 className="font-bold text-foreground mb-2 line-clamp-2 min-h-[3.5rem]">{cat.name}</h3>
                           <p className="text-sm font-semibold gold-text-gradient">
                             {(categoryCounts[cat.id] ?? 0).toLocaleString("fr-FR")} talents
                           </p>
+                          </div>
                         </CardContent>
                       </Card>
                     </Link>
