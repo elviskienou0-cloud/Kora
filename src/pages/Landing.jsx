@@ -57,6 +57,10 @@ export default function Landing() {
 
   const stats = liveStats.map((stat) => ({
     ...stat,
+    label: stat.label === "Talents inscrits" ? t("landing.statsTalents")
+      : stat.label === "Projets" ? t("landing.statsProjects")
+      : stat.label === "Pays représentés" ? t("landing.statsCountries")
+      : t("landing.statsSatisfaction"),
     icon: stat.label === "Talents inscrits" ? Users
       : stat.label === "Projets" ? Briefcase
       : stat.label === "Pays représentés" ? Globe
@@ -64,7 +68,6 @@ export default function Landing() {
   }))
 
   const [publicPlans, setPublicPlans] = useState([])
-  const [featuredTalents, setFeaturedTalents] = useState([])
   const [landingDataLoading, setLandingDataLoading] = useState(true)
 
   useEffect(() => {
@@ -74,21 +77,11 @@ export default function Landing() {
       setLandingDataLoading(true)
 
       try {
-        const [plansResult, talentsResult] = await Promise.all([
-          supabase
-            .from("plans")
-            .select("id, name, price, currency, duration_months, talent_limit, features, trial_days, annual_discount_pct, is_active")
-            .eq("is_active", true)
-            .order("price", { ascending: true }),
-
-          supabase
-            .from("talent_profiles")
-            .select("id, first_name, last_name, title, city, daily_rate, currency, rating, reviews_count, verified, avatar_url, category_id, categories(name, slug), countries(name), talent_profile_skills(skills(name))")
-            .eq("status", "published")
-            .eq("is_visible", true)
-            .order("rating", { ascending: false })
-            .limit(3),
-        ])
+        const plansResult = await supabase
+          .from("plans")
+          .select("id, name, price, currency, duration_months, talent_limit, features, trial_days, annual_discount_pct, is_active")
+          .eq("is_active", true)
+          .order("price", { ascending: true })
 
         if (cancelled) return
 
@@ -99,12 +92,6 @@ export default function Landing() {
           setPublicPlans(plansResult.data || [])
         }
 
-        if (talentsResult.error) {
-          console.error("Erreur chargement talents mis en avant :", talentsResult.error)
-          setFeaturedTalents([])
-        } else {
-          setFeaturedTalents(talentsResult.data || [])
-        }
       } finally {
         if (!cancelled) setLandingDataLoading(false)
       }
