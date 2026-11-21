@@ -239,133 +239,6 @@ export default function Landing() {
       <main id="kora-content" className="flex-1">
         <LandingHero />
 
-        <section className="py-16 border-y border-gold/15 bg-gradient-to-b from-accent/20 via-transparent to-transparent">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <h2 className="mb-8 text-center text-2xl font-black tracking-tight sm:text-3xl">
-              {t("landing.evolutionTitle")}
-            </h2>
-            <motion.div
-              initial="hidden"
-              whileInView="visible"
-              viewport={{ once: true, margin: "-100px" }}
-              variants={staggerContainer}
-              className="grid grid-cols-2 lg:grid-cols-4 gap-8"
-            >
-              {stats.map((stat, i) => {
-                const Icon = stat.icon
-                return (
-                  <motion.div
-                    key={stat.label}
-                    variants={fadeInUp}
-                    custom={i}
-                    className="text-center group"
-                  >
-                    <div className="inline-flex items-center justify-center w-14 h-14 rounded-2xl bg-gold/10 mb-4 group-hover:bg-gold/20 transition-colors">
-                      <Icon className="h-7 w-7 text-gold-dark" strokeWidth={2} />
-                    </div>
-                    <div className="text-3xl sm:text-4xl font-black gold-text-gradient mb-2">{stat.value}</div>
-                    <div className="text-sm font-semibold text-muted-foreground">{stat.label}</div>
-                  </motion.div>
-                )
-              })}
-            </motion.div>
-          </div>
-        </section>
-
-        <section id="features" className="py-24 lg:py-32">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <motion.div
-              initial="hidden"
-              whileInView="visible"
-              viewport={{ once: true, margin: "-100px" }}
-              variants={staggerContainer}
-              className="text-center max-w-3xl mx-auto mb-16"
-            >
-              <motion.div variants={fadeInUp} custom={0}>
-                <Badge variant="gold" className="mb-5 px-4 py-1.5 text-xs font-bold uppercase tracking-wider">
-                  {t("landing.featureBadge")}
-                </Badge>
-              </motion.div>
-              <motion.h2
-                variants={fadeInUp}
-                custom={1}
-                className="text-4xl sm:text-5xl font-black tracking-tight mb-5"
-              >
-                {t("landing.featureTitle")}{" "}
-                <span className="gold-text-gradient">{t("landing.featureTitleEmphasis")}</span>
-              </motion.h2>
-              <motion.p
-                variants={fadeInUp}
-                custom={2}
-                className="text-lg text-muted-foreground leading-relaxed"
-              >
-                {t("landing.featureDescription")}
-              </motion.p>
-            </motion.div>
-
-            <motion.div
-              initial="hidden"
-              whileInView="visible"
-              viewport={{ once: true, margin: "-100px" }}
-              variants={staggerContainer}
-              className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
-            >
-              {features.map((feature, i) => {
-                const Icon = feature.icon
-                return (
-                  <motion.div
-                    key={feature.title}
-                    variants={fadeInUp}
-                    custom={i}
-                    whileHover={{ y: -6 }}
-                    transition={{ type: "spring", stiffness: 300 }}
-                  >
-                    <Card className="h-full overflow-hidden">
-                      <CardContent className="p-7">
-                        <div className={cn("w-14 h-14 rounded-2xl flex items-center justify-center mb-5 bg-gradient-to-br", feature.color)}>
-                          <Icon className={cn("h-7 w-7", feature.iconColor)} strokeWidth={2} />
-                        </div>
-                        <h3 className="text-xl font-bold mb-3">{feature.title}</h3>
-                        <p className="text-muted-foreground leading-relaxed">{feature.description}</p>
-                      </CardContent>
-                    </Card>
-                  </motion.div>
-                )
-              })}
-            </motion.div>
-          </div>
-        </section>
-
-        <section id="how-it-works" className="kora-process-section">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div className="kora-page-intro">
-              <p className="kora-hero-eyebrow">{t("landing.processEyebrow")}</p>
-              <h2 className="text-4xl sm:text-5xl font-black tracking-tight mb-5">{t("landing.processTitle")}</h2>
-              <p className="text-lg text-muted-foreground leading-relaxed">{t("landing.processDescription")}</p>
-            </div>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
-              <article className="kora-process-card">
-                <span className="kora-process-number">01</span>
-                <Users className="h-6 w-6" strokeWidth={1.7} />
-                <h3>{t("landing.processStep1Title")}</h3>
-                <p>{t("landing.processStep1Description")}</p>
-              </article>
-              <article className="kora-process-card">
-                <span className="kora-process-number">02</span>
-                <Target className="h-6 w-6" strokeWidth={1.7} />
-                <h3>{t("landing.processStep2Title")}</h3>
-                <p>{t("landing.processStep2Description")}</p>
-              </article>
-              <article className="kora-process-card">
-                <span className="kora-process-number">03</span>
-                <Briefcase className="h-6 w-6" strokeWidth={1.7} />
-                <h3>{t("landing.processStep3Title")}</h3>
-                <p>{t("landing.processStep3Description")}</p>
-              </article>
-            </div>
-          </div>
-        </section>
-
         <section id="categories" className="py-24 lg:py-32 bg-gradient-to-b from-transparent via-accent/20 to-transparent">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <motion.div
@@ -434,6 +307,133 @@ export default function Landing() {
               })}
             </motion.div>
 
+          </div>
+        </section>
+
+        <section id="how-it-works" className="kora-process-section">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="kora-page-intro">
+              <p className="kora-hero-eyebrow">{t("landing.processEyebrow")}</p>
+              <h2 className="text-4xl sm:text-5xl font-black tracking-tight mb-5">{t("landing.processTitle")}</h2>
+              <p className="text-lg text-muted-foreground leading-relaxed">{t("landing.processDescription")}</p>
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
+              <article className="kora-process-card">
+                <span className="kora-process-number">01</span>
+                <Users className="h-6 w-6" strokeWidth={1.7} />
+                <h3>{t("landing.processStep1Title")}</h3>
+                <p>{t("landing.processStep1Description")}</p>
+              </article>
+              <article className="kora-process-card">
+                <span className="kora-process-number">02</span>
+                <Target className="h-6 w-6" strokeWidth={1.7} />
+                <h3>{t("landing.processStep2Title")}</h3>
+                <p>{t("landing.processStep2Description")}</p>
+              </article>
+              <article className="kora-process-card">
+                <span className="kora-process-number">03</span>
+                <Briefcase className="h-6 w-6" strokeWidth={1.7} />
+                <h3>{t("landing.processStep3Title")}</h3>
+                <p>{t("landing.processStep3Description")}</p>
+              </article>
+            </div>
+          </div>
+        </section>
+
+        <section id="features" className="py-24 lg:py-32">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <motion.div
+              initial="hidden"
+              whileInView="visible"
+              viewport={{ once: true, margin: "-100px" }}
+              variants={staggerContainer}
+              className="text-center max-w-3xl mx-auto mb-16"
+            >
+              <motion.div variants={fadeInUp} custom={0}>
+                <Badge variant="gold" className="mb-5 px-4 py-1.5 text-xs font-bold uppercase tracking-wider">
+                  {t("landing.featureBadge")}
+                </Badge>
+              </motion.div>
+              <motion.h2
+                variants={fadeInUp}
+                custom={1}
+                className="text-4xl sm:text-5xl font-black tracking-tight mb-5"
+              >
+                {t("landing.featureTitle")}{" "}
+                <span className="gold-text-gradient">{t("landing.featureTitleEmphasis")}</span>
+              </motion.h2>
+              <motion.p
+                variants={fadeInUp}
+                custom={2}
+                className="text-lg text-muted-foreground leading-relaxed"
+              >
+                {t("landing.featureDescription")}
+              </motion.p>
+            </motion.div>
+
+            <motion.div
+              initial="hidden"
+              whileInView="visible"
+              viewport={{ once: true, margin: "-100px" }}
+              variants={staggerContainer}
+              className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
+            >
+              {features.map((feature, i) => {
+                const Icon = feature.icon
+                return (
+                  <motion.div
+                    key={feature.title}
+                    variants={fadeInUp}
+                    custom={i}
+                    whileHover={{ y: -6 }}
+                    transition={{ type: "spring", stiffness: 300 }}
+                  >
+                    <Card className="h-full overflow-hidden">
+                      <CardContent className="p-7">
+                        <div className={cn("w-14 h-14 rounded-2xl flex items-center justify-center mb-5 bg-gradient-to-br", feature.color)}>
+                          <Icon className={cn("h-7 w-7", feature.iconColor)} strokeWidth={2} />
+                        </div>
+                        <h3 className="text-xl font-bold mb-3">{feature.title}</h3>
+                        <p className="text-muted-foreground leading-relaxed">{feature.description}</p>
+                      </CardContent>
+                    </Card>
+                  </motion.div>
+                )
+              })}
+            </motion.div>
+          </div>
+        </section>
+
+        <section id="evolutions" className="py-16 border-y border-gold/15 bg-gradient-to-b from-accent/20 via-transparent to-transparent">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <h2 className="mb-8 text-center text-2xl font-black tracking-tight sm:text-3xl">
+              {t("landing.evolutionTitle")}
+            </h2>
+            <motion.div
+              initial="hidden"
+              whileInView="visible"
+              viewport={{ once: true, margin: "-100px" }}
+              variants={staggerContainer}
+              className="grid grid-cols-2 lg:grid-cols-4 gap-8"
+            >
+              {stats.map((stat, i) => {
+                const Icon = stat.icon
+                return (
+                  <motion.div
+                    key={stat.label}
+                    variants={fadeInUp}
+                    custom={i}
+                    className="text-center group"
+                  >
+                    <div className="inline-flex items-center justify-center w-14 h-14 rounded-2xl bg-gold/10 mb-4 group-hover:bg-gold/20 transition-colors">
+                      <Icon className="h-7 w-7 text-gold-dark" strokeWidth={2} />
+                    </div>
+                    <div className="text-3xl sm:text-4xl font-black gold-text-gradient mb-2">{stat.value}</div>
+                    <div className="text-sm font-semibold text-muted-foreground">{stat.label}</div>
+                  </motion.div>
+                )
+              })}
+            </motion.div>
           </div>
         </section>
 
@@ -543,7 +543,7 @@ export default function Landing() {
           </div>
         </section>
 
-        <section className="py-24 lg:py-32">
+        <section id="final-cta" className="py-24 lg:py-32">
           <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
             <motion.div
               initial="hidden"

@@ -10,7 +10,7 @@ const FOOTER_LINKS = {
     { label: "footerHome", href: "/" },
     { label: "footerCategories", href: "/categories" },
     { label: "footerBecomeManager", href: "/register?role=manager" },
-    { label: "footerPricing", href: "#pricing" },
+    { label: "footerPricing", href: "/#pricing" },
   ],
   footerSupport: [
     { label: "footerHelp", href: "/faq" },
