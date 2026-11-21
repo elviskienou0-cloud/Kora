@@ -14,7 +14,7 @@ import { useI18n } from "@/i18n/kora-i18n.jsx"
 const STATUS_CONFIG = {
   draft: { labelKey: "projects.draft", className: "bg-slate-500/10 text-slate-600 border-slate-500/30" },
   open: { labelKey: "projects.open", className: "bg-emerald-500/10 text-emerald-600 border-emerald-500/30" },
-  pending: { labelKey: "projects.pending", className: "bg-amber-500/10 text-amber-700 border-amber-500/30" },
+  pending: { labelKey: "projects.pending", className: "bg-primary/10 text-primary border-primary/20" },
   active: { labelKey: "projects.active", className: "bg-blue-500/10 text-blue-600 border-blue-500/30" },
   completed: { labelKey: "projects.completed", className: "bg-violet-500/10 text-violet-600 border-violet-500/30" },
   cancelled: { labelKey: "projects.cancelled", className: "bg-red-500/10 text-red-600 border-red-500/30" },
