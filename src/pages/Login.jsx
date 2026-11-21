@@ -15,12 +15,14 @@ import {
 } from "@/components/ui/card"
 
 import { useAuth } from "@/lib/AuthContext"
+import { useI18n } from "@/i18n/kora-i18n.jsx"
 import { APP_PARAMS } from "@/lib/app-params"
 import koraLogo from "@/assets/kora-logo.svg"
 
 export default function Login() {
   const navigate = useNavigate()
   const { login, isLoading: authLoading } = useAuth()
+  const { t } = useI18n()
 
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
@@ -48,6 +50,18 @@ export default function Login() {
       toast.success("Connexion réussie !", {
         description: "Bienvenue sur KORA.",
       })
+
+      const pendingPlan = sessionStorage.getItem("kora_pending_subscription_plan")
+      if (connectedUser?.role === "manager" && ["PRO", "BUSINESS"].includes(pendingPlan)) {
+        sessionStorage.removeItem("kora_pending_subscription_plan")
+        navigate(`/manager/subscription?checkout=${pendingPlan}`, { replace: true })
+        return
+      }
+
+      if (pendingPlan && connectedUser?.role !== "manager") {
+        sessionStorage.removeItem("kora_pending_subscription_plan")
+        toast.error(t("landing.managerAccountRequired"))
+      }
 
       const destination =
         connectedUser?.role === "superadmin"

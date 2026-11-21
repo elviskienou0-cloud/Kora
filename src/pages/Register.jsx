@@ -16,6 +16,8 @@ export default function Register() {
   const { register } = useAuth()
 
   const requestedRole = searchParams.get("role")
+  const requestedPlan = String(searchParams.get("plan") || "").toUpperCase()
+  const pendingPlan = ["PRO", "BUSINESS"].includes(requestedPlan) ? requestedPlan : null
   const initialRole = requestedRole === "manager" ? "manager" : "client"
 
   const [form, setForm] = useState({
@@ -65,6 +67,7 @@ export default function Register() {
     setLoading(true)
 
     try {
+      if (pendingPlan) sessionStorage.setItem("kora_pending_subscription_plan", pendingPlan)
       const result = await register({
         ...form,
         firstName: form.firstName.trim(),
@@ -83,7 +86,13 @@ export default function Register() {
       }
 
       if (result?.role === "manager") {
-        navigate("/manager/dashboard", { replace: true })
+        const storedPlan = sessionStorage.getItem("kora_pending_subscription_plan")
+        if (storedPlan && ["PRO", "BUSINESS"].includes(storedPlan)) {
+          sessionStorage.removeItem("kora_pending_subscription_plan")
+          navigate(`/manager/subscription?checkout=${storedPlan}`, { replace: true })
+        } else {
+          navigate("/manager/dashboard", { replace: true })
+        }
       } else {
         navigate("/client/dashboard", { replace: true })
       }
@@ -194,6 +203,7 @@ export default function Register() {
                     name="role"
                     value={form.role}
                     onChange={handleChange}
+                    disabled={Boolean(pendingPlan)}
                     className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm outline-none transition-colors focus:ring-2 focus:ring-ring"
                   >
                     <option value="client">Client — je recherche des talents</option>

@@ -30,6 +30,8 @@ import { cn } from "@/lib/utils"
 import { useKoraStats } from "@/lib/useKoraStats"
 import { supabase } from "@/lib/supabase"
 import { useI18n } from "@/i18n/kora-i18n.jsx"
+import { useAuth } from "@/lib/AuthContext"
+import { toast } from "sonner"
 
 const fadeInUp = {
   hidden: { opacity: 0, y: 30 },
@@ -48,6 +50,7 @@ const staggerContainer = {
 export default function Landing() {
   const navigate = useNavigate()
   const { t, language } = useI18n()
+  const { user } = useAuth()
 
   useEffect(() => {
     window.scrollTo(0, 0)
@@ -142,6 +145,32 @@ export default function Landing() {
       period: plan.name === "Gratuit" ? "" : t("landing.perMonth"),
     }))
 
+  const handlePlanSelection = (plan) => {
+    const planId = String(plan?.id || "").toUpperCase()
+    if (planId === "FREE") {
+      navigate("/register?role=manager")
+      return
+    }
+    if (!["PRO", "BUSINESS"].includes(planId)) return
+
+    if (user?.role === "manager") {
+      navigate(`/manager/subscription?checkout=${planId}`)
+      return
+    }
+
+    if (user) {
+      toast.error(t("landing.managerAccountRequired"))
+      return
+    }
+
+    try {
+      sessionStorage.setItem("kora_pending_subscription_plan", planId)
+    } catch {
+      // The plan is also carried in the registration URL.
+    }
+    navigate(`/register?role=manager&plan=${planId}`)
+  }
+
   const categoryLabels = {
     music: t("landing.categoryMusic"),
     fashion: t("landing.categoryFashion"),
@@ -212,6 +241,9 @@ export default function Landing() {
 
         <section className="py-16 border-y border-gold/15 bg-gradient-to-b from-accent/20 via-transparent to-transparent">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <h2 className="mb-8 text-center text-2xl font-black tracking-tight sm:text-3xl">
+              {t("landing.evolutionTitle")}
+            </h2>
             <motion.div
               initial="hidden"
               whileInView="visible"
@@ -498,7 +530,7 @@ export default function Landing() {
                       <Button
                         className="w-full gap-2 font-bold"
                         variant={plan.highlighted ? "default" : "outline"}
-                        onClick={() => navigate("/register")}
+                        onClick={() => handlePlanSelection(plan)}
                       >
                         {plan.name === "Pro" ? t("landing.choosePro") : plan.name === "Business" ? t("landing.activateBusiness") : t("landing.startFree")} <ArrowRight className="h-4 w-4" />
                       </Button>

@@ -55,9 +55,16 @@ export default function AuthCallback() {
           ? await refreshProfile()
           : user
 
-        const destination =
-          ROLE_DASHBOARDS[String(currentUser.role || "").toLowerCase()]
+        const role = String(currentUser.role || "").toLowerCase()
+        const pendingPlan = sessionStorage.getItem("kora_pending_subscription_plan")
+        if (role === "manager" && ["PRO", "BUSINESS"].includes(pendingPlan)) {
+          sessionStorage.removeItem("kora_pending_subscription_plan")
+          navigate(`/manager/subscription?checkout=${pendingPlan}`, { replace: true })
+          return
+        }
+        if (pendingPlan) sessionStorage.removeItem("kora_pending_subscription_plan")
 
+        const destination = ROLE_DASHBOARDS[role]
         if (!destination) {
           throw new Error("Votre profil KORA ne possède aucun rôle autorisé.")
         }
