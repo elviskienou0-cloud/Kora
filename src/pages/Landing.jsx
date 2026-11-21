@@ -237,7 +237,7 @@ export default function Landing() {
     <div className="min-h-screen flex flex-col kora-public-shell">
           <LandingHero />
 
-        <LandingEvolution stats={stats} t={t} language={language} />
+        <LandingEvolution stats={stats} language={language} />
 
         <section id="how-it-works" className="kora-process-section">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
