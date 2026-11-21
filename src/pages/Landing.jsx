@@ -253,25 +253,25 @@ export default function Landing() {
                 <h3>{t("landing.processStep1Title")}</h3>
                 <p>{t("landing.processStep1Description")}</p>
               </motion.article>
-              <article className="kora-process-card">
+              <motion.article initial={{ opacity: 0, y: 24 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true, amount: 0.35 }} whileHover={{ y: -6 }} transition={{ duration: 0.45 }} className="kora-process-card">
                 <span className="kora-process-number">02</span>
                 <Target className="h-6 w-6" strokeWidth={1.7} />
                 <h3>{t("landing.processStep2Title")}</h3>
                 <p>{t("landing.processStep2Description")}</p>
-              </article>
-              <article className="kora-process-card">
+              </motion.article>
+              <motion.article initial={{ opacity: 0, y: 24 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true, amount: 0.35 }} whileHover={{ y: -6 }} transition={{ duration: 0.45 }} className="kora-process-card">
                 <span className="kora-process-number">03</span>
                 <Briefcase className="h-6 w-6" strokeWidth={1.7} />
                 <h3>{t("landing.processStep3Title")}</h3>
                 <p>{t("landing.processStep3Description")}</p>
-              </article>
+              </motion.article>
             </div>
           </div>
         </section>
 
 
 
-        <LandingHero />
+        
 
 
 
