@@ -9,7 +9,7 @@ const NAV_LINKS = [
   { href: "/categories", label: "Catégories", en: "Categories", type: "route" },
   { href: "#pricing", label: "Abonnement", en: "Pricing", type: "anchor" },
   { href: "/faq", label: "FAQ", en: "FAQ", type: "route" },
-  { href: "/contact", label: "Information", en: "Information", type: "route" },
+  { href: "/contact", label: "Contact", en: "Contact", type: "route" },
 ]
 
 export default function LandingHeader() {
