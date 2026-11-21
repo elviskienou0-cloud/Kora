@@ -95,7 +95,7 @@ export default function Register() {
   }
 
   return (
-    <main className="min-h-screen bg-background px-4 py-10 sm:py-14">
+    <main className="min-h-screen bg-background px-4 py-10 sm:py-14 kora-public-shell kora-auth-page">
       <div className="mx-auto flex w-full max-w-md flex-col justify-center">
         <Link to="/" className="mx-auto mb-8 flex items-center gap-3 group">
           <div className="h-12 w-12 overflow-hidden rounded-2xl shadow-sm ring-1 ring-border transition-all group-hover:scale-105 group-hover:ring-gold/50">
