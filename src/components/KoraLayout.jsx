@@ -870,7 +870,7 @@ export default function KoraLayout() {
             <div className="flex items-center gap-2">
               <LanguageSwitcher compact />
 
-              {role !== "superadmin" && (
+              {(
               <button
                 type="button"
                 onClick={() =>

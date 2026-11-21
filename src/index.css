@@ -188,7 +188,7 @@
   position: absolute;
   top: 0;
   left: calc(50% - 210px);
-  color: #d7ad35;
+  color: #172B4D;
   font-size: 9px;
   font-weight: 700;
   letter-spacing: .12em;
@@ -247,7 +247,7 @@
   line-height: 1;
 }
 .kora-wordmark span {
-  color: #e8b72d;
+  color: #172B4D;
 }
 .kora-tagline {
   margin-top: 9px;
@@ -266,7 +266,7 @@
   letter-spacing: -.035em;
 }
 .kora-landing-copy h1 span {
-  color: #e8b72d;
+  color: #172B4D;
 }
 .kora-hero-description {
   max-width: 590px;
@@ -279,13 +279,13 @@
   margin-top: 28px;
   min-width: 172px;
   border-radius: 7px !important;
-  background: #e8b72d !important;
-  color: #151515 !important;
+  background: #172B4D !important;
+  color: #FFFFFF !important;
   font-weight: 700 !important;
   box-shadow: none !important;
 }
 .kora-start-button:hover {
-  background: #f0c94f !important;
+  background: #314B70 !important;
 }
 .kora-scroll-cue {
   position: absolute;
@@ -300,7 +300,7 @@
   text-decoration: none;
 }
 .kora-scroll-cue:hover {
-  color: #e8b72d;
+  color: #172B4D;
 }
 @media (max-width: 900px) {
   .kora-landing-hero {
@@ -508,7 +508,7 @@
   --background: 0 0% 100%; --foreground: 218 48% 20%;
   --card: 0 0% 100%; --card-foreground: 218 48% 20%;
   --popover: 0 0% 100%; --popover-foreground: 218 48% 20%;
-  --primary: 218 53% 20%; --primary-foreground: 0 0% 100%;
+  --primary: 218 54% 19.6%; --primary-foreground: 0 0% 100%;
   --secondary: 210 22% 96%; --secondary-foreground: 218 48% 20%;
   --muted: 210 22% 96%; --muted-foreground: 215 14% 43%;
   --accent: 210 22% 96%; --accent-foreground: 218 48% 20%;
@@ -536,7 +536,7 @@
 .kora-glass-header-inner { background:hsl(0 0% 100% / .88) !important; color:#172B4D !important; border-color:#dfe5ed !important; box-shadow:0 12px 34px rgb(23 43 77 / .09),inset 0 1px 0 rgb(255 255 255 / .8) !important; }
 .kora-brand-link, .kora-glass-nav-link, .kora-login-link { color:#172B4D !important; }
 .kora-glass-nav { background:rgb(241 243 246 / .72) !important; border-color:#e4e9f0 !important; }
-.kora-glass-nav-link:hover { background:rgb(196 154 66 / .12) !important; color:#172B4D !important; }
+.kora-glass-nav-link:hover { background:rgb(23 43 77 / .08) !important; color:#172B4D !important; }
 .kora-register-link { background:#172B4D !important; border-color:#172B4D !important; color:#fff !important; }
 .kora-mobile-glass-menu { background:rgb(255 255 255 / .96) !important; color:#172B4D !important; border-color:#dfe5ed !important; }
 .kora-mobile-nav-link { color:#172B4D !important; }
@@ -555,12 +555,12 @@
 .kora-phone-home { background:#aab5c4; bottom:8px; }
 .kora-phone-topbar { display:flex; align-items:center; justify-content:space-between; margin-bottom:18px; color:#66758a; }
 .kora-phone-brand { color:#172B4D; font-size:15px; font-weight:850; letter-spacing:-.06em; }
-.kora-phone-brand span { color:#C49A42; }
+.kora-phone-brand span { color:#172B4D; }
 .kora-phone-eyebrow { margin:0 0 5px; color:#738198; font-size:9px; font-weight:800; letter-spacing:.12em; }
 .kora-phone-title { margin:0 0 14px; color:#172B4D; font-size:15px; line-height:1.25; font-weight:800; }
 .kora-phone-search { display:flex; align-items:center; gap:7px; padding:9px; margin-bottom:16px; border:1px solid #e1e7ef; border-radius:10px; background:#f6f8fb; color:#8b97a8; font-size:9px; }
 .kora-phone-row { display:flex; justify-content:space-between; align-items:center; gap:6px; margin:0 0 9px; color:#31435c; font-size:9px; font-weight:800; }
-.kora-phone-link { color:#9b762e; font-size:8px; font-weight:800; }
+.kora-phone-link { color:#172B4D; font-size:8px; font-weight:800; }
 .kora-phone-category-grid { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:7px; margin-bottom:16px; }
 .kora-phone-category { display:flex; align-items:center; gap:6px; min-width:0; padding:8px 6px; border:1px solid #e7ebf1; border-radius:9px; color:#43536a; font-size:8px; font-weight:700; }
 .kora-phone-category-mark { width:15px; height:15px; flex:0 0 auto; border-radius:5px; background:#e8edf4; box-shadow:inset 0 0 0 4px #f5f7fa; }
@@ -572,18 +572,18 @@
 .kora-phone-skeleton i:last-child { width:38%; }
 .kora-phone-create { display:flex; justify-content:space-between; align-items:center; padding:10px 11px; margin:3px 0 13px; border-radius:9px; background:#172B4D; color:#fff; font-size:9px; font-weight:800; }
 .kora-phone-manager-grid { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:7px; margin-bottom:15px; }
-.kora-phone-manager-grid > div { display:grid; gap:8px; padding:10px 8px; border:1px solid #e6ebf2; border-radius:9px; color:#9b762e; }
+.kora-phone-manager-grid > div { display:grid; gap:8px; padding:10px 8px; border:1px solid #e6ebf2; border-radius:9px; color:#172B4D; }
 .kora-phone-manager-grid span { color:#53637a; font-size:8px; font-weight:700; }
 .kora-phone-status { width:6px; height:6px; border-radius:50%; background:#5e9b79; }
 .kora-phone-bottomline { display:flex; align-items:center; gap:6px; padding-top:10px; margin-top:10px; border-top:1px solid #e7ebf1; color:#6d7b8e; font-size:8px; }
 .kora-landing-copy { max-width:680px; }
-.kora-hero-eyebrow { margin:0 0 18px; color:#9b762e; font-size:11px; font-weight:800; letter-spacing:.16em; }
+.kora-hero-eyebrow { margin:0 0 18px; color:#172B4D; font-size:11px; font-weight:800; letter-spacing:.16em; }
 .kora-landing-copy h1 { margin:0; max-width:680px; color:#172B4D !important; font-size:clamp(38px,4.2vw,64px); font-weight:800; line-height:1.08; letter-spacing:-.055em; }
 .kora-hero-description { margin-top:22px; color:#5d6c80 !important; font-size:clamp(14px,1.2vw,17px); line-height:1.8; }
 .kora-start-button { min-height:50px; margin-top:30px; padding:0 25px !important; border-radius:11px !important; background:#172B4D !important; color:#fff !important; box-shadow:0 10px 22px rgb(23 43 77 / .16) !important; }
 .kora-start-button:hover { background:#223d68 !important; transform:translateY(-1px); }
 .kora-scroll-cue { color:#78869a; }
-.kora-scroll-cue:hover { color:#9b762e; }
+.kora-scroll-cue:hover { color:#172B4D; }
 
 /* Spacious sections, left-aligned headings, restrained cards */
 #kora-content > section:not(.kora-landing-hero) { padding-block:clamp(76px,8vw,124px); }
@@ -601,7 +601,7 @@
 .dark .kora-process-section { background:#0f1a2a; }
 .kora-process-section > div { max-width:1480px; }
 .kora-process-card { position:relative; min-height:220px; padding:28px; border:1px solid #e1e6ee; border-radius:18px; background:#fff; color:#172B4D; box-shadow:0 12px 32px rgb(23 43 77 / .045); }
-.kora-process-card svg { color:#C49A42; margin-bottom:26px; }
+.kora-process-card svg { color:#172B4D; margin-bottom:26px; }
 .kora-process-card h3 { margin:0 0 10px; font-size:18px; font-weight:800; }
 .kora-process-card p { color:#68778b; font-size:14px; line-height:1.7; }
 .kora-process-number { position:absolute; top:24px; right:25px; color:#aab5c4; font-size:12px; font-weight:800; letter-spacing:.12em; }
@@ -611,10 +611,10 @@
 /* Premium navy footer */
 .kora-public-footer { margin-top:0 !important; border:0 !important; background:#172B4D !important; color:#fff !important; }
 .kora-public-footer .text-foreground, .kora-public-footer .text-muted-foreground, .kora-public-footer h4, .kora-public-footer p, .kora-public-footer a, .kora-public-footer span { color:rgb(255 255 255 / .78); }
-.kora-public-footer a:hover { color:#e3c37e !important; }
+.kora-public-footer a:hover { color:#FFFFFF !important; }
 .kora-public-footer .gold-text-gradient { background:none; color:#fff; -webkit-text-fill-color:#fff; }
 .kora-public-footer .border-border { border-color:rgb(255 255 255 / .18) !important; }
-.kora-public-footer .text-gold { color:#d8b66b !important; }
+.kora-public-footer .text-gold { color:#FFFFFF !important; }
 
 /* Public information pages */
 .kora-content-page { width:min(1440px,100%); margin:0 auto; padding:clamp(112px,12vw,160px) clamp(20px,4vw,64px) clamp(76px,8vw,120px); }
@@ -663,12 +663,12 @@
 .kora-landing-category-media { position:relative; height:190px; overflow:hidden; border-radius:16px 16px 0 0; background:#e9eef4; }
 .kora-landing-category-media img { width:100%; height:100%; object-fit:cover; transition:transform .45s ease; }
 .kora-public-shell a:hover .kora-landing-category-media img { transform:scale(1.035); }
-.kora-landing-category-fallback { width:100%; height:100%; display:grid; place-items:center; color:#9b762e; background:linear-gradient(145deg,#f1f3f6,#e4eaf2); }
+.kora-landing-category-fallback { width:100%; height:100%; display:grid; place-items:center; color:#172B4D; background:linear-gradient(145deg,#f1f3f6,#e4eaf2); }
 .kora-category-card-media { position:relative; height:112px; margin:-1.25rem -1.25rem 1rem; overflow:hidden; border-radius:14px 14px 0 0; background:#e9eef4; }
 .kora-category-card-media img { width:100%; height:100%; object-fit:cover; }
-.kora-category-card-fallback { width:100%; height:100%; display:grid; place-items:center; color:#9b762e; background:linear-gradient(145deg,#f1f3f6,#e4eaf2); }
+.kora-category-card-fallback { width:100%; height:100%; display:grid; place-items:center; color:#172B4D; background:linear-gradient(145deg,#f1f3f6,#e4eaf2); }
 .kora-category-selected { position:absolute; right:10px; top:10px; }
-.dark .kora-landing-category-fallback, .dark .kora-category-card-fallback { background:linear-gradient(145deg,#243248,#1a273b); color:#d8b66b; }
+.dark .kora-landing-category-fallback, .dark .kora-category-card-fallback { background:linear-gradient(145deg,#243248,#1a273b); color:#FFFFFF; }
 @media (max-width:560px) { .kora-landing-category-media { height:138px; } .kora-category-card-media { height:96px; } }
 
 
@@ -676,7 +676,7 @@
 .dark .kora-public-shell .kora-landing-hero { background:#101d32 !important; color:#f4f7fb !important; }
 .dark .kora-public-shell .kora-landing-copy h1 { color:#f4f7fb !important; }
 .dark .kora-public-shell .kora-hero-description { color:#bac6d6 !important; }
-.dark .kora-public-shell .kora-hero-eyebrow { color:#d8b66b; }
+.dark .kora-public-shell .kora-hero-eyebrow { color:#FFFFFF; }
 .dark .kora-public-shell .kora-phone { border-color:#33445d; background:#0d192b; box-shadow:0 24px 55px rgb(0 0 0 / .3); }
 .dark .kora-public-shell .kora-phone-screen { background:#17263d; color:#f4f7fb; }
 .dark .kora-public-shell .kora-phone-brand,
@@ -693,7 +693,7 @@
 .dark .kora-public-shell .kora-phone-bottomline { color:#b4c1d1; }
 .dark .kora-public-shell .kora-phone-notch { background:#07101d; }
 .dark .kora-public-shell .kora-phone-home { background:#66758a; }
-.dark .kora-public-shell .kora-start-button { background:#c49a42 !important; color:#172b4d !important; }
+.dark .kora-public-shell .kora-start-button { background:#172B4D !important; color:#172b4d !important; }
 .dark .kora-public-shell #features .rounded-2xl,
 .dark .kora-public-shell #pricing .rounded-2xl { background:#172338; color:#f4f7fb; }
 .dark .kora-public-shell #features p,
@@ -723,15 +723,135 @@
 .kora-legal-page .kora-content-page h2 { color:hsl(var(--foreground)); font-weight:800; }
 .kora-legal-page .kora-content-page p,
 .kora-legal-page .kora-content-page li { color:hsl(var(--muted-foreground)); }
-.kora-legal-page .kora-content-page a { color:#9b762e; }
+.kora-legal-page .kora-content-page a { color:#172B4D; }
 .kora-auth-page { background:hsl(var(--background)) !important; color:hsl(var(--foreground)); }
 .kora-auth-page .bg-card { border-color:hsl(var(--border)); border-radius:18px; box-shadow:0 18px 48px rgb(23 43 77 / .09); }
 .kora-auth-page .gold-gradient { background:#172B4D !important; }
 .kora-auth-page .gold-text-gradient { background:none; color:#172B4D; -webkit-text-fill-color:#172B4D; }
 .kora-auth-page input,
 .kora-auth-page select { border-radius:10px; }
-.kora-auth-page .text-gold { color:#9b762e !important; }
+.kora-auth-page .text-gold { color:#172B4D !important; }
 .dark .kora-auth-page .bg-card { box-shadow:0 18px 48px rgb(0 0 0 / .22); }
-.dark .kora-auth-page .gold-gradient { background:#C49A42 !important; }
-.dark .kora-auth-page .gold-text-gradient { color:#e3c37e; -webkit-text-fill-color:#e3c37e; }
-.dark .kora-auth-page .text-gold { color:#e3c37e !important; }
+.dark .kora-auth-page .gold-gradient { background:#172B4D !important; }
+.dark .kora-auth-page .gold-text-gradient { color:#FFFFFF; -webkit-text-fill-color:#FFFFFF; }
+.dark .kora-auth-page .text-gold { color:#FFFFFF !important; }
+
+
+/* KORA global design system: shared by public, client, manager and administration */
+:root {
+  --background: 216 22% 95.5%;
+  --foreground: 218 54% 19.6%;
+  --card: 0 0% 100%;
+  --card-foreground: 218 54% 19.6%;
+  --popover: 0 0% 100%;
+  --popover-foreground: 218 54% 19.6%;
+  --primary: 218 54% 19.6%;
+  --primary-foreground: 0 0% 100%;
+  --secondary: 216 22% 95.5%;
+  --secondary-foreground: 218 54% 19.6%;
+  --muted: 216 22% 95.5%;
+  --muted-foreground: 218 20% 42%;
+  --accent: 216 22% 95.5%;
+  --accent-foreground: 218 54% 19.6%;
+  --border: 218 18% 86%;
+  --input: 218 18% 86%;
+  --ring: 218 54% 19.6%;
+  /* Legacy gold utilities are retained as compatibility aliases, not as a brand color. */
+  --gold: 218 54% 19.6%;
+  --gold-light: 218 54% 19.6%;
+  --gold-dark: 218 54% 19.6%;
+  --sidebar-background: 0 0% 100%;
+  --sidebar-foreground: 218 54% 19.6%;
+  --sidebar-primary: 218 54% 19.6%;
+  --sidebar-primary-foreground: 0 0% 100%;
+  --sidebar-accent: 216 22% 95.5%;
+  --sidebar-accent-foreground: 218 54% 19.6%;
+  --sidebar-border: 218 18% 86%;
+  --sidebar-ring: 218 54% 19.6%;
+  --font-heading: 'Manrope', system-ui, sans-serif;
+  --font-body: 'Manrope', system-ui, sans-serif;
+  --font-display: 'Manrope', system-ui, sans-serif;
+}
+.dark {
+  --background: 218 47% 12%;
+  --foreground: 0 0% 100%;
+  --card: 218 40% 18%;
+  --card-foreground: 0 0% 100%;
+  --popover: 218 40% 18%;
+  --popover-foreground: 0 0% 100%;
+  --primary: 0 0% 100%;
+  --primary-foreground: 218 54% 19.6%;
+  --secondary: 218 35% 22%;
+  --secondary-foreground: 0 0% 100%;
+  --muted: 218 35% 22%;
+  --muted-foreground: 218 18% 78%;
+  --accent: 218 35% 22%;
+  --accent-foreground: 0 0% 100%;
+  --border: 218 24% 30%;
+  --input: 218 24% 30%;
+  --ring: 0 0% 100%;
+  --gold: 0 0% 100%;
+  --gold-light: 0 0% 100%;
+  --gold-dark: 0 0% 100%;
+  --sidebar-background: 218 47% 12%;
+  --sidebar-foreground: 0 0% 100%;
+  --sidebar-primary: 0 0% 100%;
+  --sidebar-primary-foreground: 218 54% 19.6%;
+  --sidebar-accent: 218 35% 22%;
+  --sidebar-accent-foreground: 0 0% 100%;
+  --sidebar-border: 218 24% 30%;
+  --sidebar-ring: 0 0% 100%;
+}
+.kora-public-shell {
+  --background: 216 22% 95.5%;
+  --foreground: 218 54% 19.6%;
+  --card: 0 0% 100%;
+  --card-foreground: 218 54% 19.6%;
+  --popover: 0 0% 100%;
+  --popover-foreground: 218 54% 19.6%;
+  --primary: 218 54% 19.6%;
+  --primary-foreground: 0 0% 100%;
+  --secondary: 216 22% 95.5%;
+  --secondary-foreground: 218 54% 19.6%;
+  --muted: 216 22% 95.5%;
+  --muted-foreground: 218 20% 42%;
+  --accent: 216 22% 95.5%;
+  --accent-foreground: 218 54% 19.6%;
+  --gold: 218 54% 19.6%;
+  --gold-light: 218 54% 19.6%;
+  --gold-dark: 218 54% 19.6%;
+}
+.dark .kora-public-shell {
+  --background: 218 47% 12%;
+  --foreground: 0 0% 100%;
+  --card: 218 40% 18%;
+  --card-foreground: 0 0% 100%;
+  --popover: 218 40% 18%;
+  --popover-foreground: 0 0% 100%;
+  --primary: 0 0% 100%;
+  --primary-foreground: 218 54% 19.6%;
+  --secondary: 218 35% 22%;
+  --secondary-foreground: 0 0% 100%;
+  --muted: 218 35% 22%;
+  --muted-foreground: 218 18% 78%;
+  --accent: 218 35% 22%;
+  --accent-foreground: 0 0% 100%;
+  --gold: 0 0% 100%;
+  --gold-light: 0 0% 100%;
+  --gold-dark: 0 0% 100%;
+}
+/* Brand accents stay within the approved three-color palette in both themes. */
+.kora-public-shell :focus-visible { outline-color: hsl(var(--ring) / .55); }
+.kora-public-shell .kora-process-card svg,
+.kora-public-shell .kora-landing-category-fallback,
+.kora-public-shell .kora-category-card-fallback { color: #172B4D; }
+.dark .kora-public-shell .kora-process-card svg,
+.dark .kora-public-shell .kora-landing-category-fallback,
+.dark .kora-public-shell .kora-category-card-fallback { color: #FFFFFF; }
+.dark .kora-public-shell .kora-start-button { background: #FFFFFF !important; color: #172B4D !important; }
+.kora-public-shell .kora-start-button:hover { background: #314B70 !important; color: #FFFFFF !important; }
+.dark .kora-public-shell .kora-start-button:hover { background: #F1F3F6 !important; color: #172B4D !important; }
+.kora-public-shell .kora-public-footer a:hover { color: #FFFFFF !important; }
+.kora-public-shell .kora-legal-page a,
+.kora-public-shell .kora-auth-page .text-gold { color: #172B4D !important; }
+.dark .kora-public-shell .kora-auth-page .text-gold { color: #FFFFFF !important; }

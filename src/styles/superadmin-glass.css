@@ -1,103 +1,63 @@
-/* KORA SuperAdmin: restrained black-and-gold glass surface. Scoped to CEO space only. */
+/* Shared SuperAdmin shell. Colors inherit the global KORA light/dark design tokens. */
 .kora-superadmin-glass {
-  --background: 0 0% 5%;
-  --foreground: 42 28% 95%;
-  --card: 0 0% 8%;
-  --card-foreground: 42 28% 95%;
-  --popover: 0 0% 8%;
-  --popover-foreground: 42 28% 95%;
-  --muted: 0 0% 13%;
-  --muted-foreground: 38 10% 68%;
-  --border: 38 20% 24%;
-  --input: 38 20% 24%;
-  --accent: 42 35% 16%;
-  --accent-foreground: 42 28% 95%;
-  --sidebar-background: 0 0% 5%;
-  --sidebar-foreground: 42 24% 92%;
-  --sidebar-border: 38 20% 20%;
-  --sidebar-accent: 42 32% 15%;
-  --sidebar-accent-foreground: 42 28% 95%;
   position: relative;
   isolation: isolate;
   overflow-x: clip;
   color: hsl(var(--foreground));
-  background:
-    radial-gradient(ellipse at 88% 8%, rgba(199, 145, 37, 0.14), transparent 30%),
-    radial-gradient(ellipse at 12% 92%, rgba(199, 145, 37, 0.08), transparent 32%),
-    #090909;
+  background: hsl(var(--background));
 }
-
-.kora-superadmin-glass header {
-  background: rgba(9, 9, 9, 0.78) !important;
-  border-color: rgba(224, 180, 82, 0.18) !important;
-  backdrop-filter: blur(24px);
-  -webkit-backdrop-filter: blur(24px);
-}
-
+.kora-superadmin-glass header,
 .kora-superadmin-glass aside {
-  background: rgba(10, 10, 10, 0.82) !important;
-  border-color: rgba(224, 180, 82, 0.18) !important;
-  backdrop-filter: blur(24px);
-  -webkit-backdrop-filter: blur(24px);
+  background: hsl(var(--card) / .92) !important;
+  border-color: hsl(var(--border)) !important;
+  color: hsl(var(--foreground));
+  backdrop-filter: blur(22px);
+  -webkit-backdrop-filter: blur(22px);
 }
-
-.kora-superadmin-glass main {
-  background: transparent;
-}
-
+.kora-superadmin-glass main { background: transparent; }
 .kora-superadmin-glass main [class*="rounded-xl"][class*="border"],
 .kora-superadmin-glass main [class*="rounded-2xl"][class*="border"],
 .kora-superadmin-glass main [class*="rounded-3xl"][class*="border"] {
-  border-color: rgba(226, 190, 112, 0.2) !important;
-  background-color: rgba(255, 255, 255, 0.045) !important;
-  box-shadow: 0 14px 38px rgba(0, 0, 0, 0.2);
-  backdrop-filter: blur(18px);
-  -webkit-backdrop-filter: blur(18px);
+  border-color: hsl(var(--border)) !important;
+  background-color: hsl(var(--card)) !important;
+  color: hsl(var(--card-foreground));
+  box-shadow: 0 12px 30px rgb(23 43 77 / .06);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
 }
-
+.dark .kora-superadmin-glass main [class*="rounded-xl"][class*="border"],
+.dark .kora-superadmin-glass main [class*="rounded-2xl"][class*="border"],
+.dark .kora-superadmin-glass main [class*="rounded-3xl"][class*="border"] {
+  box-shadow: 0 12px 30px rgb(0 0 0 / .16);
+}
 .kora-superadmin-glass main [class*="bg-card"],
 .kora-superadmin-glass main [class*="bg-background"] {
-  background-color: rgba(255, 255, 255, 0.035) !important;
+  background-color: hsl(var(--card)) !important;
 }
-
-.kora-superadmin-glass main .text-muted-foreground {
-  color: rgba(235, 229, 216, 0.62) !important;
-}
-
-.kora-superadmin-glass main .text-foreground {
-  color: #f7f3e9 !important;
-}
-
+.kora-superadmin-glass main .text-muted-foreground { color: hsl(var(--muted-foreground)) !important; }
+.kora-superadmin-glass main .text-foreground { color: hsl(var(--foreground)) !important; }
 .kora-superadmin-glass main input,
 .kora-superadmin-glass main select,
 .kora-superadmin-glass main textarea {
-  color: #f7f3e9;
-  background: rgba(255, 255, 255, 0.045);
-  border-color: rgba(226, 190, 112, 0.22);
+  color: hsl(var(--foreground));
+  background: hsl(var(--card));
+  border-color: hsl(var(--border));
 }
-
-.kora-superadmin-glass main table thead {
-  color: rgba(235, 229, 216, 0.58);
-}
-
-.kora-superadmin-glass main table tbody tr {
-  border-color: rgba(255, 255, 255, 0.08);
-}
-
+.kora-superadmin-glass main table thead { color: hsl(var(--muted-foreground)); }
+.kora-superadmin-glass main table tbody tr { border-color: hsl(var(--border)); }
 .kora-superadmin-glass .kora-superadmin-active-nav {
-  color: #fff8e8 !important;
-  background: linear-gradient(110deg, rgba(202, 151, 49, 0.26), rgba(202, 151, 49, 0.08)) !important;
-  border: 1px solid rgba(229, 188, 96, 0.42);
-  box-shadow: inset 0 1px rgba(255, 255, 255, 0.08), 0 8px 24px rgba(171, 119, 25, 0.12);
+  color: hsl(var(--primary-foreground)) !important;
+  background: hsl(var(--primary)) !important;
+  border: 1px solid hsl(var(--primary));
+  box-shadow: 0 8px 20px rgb(23 43 77 / .12);
 }
-
+.dark .kora-superadmin-glass .kora-superadmin-active-nav {
+  color: #172B4D !important;
+  background: #FFFFFF !important;
+  border-color: #FFFFFF;
+}
 .kora-superadmin-glass nav button:hover,
-.kora-superadmin-glass nav a:hover {
-  color: #fff8e8;
-}
-
+.kora-superadmin-glass nav a:hover { color: hsl(var(--foreground)); }
 @media (max-width: 767px) {
-  .kora-superadmin-glass main {
-    padding: 1rem;
-  }
+  .kora-superadmin-glass main { padding: 1rem; }
 }
