@@ -596,7 +596,7 @@
 .kora-public-shell #features .rounded-2xl, .kora-public-shell #pricing .rounded-2xl { border-color:#e1e6ee; box-shadow:0 12px 32px rgb(23 43 77 / .045); }
 .dark .kora-public-shell #features .rounded-2xl, .dark .kora-public-shell #pricing .rounded-2xl { border-color:#2b3a50; box-shadow:0 12px 32px rgb(0 0 0 / .12); }
 .kora-public-shell #features svg { stroke-width:1.65; }
-.kora-public-shell #testimonials:empty { display:none; }
+.kora-public-shell #testimonials:not(:has(*)) { display:none; }
 .kora-process-section { padding-block:clamp(76px,8vw,124px); background:#fff; }
 .dark .kora-process-section { background:#0f1a2a; }
 .kora-process-section > div { max-width:1480px; }
@@ -657,3 +657,16 @@
 @media (prefers-reduced-motion:reduce) {
   .kora-public-shell *, .kora-public-shell *::before, .kora-public-shell *::after { scroll-behavior:auto !important; animation-duration:.01ms !important; animation-iteration-count:1 !important; transition-duration:.01ms !important; }
 }
+
+
+/* Category photography: only use actual public profile portraits, otherwise keep a neutral icon fallback */
+.kora-landing-category-media { position:relative; height:190px; overflow:hidden; border-radius:16px 16px 0 0; background:#e9eef4; }
+.kora-landing-category-media img { width:100%; height:100%; object-fit:cover; transition:transform .45s ease; }
+.kora-public-shell a:hover .kora-landing-category-media img { transform:scale(1.035); }
+.kora-landing-category-fallback { width:100%; height:100%; display:grid; place-items:center; color:#9b762e; background:linear-gradient(145deg,#f1f3f6,#e4eaf2); }
+.kora-category-card-media { position:relative; height:112px; margin:-1.25rem -1.25rem 1rem; overflow:hidden; border-radius:14px 14px 0 0; background:#e9eef4; }
+.kora-category-card-media img { width:100%; height:100%; object-fit:cover; }
+.kora-category-card-fallback { width:100%; height:100%; display:grid; place-items:center; color:#9b762e; background:linear-gradient(145deg,#f1f3f6,#e4eaf2); }
+.kora-category-selected { position:absolute; right:10px; top:10px; }
+.dark .kora-landing-category-fallback, .dark .kora-category-card-fallback { background:linear-gradient(145deg,#243248,#1a273b); color:#d8b66b; }
+@media (max-width:560px) { .kora-landing-category-media { height:138px; } .kora-category-card-media { height:96px; } }
