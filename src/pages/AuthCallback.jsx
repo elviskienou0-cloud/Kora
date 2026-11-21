@@ -58,6 +58,7 @@ export default function AuthCallback() {
         const role = String(currentUser.role || "").toLowerCase()
         const pendingPlan = sessionStorage.getItem("kora_pending_subscription_plan")
         if (role === "manager" && ["PRO", "BUSINESS"].includes(pendingPlan)) {
+          sessionStorage.removeItem("kora_pending_subscription_plan")
           navigate(`/manager/subscription?checkout=${pendingPlan}`, { replace: true })
           return
         }
