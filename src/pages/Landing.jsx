@@ -243,7 +243,7 @@ export default function Landing() {
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="kora-page-intro text-center mx-auto max-w-3xl mb-12">
               <p className="kora-hero-eyebrow">{t("landing.processEyebrow")}</p>
-              <h2 className="text-4xl sm:text-5xl font-black tracking-tight mb-5">{t("landing.processTitle")}</h2>
+              <h2 className="text-4xl sm:text-5xl font-black tracking-tight mb-5">{t("landing.processTitle", "De la recherche à la collaboration")}</h2>
               <p className="text-lg text-muted-foreground leading-relaxed">{t("landing.processDescription")}</p>
             </div>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
