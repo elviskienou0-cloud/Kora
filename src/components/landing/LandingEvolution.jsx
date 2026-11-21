@@ -10,7 +10,7 @@ function getName(talent) {
   return `${talent.first_name || ""} ${talent.last_name || ""}`.trim() || talent.title || "Talent"
 }
 
-export default function LandingEvolution({ stats = [], t }) {
+export default function LandingEvolution({ stats = [], t, language = "fr" }) {
   const [talents, setTalents] = useState([])
   const [activeIndex, setActiveIndex] = useState(0)
   const reduceMotion = useReducedMotion()
@@ -56,7 +56,7 @@ export default function LandingEvolution({ stats = [], t }) {
           transition={{ duration: reduceMotion ? 0 : 0.55 }}
           className="flex justify-center mb-12"
         >
-          <h2 className="kora-evolution-title">{t("landing.evolutionTitle", "Évolutions")}</h2>
+          <h2 className="kora-evolution-title">{language === "en" ? "Evolution" : "Évolutions"}</h2>
         </motion.div>
 
         <div className="grid grid-cols-1 lg:grid-cols-[1fr_0.9fr] gap-10 lg:gap-16 items-center">
@@ -90,17 +90,17 @@ export default function LandingEvolution({ stats = [], t }) {
           <div className="kora-talent-showcase">
             <div className="kora-talent-showcase-heading">
               <div>
-                <p>{t("landing.talentShowcaseEyebrow", "La communauté KORA")}</p>
-                <h3>{t("landing.talentShowcaseTitle", "Des talents à découvrir")}</h3>
+                <p>{language === "en" ? "THE KORA COMMUNITY" : "LA COMMUNAUTÉ KORA"}</p>
+                <h3>{language === "en" ? "Talents to discover" : "Des talents à découvrir"}</h3>
               </div>
               <div className="kora-talent-controls">
-                <button type="button" onClick={previousTalent} disabled={talents.length < 2} aria-label={t("landing.previousTalent", "Talent précédent")}><ArrowLeft size={18}/></button>
-                <button type="button" onClick={nextTalentCard} disabled={talents.length < 2} aria-label={t("landing.nextTalent", "Talent suivant")}><ArrowRight size={18}/></button>
+                <button type="button" onClick={previousTalent} disabled={talents.length < 2} aria-label={language === "en" ? "Previous talent" : "Talent précédent"}><ArrowLeft size={18}/></button>
+                <button type="button" onClick={nextTalentCard} disabled={talents.length < 2} aria-label={language === "en" ? "Next talent" : "Talent suivant"}><ArrowRight size={18}/></button>
               </div>
             </div>
 
             {currentTalent ? (
-              <div className="kora-talent-stack" aria-label={t("landing.talentStackInstructions", "Faites glisser la carte pour découvrir d'autres talents")}>
+              <div className="kora-talent-stack" aria-label={language === "en" ? "Swipe the card to discover more talents" : "Faites glisser la carte pour découvrir d'autres talents"}>
                 {nextTalent && (
                   <div className="kora-talent-stack-card kora-talent-stack-card-back" aria-hidden="true">
                     {nextTalent.avatar_url && <img src={nextTalent.avatar_url} alt="" draggable="false" />}
@@ -124,7 +124,7 @@ export default function LandingEvolution({ stats = [], t }) {
                     }}
                     whileDrag={{ rotate: 4, scale: 1.02, cursor: "grabbing" }}
                   >
-                    <Link to={`/talent/${currentTalent.id}`} className="kora-talent-card-link" aria-label={`${t("landing.viewTalent", "Voir le profil de")} ${getName(currentTalent)}`}>
+                    <Link to={`/talent/${currentTalent.id}`} className="kora-talent-card-link" aria-label={`${language === "en" ? "View profile of" : "Voir le profil de"} ${getName(currentTalent)}`}>
                       <div className="kora-talent-card-photo">
                         {currentTalent.avatar_url
                           ? <img src={currentTalent.avatar_url} alt={getName(currentTalent)} draggable="false" />
@@ -149,11 +149,11 @@ export default function LandingEvolution({ stats = [], t }) {
               <Card className="kora-talent-empty">
                 <CardContent className="p-8 text-center">
                   <UserRound className="mx-auto mb-3 text-muted-foreground" size={32}/>
-                  <p>{t("landing.noFeaturedTalents", "Les profils publiés apparaîtront ici dès qu'ils seront disponibles.")}</p>
+                  <p>{language === "en" ? "Published profiles will appear here as soon as they are available." : "Les profils publiés apparaîtront ici dès qu'ils seront disponibles."}</p>
                 </CardContent>
               </Card>
             )}
-            <p className="kora-talent-hint">{t("landing.talentStackHint", "Faites glisser la carte ou utilisez les flèches pour découvrir les profils.")}</p>
+            <p className="kora-talent-hint">{language === "en" ? "Swipe the card or use the arrows to discover profiles." : "Faites glisser la carte ou utilisez les flèches pour découvrir les profils."}</p>
           </div>
         </div>
       </div>
