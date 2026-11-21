@@ -237,13 +237,13 @@ export default function Landing() {
     <div className="min-h-screen flex flex-col kora-public-shell">
           <LandingHero />
 
-        <LandingEvolution stats={stats} t={t} />
+        <LandingEvolution stats={stats} t={t} language={language} />
 
         <section id="how-it-works" className="kora-process-section">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="kora-page-intro text-center mx-auto max-w-3xl mb-12">
               <p className="kora-hero-eyebrow">{t("landing.processEyebrow")}</p>
-              <h2 className="text-4xl sm:text-5xl font-black tracking-tight mb-5">{t("landing.processTitle", "De la recherche à la collaboration")}</h2>
+              <h2 className="text-4xl sm:text-5xl font-black tracking-tight mb-5">{language === "en" ? "From discovery to collaboration" : "De la recherche à la collaboration"}</h2>
               <p className="text-lg text-muted-foreground leading-relaxed">{t("landing.processDescription")}</p>
             </div>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
@@ -358,7 +358,7 @@ export default function Landing() {
             >
               <motion.div variants={fadeInUp} custom={0}>
                 <Badge variant="gold" className="mb-5 px-4 py-1.5 text-xs font-bold uppercase tracking-wider">
-                  {t("landing.whyKoraEyebrow", "Notre différence")}
+                  {language === "en" ? "WHY KORA?" : "POURQUOI KORA ?"}
                 </Badge>
               </motion.div>
               <motion.h2
@@ -366,15 +366,15 @@ export default function Landing() {
                 custom={1}
                 className="text-4xl sm:text-5xl font-black tracking-tight mb-5"
               >
-                {t("landing.whyKoraTitle", "Pourquoi KORA ?")}{" "}
-                <span className="gold-text-gradient">{t("landing.whyKoraTitleEmphasis", "")}</span>
+                {language === "en" ? "Why KORA?" : "Pourquoi KORA ?"}{" "}
+                <span className="gold-text-gradient"></span>
               </motion.h2>
               <motion.p
                 variants={fadeInUp}
                 custom={2}
                 className="text-lg text-muted-foreground leading-relaxed"
               >
-                {t("landing.whyKoraDescription", "Une plateforme pensée pour faciliter la découverte des talents et les collaborations professionnelles.")}
+                {language === "en" ? "A platform designed to make talent discovery and professional collaborations easier." : "Une plateforme pensée pour faciliter la découverte des talents et les collaborations professionnelles."}
               </motion.p>
             </motion.div>
 
