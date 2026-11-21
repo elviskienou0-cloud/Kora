@@ -936,7 +936,7 @@
 .kora-talent-card-placeholder { display:grid;width:100%;height:100%;place-items:center;color:#526b8c; }
 .kora-talent-card-content { display:flex;flex:1;flex-direction:column;justify-content:space-between;padding:16px 18px;color:#172B4D; }
 .kora-talent-card-content h4 { font-size:1.08rem;font-weight:850; }.kora-talent-card-content p { margin-top:3px;color:#64748b;font-size:.83rem; }
-.kora-talent-card-meta { display:flex;justify-content:space-between;gap:12px;color:#64748b;font-size:.76rem; }.kora-talent-card-meta span { display:inline-flex;align-items:center;gap:5px;min-width:0; }.kora-talent-card-meta span:last-child svg { color:#d29a25;fill:#d29a25; }
+.kora-talent-card-meta { display:flex;justify-content:space-between;gap:12px;color:#64748b;font-size:.76rem; }.kora-talent-card-meta span { display:inline-flex;align-items:center;gap:5px;min-width:0; }.kora-talent-card-meta span:last-child svg { color:#172B4D;fill:#172B4D; }
 .kora-talent-hint { margin-top:15px;color:#64748b;font-size:.78rem;text-align:center; }.dark .kora-talent-hint { color:#c4d0e0; }
 .kora-public-shell .kora-talent-empty { min-height:340px;display:grid;place-items:center;border:1px dashed rgb(23 43 77 / .22);background:rgb(255 255 255 / .35); }
 .dark .kora-public-shell .kora-talent-empty { border-color:rgb(255 255 255 / .2);background:rgb(255 255 255 / .04);color:#fff; }
@@ -959,3 +959,7 @@
 .kora-talent-stack-card-back img { width:100%;height:100%;object-fit:cover;opacity:.62;filter:saturate(.82); }
 .kora-talent-stack-card-back span { position:absolute;left:14px;bottom:14px;padding:6px 11px;border-radius:999px;color:#fff;background:rgb(23 43 77 / .78);font-size:.75rem;font-weight:800; }
 .kora-talent-stack-card-front { z-index:1;cursor:grab; }
+
+.kora-public-shell .kora-landing-copy { text-align:center; }
+.kora-public-shell .kora-landing-copy .kora-start-button { margin-inline:auto; }
+.dark .kora-public-shell .kora-talent-card-content { color:#172B4D; }
