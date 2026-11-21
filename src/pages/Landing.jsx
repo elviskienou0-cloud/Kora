@@ -241,6 +241,9 @@ export default function Landing() {
 
         <section className="py-16 border-y border-gold/15 bg-gradient-to-b from-accent/20 via-transparent to-transparent">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <h2 className="mb-8 text-center text-2xl font-black tracking-tight sm:text-3xl">
+              {t("landing.evolutionTitle")}
+            </h2>
             <motion.div
               initial="hidden"
               whileInView="visible"
