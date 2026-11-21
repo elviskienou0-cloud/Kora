@@ -1,11 +1,12 @@
 import { useNavigate } from "react-router-dom"
-import { ArrowDown, ArrowRight, Bell, FolderKanban, MessageCircle, Search, UserRound } from "lucide-react"
+import { ArrowRight, Bell, FolderKanban, MessageCircle, Search, UserRound } from "lucide-react"
 import { Button } from "@/components/ui/button"
+import { useI18n } from "@/i18n/kora-i18n.jsx"
 
-function PhoneFrame({ type }) {
+function PhoneFrame({ type, t }) {
   const isClient = type === "client"
   return (
-    <div className={isClient ? "kora-phone kora-phone-client" : "kora-phone kora-phone-manager"} aria-label={isClient ? "Aperçu de l'espace Client" : "Aperçu de l'espace Manager"}>
+    <div className={isClient ? "kora-phone kora-phone-client" : "kora-phone kora-phone-manager"} aria-label={isClient ? t("landing.clientSpace") : t("landing.managerSpace")}>
       <div className="kora-phone-notch" />
       <div className="kora-phone-screen">
         <div className="kora-phone-topbar">
@@ -14,16 +15,16 @@ function PhoneFrame({ type }) {
         </div>
         {isClient ? (
           <>
-            <p className="kora-phone-eyebrow">ESPACE CLIENT</p>
-            <h3 className="kora-phone-title">Trouvez le talent adapté à votre projet</h3>
-            <div className="kora-phone-search"><Search className="h-3.5 w-3.5" /><span>Rechercher un talent</span></div>
-            <div className="kora-phone-row"><span>Explorer les catégories</span><span className="kora-phone-link">Tout voir</span></div>
+            <p className="kora-phone-eyebrow">{t("landing.clientSpace")}</p>
+            <h3 className="kora-phone-title">{t("landing.clientPreviewTitle")}</h3>
+            <div className="kora-phone-search"><Search className="h-3.5 w-3.5" /><span>{t("landing.searchTalent")}</span></div>
+            <div className="kora-phone-row"><span>{t("landing.exploreCategories")}</span><span className="kora-phone-link">{t("landing.seeAll")}</span></div>
             <div className="kora-phone-category-grid">
-              {["Artistes", "Créateurs", "Influenceurs", "Sportifs"].map((item) => (
+              {[t("landing.phoneArtists"), t("landing.phoneCreators"), t("landing.phoneInfluencers"), t("landing.phoneAthletes")].map((item) => (
                 <div className="kora-phone-category" key={item}><span className="kora-phone-category-mark" /><span>{item}</span></div>
               ))}
             </div>
-            <div className="kora-phone-row"><span>Talents publiés</span><span className="kora-phone-link">Découvrir</span></div>
+            <div className="kora-phone-row"><span>{t("landing.publishedTalents")}</span><span className="kora-phone-link">{t("landing.discover")}</span></div>
             {[1, 2].map((item) => (
               <div className="kora-phone-profile" key={item}>
                 <span className="kora-phone-avatar"><UserRound className="h-4 w-4" /></span>
@@ -33,14 +34,14 @@ function PhoneFrame({ type }) {
           </>
         ) : (
           <>
-            <p className="kora-phone-eyebrow">ESPACE MANAGER</p>
-            <h3 className="kora-phone-title">Gérez les talents que vous accompagnez</h3>
-            <div className="kora-phone-create"><span>Créer un talent</span><span>+</span></div>
+            <p className="kora-phone-eyebrow">{t("landing.managerSpace")}</p>
+            <h3 className="kora-phone-title">{t("landing.managerPreviewTitle")}</h3>
+            <div className="kora-phone-create"><span>{t("landing.createTalent")}</span><span>+</span></div>
             <div className="kora-phone-manager-grid">
-              <div><UserRound className="h-4 w-4" /><span>Mes talents</span></div>
-              <div><FolderKanban className="h-4 w-4" /><span>Mes demandes</span></div>
+              <div><UserRound className="h-4 w-4" /><span>{t("landing.myTalents")}</span></div>
+              <div><FolderKanban className="h-4 w-4" /><span>{t("landing.myRequests")}</span></div>
             </div>
-            <div className="kora-phone-row"><span>Profils gérés</span><span className="kora-phone-link">Voir tout</span></div>
+            <div className="kora-phone-row"><span>{t("landing.managedProfiles")}</span><span className="kora-phone-link">{t("landing.viewAllProfiles")}</span></div>
             {[1, 2, 3].map((item) => (
               <div className="kora-phone-profile" key={item}>
                 <span className="kora-phone-avatar"><UserRound className="h-4 w-4" /></span>
@@ -48,7 +49,7 @@ function PhoneFrame({ type }) {
                 <span className="kora-phone-status" />
               </div>
             ))}
-            <div className="kora-phone-bottomline"><MessageCircle className="h-3.5 w-3.5" /><span>Messagerie et suivi des demandes</span></div>
+            <div className="kora-phone-bottomline"><MessageCircle className="h-3.5 w-3.5" /><span>{t("landing.messagesAndRequests")}</span></div>
           </>
         )}
       </div>
@@ -59,26 +60,24 @@ function PhoneFrame({ type }) {
 
 export default function LandingHero() {
   const navigate = useNavigate()
+  const { t } = useI18n()
   return (
     <section className="kora-landing-hero">
       <div className="kora-landing-hero-inner">
-        <div className="kora-landing-phones" aria-label="Aperçus des espaces KORA">
-          <div className="kora-phone-label">APERÇUS DE LA PLATEFORME</div>
-          <PhoneFrame type="manager" />
-          <PhoneFrame type="client" />
+        <div className="kora-landing-phones" aria-label={t("landing.platformPreview")}>
+          <div className="kora-phone-label">{t("landing.platformPreview")}</div>
+          <PhoneFrame type="manager" t={t} />
+          <PhoneFrame type="client" t={t} />
         </div>
         <div className="kora-landing-copy">
-          <p className="kora-hero-eyebrow">LA PLATEFORME DES TALENTS AFRICAINS</p>
-          <h1>Révélez les talents africains qui feront votre succès</h1>
-          <p className="kora-hero-description">
-            KORA connecte les talents africains exceptionnels avec les opportunités qui les méritent, en Afrique et au-delà. Explorez les profils réellement publiés sur KORA et contactez le manager du talent qui correspond à votre besoin.
-          </p>
+          <p className="kora-hero-eyebrow">{t("landing.heroEyebrow")}</p>
+          <h1>{t("landing.heroTitle")}</h1>
+          <p className="kora-hero-description">{t("landing.heroDescription")}</p>
           <Button size="lg" onClick={() => navigate("/register")} className="kora-start-button">
-            Commencer <ArrowRight className="h-4 w-4" />
+            {t("landing.getStarted")} <ArrowRight className="h-4 w-4" />
           </Button>
         </div>
       </div>
-      <a href="#kora-content" className="kora-scroll-cue"><ArrowDown className="h-4 w-4" /><span>Défiler pour en savoir plus</span></a>
     </section>
   )
 }

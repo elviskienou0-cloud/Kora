@@ -413,7 +413,7 @@ export default function ClientDashboard() {
             title={t("dashboard.clientBudgetSpent")}
             value={formatCurrency(stats.spent, language)}
             icon={TrendingUp}
-            iconClass="bg-amber-500/15 text-amber-600"
+            iconClass="bg-primary/10 text-primary"
           />
         </motion.div>
 

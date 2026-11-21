@@ -18,13 +18,13 @@ const STATUS = {
   pending: {
     labelKey: "requests.pending",
     className:
-      "border-amber-500/30 bg-amber-500/10 text-amber-700",
+      "border-primary/20 bg-primary/10 text-primary",
   },
 
   open: {
     label: "En attente",
     className:
-      "border-amber-500/30 bg-amber-500/10 text-amber-700",
+      "border-primary/20 bg-primary/10 text-primary",
   },
 
   accepted: {

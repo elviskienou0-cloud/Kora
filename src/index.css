@@ -614,7 +614,7 @@
 .kora-public-footer a:hover { color:#FFFFFF !important; }
 .kora-public-footer .gold-text-gradient { background:none; color:#fff; -webkit-text-fill-color:#fff; }
 .kora-public-footer .border-border { border-color:rgb(255 255 255 / .18) !important; }
-.kora-public-footer .text-gold { color:#FFFFFF !important; }
+.kora-public-footer .text-gold { color:hsl(var(--gold)) !important; }
 
 /* Public information pages */
 .kora-content-page { width:min(1440px,100%); margin:0 auto; padding:clamp(112px,12vw,160px) clamp(20px,4vw,64px) clamp(76px,8vw,120px); }
@@ -854,4 +854,35 @@
 .kora-public-shell .kora-public-footer a:hover { color: #FFFFFF !important; }
 .kora-public-shell .kora-legal-page a,
 .kora-public-shell .kora-auth-page .text-gold { color: #172B4D !important; }
-.dark .kora-public-shell .kora-auth-page .text-gold { color: #FFFFFF !important; }
+.dark .kora-public-shell .kora-auth-page .text-gold { color: hsl(var(--gold)) !important; }
+
+
+/* Landing hero brand treatment: solid KORA navy with high-contrast content */
+.kora-public-shell .kora-landing-hero {
+  background: #172B4D !important;
+  color: #FFFFFF !important;
+}
+.kora-public-shell .kora-landing-hero .kora-landing-copy h1,
+.kora-public-shell .kora-landing-hero .kora-hero-eyebrow,
+.kora-public-shell .kora-landing-hero .kora-phone-label {
+  color: #FFFFFF !important;
+}
+.kora-public-shell .kora-landing-hero .kora-landing-copy h1 span {
+  color: #F1F3F6 !important;
+}
+.kora-public-shell .kora-landing-hero .kora-hero-description {
+  color: rgb(255 255 255 / .82) !important;
+}
+.kora-public-shell .kora-landing-hero .kora-start-button {
+  background: #FFFFFF !important;
+  color: #172B4D !important;
+  box-shadow: 0 12px 28px rgb(0 0 0 / .16) !important;
+}
+.kora-public-shell .kora-landing-hero .kora-start-button:hover {
+  background: #F1F3F6 !important;
+  color: #172B4D !important;
+}
+
+.dark .kora-public-shell .kora-landing-hero {
+  background: #172B4D !important;
+}
