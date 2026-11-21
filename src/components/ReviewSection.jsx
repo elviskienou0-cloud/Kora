@@ -65,7 +65,7 @@ export default function ReviewSection({ reviews = DEFAULT_REVIEWS, showForm = tr
     : 0
 
   return (
-    <section className="w-full max-w-6xl mx-auto">
+    <section className="w-full max-w-6xl mx-auto kora-review-section">
       <div className="text-center mb-10 sm:mb-14">
         <motion.p
           initial={{ opacity: 0, y: 10 }}
