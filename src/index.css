@@ -596,7 +596,7 @@
 .kora-public-shell #features .rounded-2xl, .kora-public-shell #pricing .rounded-2xl { border-color:#e1e6ee; box-shadow:0 12px 32px rgb(23 43 77 / .045); }
 .dark .kora-public-shell #features .rounded-2xl, .dark .kora-public-shell #pricing .rounded-2xl { border-color:#2b3a50; box-shadow:0 12px 32px rgb(0 0 0 / .12); }
 .kora-public-shell #features svg { stroke-width:1.65; }
-.kora-public-shell #testimonials:not(:has(*)) { display:none; }
+.kora-public-shell #testimonials:not(:has(.kora-review-section)) { display:none; }
 .kora-process-section { padding-block:clamp(76px,8vw,124px); background:#fff; }
 .dark .kora-process-section { background:#0f1a2a; }
 .kora-process-section > div { max-width:1480px; }
