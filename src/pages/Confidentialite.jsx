@@ -4,7 +4,7 @@ import LandingHeader from "@/components/landing/LandingHeader.jsx"
 
 export default function Confidentialite() {
   return (
-    <div className="min-h-screen bg-white text-gray-900 dark:bg-gray-950 dark:text-white" kora-public-shell kora-legal-page>
+    <div className="min-h-screen bg-white text-gray-900 dark:bg-gray-950 dark:text-white kora-public-shell kora-legal-page">
       <main className="kora-content-page">
         <LandingHeader />
         <div className="mb-10 kora-page-intro">
