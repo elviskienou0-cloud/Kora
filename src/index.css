@@ -886,3 +886,71 @@
 .dark .kora-public-shell .kora-landing-hero {
   background: #172B4D !important;
 }
+
+/* Landing page refinement: vivid hero, integrated glass and tactile motion */
+.kora-public-shell .kora-landing-hero {
+  isolation: isolate;
+  background: radial-gradient(ellipse at 14% 18%, rgb(66 125 214 / .78) 0%, transparent 38%), radial-gradient(ellipse at 84% 24%, rgb(72 160 214 / .52) 0%, transparent 34%), radial-gradient(ellipse at 65% 100%, rgb(49 88 153 / .72) 0%, transparent 42%), linear-gradient(128deg, #10264a 0%, #173d70 48%, #10294f 100%) !important;
+}
+.kora-public-shell .kora-landing-hero::before,.kora-public-shell .kora-landing-hero::after { content:"";position:absolute;z-index:-1;width:min(42vw,560px);aspect-ratio:1;border-radius:999px;filter:blur(72px);pointer-events:none;animation:kora-hero-drift 13s ease-in-out infinite alternate; }
+.kora-public-shell .kora-landing-hero::before { top:-22%;left:-9%;background:rgb(83 154 255 / .28); }
+.kora-public-shell .kora-landing-hero::after { right:-10%;bottom:-32%;background:rgb(75 190 218 / .22);animation-delay:-6s; }
+.kora-public-shell .kora-landing-hero-inner { position:relative;z-index:1; }
+.kora-public-shell .kora-landing-copy { padding:clamp(24px,3vw,38px);border:1px solid rgb(255 255 255 / .2);border-radius:28px;background:linear-gradient(135deg,rgb(255 255 255 / .14),rgb(255 255 255 / .055));box-shadow:0 24px 70px rgb(4 16 38 / .18),inset 0 1px 0 rgb(255 255 255 / .18);backdrop-filter:blur(22px) saturate(145%);-webkit-backdrop-filter:blur(22px) saturate(145%); }
+.kora-public-shell .kora-landing-phones { filter:drop-shadow(0 24px 42px rgb(4 16 38 / .2)); }
+.kora-public-shell .kora-phone { border-color:rgb(255 255 255 / .38);background:rgb(255 255 255 / .16);backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px);box-shadow:0 18px 45px rgb(4 16 38 / .22); }
+.kora-public-shell .kora-phone-screen { background:linear-gradient(155deg,rgb(255 255 255 / .96),rgb(229 238 250 / .9));color:#172B4D; }
+.kora-public-shell .kora-phone-screen .kora-phone-eyebrow,.kora-public-shell .kora-phone-screen .kora-phone-title,.kora-public-shell .kora-phone-screen .kora-phone-row,.kora-public-shell .kora-phone-screen .kora-phone-brand { color:#172B4D; }
+.kora-public-shell .kora-phone-screen .kora-phone-search,.kora-public-shell .kora-phone-screen .kora-phone-category,.kora-public-shell .kora-phone-screen .kora-phone-profile,.kora-public-shell .kora-phone-screen .kora-phone-create,.kora-public-shell .kora-phone-screen .kora-phone-manager-grid > div { background:rgb(255 255 255 / .76);border-color:rgb(23 43 77 / .1); }
+.kora-public-shell .kora-process-section .kora-page-intro { text-align:center;max-width:780px;margin:0 auto 48px; }
+.kora-public-shell #categories > div > div:first-child,.kora-public-shell #why-kora > div > div:first-child,.kora-public-shell #pricing > div > div:first-child { text-align:center;margin-left:auto;margin-right:auto; }
+.kora-public-shell .kora-evolution-section { position:relative;overflow:hidden;background:linear-gradient(180deg,rgb(23 43 77 / .035),transparent 72%); }
+.kora-public-shell .kora-evolution-title { display:inline-flex;align-items:center;justify-content:center;padding:10px 25px;border:1.5px solid rgb(23 43 77 / .38);border-radius:999px;color:#172B4D;font-size:clamp(1.55rem,3vw,2.2rem);font-weight:850;letter-spacing:-.04em;box-shadow:0 8px 28px rgb(23 43 77 / .08),inset 0 1px 0 rgb(255 255 255 / .8);background:rgb(255 255 255 / .56);backdrop-filter:blur(14px); }
+.dark .kora-public-shell .kora-evolution-title { color:#fff;border-color:rgb(255 255 255 / .38);background:rgb(255 255 255 / .07); }
+.kora-public-shell .kora-evolution-stat { min-height:176px;display:flex;flex-direction:column;align-items:flex-start;justify-content:center;padding:clamp(18px,2.5vw,28px);border:1px solid rgb(23 43 77 / .1);border-radius:22px;background:linear-gradient(145deg,rgb(255 255 255 / .9),rgb(255 255 255 / .56));box-shadow:0 14px 38px rgb(23 43 77 / .07),inset 0 1px 0 #fff;transition:border-color .25s ease,box-shadow .25s ease; }
+.kora-public-shell .kora-evolution-stat:hover { border-color:rgb(23 43 77 / .28);box-shadow:0 20px 44px rgb(23 43 77 / .12); }
+.kora-public-shell .kora-evolution-stat-icon { width:42px;height:42px;display:grid;place-items:center;border-radius:14px;margin-bottom:17px;color:#172B4D;background:#F1F3F6; }
+.kora-public-shell .kora-evolution-stat strong { color:#172B4D;font-size:clamp(1.7rem,3vw,2.45rem);line-height:1;font-weight:850;letter-spacing:-.045em; }
+.kora-public-shell .kora-evolution-stat > span:last-child { margin-top:9px;color:#52627a;font-size:.88rem;font-weight:650; }
+.dark .kora-public-shell .kora-evolution-stat { border-color:rgb(255 255 255 / .1);background:linear-gradient(145deg,rgb(255 255 255 / .09),rgb(255 255 255 / .035)); }
+.dark .kora-public-shell .kora-evolution-stat strong,.dark .kora-public-shell .kora-evolution-stat-icon { color:#fff; }
+.dark .kora-public-shell .kora-evolution-stat > span:last-child { color:#c4d0e0; }
+.dark .kora-public-shell .kora-evolution-stat-icon { background:rgb(255 255 255 / .1); }
+.kora-public-shell .kora-talent-showcase { min-width:0;padding:clamp(18px,3vw,28px);border:1px solid rgb(255 255 255 / .7);border-radius:28px;background:linear-gradient(145deg,rgb(255 255 255 / .72),rgb(241 243 246 / .5));box-shadow:0 22px 60px rgb(23 43 77 / .1),inset 0 1px 0 #fff;backdrop-filter:blur(20px) saturate(140%); }
+.dark .kora-public-shell .kora-talent-showcase { border-color:rgb(255 255 255 / .13);background:linear-gradient(145deg,rgb(255 255 255 / .1),rgb(255 255 255 / .035)); }
+.kora-talent-showcase-heading { display:flex;align-items:center;justify-content:space-between;gap:16px;margin-bottom:18px; }
+.kora-talent-showcase-heading p { margin-bottom:5px;color:#64748b;font-size:.72rem;font-weight:800;letter-spacing:.13em;text-transform:uppercase; }
+.kora-talent-showcase-heading h3 { color:#172B4D;font-size:clamp(1.2rem,2.2vw,1.55rem);font-weight:850;letter-spacing:-.035em; }
+.dark .kora-talent-showcase-heading h3 { color:#fff; }.dark .kora-talent-showcase-heading p { color:#c4d0e0; }
+.kora-talent-controls { display:flex;gap:8px; }
+.kora-talent-controls button { width:38px;height:38px;display:grid;place-items:center;border:1px solid rgb(23 43 77 / .16);border-radius:50%;color:#172B4D;background:rgb(255 255 255 / .72);transition:transform .2s ease,background .2s ease; }
+.kora-talent-controls button:hover:not(:disabled) { transform:translateY(-2px);background:#fff; }.kora-talent-controls button:disabled { opacity:.35;cursor:not-allowed; }
+.dark .kora-talent-controls button { color:#fff;border-color:rgb(255 255 255 / .18);background:rgb(255 255 255 / .08); }
+.kora-talent-stack { position:relative;height:340px;max-width:440px;margin:0 auto;touch-action:pan-y; }
+.kora-talent-stack-card { position:absolute;inset:0;overflow:hidden;border:1px solid rgb(255 255 255 / .8);border-radius:23px;background:#fff;box-shadow:0 18px 45px rgb(23 43 77 / .15); }
+.kora-talent-stack-card-back { inset:12px 8px -10px;opacity:.55;transform:rotate(3deg) scale(.97);background:#dce6f3; }
+.kora-talent-card-link { display:flex;flex-direction:column;height:100%;color:inherit;text-decoration:none; }
+.kora-talent-card-photo { position:relative;height:220px;overflow:hidden;background:linear-gradient(135deg,#dce7f5,#f1f3f6); }
+.kora-talent-card-photo img { width:100%;height:100%;object-fit:cover;object-position:center 35%; }
+.kora-talent-card-photo > span { position:absolute;left:14px;bottom:14px;padding:6px 11px;border:1px solid rgb(255 255 255 / .42);border-radius:999px;color:#fff;background:rgb(23 43 77 / .76);font-size:.72rem;font-weight:750;backdrop-filter:blur(10px); }
+.kora-talent-card-placeholder { display:grid;width:100%;height:100%;place-items:center;color:#526b8c; }
+.kora-talent-card-content { display:flex;flex:1;flex-direction:column;justify-content:space-between;padding:16px 18px;color:#172B4D; }
+.kora-talent-card-content h4 { font-size:1.08rem;font-weight:850; }.kora-talent-card-content p { margin-top:3px;color:#64748b;font-size:.83rem; }
+.kora-talent-card-meta { display:flex;justify-content:space-between;gap:12px;color:#64748b;font-size:.76rem; }.kora-talent-card-meta span { display:inline-flex;align-items:center;gap:5px;min-width:0; }.kora-talent-card-meta span:last-child svg { color:#d29a25;fill:#d29a25; }
+.kora-talent-hint { margin-top:15px;color:#64748b;font-size:.78rem;text-align:center; }.dark .kora-talent-hint { color:#c4d0e0; }
+.kora-public-shell .kora-talent-empty { min-height:340px;display:grid;place-items:center;border:1px dashed rgb(23 43 77 / .22);background:rgb(255 255 255 / .35); }
+.dark .kora-public-shell .kora-talent-empty { border-color:rgb(255 255 255 / .2);background:rgb(255 255 255 / .04);color:#fff; }
+@keyframes kora-hero-drift { from { transform:translate3d(-2%,-1%,0) scale(.92); } to { transform:translate3d(5%,4%,0) scale(1.12); } }
+@media (max-width:767px) {
+ .kora-public-shell .kora-landing-hero { padding:34px 18px 56px; }
+ .kora-public-shell .kora-landing-hero-inner { grid-template-columns:1fr;gap:26px; }
+ .kora-public-shell .kora-landing-copy { order:-1;padding:22px;border-radius:22px; }
+ .kora-public-shell .kora-landing-phones { transform:scale(.9);margin:-8px 0; }
+ .kora-public-shell .kora-evolution-section { padding-top:64px;padding-bottom:64px; }
+ .kora-public-shell .kora-evolution-stat { min-height:150px; }
+ .kora-talent-stack { height:320px; }.kora-talent-card-photo { height:200px; }
+}
+@media (prefers-reduced-motion:reduce) {
+ .kora-public-shell .kora-landing-hero::before,.kora-public-shell .kora-landing-hero::after { animation:none; }
+ .kora-public-shell *, .kora-public-shell *::before, .kora-public-shell *::after { scroll-behavior:auto !important;transition-duration:.01ms !important; }
+}
