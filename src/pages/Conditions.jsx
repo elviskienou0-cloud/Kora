@@ -3,7 +3,7 @@ import LandingFooter from "@/components/landing/LandingFooter.jsx"
 import LandingHeader from "@/components/landing/LandingHeader.jsx"
 export default function Conditions() {
   return (
-    <div className="min-h-screen bg-background text-foreground" kora-public-shell kora-legal-page>
+    <div className="min-h-screen bg-background text-foreground kora-public-shell kora-legal-page">
       <main className="kora-content-page">
         <LandingHeader />
         <Link
