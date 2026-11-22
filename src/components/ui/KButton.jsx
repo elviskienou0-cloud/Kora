@@ -33,7 +33,7 @@ export function KButton({
   variant = "gold",
   size = "md",
   arrow = false,
-  magnetic: _magnetic,
+  magnetic = false,
   type = "button",
   ...props
 }) {
@@ -44,6 +44,7 @@ export function KButton({
         "group inline-flex items-center justify-center gap-2 rounded-full font-bold transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50",
         variants[variant] || variants.gold,
         sizes[size] || sizes.md,
+        magnetic && "hover:scale-[1.02] active:scale-[0.98]",
         className
       )}
       {...props}
