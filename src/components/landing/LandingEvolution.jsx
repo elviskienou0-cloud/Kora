@@ -10,6 +10,33 @@ function getName(talent) {
   return `${talent.first_name || ""} ${talent.last_name || ""}`.trim() || talent.title || "Talent"
 }
 
+async function getTalentAvatarUrl(value) {
+  if (!value) return null
+  if (value.startsWith("http://") || value.startsWith("https://")) return value
+
+  const prefix = "storage://"
+  if (!value.startsWith(prefix)) return null
+  const remainder = value.slice(prefix.length)
+  const separator = remainder.indexOf("/")
+  if (separator < 1 || separator === remainder.length - 1) return null
+
+  const bucket = remainder.slice(0, separator)
+  const path = remainder.slice(separator + 1)
+  const { data, error } = await supabase.storage.from(bucket).createSignedUrl(path, 3600)
+  if (error) {
+    console.warn("KORA: impossible de charger une photo de profil talent.")
+    return null
+  }
+  return data?.signedUrl || null
+}
+
+function TalentPortrait({ talent, className = "", decorative = false }) {
+  const [hasError, setHasError] = useState(false)
+  if (!talent.avatar_url || hasError) {
+    return <div className={"kora-talent-card-placeholder " + className} aria-hidden="true"><UserRound size={48} /></div>
+  }
+  return <img className={className} src={talent.avatar_url} alt={decorative ? "" : getName(talent)} draggable="false" loading="lazy" onError={() => setHasError(true)} />
+}
 export default function LandingEvolution({ stats = [], language = "fr" }) {
   const [talents, setTalents] = useState([])
   const [activeIndex, setActiveIndex] = useState(0)
@@ -31,7 +58,14 @@ export default function LandingEvolution({ stats = [], language = "fr" }) {
         console.warn("KORA: impossible de charger les profils publics pour la vitrine.")
         setTalents([])
       } else {
-        setTalents(data || [])
+        const talentsWithPhotos = await Promise.all(
+          (data || []).map(async (talent) => ({
+            ...talent,
+            avatar_url: await getTalentAvatarUrl(talent.avatar_url),
+          }))
+        )
+
+        if (mounted) setTalents(talentsWithPhotos)
       }
     }
 
@@ -103,7 +137,7 @@ export default function LandingEvolution({ stats = [], language = "fr" }) {
               <div className="kora-talent-stack" aria-label={language === "en" ? "Swipe the card to discover more talents" : "Faites glisser la carte pour découvrir d'autres talents"}>
                 {nextTalent && (
                   <div className="kora-talent-stack-card kora-talent-stack-card-back" aria-hidden="true">
-                    {nextTalent.avatar_url && <img src={nextTalent.avatar_url} alt="" draggable="false" />}
+                    <TalentPortrait talent={nextTalent} decorative />
                     <span>{getName(nextTalent)}</span>
                   </div>
                 )}
@@ -126,9 +160,7 @@ export default function LandingEvolution({ stats = [], language = "fr" }) {
                   >
                     <Link to={`/talent/${currentTalent.id}`} className="kora-talent-card-link" aria-label={`${language === "en" ? "View profile of" : "Voir le profil de"} ${getName(currentTalent)}`}>
                       <div className="kora-talent-card-photo">
-                        {currentTalent.avatar_url
-                          ? <img src={currentTalent.avatar_url} alt={getName(currentTalent)} draggable="false" />
-                          : <div className="kora-talent-card-placeholder"><UserRound size={48}/></div>}
+                        <TalentPortrait talent={currentTalent} className="kora-talent-photo-image" />
                         <span>{currentTalent.categories?.name || (language === "en" ? "Featured talent" : "Talent à découvrir")}</span>
                       </div>
                       <div className="kora-talent-card-content">
