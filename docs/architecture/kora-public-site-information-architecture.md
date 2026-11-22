@@ -24,20 +24,33 @@ Les routes d'authentification (`/login`, `/register`, `/forgot-password`, `/rese
 
 ## 2. Architecture cible de l'accueil
 
-Ordre de lecture recommandé :
+Ordre strict de lecture et de présentation validé :
 
-1. Header public : marque, Catégories, Abonnement, FAQ, Contact, langue, connexion et inscription.
-2. Hero : proposition de valeur, explication courte, démonstration visuelle Client/Manager et action principale.
-3. Catégories : portes d'entrée vers les univers de talents.
-4. Fonctionnement : parcours synthétique en trois étapes, conforme aux fonctions réellement disponibles.
-5. Fonctionnalités : capacités réelles de la plateforme, sans promesses non implémentées.
-6. Évolutions : indicateurs dynamiques et vérifiables.
-7. Témoignages : uniquement les avis authentiques visibles et autorisés.
-8. Offres : plans et conditions issus des données de plans actives.
-9. CTA final : deux parcours distincts, Client et Manager.
-10. Footer : plateforme, assistance et informations légales.
+1. **Hero** : promesse KORA, explication courte, aperçu réel des parcours Client et Manager et action principale.
+2. **Évolutions** : titre encadré ; quatre indicateurs dynamiques en grille 2x2 à gauche ; à droite, une pile interactive de profils talents réellement publiés, navigable par glissement et commandes précédent/suivant.
+3. **De la recherche à la collaboration** : explication du parcours en trois étapes, conforme aux fonctions disponibles.
+4. **Catégories** : portes d'entrée vers les univers de talents.
+5. **Pourquoi KORA ?** : présentation des bénéfices et capacités réellement disponibles.
+6. **Abonnement** : plans et conditions issus des données de plans actives.
+7. **Pied de page** : plateforme, assistance et informations légales.
 
-La page ne doit pas recevoir artificiellement une comparaison concurrentielle, un carrousel ou une section de cas d'usage si les contenus et preuves correspondants ne sont pas disponibles. Ces blocs pourront être ajoutés ultérieurement après validation des données et des objectifs.
+Aucune section autonome supplémentaire ne doit être intercalée dans cet ordre. Les anciens blocs Témoignages et CTA final ne sont pas affichés comme sections indépendantes sur la page d'accueil dans cette architecture.
+
+### Composition de la section Évolutions
+
+- Desktop : indicateurs sur deux colonnes et deux lignes dans la colonne gauche ; pile de cartes talents dans la colonne droite.
+- Mobile : indicateurs en grille 2x2 lorsque l'espace le permet, puis vitrine des talents en dessous.
+- Les cartes affichent uniquement des profils publiés et visibles issus de la table talent_profiles.
+- Le profil actif est déplaçable horizontalement ; les flèches permettent également de parcourir les profils.
+- Si aucun profil public n'est disponible, un état vide explicite est affiché. Aucun profil fictif n'est utilisé.
+
+### Animations et accessibilité
+
+- Révélation progressive des sections et cartes lors du défilement.
+- Interactions au survol pour les cartes et les contrôles.
+- Mouvement lumineux d'ambiance dans le Hero.
+- Transition animée lors du changement de profil talent.
+- Respect de prefers-reduced-motion pour réduire ou supprimer les mouvements non essentiels.
 
 ## 3. Architecture des pages secondaires
 
