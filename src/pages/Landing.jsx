@@ -27,6 +27,11 @@ const EASE = [0.22, 1, 0.36, 1]
 const GOLD = "212,175,55"
 const SECTION_IDS = ["categories", "pricing", "faq"]
 
+function scrollToSection(id, reduceMotion = false) {
+  const target = document.getElementById(id)
+  if (!target) return
+  target.scrollIntoView({ behavior: reduceMotion ? "auto" : "smooth", block: "start" })
+}
 /* Style "verre dépoli" partagé par les cartes (même recette que GlassBar) */
 const GLASS =
   "border border-foreground/10 bg-foreground/[0.05] backdrop-blur-xl backdrop-saturate-150 " +
@@ -124,7 +129,7 @@ function Cursor() {
   const sy = useSpring(y, { stiffness: 140, damping: 20 })
   const [on, setOn] = useState(false)
   useEffect(() => {
-    if (reduce || !window.matchMedia("(pointer:fine)").matches) return
+    if (reduce || !window.matchMedia("(pointer:fine) and (min-width: 1024px)").matches) return
     setOn(true)
     const m = (e) => { x.set(e.clientX); y.set(e.clientY) }
     window.addEventListener("pointermove", m, { passive: true })
@@ -156,7 +161,7 @@ function useActiveSection(ids) {
 }
 
 /* Barre de navigation flottante en verre dépoli : apparaît après le hero */
-function GlassNav({ links, ctaLabel, onCta }) {
+function GlassNav({ links, ctaLabel, onCta, reduceMotion }) {
   const active = useActiveSection(SECTION_IDS)
   return (
     <div className="pointer-events-none fixed inset-x-0 top-4 z-50 flex justify-center px-3">
@@ -173,7 +178,7 @@ function GlassNav({ links, ctaLabel, onCta }) {
               <button
                 key={l.id}
                 type="button"
-                onClick={() => document.getElementById(l.id)?.scrollIntoView({ behavior: "smooth" })}
+                onClick={() => scrollToSection(l.id, reduceMotion)}
                 className={cn(
                   "relative rounded-full px-3 py-2 text-xs font-semibold transition-colors sm:px-5 sm:text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
                   active === l.id ? "text-foreground" : "text-foreground/60 hover:text-foreground"
@@ -195,7 +200,7 @@ function GlassNav({ links, ctaLabel, onCta }) {
   )
 }
 
-function BackToTop({ label }) {
+function BackToTop({ label, reduceMotion }) {
   const { scrollY } = useScroll()
   const [visible, setVisible] = useState(false)
   useMotionValueEvent(scrollY, "change", (v) => setVisible(v > 700))
@@ -207,7 +212,7 @@ function BackToTop({ label }) {
       style={{ pointerEvents: visible ? "auto" : "none" }}
       className="fixed bottom-5 right-5 z-50"
     >
-      <KButton variant="glass" size="icon" aria-label={label} onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}>
+      <KButton variant="glass" size="icon" aria-label={label} onClick={() => window.scrollTo({ top: 0, behavior: reduceMotion ? "auto" : "smooth" })}>
         <ChevronUp className="h-5 w-5" />
       </KButton>
     </motion.div>
@@ -379,11 +384,7 @@ export default function Landing() {
   const en = language === "en"
 
   useEffect(() => {
-    window.scrollTo({ top: 0, behavior: "instant" })
-    const root = document.documentElement
-    const prev = root.style.scrollBehavior
-    root.style.scrollBehavior = "smooth"
-    return () => { root.style.scrollBehavior = prev }
+    window.scrollTo({ top: 0, behavior: "auto" })
   }, [])
 
   const { stats: liveStats, categoryCounts } = useKoraStats()
@@ -536,8 +537,8 @@ export default function Landing() {
         <Aurora />
         <Cursor />
         <ScrollProgress />
-        <GlassNav links={navLinks} ctaLabel={t("landing.startFree")} onCta={() => navigate("/register?role=manager")} />
-        <BackToTop label={en ? "Back to top" : "Retour en haut"} />
+        <GlassNav links={navLinks} ctaLabel={t("landing.startFree")} onCta={() => navigate("/register?role=manager")} reduceMotion={reduce} />
+        <BackToTop label={en ? "Back to top" : "Retour en haut"} reduceMotion={reduce} />
 
         <main className="relative z-10">
           <LandingHero />
@@ -763,7 +764,7 @@ export default function Landing() {
                     <KButton variant="glass" size="lg" arrow magnetic className="bg-background text-foreground hover:bg-background/90" onClick={() => navigate("/register?role=manager")}>
                       {t("landing.startFree")}
                     </KButton>
-                    <KButton variant="glass" size="lg" magnetic className="border-white/40 text-primary-foreground hover:bg-white/20" onClick={() => document.getElementById("categories")?.scrollIntoView({ behavior: "smooth" })}>
+                    <KButton variant="glass" size="lg" magnetic className="border-white/40 text-primary-foreground hover:bg-white/20" onClick={() => scrollToSection("categories", reduce)}>
                       {t("landing.categoriesEyebrow")}
                     </KButton>
                   </div>
