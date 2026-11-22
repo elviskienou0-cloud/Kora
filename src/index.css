@@ -1091,3 +1091,68 @@
 @media (prefers-reduced-motion: reduce) {
   .kora-public-shell .kora-marquee-track, .kora-public-shell .kora-aurora, .kora-public-shell .gold-text-gradient { animation: none !important; }
 }
+
+/* Landing page: compact rhythm, balanced widths and less unused vertical space. */
+.kora-public-shell .kora-landing-hero {
+  padding: clamp(42px, 5vw, 76px) clamp(18px, 4vw, 48px);
+}
+.kora-public-shell .kora-landing-hero-inner {
+  width: min(100%, 1320px);
+  margin-inline: auto;
+  gap: clamp(22px, 3.5vw, 48px);
+}
+.kora-public-shell .kora-landing-copy {
+  padding: clamp(22px, 2.5vw, 34px);
+  border-radius: 24px;
+}
+.kora-public-shell .kora-landing-copy h1 {
+  font-size: clamp(2.15rem, 4.1vw, 3.7rem);
+  line-height: 1.06;
+}
+.kora-public-shell .kora-hero-description {
+  margin-top: 14px;
+  font-size: clamp(.98rem, 1.2vw, 1.12rem);
+}
+.kora-public-shell .kora-landing-phones {
+  transform: scale(.92);
+  transform-origin: center;
+}
+.kora-public-shell .kora-process-section,
+.kora-public-shell #categories,
+.kora-public-shell #why-kora,
+.kora-public-shell #pricing,
+.kora-public-shell #faq {
+  scroll-margin-top: 84px;
+}
+.kora-public-shell #why-kora .grid > * { min-width: 0; }
+.kora-public-shell #why-kora .grid > * > div { min-height: 100%; }
+.kora-public-shell .kora-evolution-stat { min-height: 148px; padding: 18px; border-radius: 18px; }
+.kora-public-shell .kora-evolution-stat-icon { width: 36px; height: 36px; margin-bottom: 12px; }
+.kora-public-shell .kora-talent-showcase { padding: 20px; border-radius: 22px; }
+.kora-public-shell .kora-talent-stack { height: 300px; }
+.kora-public-shell .kora-talent-card-photo { height: 190px; }
+.kora-public-shell .kora-talent-card-content { padding: 13px 16px; }
+.kora-public-shell .kora-process-section .kora-page-intro { margin-bottom: 30px; }
+.kora-public-shell #pricing .grid { gap: 18px; }
+.kora-public-shell #faq .space-y-3 { gap: 10px; }
+@media (max-width: 767px) {
+  .kora-public-shell .kora-landing-hero { padding: 26px 16px 34px; }
+  .kora-public-shell .kora-landing-hero-inner { gap: 12px; }
+  .kora-public-shell .kora-landing-copy { padding: 20px 18px; }
+  .kora-public-shell .kora-landing-phones { transform: scale(.82); margin: -20px 0 -14px; }
+  .kora-public-shell .kora-evolution-section { padding-top: 42px; padding-bottom: 42px; }
+  .kora-public-shell .kora-evolution-stat { min-height: 126px; padding: 14px; }
+  .kora-public-shell .kora-talent-showcase { padding: 15px; }
+  .kora-public-shell .kora-talent-stack { height: 278px; }
+  .kora-public-shell .kora-talent-card-photo { height: 170px; }
+  .kora-public-shell .kora-process-section,
+  .kora-public-shell #categories,
+  .kora-public-shell #why-kora,
+  .kora-public-shell #pricing,
+  .kora-public-shell #faq { padding-top: 44px; padding-bottom: 44px; }
+  .kora-public-shell #why-kora .grid { grid-auto-rows: minmax(9rem, auto); }
+}
+@media (min-width: 768px) and (max-width: 1023px) {
+  .kora-public-shell .kora-landing-hero-inner { grid-template-columns: .9fr 1.1fr; }
+  .kora-public-shell .kora-landing-phones { transform: scale(.82); }
+}
