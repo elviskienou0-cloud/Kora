@@ -232,7 +232,10 @@ export default function Landing() {
 
   return (
     <div className="min-h-screen flex flex-col kora-public-shell">
-          <LandingHero />
+      <LandingHeader />
+
+      <main>
+        <LandingHero />
 
         <LandingEvolution stats={stats} language={language} />
 
