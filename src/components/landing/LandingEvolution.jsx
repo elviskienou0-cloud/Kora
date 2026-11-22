@@ -81,25 +81,25 @@ export default function LandingEvolution({ stats = [], language = "fr" }) {
   const nextTalentCard = () => setActiveIndex((index) => talents.length ? (index + 1) % talents.length : 0)
 
   return (
-    <section id="evolutions" className="kora-evolution-section py-20 lg:py-28">
+    <section id="evolutions" className="kora-evolution-section py-14 sm:py-16 lg:py-20">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <motion.div
           initial={{ opacity: 0, y: 18 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true, amount: 0.3 }}
           transition={{ duration: reduceMotion ? 0 : 0.55 }}
-          className="flex justify-center mb-12"
+          className="flex justify-center mb-8"
         >
           <h2 className="kora-evolution-title">{language === "en" ? "Evolution" : "Évolutions"}</h2>
         </motion.div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-[1fr_0.9fr] gap-10 lg:gap-16 items-center">
+        <div className="grid grid-cols-1 lg:grid-cols-[1fr_0.95fr] gap-6 lg:gap-9 items-center">
           <motion.div
             initial="hidden"
             whileInView="visible"
             viewport={{ once: true, amount: 0.2 }}
             variants={{ hidden: {}, visible: { transition: { staggerChildren: 0.1 } } }}
-            className="grid grid-cols-2 gap-4 sm:gap-5"
+            className="grid grid-cols-2 gap-3 sm:gap-4"
           >
             {visibleStats.map((stat, index) => {
               const Icon = statIcons[index] || Heart
