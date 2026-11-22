@@ -384,8 +384,15 @@ export default function Landing() {
   const en = language === "en"
 
   useEffect(() => {
+    const root = document.documentElement
+    const previousScrollBehavior = root.style.scrollBehavior
+    root.style.scrollBehavior = reduce ? "auto" : "smooth"
     window.scrollTo({ top: 0, behavior: "auto" })
-  }, [])
+
+    return () => {
+      root.style.scrollBehavior = previousScrollBehavior
+    }
+  }, [reduce])
 
   const { stats: liveStats, categoryCounts } = useKoraStats()
 
