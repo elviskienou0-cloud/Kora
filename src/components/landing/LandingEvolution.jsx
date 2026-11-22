@@ -151,12 +151,20 @@ export default function LandingEvolution({ stats = [], language = "fr" }) {
                     transition={{ duration: reduceMotion ? 0 : 0.32, ease: "easeOut" }}
                     drag={talents.length > 1 && !reduceMotion ? "x" : false}
                     dragConstraints={{ left: 0, right: 0 }}
-                    dragElastic={0.72}
+                    dragElastic={0.32}
+                    dragMomentum={false}
+                    dragSnapToOrigin
+                    dragTransition={{ bounceStiffness: 520, bounceDamping: 34 }}
                     onDragEnd={(_, info) => {
-                      if (info.offset.x < -65) nextTalentCard()
-                      if (info.offset.x > 65) previousTalent()
+                      const swipeDistance = 55
+                      const swipeVelocity = 450
+                      if (info.offset.x < -swipeDistance || info.velocity.x < -swipeVelocity) {
+                        nextTalentCard()
+                      } else if (info.offset.x > swipeDistance || info.velocity.x > swipeVelocity) {
+                        previousTalent()
+                      }
                     }}
-                    whileDrag={{ rotate: 4, scale: 1.02, cursor: "grabbing" }}
+                    whileDrag={{ scale: 1.015, cursor: "grabbing" }}
                   >
                     <Link to={`/talent/${currentTalent.id}`} className="kora-talent-card-link" aria-label={`${language === "en" ? "View profile of" : "Voir le profil de"} ${getName(currentTalent)}`}>
                       <div className="kora-talent-card-photo">
