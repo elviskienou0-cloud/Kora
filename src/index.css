@@ -1073,3 +1073,21 @@
 .dark .kora-public-shell .kora-landing-hero .kora-hero-eyebrow,
 .dark .kora-public-shell .kora-landing-hero .kora-phone-label,
 .dark .kora-public-shell .kora-landing-hero .kora-hero-description { color:#FFF8E8 !important; }
+
+/* Smooth interactions and lower GPU pressure on touch devices. */
+.kora-public-shell section[id] { scroll-margin-top: 96px; }
+.kora-public-shell button, .kora-public-shell a { -webkit-tap-highlight-color: transparent; touch-action: manipulation; }
+.kora-public-shell button:active:not(:disabled) { transform: translateY(1px) scale(.985); }
+.kora-public-shell .kora-talent-stack-card-front { touch-action: pan-y; user-select: none; -webkit-user-select: none; }
+.kora-public-shell .kora-talent-stack-card-front img { pointer-events: none; }
+@media (hover: none), (pointer: coarse), (max-width: 767px) {
+  .kora-public-shell .kora-aurora { animation: none !important; filter: blur(38px); opacity: .55; }
+  .kora-public-shell .kora-landing-hero::before, .kora-public-shell .kora-landing-hero::after { animation: none !important; filter: blur(42px); }
+  .kora-public-shell .kora-landing-copy, .kora-public-shell .kora-phone, .kora-public-shell .kora-talent-showcase, .kora-public-shell .kora-talent-card-photo > span { -webkit-backdrop-filter: blur(9px) saturate(115%); backdrop-filter: blur(9px) saturate(115%); }
+  .kora-public-shell .kora-landing-phones { filter: drop-shadow(0 12px 24px rgb(38 27 10 / .14)); }
+  .kora-public-shell .kora-marquee-track { animation-duration: 52s; }
+  .kora-public-shell .kora-talent-stack-card { box-shadow: 0 12px 28px rgb(42 33 21 / .12); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .kora-public-shell .kora-marquee-track, .kora-public-shell .kora-aurora, .kora-public-shell .gold-text-gradient { animation: none !important; }
+}
