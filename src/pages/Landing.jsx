@@ -84,10 +84,10 @@ function Split({ text, className }) {
 
 function SectionHeader({ badge, title, description }) {
   return (
-    <div className="mx-auto mb-16 max-w-4xl text-center lg:mb-20">
-      {badge && <Reveal direction="down"><div className="mb-6">{badge}</div></Reveal>}
-      <h2 className="mb-6 text-5xl font-black leading-[1.02] tracking-tight sm:text-6xl lg:text-7xl">{title}</h2>
-      {description && <Reveal delay={0.2}><p className="text-lg leading-relaxed text-muted-foreground sm:text-xl">{description}</p></Reveal>}
+    <div className="mx-auto mb-10 max-w-4xl text-center sm:mb-12 lg:mb-14">
+      {badge && <Reveal direction="down"><div className="mb-4">{badge}</div></Reveal>}
+      <h2 className="mb-4 text-4xl font-black leading-[1.04] tracking-tight sm:text-5xl lg:text-6xl">{title}</h2>
+      {description && <Reveal delay={0.2}><p className="text-base leading-relaxed text-muted-foreground sm:text-lg">{description}</p></Reveal>}
     </div>
   )
 }
@@ -307,15 +307,15 @@ function StackCard({ i, n, progress, number, Icon, title, text }) {
   return (
     <motion.article
       style={{ scale, top: `${6 + i * 18}px` }}
-      className={cn("sticky mb-6 grid min-h-[280px] grid-cols-[auto_1fr] items-center gap-5 overflow-hidden rounded-3xl p-6 sm:min-h-[320px] sm:gap-10 sm:p-10", GLASS)}
+      className={cn("sticky mb-4 grid min-h-[220px] grid-cols-[auto_1fr] items-center gap-4 overflow-hidden rounded-2xl p-5 sm:min-h-[250px] sm:gap-7 sm:p-7", GLASS)}
     >
       <span className="select-none text-6xl font-black text-primary/30 sm:text-8xl">{number}</span>
       <div>
-        <span className="mb-5 grid h-14 w-14 place-items-center rounded-2xl bg-primary/10 text-primary">
+        <span className="mb-3 grid h-12 w-12 place-items-center rounded-xl bg-primary/10 text-primary">
           <Icon className="h-7 w-7" strokeWidth={1.7} />
         </span>
-        <h3 className="mb-3 text-2xl font-black tracking-tight sm:text-4xl">{title}</h3>
-        <p className="max-w-2xl text-base leading-relaxed text-muted-foreground sm:text-lg">{text}</p>
+        <h3 className="mb-2 text-xl font-black tracking-tight sm:text-3xl">{title}</h3>
+        <p className="max-w-3xl text-sm leading-relaxed text-muted-foreground sm:text-base">{text}</p>
       </div>
     </motion.article>
   )
@@ -552,14 +552,14 @@ export default function Landing() {
           <LandingEvolution stats={stats} language={language} />
 
           {/* Parcours simple : cartes empilées animées au défilement */}
-          <section id="how-it-works" className="kora-process-section py-24 lg:py-32">
-            <div className="mx-auto max-w-5xl px-4 sm:px-6 lg:px-8">
+          <section id="how-it-works" className="kora-process-section py-16 sm:py-18 lg:py-20">
+            <div className="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8">
               <SectionHeader
                 badge={<GlassBar className="inline-flex px-5 py-2"><span className="kora-hero-eyebrow">{t("landing.processEyebrow")}</span></GlassBar>}
                 title={<Split text={en ? "From discovery to collaboration" : "De la recherche à la collaboration"} />}
                 description={t("landing.processDescription")}
               />
-              <div ref={stackRef} className="pb-[15vh]">
+              <div ref={stackRef} className="pb-[7vh]">
                 {steps.map((step, i) => (
                   <StackCard
                     key={step.number}
@@ -574,7 +574,7 @@ export default function Landing() {
           </section>
 
           {/* Catégories : deux rangées défilantes avec animation */}
-          <section id="categories" className="overflow-hidden py-24 lg:py-32">
+          <section id="categories" className="overflow-hidden py-16 sm:py-18 lg:py-20">
             <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
               <SectionHeader
                 badge={<Badge variant="default" className="px-4 py-1.5 text-xs font-bold uppercase tracking-wider">{t("landing.categoriesEyebrow")}</Badge>}
@@ -604,20 +604,20 @@ export default function Landing() {
           </section>
 
           {/* Pourquoi KORA : manifeste + bento en verre */}
-          <section id="why-kora" className="relative overflow-hidden py-28 lg:py-40">
+          <section id="why-kora" className="relative overflow-hidden py-16 sm:py-20 lg:py-24">
             <ParallaxBlob className="-left-32 bottom-10 h-96 w-96 bg-accent/40" range={120} />
             <div className="relative mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-              <div className="mx-auto mb-24 max-w-5xl text-center lg:mb-32">
+              <div className="mx-auto mb-10 max-w-4xl text-center sm:mb-12 lg:mb-14">
                 <Reveal direction="down">
-                  <Badge variant="gold" className="mb-8 px-4 py-1.5 text-xs font-bold uppercase tracking-wider">{en ? "WHY KORA?" : "POURQUOI KORA ?"}</Badge>
+                  <Badge variant="gold" className="mb-5 px-4 py-1.5 text-xs font-bold uppercase tracking-wider">{en ? "WHY KORA?" : "POURQUOI KORA ?"}</Badge>
                 </Reveal>
-                <h2 className="mb-10 text-6xl font-black leading-none tracking-tight sm:text-7xl lg:text-8xl">
+                <h2 className="mb-5 text-4xl font-black leading-none tracking-tight sm:text-5xl lg:text-6xl">
                   <Split text={en ? "Why" : "Pourquoi"} /><Split text={en ? "KORA?" : "KORA ?"} className="gold-text-gradient" />
                 </h2>
                 <ScrollWords text={en ? "A platform designed to make talent discovery and professional collaborations easier." : "Une plateforme pensée pour faciliter la découverte des talents et les collaborations professionnelles."} />
               </div>
 
-              <div className="grid auto-rows-[minmax(14rem,auto)] grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4">
+              <div className="grid auto-rows-[minmax(11rem,auto)] grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
                 {features.map(({ icon: Icon, title, description }, i) => {
                   const big = i === 0
                   return (
@@ -625,17 +625,17 @@ export default function Landing() {
                       <SpotlightCard className="rounded-3xl">
                         <Card className={cn("relative h-full overflow-hidden rounded-3xl transition-transform duration-300 hover:-translate-y-1", GLASS)}>
                           {big && <Icon aria-hidden className="absolute -bottom-10 -right-10 h-72 w-72 text-primary opacity-[0.08]" strokeWidth={1} />}
-                          <CardContent className={cn("relative flex h-full flex-col justify-end", big ? "p-10 lg:p-12" : "p-7", i === 5 && "sm:p-10")}>
+                          <CardContent className={cn("relative flex h-full flex-col justify-end", big ? "p-7 lg:p-8" : "p-5", i === 5 && "sm:p-8")}>
                             <motion.div
                               animate={reduce ? undefined : { y: [0, -8, 0] }} transition={{ duration: 4 + i, repeat: Infinity, ease: "easeInOut" }}
                               className="mb-auto w-fit"
                             >
-                              <GlassBar className={cn("grid place-items-center text-primary transition-transform duration-300 group-hover:scale-110", big ? "h-20 w-20 rounded-3xl" : "h-14 w-14 rounded-2xl")}>
-                                <Icon className={big ? "h-10 w-10" : "h-7 w-7"} strokeWidth={2} />
+                              <GlassBar className={cn("grid place-items-center text-primary transition-transform duration-300 group-hover:scale-110", big ? "h-16 w-16 rounded-2xl" : "h-12 w-12 rounded-xl")}>
+                                <Icon className={big ? "h-8 w-8" : "h-6 w-6"} strokeWidth={2} />
                               </GlassBar>
                             </motion.div>
-                            <h3 className={cn("mb-3 mt-8 font-black tracking-tight", big ? "text-3xl lg:text-4xl" : "text-xl")}>{title}</h3>
-                            <p className={cn("leading-relaxed text-muted-foreground", big && "text-lg")}>{description}</p>
+                            <h3 className={cn("mb-3 mt-8 font-black tracking-tight", big ? "text-2xl lg:text-3xl" : "text-lg")}>{title}</h3>
+                            <p className={cn("leading-relaxed text-muted-foreground", big && "text-base")}>{description}</p>
                           </CardContent>
                         </Card>
                       </SpotlightCard>
@@ -647,16 +647,16 @@ export default function Landing() {
           </section>
 
           {/* Tarifs : cartes en verre, bordure dorée animée sur le plan Pro */}
-          <section id="pricing" className="relative overflow-hidden py-28 lg:py-40">
+          <section id="pricing" className="relative overflow-hidden py-16 sm:py-20 lg:py-24">
             <ParallaxBlob className="-right-24 top-20 h-96 w-96 bg-primary/10" range={-120} />
             <div className="relative mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
               <SectionHeader
                 badge={<Badge variant="default" className="px-4 py-1.5 text-xs font-bold uppercase tracking-wider">{t("landing.pricingEyebrow")}</Badge>}
                 title={<><Split text={t("landing.pricingTitle")} /><Split text={t("landing.pricingTitleEmphasis")} className="gold-text-gradient" /></>}
               />
-              <div className="mx-auto grid max-w-6xl grid-cols-1 items-stretch gap-8 md:grid-cols-3">
+              <div className="mx-auto grid max-w-6xl grid-cols-1 items-stretch gap-5 md:grid-cols-3">
                 {landingDataLoading ? (
-                  [0, 1, 2].map((k) => <div key={k} className={cn("h-[28rem] animate-pulse rounded-3xl", GLASS)} />)
+                  [0, 1, 2].map((k) => <div key={k} className={cn("h-[23rem] animate-pulse rounded-3xl", GLASS)} />)
                 ) : planCards.length === 0 ? (
                   <div className="py-12 text-center text-sm text-muted-foreground md:col-span-3">{t("landing.unavailablePlans")}</div>
                 ) : (
@@ -682,18 +682,18 @@ export default function Landing() {
                             )}
                             {/* Le plan Pro garde un fond plus opaque pour masquer la bordure qui tourne derrière */}
                             <Card className={cn("relative h-full rounded-[calc(1.5rem-2px)]", GLASS, plan.highlighted && "bg-background/85")}>
-                              <CardContent className="p-8">
+                              <CardContent className="p-6 sm:p-7">
                                 <div className="mb-6">
                                   <h3 className="mb-2 text-2xl font-black">{plan.displayName}</h3>
                                   <p className="text-sm text-muted-foreground">{plan.description}</p>
                                 </div>
-                                <div className="mb-6 border-b border-foreground/10 pb-6">
+                                <div className="mb-5 border-b border-foreground/10 pb-5">
                                   <div className="flex items-baseline gap-1">
-                                    <span className="gold-text-gradient text-6xl font-black">{price > 0 ? <CountUp value={price} format={fmt} /> : t("landing.planFreeName")}</span>
+                                    <span className="gold-text-gradient text-5xl font-black">{price > 0 ? <CountUp value={price} format={fmt} /> : t("landing.planFreeName")}</span>
                                     {plan.period && <span className="text-sm font-semibold text-muted-foreground">{plan.period}</span>}
                                   </div>
                                 </div>
-                                <ul className="mb-8 space-y-3">
+                                <ul className="mb-6 space-y-2.5">
                                   {plan.featureList.map((f, idx) => (
                                     <motion.li
                                       key={f} initial={reduce ? false : { opacity: 0, x: -18 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true }}
@@ -729,7 +729,7 @@ export default function Landing() {
           </section>
 
           {/* FAQ : accordéon en verre dépoli */}
-          <section id="faq" className="relative overflow-hidden py-28 lg:py-40">
+          <section id="faq" className="relative overflow-hidden py-16 sm:py-20 lg:py-24">
             <ParallaxBlob className="-left-24 top-24 h-80 w-80 bg-primary/10" range={100} />
             <div className="relative mx-auto max-w-4xl px-4 sm:px-6 lg:px-8">
               <SectionHeader
@@ -737,7 +737,7 @@ export default function Landing() {
                 title={<Split text={en ? "Frequently asked questions" : "Questions fréquentes"} />}
                 description={en ? "Everything you need to know before getting started." : "Tout ce qu’il faut savoir avant de commencer."}
               />
-              <div className="space-y-4">
+              <div className="space-y-3">
                 {faqItems.map((f, i) => (
                   <FaqItem key={f.q} index={i} q={f.q} a={f.a} open={openFaq === i} onToggle={() => setOpenFaq(openFaq === i ? null : i)} />
                 ))}
@@ -746,7 +746,7 @@ export default function Landing() {
           </section>
 
           {/* CTA final : panneau doré qui grandit, avec un grand verre dépoli au centre */}
-          <section ref={ctaRef} className="relative px-4 pb-16 sm:px-6 lg:px-8 lg:pb-24">
+          <section ref={ctaRef} className="relative px-4 pb-10 sm:px-6 lg:px-8 lg:pb-14">
             <motion.div style={{ scale: ctaScale, borderRadius: ctaRadius }} className="gold-gradient relative mx-auto max-w-6xl overflow-hidden px-4 py-16 text-center text-primary-foreground sm:px-10 sm:py-24">
               {["-left-16 -top-16 h-64 w-64", "right-10 top-1/2 h-40 w-40", "-bottom-20 left-1/3 h-72 w-72"].map((pos, i) => (
                 <motion.span
@@ -755,14 +755,14 @@ export default function Landing() {
                   className={cn("pointer-events-none absolute rounded-full bg-white/30 blur-2xl", pos)}
                 />
               ))}
-              <GlassBar className="relative mx-auto max-w-4xl rounded-[2.5rem] border-white/30 bg-white/15 px-6 py-14 sm:px-12 sm:py-20">
+              <GlassBar className="relative mx-auto max-w-4xl rounded-[2rem] border-white/30 bg-white/15 px-5 py-9 sm:px-10 sm:py-12">
                 <Reveal direction="scale">
-                  <h2 className="mx-auto mb-6 max-w-3xl text-4xl font-black leading-[1.05] tracking-tight sm:text-5xl lg:text-6xl">
+                  <h2 className="mx-auto mb-4 max-w-3xl text-3xl font-black leading-[1.05] tracking-tight sm:text-4xl lg:text-5xl">
                     {en ? "Ready to meet tomorrow’s talent?" : "Prêt à rencontrer les talents de demain ?"}
                   </h2>
                 </Reveal>
                 <Reveal delay={0.15}>
-                  <p className="mx-auto mb-10 max-w-2xl text-lg leading-relaxed opacity-90 sm:text-xl">
+                  <p className="mx-auto mb-6 max-w-2xl text-base leading-relaxed opacity-90 sm:text-lg">
                     {en ? "Create your free account and start collaborating today." : "Créez votre compte gratuit et commencez à collaborer dès aujourd’hui."}
                   </p>
                 </Reveal>
