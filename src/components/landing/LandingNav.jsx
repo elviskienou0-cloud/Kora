@@ -1,15 +1,14 @@
 import { useEffect, useState } from "react"
 import { Link, useNavigate } from "react-router-dom"
-import { motion, useReducedMotion } from "framer-motion"
 import { Menu, X } from "lucide-react"
 import koraLogo from "@/assets/kora-logo.svg"
 import { KButton } from "@/components/ui/KButton"
 import { cn } from "@/lib/utils"
-import { EASE, scrollToSection, useActiveSection } from "./landingKit.jsx"
+import { scrollToSection, useActiveSection } from "./landingKit.jsx"
 
 export default function LandingNav({ links, labels, language, onLanguageChange }) {
   const navigate = useNavigate()
-  const reduce = useReducedMotion()
+  const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches
   const [menuOpen, setMenuOpen] = useState(false)
   const active = useActiveSection(links.map((link) => link.id))
 
@@ -41,11 +40,8 @@ export default function LandingNav({ links, labels, language, onLanguageChange }
 
   return (
     <div className="pointer-events-none fixed inset-x-0 top-3 z-50 flex justify-center px-3">
-      <motion.nav
+      <nav
         aria-label={labels.aria}
-        initial={reduce ? false : { opacity: 0, y: -18 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: reduce ? 0 : 0.35, ease: EASE }}
         className="pointer-events-auto w-full max-w-6xl"
       >
         <div className="kora-lp-nav-shell flex min-h-14 items-center gap-1 rounded-full border border-border bg-background/95 p-1.5 pl-3 shadow-lg">
@@ -136,7 +132,7 @@ export default function LandingNav({ links, labels, language, onLanguageChange }
               </li>
             </ul>
         </div>
-      </motion.nav>
+      </nav>
     </div>
   )
 }
