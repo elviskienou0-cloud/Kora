@@ -55,7 +55,7 @@ const EMPTY_STATS = [
 export function useKoraStats({ enabled = true, realtime = true } = {}) {
   const [stats, setStats] = useState(EMPTY_STATS)
   const [categoryCounts, setCategoryCounts] = useState(buildEmptyCategoryCounts)
-  const [loading, setLoading] = useState(false)
+  const [loading, setLoading] = useState(Boolean(enabled))
 
   useEffect(() => {
     if (!enabled) return undefined
