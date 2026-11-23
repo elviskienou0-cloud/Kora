@@ -1,272 +1,562 @@
-/* KORA — landing v2 : échelle typographique et briques visuelles communes.
-   Police unique : Manrope (déjà chargée dans index.html), hiérarchie par graisse, taille et interlettrage. */
+/* KORA landing page: one compact visual system, shared by every section. */
 
 .kora-lp {
-  --lp-ink: #2a2115;
-  --lp-gold: 212 175 55;
+  --lp-ink: #18243a;
+  --lp-gold: #d4af37;
   font-family: "Manrope", "Inter", system-ui, sans-serif;
-  font-feature-settings: "tnum" 0;
   -webkit-font-smoothing: antialiased;
   text-rendering: optimizeLegibility;
 }
+
 .dark .kora-lp { --lp-ink: #f4f7fb; }
 
-/* Rythme vertical : une seule valeur pour toutes les sections */
-.kora-lp-section { padding-block: clamp(56px, 6.5vw, 96px); scroll-margin-top: 5.5rem; }
-.kora-lp-container { width: min(1240px, 100% - 2rem); margin-inline: auto; }
-@media (min-width: 640px) { .kora-lp-container { width: min(1240px, 100% - 3rem); } }
-
-/* Eyebrow */
-.kora-lp-eyebrow-pill {
-  display: inline-flex; align-items: center; gap: .55rem;
-  padding: .45rem .95rem; border-radius: 999px;
-  border: 1px solid hsl(var(--gold) / .35); background: hsl(var(--gold) / .1);
-  color: hsl(var(--gold-dark)); font-size: .72rem; font-weight: 800;
-  letter-spacing: .16em; text-transform: uppercase;
-}
-.dark .kora-lp-eyebrow-pill { color: hsl(var(--gold-light)); }
-.kora-lp-eyebrow-dot { width: .4rem; height: .4rem; border-radius: 999px; background: hsl(var(--gold)); box-shadow: 0 0 0 4px hsl(var(--gold) / .2); }
-
-/* Titres, chapô, texte */
-.kora-lp-header { max-width: 52rem; margin-bottom: clamp(2.25rem, 4vw, 3.75rem); }
-.kora-lp-header > * + * { margin-top: 1.1rem; }
-.kora-lp-title {
-  font-weight: 800; letter-spacing: -.035em; line-height: 1.04;
-  font-size: clamp(2rem, 1.15rem + 3.1vw, 3.5rem);
-  color: var(--lp-ink); text-wrap: balance;
-}
-.kora-lp-lead {
-  font-size: clamp(1rem, .95rem + .3vw, 1.18rem); line-height: 1.7; font-weight: 500;
-  color: hsl(var(--muted-foreground)); text-wrap: pretty; max-width: 40rem; margin-inline: auto;
-}
-.kora-lp-card-title { font-weight: 800; letter-spacing: -.022em; line-height: 1.15; font-size: clamp(1.15rem, 1rem + .6vw, 1.5rem); color: var(--lp-ink); }
-.kora-lp-body { font-size: .95rem; line-height: 1.7; font-weight: 500; color: hsl(var(--muted-foreground)); }
-.kora-lp-num { font-variant-numeric: tabular-nums; font-feature-settings: "tnum" 1; }
-
-/* Texte doré (dégradé statique, léger glissement si les animations sont permises) */
-.kora-lp-gold {
-  background-image: linear-gradient(100deg, #b8892a 0%, #e9c46a 40%, #d4af37 60%, #b8892a 100%);
-  background-size: 200% 100%; -webkit-background-clip: text; background-clip: text; color: transparent;
-  animation: kora-lp-shine 7s ease-in-out infinite alternate;
-}
-@keyframes kora-lp-shine { to { background-position: 100% 0; } }
-
-/* Halos de fond (fixes) */
-@keyframes kora-lp-aurora { 50% { transform: translate3d(5vw, -4vh, 0) scale(1.15); } }
-.kora-lp-aurora { animation: kora-lp-aurora 20s ease-in-out infinite; }
-
-/* Rangées défilantes des catégories */
-.kora-lp-marquee {
-  overflow: hidden;
-  -webkit-mask-image: linear-gradient(90deg, transparent, #000 7%, #000 93%, transparent);
-  mask-image: linear-gradient(90deg, transparent, #000 7%, #000 93%, transparent);
-}
-.kora-lp-marquee-track { display: flex; width: max-content; gap: 1rem; animation: kora-lp-left 44s linear infinite; }
-.kora-lp-marquee-track.is-reverse { animation-name: kora-lp-right; }
-.kora-lp-marquee:hover .kora-lp-marquee-track { animation-play-state: paused; }
-@keyframes kora-lp-left { to { transform: translateX(-50%); } }
-@keyframes kora-lp-right { from { transform: translateX(-50%); } to { transform: translateX(0); } }
-.kora-lp-chip {
-  display: flex; min-width: 12.5rem; align-items: center; gap: .85rem;
-  padding: .85rem 1.15rem; border-radius: 1.15rem;
-  border: 1px solid hsl(var(--border)); background: hsl(var(--card));
-  box-shadow: 0 10px 28px -20px rgb(42 33 21 / .35);
-  transition: transform .25s ease, border-color .25s ease, box-shadow .25s ease;
-}
-.kora-lp-chip:hover { transform: translateY(-3px); border-color: hsl(var(--gold) / .6); box-shadow: 0 18px 36px -20px rgb(212 175 55 / .55); }
-
-/* Chiffres des étapes (contour doré) */
-.kora-lp-outline-num { color: transparent; -webkit-text-stroke: 2px rgb(var(--lp-gold) / .7); }
-
-/* Bordure dorée tournante du plan recommandé */
-@keyframes kora-lp-spin { to { transform: rotate(360deg); } }
-
-@media (prefers-reduced-motion: reduce) {
-  .kora-lp-gold, .kora-lp-aurora, .kora-lp-marquee-track { animation: none !important; }
-  .kora-lp-marquee { overflow-x: auto; -webkit-mask-image: none; mask-image: none; }
-}
-
-
-/* Landing v2: densité visuelle mieux équilibrée, sans retirer de contenu. */
 .kora-lp-section {
-  padding-block: clamp(42px, 5vw, 72px);
+  padding-block: clamp(3.5rem, 5.8vw, 5.25rem);
+  scroll-margin-top: 6.5rem;
 }
+
+.kora-lp-container {
+  width: min(1160px, calc(100% - 2rem));
+  margin-inline: auto;
+}
+
 .kora-lp-header {
-  margin-bottom: clamp(1.6rem, 3vw, 2.6rem);
+  max-width: 48rem;
+  margin: 0 auto clamp(1.8rem, 3vw, 2.6rem);
 }
-.kora-lp-header > * + * {
-  margin-top: .8rem;
+
+.kora-lp-header > * + * { margin-top: .85rem; }
+
+.kora-lp-eyebrow-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: .55rem;
+  padding: .4rem .8rem;
+  border: 1px solid hsl(var(--gold) / .32);
+  border-radius: 999px;
+  background: hsl(var(--gold) / .09);
+  color: hsl(var(--gold-dark));
+  font-size: .68rem;
+  font-weight: 800;
+  letter-spacing: .13em;
+  line-height: 1.4;
+  text-transform: uppercase;
 }
+
+.dark .kora-lp-eyebrow-pill { color: hsl(var(--gold-light)); }
+
+.kora-lp-eyebrow-dot {
+  width: .42rem;
+  height: .42rem;
+  flex: none;
+  border-radius: 50%;
+  background: hsl(var(--gold));
+}
+
 .kora-lp-title {
-  font-size: clamp(1.9rem, 1.25rem + 2.6vw, 3.1rem);
+  color: var(--lp-ink);
+  font-size: clamp(1.9rem, 1.3rem + 2.2vw, 3.05rem);
+  font-weight: 850;
+  letter-spacing: -.045em;
   line-height: 1.08;
+  text-wrap: balance;
 }
+
+.kora-lp-title-emphasis { color: hsl(var(--gold-dark)); }
+.dark .kora-lp-title-emphasis { color: hsl(var(--gold-light)); }
+
 .kora-lp-lead {
-  max-width: 38rem;
-  font-size: clamp(.94rem, .9rem + .25vw, 1.08rem);
-  line-height: 1.62;
+  max-width: 40rem;
+  margin-inline: auto;
+  color: hsl(var(--muted-foreground));
+  font-size: 1rem;
+  font-weight: 500;
+  line-height: 1.65;
+  text-wrap: pretty;
 }
+
 .kora-lp-card-title {
-  font-size: clamp(1.08rem, 1rem + .45vw, 1.35rem);
+  color: var(--lp-ink);
+  font-size: clamp(1.08rem, 1rem + .35vw, 1.3rem);
+  font-weight: 800;
+  letter-spacing: -.025em;
+  line-height: 1.2;
 }
+
 .kora-lp-body {
-  font-size: .91rem;
-  line-height: 1.6;
+  color: hsl(var(--muted-foreground));
+  font-size: .94rem;
+  font-weight: 500;
+  line-height: 1.65;
 }
-.kora-lp-chip {
-  min-width: 11.5rem;
-  gap: .7rem;
-  padding: .7rem .95rem;
+
+/* Hero: content first, preview second. No decorative movement loops. */
+.kora-lp .kora-landing-hero {
+  min-height: 650px;
+  margin-top: 0;
+  padding: 112px 24px 76px;
+  overflow-x: clip;
+  background:
+    radial-gradient(ellipse at 78% 25%, rgb(212 175 55 / .16), transparent 38%),
+    radial-gradient(ellipse at 15% 90%, rgb(51 91 145 / .22), transparent 42%),
+    #0d1728;
+  color: #fff;
 }
-.kora-lp #audience article {
-  padding: clamp(1.25rem, 2vw, 2rem);
-  border-radius: 1.5rem;
+
+.kora-lp .kora-landing-hero-inner {
+  width: min(1160px, 100%);
+  margin-inline: auto;
+  display: grid;
+  grid-template-columns: minmax(0, 1.05fr) minmax(0, .95fr);
+  align-items: center;
+  gap: clamp(2rem, 5vw, 4.5rem);
 }
-.kora-lp #audience article > span.mb-6,
-.kora-lp #audience article > span.mb-5 {
-  margin-bottom: 1rem;
+
+.kora-lp .kora-landing-copy {
+  max-width: 650px;
+  padding: 0;
 }
-.kora-lp #audience article .mt-8 {
+
+.kora-lp .kora-hero-eyebrow {
+  color: #f0cc68;
+  font-size: .72rem;
+  font-weight: 850;
+  letter-spacing: .16em;
+  line-height: 1.5;
+}
+
+.kora-lp .kora-landing-copy h1 {
+  max-width: 13ch;
+  margin-top: 1rem;
+  color: #fff;
+  font-size: clamp(2.55rem, 4.2vw, 4.15rem);
+  font-weight: 850;
+  letter-spacing: -.055em;
+  line-height: 1.04;
+  text-wrap: balance;
+}
+
+.kora-lp .kora-hero-description {
+  max-width: 39rem;
   margin-top: 1.25rem;
+  color: rgb(255 255 255 / .76);
+  font-size: 1.04rem;
+  line-height: 1.7;
 }
-.kora-lp #why-kora .mb-14 {
-  margin-bottom: 2rem;
+
+.kora-lp .kora-landing-phones {
+  min-width: 0;
+  min-height: 360px;
+  padding-top: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 14px;
 }
-.kora-lp #why-kora .grid {
-  grid-auto-rows: minmax(10.5rem, auto);
-  gap: 1rem;
+
+.kora-lp .kora-phone-label {
+  top: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  color: rgb(255 255 255 / .62);
+  font-size: .65rem;
+  font-weight: 800;
+  letter-spacing: .14em;
 }
-.kora-lp #why-kora .grid > * > div > div {
-  padding: 1.25rem;
+
+.kora-lp .kora-phone {
+  width: min(44%, 188px);
+  height: 340px;
+  flex: 0 1 188px;
+  border: 4px solid #39465a;
+  border-radius: 27px;
+  padding: 7px;
+  background: #101827;
+  box-shadow: 0 22px 55px rgb(0 0 0 / .28);
 }
-.kora-lp #pricing .grid {
-  gap: 1rem;
+
+.kora-lp .kora-phone-screen {
+  border-radius: 19px;
+  background: #172235;
 }
-.kora-lp #pricing [class*="h-[27rem]"] {
-  height: 22rem;
+
+.kora-lp .kora-phone-brand { color: #fff; }
+.kora-lp .kora-phone-brand span { color: #e5bd51; }
+
+.kora-lp .kora-phone-home { background: rgb(255 255 255 / .5); }
+
+.kora-lp .kora-start-button {
+  min-height: 3rem;
+  margin-top: 0;
+  border-radius: 999px !important;
+  background: linear-gradient(135deg, #f0d47d, #d4af37) !important;
+  color: #172033 !important;
+  box-shadow: 0 10px 26px rgb(212 175 55 / .2) !important;
 }
-.kora-lp #pricing .rounded-\[2rem\] > .flex.h-full.flex-col {
-  padding: 1.25rem;
+
+/* Audience cards */
+.kora-lp-audience-card {
+  display: flex;
+  min-height: 100%;
+  flex-direction: column;
+  padding: clamp(1.4rem, 2.6vw, 2.1rem);
+  border: 1px solid hsl(var(--border));
+  border-radius: 1.5rem;
+  background: hsl(var(--card));
+  box-shadow: 0 12px 32px -24px rgb(15 23 42 / .3);
 }
-.kora-lp #faq .space-y-4 {
-  gap: .7rem;
+
+.kora-lp-audience-card-manager {
+  border-color: rgb(255 255 255 / .1);
+  background: #192d4c;
+  color: #fff;
 }
-.kora-lp #faq button {
-  padding-block: 1rem;
+
+.kora-lp-audience-card-manager .kora-lp-card-title { color: #fff; }
+.kora-lp-audience-card-manager .kora-lp-body { color: rgb(255 255 255 / .74); }
+
+.kora-lp-audience-tag {
+  display: inline-flex;
+  width: fit-content;
+  margin-bottom: 1.1rem;
+  padding: .35rem .7rem;
+  border-radius: 999px;
+  background: hsl(var(--gold) / .12);
+  color: hsl(var(--gold-dark));
+  font-size: .68rem;
+  font-weight: 850;
+  letter-spacing: .12em;
 }
-.kora-lp #faq .rounded-3xl {
-  border-radius: 1.1rem;
+
+.kora-lp-audience-card-manager .kora-lp-audience-tag {
+  background: rgb(255 255 255 / .1);
+  color: #f5d77d;
 }
-.kora-lp .kora-lp-marquee + .kora-lp-marquee {
-  margin-top: .25rem;
+
+.kora-lp-audience-icon {
+  display: grid;
+  width: 2.8rem;
+  height: 2.8rem;
+  margin-bottom: 1.1rem;
+  place-items: center;
+  border-radius: .9rem;
+  background: hsl(var(--gold) / .13);
+  color: hsl(var(--gold-dark));
 }
-.kora-lp #final-cta-title {
-  font-size: clamp(1.8rem, 1.25rem + 2.5vw, 3rem);
+
+.kora-lp-audience-card-manager .kora-lp-audience-icon {
+  background: rgb(255 255 255 / .1);
+  color: #f5d77d;
 }
-@media (max-width: 767px) {
-  .kora-lp-section {
-    padding-block: 38px;
-  }
-  .kora-lp-container {
-    width: min(100%, 100% - 1.5rem);
-  }
-  .kora-lp-header {
-    margin-bottom: 1.5rem;
-  }
-  .kora-lp-header > * + * {
-    margin-top: .65rem;
-  }
-  .kora-lp-title {
-    font-size: clamp(1.7rem, 7vw, 2.25rem);
-  }
-  .kora-lp-lead {
-    font-size: .92rem;
-    line-height: 1.55;
-  }
-  .kora-lp #audience article {
-    padding: 1.2rem;
-    border-radius: 1.25rem;
-  }
-  .kora-lp #why-kora .grid {
-    grid-auto-rows: minmax(9rem, auto);
-    gap: .75rem;
-  }
-  .kora-lp #pricing .grid {
-    gap: .85rem;
-  }
-  .kora-lp #faq button {
-    gap: .8rem;
-    padding: .9rem 1rem;
-  }
-  .kora-lp #final-cta-title {
-    font-size: clamp(1.7rem, 7vw, 2.35rem);
-  }
+
+/* Three clear steps */
+.kora-lp-step-card,
+.kora-lp-feature-card {
+  height: 100%;
+  padding: 1.5rem;
+  border: 1px solid hsl(var(--border));
+  border-radius: 1.35rem;
+  background: hsl(var(--card));
+  box-shadow: 0 12px 32px -25px rgb(15 23 42 / .35);
 }
+
+.kora-lp-step-number {
+  display: block;
+  color: hsl(var(--gold-dark));
+  font-size: 2rem;
+  font-weight: 900;
+  letter-spacing: -.06em;
+  line-height: 1;
+}
+
+.dark .kora-lp-step-number { color: hsl(var(--gold-light)); }
+
+.kora-lp-step-icon,
+.kora-lp-feature-icon,
+.kora-lp-category-icon {
+  display: grid;
+  width: 2.75rem;
+  height: 2.75rem;
+  place-items: center;
+  border-radius: .9rem;
+  background: hsl(var(--gold) / .13);
+  color: hsl(var(--gold-dark));
+}
+
+.dark .kora-lp-step-icon,
+.dark .kora-lp-feature-icon,
+.dark .kora-lp-category-icon { color: hsl(var(--gold-light)); }
+
+/* Static category grid instead of continuously moving marquees */
+.kora-lp-category-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: .75rem;
+}
+
+.kora-lp-category-card {
+  display: flex;
+  min-width: 0;
+  min-height: 76px;
+  align-items: center;
+  gap: .8rem;
+  padding: .85rem;
+  border: 1px solid hsl(var(--border));
+  border-radius: 1rem;
+  background: hsl(var(--card));
+  color: var(--lp-ink);
+  font-size: .9rem;
+  line-height: 1.3;
+  transition: border-color .18s ease, transform .18s ease, background-color .18s ease;
+}
+
+.kora-lp-category-card:hover {
+  transform: translateY(-2px);
+  border-color: hsl(var(--gold) / .55);
+  background: hsl(var(--gold) / .045);
+}
+
+.kora-lp-category-icon { width: 2.55rem; height: 2.55rem; flex: none; }
+
+.kora-lp-feature-card { padding: 1.4rem; }
+.kora-lp-feature-icon { width: 3rem; height: 3rem; }
+
+/* Community proof and published profiles */
+.kora-lp .kora-evolution-section {
+  overflow: visible;
+  background: linear-gradient(180deg, hsl(var(--muted) / .45), transparent 76%);
+}
+
+.kora-lp .kora-evolution-stat {
+  min-height: 142px;
+  padding: 1.2rem;
+  border: 1px solid hsl(var(--border));
+  border-radius: 1.2rem;
+  background: hsl(var(--card));
+  box-shadow: 0 12px 30px -25px rgb(15 23 42 / .35);
+  transition: border-color .18s ease;
+}
+
+.kora-lp .kora-evolution-stat:hover { border-color: hsl(var(--gold) / .55); }
+
+.kora-lp .kora-evolution-stat-icon {
+  width: 2.4rem;
+  height: 2.4rem;
+  margin-bottom: .9rem;
+  border-radius: .8rem;
+  background: hsl(var(--gold) / .12);
+  color: hsl(var(--gold-dark));
+}
+
+.kora-lp .kora-evolution-stat strong {
+  color: var(--lp-ink);
+  font-size: clamp(1.5rem, 2.6vw, 2.1rem);
+  font-weight: 850;
+  letter-spacing: -.045em;
+  line-height: 1.1;
+}
+
+.kora-lp .kora-evolution-stat > span:last-child {
+  margin-top: .45rem;
+  color: hsl(var(--muted-foreground));
+  font-size: .8rem;
+  font-weight: 650;
+}
+
+.kora-lp .kora-talent-showcase {
+  min-width: 0;
+  padding: clamp(1rem, 2.5vw, 1.5rem);
+  border: 1px solid hsl(var(--border));
+  border-radius: 1.5rem;
+  background: hsl(var(--card));
+  box-shadow: 0 16px 38px -30px rgb(15 23 42 / .4);
+  backdrop-filter: none;
+}
+
+.kora-lp .kora-talent-showcase-heading h3 {
+  color: var(--lp-ink);
+  font-size: 1.2rem;
+  font-weight: 850;
+  letter-spacing: -.035em;
+}
+
+.kora-lp .kora-talent-showcase-heading p {
+  color: hsl(var(--muted-foreground));
+  font-size: .65rem;
+  font-weight: 800;
+  letter-spacing: .12em;
+}
+
+.kora-lp .kora-talent-controls button {
+  width: 44px;
+  height: 44px;
+  border-color: hsl(var(--border));
+  background: hsl(var(--background));
+  color: var(--lp-ink);
+}
+
+.kora-lp .kora-talent-stack { height: 320px; }
+
+.kora-lp .kora-talent-stack-card {
+  border-color: hsl(var(--border));
+  border-radius: 1.2rem;
+  background: hsl(var(--card));
+  box-shadow: 0 14px 34px -24px rgb(15 23 42 / .5);
+}
+
+.kora-lp .kora-talent-stack-card-back { opacity: .38; }
+.kora-lp .kora-talent-card-photo { height: 205px; }
+.kora-lp .kora-talent-card-content { padding: 1rem 1.1rem; }
+.kora-lp .kora-talent-hint { margin-top: .75rem; }
+
+/* Pricing */
+.kora-lp-plan-card {
+  position: relative;
+  min-width: 0;
+  padding: 1.5rem;
+  border: 1px solid hsl(var(--border));
+  border-radius: 1.4rem;
+  background: hsl(var(--card));
+  box-shadow: 0 14px 36px -28px rgb(15 23 42 / .4);
+}
+
+.kora-lp-plan-card-featured {
+  border-color: hsl(var(--gold) / .7);
+  box-shadow: 0 18px 42px -30px rgb(160 117 22 / .55);
+}
+
+.kora-lp-plan-badge {
+  display: inline-flex;
+  margin-bottom: 1rem;
+  padding: .35rem .7rem;
+  border-radius: 999px;
+  background: hsl(var(--gold) / .16);
+  color: hsl(var(--gold-dark));
+  font-size: .65rem;
+  font-weight: 850;
+  letter-spacing: .1em;
+}
+
+.kora-lp-plan-price {
+  color: hsl(var(--gold-dark));
+  font-size: clamp(2.25rem, 3.5vw, 2.9rem);
+  font-weight: 900;
+  letter-spacing: -.055em;
+  line-height: 1;
+}
+
+.dark .kora-lp-plan-price { color: hsl(var(--gold-light)); }
+
+.kora-lp-shared-features {
+  padding: 1.4rem;
+  border: 1px solid hsl(var(--border));
+  border-radius: 1.4rem;
+  background: hsl(var(--card));
+}
+
+/* FAQ and final conversion */
+.kora-lp-faq-item {
+  overflow: hidden;
+  border: 1px solid hsl(var(--border));
+  border-radius: 1.15rem;
+  background: hsl(var(--card));
+  transition: border-color .18s ease;
+}
+
+.kora-lp-faq-item.is-open { border-color: hsl(var(--gold) / .6); }
+
+.kora-lp-final-section { padding-top: 1rem; }
+
+.kora-lp-final-card {
+  padding: clamp(2.2rem, 5vw, 4.5rem) 1.25rem;
+  border: 1px solid rgb(255 255 255 / .12);
+  border-radius: 1.8rem;
+  background:
+    radial-gradient(circle at 90% 10%, rgb(212 175 55 / .2), transparent 32%),
+    linear-gradient(135deg, #15243d, #203b60);
+  color: #fff;
+  text-align: center;
+}
+
+.kora-lp-final-eyebrow {
+  color: #f0d27c;
+  font-size: .68rem;
+  font-weight: 850;
+  letter-spacing: .15em;
+}
+
+.kora-lp-final-card h2 {
+  max-width: 14ch;
+  margin: 1rem auto 0;
+  color: #fff;
+  font-size: clamp(2rem, 3.8vw, 3.4rem);
+  font-weight: 900;
+  letter-spacing: -.05em;
+  line-height: 1.06;
+  text-wrap: balance;
+}
+
+.kora-lp-final-description {
+  max-width: 38rem;
+  margin: 1.1rem auto 0;
+  color: rgb(255 255 255 / .78);
+  font-size: 1rem;
+  line-height: 1.65;
+}
+
+.kora-lp-nav-shell { backdrop-filter: none; }
+
+@media (min-width: 640px) {
+  .kora-lp-category-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+}
+
+@media (min-width: 1024px) {
+  .kora-lp-category-grid { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+}
+
+@media (max-width: 900px) {
+  .kora-lp .kora-landing-hero { min-height: auto; padding-top: 112px; }
+  .kora-lp .kora-landing-hero-inner { grid-template-columns: minmax(0, 1fr); gap: 2.5rem; }
+  .kora-lp .kora-landing-copy { max-width: 720px; margin-inline: auto; text-align: center; }
+  .kora-lp .kora-landing-copy h1,
+  .kora-lp .kora-hero-description { margin-inline: auto; }
+  .kora-lp .kora-landing-copy h1 { max-width: 15ch; }
+  .kora-lp .kora-landing-copy > div { justify-content: center; }
+  .kora-lp .kora-landing-phones { width: min(100%, 500px); min-height: 320px; margin-inline: auto; }
+}
+
+@media (max-width: 639px) {
+  .kora-lp-section { padding-block: 3.25rem; }
+  .kora-lp-container { width: min(100% - 1.5rem, 1160px); }
+  .kora-lp-header { margin-bottom: 1.6rem; }
+  .kora-lp-title { font-size: clamp(1.75rem, 7vw, 2.25rem); }
+  .kora-lp-lead { font-size: .94rem; line-height: 1.6; }
+  .kora-lp .kora-landing-hero { padding: 104px 16px 48px; }
+  .kora-lp .kora-landing-copy h1 { font-size: clamp(2.1rem, 9vw, 2.8rem); }
+  .kora-lp .kora-hero-description { font-size: .98rem; }
+  .kora-lp .kora-landing-phones { min-height: 285px; gap: 9px; }
+  .kora-lp .kora-phone { width: 46%; height: 275px; border-width: 3px; padding: 5px; }
+  .kora-lp .kora-phone-screen { padding: 21px 8px 14px; }
+  .kora-lp .kora-phone-label { font-size: .58rem; }
+  .kora-lp-audience-card { padding: 1.2rem; border-radius: 1.2rem; }
+  .kora-lp-step-card,
+  .kora-lp-feature-card { padding: 1.2rem; }
+  .kora-lp-category-grid { gap: .6rem; }
+  .kora-lp-category-card { min-height: 68px; gap: .55rem; padding: .65rem; font-size: .82rem; }
+  .kora-lp-category-icon { width: 2.25rem; height: 2.25rem; }
+  .kora-lp .kora-evolution-stat { min-height: 125px; padding: .9rem; }
+  .kora-lp .kora-talent-stack { height: 290px; }
+  .kora-lp .kora-talent-card-photo { height: 180px; }
+  .kora-lp-plan-card { padding: 1.2rem; }
+  .kora-lp-final-card { border-radius: 1.3rem; }
+}
+
 @media (prefers-reduced-motion: reduce) {
+  .kora-lp,
   .kora-lp * {
     scroll-behavior: auto !important;
+    animation-duration: .01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: .01ms !important;
   }
-}
-
-
-/* Second sizing pass: visibly smaller components across the full landing. */
-.kora-lp .kora-landing-hero-inner { gap: clamp(1.5rem, 3vw, 2.75rem); }
-.kora-lp .kora-landing-phones { transform: scale(.82); transform-origin: center; }
-.kora-lp .kora-phone { transform: scale(.9); }
-.kora-lp .kora-phone-label { font-size: .68rem; }
-.kora-lp .kora-landing-copy { padding: clamp(1.35rem, 2vw, 2rem); }
-.kora-lp .kora-landing-copy h1 { font-size: clamp(2rem, 3.6vw, 3.2rem); line-height: 1.08; }
-.kora-lp .kora-hero-description { font-size: .96rem; line-height: 1.55; }
-.kora-lp .kora-start-button { min-height: 2.7rem; padding-inline: 1.15rem; font-size: .9rem; }
-.kora-lp .kora-lp-eyebrow-pill { padding: .35rem .75rem; font-size: .65rem; }
-.kora-lp .kora-lp-title { font-size: clamp(1.75rem, 1.1rem + 2.1vw, 2.8rem); }
-.kora-lp .kora-lp-lead { font-size: .94rem; line-height: 1.58; }
-.kora-lp .kora-lp-card-title { font-size: clamp(1rem, .95rem + .35vw, 1.25rem); }
-.kora-lp .kora-lp-body { font-size: .86rem; line-height: 1.55; }
-.kora-lp #audience article { padding: 1.4rem; }
-.kora-lp #audience article > span.grid { width: 2.8rem; height: 2.8rem; border-radius: .85rem; }
-.kora-lp #audience article > span.grid svg { width: 1.25rem; height: 1.25rem; }
-.kora-lp #audience article > svg.absolute { width: 10rem; height: 10rem; }
-.kora-lp #audience article ul { margin-top: 1rem; gap: .55rem; }
-.kora-lp #audience article li svg { width: 1rem; height: 1rem; }
-.kora-lp #audience article li span { font-size: .84rem; }
-.kora-lp #audience article .relative.mt-8 { margin-top: 1.2rem; }
-.kora-lp #how-it-works article { min-height: 12rem; gap: 1rem; padding: 1.25rem; border-radius: 1.35rem; }
-.kora-lp #how-it-works article .kora-lp-num { font-size: clamp(3.2rem, 5vw, 5rem); }
-.kora-lp #how-it-works article h3 { font-size: clamp(1.05rem, 1rem + .35vw, 1.3rem); }
-.kora-lp #how-it-works article p { font-size: .86rem; }
-.kora-lp #categories .kora-lp-chip { min-width: 10rem; gap: .65rem; padding: .65rem .8rem; border-radius: .9rem; }
-.kora-lp #categories .kora-lp-chip > span:first-child { width: 2.25rem; height: 2.25rem; border-radius: .7rem; }
-.kora-lp #categories .kora-lp-chip > span:first-child svg { width: 1.2rem; height: 1.2rem; }
-.kora-lp #categories .kora-lp-chip > span:last-child > span:first-child { font-size: .85rem; }
-.kora-lp #why-kora .grid { grid-auto-rows: minmax(9.5rem, auto); gap: .8rem; }
-.kora-lp #why-kora .grid > * > div > div { padding: 1.15rem; }
-.kora-lp #why-kora .grid svg:not(.absolute) { max-width: 3.5rem; max-height: 3.5rem; }
-.kora-lp #why-kora .grid h3 { font-size: 1.12rem; margin-top: 1rem; }
-.kora-lp #why-kora .grid p { font-size: .84rem; }
-.kora-lp #why-kora .mb-14 { margin-bottom: 1.5rem; }
-.kora-lp #pricing .grid { gap: .8rem; }
-.kora-lp #pricing .grid > * { min-width: 0; }
-.kora-lp #faq .space-y-4 { gap: .6rem; }
-.kora-lp #faq button { padding: .85rem 1.1rem; gap: .8rem; }
-.kora-lp #faq button > span:first-child { font-size: .94rem; }
-.kora-lp #faq button > span:last-child { width: 2rem; height: 2rem; }
-.kora-lp #faq button svg { width: 1rem; height: 1rem; }
-.kora-lp #faq [role="region"] p { padding: 0 1.1rem 1rem; font-size: .85rem; }
-.kora-lp #final-cta-title { font-size: clamp(1.7rem, 1.1rem + 2vw, 2.7rem); }
-.kora-lp #final-cta-title + p { font-size: .92rem; }
-.kora-lp .kora-lp-section { padding-block: clamp(36px, 4vw, 58px); }
-.kora-lp .kora-lp-header { margin-bottom: clamp(1.25rem, 2.5vw, 2rem); }
-@media (max-width: 767px) {
-  .kora-lp .kora-landing-hero-inner { gap: .5rem; }
-  .kora-lp .kora-landing-phones { transform: scale(.74); margin-block: -2rem; }
-  .kora-lp .kora-phone { transform: scale(.84); }
-  .kora-lp .kora-landing-copy { padding: 1.15rem; }
-  .kora-lp .kora-landing-copy h1 { font-size: clamp(1.8rem, 7vw, 2.35rem); }
-  .kora-lp #audience article { padding: 1.1rem; }
-  .kora-lp #how-it-works article { min-height: 10rem; padding: 1rem; gap: .7rem; }
-  .kora-lp #how-it-works article .kora-lp-num { font-size: 3rem; }
-  .kora-lp #why-kora .grid { grid-auto-rows: minmax(8.5rem, auto); }
-  .kora-lp #pricing .grid { gap: .7rem; }
-  .kora-lp #faq button { padding: .8rem .9rem; }
 }
