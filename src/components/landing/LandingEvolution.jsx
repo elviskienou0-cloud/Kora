@@ -44,28 +44,32 @@ export default function LandingEvolution({ stats = [], loading = false }) {
     let mounted = true
 
     const loadTalents = async () => {
-      const { data, error } = await supabase
-        .from("talent_profiles")
-        .select("id, first_name, last_name, title, city, avatar_url, rating, reviews_count, categories(name), countries(name)")
-        .eq("status", "published")
-        .eq("is_visible", true)
-        .order("rating", { ascending: false })
-        .limit(8)
-
-      if (!mounted) return
-      if (error) {
-        console.warn("KORA: impossible de charger les profils publics pour la vitrine.")
-        setTalents([])
-        setTalentsLoading(false)
-        return
-      }
-
       try {
-        const talentsWithPhotos = await resolveTalentProfileMediaBatch(data || [])
-        if (mounted) setTalents(talentsWithPhotos)
-      } catch (mediaError) {
-        console.warn("KORA: impossible de charger les photos de la vitrine.", mediaError)
-        if (mounted) setTalents(data || [])
+        const { data, error } = await supabase
+          .from("talent_profiles")
+          .select("id, first_name, last_name, title, city, avatar_url, rating, reviews_count, categories(name), countries(name)")
+          .eq("status", "published")
+          .eq("is_visible", true)
+          .order("rating", { ascending: false })
+          .limit(8)
+
+        if (!mounted) return
+        if (error) {
+          console.warn("KORA: impossible de charger les profils publics pour la vitrine.", error)
+          setTalents([])
+          return
+        }
+
+        try {
+          const talentsWithPhotos = await resolveTalentProfileMediaBatch(data || [])
+          if (mounted) setTalents(talentsWithPhotos)
+        } catch (mediaError) {
+          console.warn("KORA: impossible de charger les photos de la vitrine.", mediaError)
+          if (mounted) setTalents(data || [])
+        }
+      } catch (loadError) {
+        console.warn("KORA: erreur réseau pendant le chargement de la vitrine.", loadError)
+        if (mounted) setTalents([])
       } finally {
         if (mounted) setTalentsLoading(false)
       }
@@ -132,7 +136,7 @@ export default function LandingEvolution({ stats = [], loading = false }) {
                 </CardContent>
               </Card>
             ) : currentTalent ? (
-              <div className="kora-talent-stack" aria-label={language === "en" ? "Featured talent profiles" : "Profils de talents mis en avant"}>
+              <div className="kora-talent-stack" role="region" aria-label={language === "en" ? "Featured talent profiles" : "Profils de talents mis en avant"}>
                 {nextTalent && (
                   <div className="kora-talent-stack-card kora-talent-stack-card-back" aria-hidden="true">
                     <TalentPortrait talent={nextTalent} decorative />
