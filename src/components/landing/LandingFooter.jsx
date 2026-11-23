@@ -11,7 +11,6 @@ const FOOTER_LINKS = {
     { label: "footerPricing", href: "#pricing" },
   ],
   footerSupport: [
-    { label: "footerHelp", href: "/faq" },
     { label: "footerContact", href: "/contact" },
     { label: "footerFaq", href: "/faq" },
     { label: "footerReport", href: "/signaler-un-probleme" },
