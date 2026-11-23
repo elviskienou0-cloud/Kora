@@ -1,6 +1,6 @@
 import { useEffect, useMemo } from "react"
 import { MotionConfig, useReducedMotion } from "framer-motion"
-import { Briefcase, Globe, Star, Users } from "lucide-react"
+import { Globe, Star, Users } from "lucide-react"
 import LandingHero from "@/components/landing/LandingHero"
 import LandingEvolution from "@/components/landing/LandingEvolution.jsx"
 import LandingFooter from "@/components/landing/LandingFooter"
@@ -35,6 +35,46 @@ export default function Landing() {
     if (!window.location.hash) window.scrollTo({ top: 0, behavior: "auto" })
     return () => { root.style.scrollBehavior = previous }
   }, [reduce])
+
+  useEffect(() => {
+    const meta = {
+      fr: {
+        title: "KORA | Découvrez les talents africains et collaborez avec leurs managers",
+        description: "Découvrez des profils de talents africains, contactez leurs managers et suivez vos demandes et collaborations sur KORA.",
+      },
+      en: {
+        title: "KORA | Discover African talent and collaborate with their managers",
+        description: "Explore African talent profiles, contact their managers, and follow requests and collaborations on KORA.",
+      },
+    }[language]
+    const previousTitle = document.title
+    const descriptionTag = document.querySelector('meta[name="description"]')
+    const ogTitleTag = document.querySelector('meta[property="og:title"]')
+    const ogDescriptionTag = document.querySelector('meta[property="og:description"]')
+    const twitterTitleTag = document.querySelector('meta[name="twitter:title"]')
+    const twitterDescriptionTag = document.querySelector('meta[name="twitter:description"]')
+    const previousDescription = descriptionTag?.content
+    const previousOgTitle = ogTitleTag?.content
+    const previousOgDescription = ogDescriptionTag?.content
+    const previousTwitterTitle = twitterTitleTag?.content
+    const previousTwitterDescription = twitterDescriptionTag?.content
+
+    document.title = meta.title
+    if (descriptionTag) descriptionTag.content = meta.description
+    if (ogTitleTag) ogTitleTag.content = meta.title
+    if (ogDescriptionTag) ogDescriptionTag.content = meta.description
+    if (twitterTitleTag) twitterTitleTag.content = meta.title
+    if (twitterDescriptionTag) twitterDescriptionTag.content = meta.description
+
+    return () => {
+      document.title = previousTitle
+      if (descriptionTag && previousDescription) descriptionTag.content = previousDescription
+      if (ogTitleTag && previousOgTitle) ogTitleTag.content = previousOgTitle
+      if (ogDescriptionTag && previousOgDescription) ogDescriptionTag.content = previousOgDescription
+      if (twitterTitleTag && previousTwitterTitle) twitterTitleTag.content = previousTwitterTitle
+      if (twitterDescriptionTag && previousTwitterDescription) twitterDescriptionTag.content = previousTwitterDescription
+    }
+  }, [language])
 
   const stats = useMemo(
     () => STAT_META.map((meta) => ({
