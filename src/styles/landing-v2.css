@@ -565,3 +565,31 @@
     transition-duration: .01ms !important;
   }
 }
+
+
+/* Low-cost rendering overrides for the public landing. */
+.kora-lp .kora-landing-hero::before,
+.kora-lp .kora-landing-hero::after {
+  animation: none !important;
+  filter: none !important;
+  opacity: 0 !important;
+}
+.kora-lp .kora-landing-copy,
+.kora-lp .kora-phone,
+.kora-lp .kora-talent-showcase,
+.kora-lp .kora-talent-card-photo > span {
+  -webkit-backdrop-filter: none !important;
+  backdrop-filter: none !important;
+}
+.kora-lp .kora-landing-copy {
+  background: rgb(255 255 255 / .08) !important;
+}
+.kora-lp .kora-phone {
+  background: #101827 !important;
+}
+.kora-lp .kora-landing-phones {
+  filter: none !important;
+}
+.kora-lp .kora-talent-showcase {
+  background: hsl(var(--card)) !important;
+}
