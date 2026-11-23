@@ -32,11 +32,14 @@ function FaqItem({ id, question, answer, open, onToggle }) {
 export default function LandingFaq() {
   const { t } = useI18n()
   const [openIndex, setOpenIndex] = useState(0)
-  const items = [1, 2, 3, 4, 5, 6].map((number) => ({
-    id: number,
-    question: t("landing.faqQ" + number),
-    answer: t("landing.faqA" + number),
-  }))
+  const items = [
+    { id: 1, question: t("landing.faqQ1"), answer: t("landing.faqA1") },
+    { id: 2, question: t("landing.faqQ2"), answer: t("landing.faqA2") },
+    { id: 3, question: t("landing.faqQ3"), answer: t("landing.faqA3") },
+    { id: 4, question: t("landing.faqQ4"), answer: t("landing.faqA4") },
+    { id: 5, question: t("landing.faqQ5"), answer: t("landing.faqA5") },
+    { id: 6, question: t("landing.faqQ6"), answer: t("landing.faqA6") },
+  ]
 
   return (
     <section id="faq" className="kora-lp-section" aria-labelledby="faq-title">
