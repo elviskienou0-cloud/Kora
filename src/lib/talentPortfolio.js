@@ -195,29 +195,29 @@ export async function deleteTalentPortfolioItems(talentId) {
 }
 
 export async function resolvePortfolioUrls(items = []) {
-  return Promise.all(
-    (items || []).map(async (item) => {
-      if (!item?.storage_path) {
-        return item
-      }
+  const rows = Array.isArray(items) ? items : []
+  const paths = [...new Set(rows.map((item) => item?.storage_path).filter(Boolean))]
+  if (paths.length === 0) return rows
 
-      const { data, error } = await supabase.storage
-        .from(TALENT_PORTFOLIO_BUCKET)
-        .createSignedUrl(item.storage_path, 3600)
+  const { data, error } = await supabase.storage
+    .from(TALENT_PORTFOLIO_BUCKET)
+    .createSignedUrls(paths, 3600)
 
-      if (error) {
-        console.warn(
-          "Impossible de générer l'URL du portfolio :",
-          error
-        )
+  if (error) {
+    console.warn("Impossible de générer les URL du portfolio :", error)
+    return rows
+  }
 
-        return item
-      }
-
-      return {
-        ...item,
-        url: data?.signedUrl || item.url || null,
-      }
-    })
+  const signedUrls = new Map(
+    (data || [])
+      .filter((item) => item?.path && item?.signedUrl)
+      .map((item) => [item.path, item.signedUrl])
   )
+
+  return rows.map((item) => ({
+    ...item,
+    url: item?.storage_path
+      ? signedUrls.get(item.storage_path) || item.url || null
+      : item.url || null,
+  }))
 }
