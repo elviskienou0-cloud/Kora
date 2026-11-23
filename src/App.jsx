@@ -1,49 +1,50 @@
 
+import { lazy, Suspense } from "react"
 import { Routes, Route, Navigate } from "react-router-dom"
 
 import ScrollToTop from "@/components/ScrollToTop.jsx"
-import PageNotFound from "@/lib/PageNotFound.jsx"
+const PageNotFound = lazy(() => import("@/lib/PageNotFound.jsx"))
 
 // =========================
 // PUBLIC PAGES
 // =========================
 
-import Landing from "@/pages/Landing.jsx"
-import Categories from "@/pages/Categories.jsx"
-import TalentDetail from "@/pages/talent/Detail.jsx"
+const Landing = lazy(() => import("@/pages/Landing.jsx"))
+const Categories = lazy(() => import("@/pages/Categories.jsx"))
+const TalentDetail = lazy(() => import("@/pages/talent/Detail.jsx"))
 
 // =========================
 // AUTH
 // =========================
 
-import Login from "@/pages/Login.jsx"
-import Register from "@/pages/Register.jsx"
-import AuthCallback from "@/pages/AuthCallback.jsx"
-import ForgotPassword from "@/pages/ForgotPassword.jsx"
-import ResetPassword from "@/pages/ResetPassword.jsx"
-import OAuthConsent from "@/pages/OAuthConsent.jsx"
+const Login = lazy(() => import("@/pages/Login.jsx"))
+const Register = lazy(() => import("@/pages/Register.jsx"))
+const AuthCallback = lazy(() => import("@/pages/AuthCallback.jsx"))
+const ForgotPassword = lazy(() => import("@/pages/ForgotPassword.jsx"))
+const ResetPassword = lazy(() => import("@/pages/ResetPassword.jsx"))
+const OAuthConsent = lazy(() => import("@/pages/OAuthConsent.jsx"))
 
 // =========================
 // PUBLIC INFORMATION / LEGAL
 // =========================
 
-import Conditions from "@/pages/Conditions.jsx"
-import Confidentialite from "@/pages/Confidentialite.jsx"
-import Cookies from "@/pages/Cookies.jsx"
-import Cgv from "@/pages/Cgv.jsx"
-import MentionsLegales from "@/pages/MentionsLegales.jsx"
-import FAQ from "@/pages/FAQ.jsx"
-import Contact from "@/pages/Contact.jsx"
-import DataRights from "@/pages/DataRights.jsx"
-import SignalerProbleme from "@/pages/SignalerProbleme.jsx"
+const Conditions = lazy(() => import("@/pages/Conditions.jsx"))
+const Confidentialite = lazy(() => import("@/pages/Confidentialite.jsx"))
+const Cookies = lazy(() => import("@/pages/Cookies.jsx"))
+const Cgv = lazy(() => import("@/pages/Cgv.jsx"))
+const MentionsLegales = lazy(() => import("@/pages/MentionsLegales.jsx"))
+const FAQ = lazy(() => import("@/pages/FAQ.jsx"))
+const Contact = lazy(() => import("@/pages/Contact.jsx"))
+const DataRights = lazy(() => import("@/pages/DataRights.jsx"))
+const SignalerProbleme = lazy(() => import("@/pages/SignalerProbleme.jsx"))
 import CookieConsent from "@/components/CookieConsent.jsx"
 
 // =========================
 // APPLICATION
 // =========================
 
-import Home from "@/pages/Home.jsx"
-import Messages from "@/pages/Messages.jsx"
+const Home = lazy(() => import("@/pages/Home.jsx"))
+const Messages = lazy(() => import("@/pages/Messages.jsx"))
 
 import ProtectedRoute from "@/components/ProtectedRoute.jsx"
 import RoleGuard from "@/components/RoleGuard.jsx"
@@ -53,36 +54,36 @@ import KoraLayout from "@/components/KoraLayout.jsx"
 // CLIENT
 // =========================
 
-import ClientDashboard from "@/pages/client/Dashboard.jsx"
-import ClientBrowse from "@/pages/client/Browse.jsx"
-import ClientFavorites from "@/pages/client/Favorites.jsx"
-import ClientRequests from "@/pages/client/Requests.jsx"
-import ClientNotifications from "@/pages/client/Notifications.jsx"
-import ClientSettings from "@/pages/client/ClientSettings.jsx"
-import ClientProjects from "@/pages/client/Projects.jsx"
-import ClientProjectForm from "@/pages/client/ProjectForm.jsx"
-import ClientProjectDetail from "@/pages/client/ProjectDetail.jsx"
-import ClientReviewProject from "@/pages/client/ReviewProject.jsx"
+const ClientDashboard = lazy(() => import("@/pages/client/Dashboard.jsx"))
+const ClientBrowse = lazy(() => import("@/pages/client/Browse.jsx"))
+const ClientFavorites = lazy(() => import("@/pages/client/Favorites.jsx"))
+const ClientRequests = lazy(() => import("@/pages/client/Requests.jsx"))
+const ClientNotifications = lazy(() => import("@/pages/client/Notifications.jsx"))
+const ClientSettings = lazy(() => import("@/pages/client/ClientSettings.jsx"))
+const ClientProjects = lazy(() => import("@/pages/client/Projects.jsx"))
+const ClientProjectForm = lazy(() => import("@/pages/client/ProjectForm.jsx"))
+const ClientProjectDetail = lazy(() => import("@/pages/client/ProjectDetail.jsx"))
+const ClientReviewProject = lazy(() => import("@/pages/client/ReviewProject.jsx"))
 
 // =========================
 // MANAGER
 // =========================
 
-import ManagerDashboard from "@/pages/manager/Dashboard.jsx"
-import ManagerTalents from "@/pages/manager/Talents.jsx"
-import ManagerRequests from "@/pages/manager/Requests.jsx"
-import ManagerRequestDetail from "@/pages/manager/RequestDetail.jsx"
-import ManagerSubscription from "@/pages/manager/Subscription.jsx"
-import ManagerSettings from "@/pages/manager/Settings.jsx"
-import ManagerNotifications from "@/pages/manager/Notifications.jsx"
-import SubscriptionExpired from "@/pages/manager/SubscriptionExpired.jsx"
+const ManagerDashboard = lazy(() => import("@/pages/manager/Dashboard.jsx"))
+const ManagerTalents = lazy(() => import("@/pages/manager/Talents.jsx"))
+const ManagerRequests = lazy(() => import("@/pages/manager/Requests.jsx"))
+const ManagerRequestDetail = lazy(() => import("@/pages/manager/RequestDetail.jsx"))
+const ManagerSubscription = lazy(() => import("@/pages/manager/Subscription.jsx"))
+const ManagerSettings = lazy(() => import("@/pages/manager/Settings.jsx"))
+const ManagerNotifications = lazy(() => import("@/pages/manager/Notifications.jsx"))
+const SubscriptionExpired = lazy(() => import("@/pages/manager/SubscriptionExpired.jsx"))
 
 // =========================
 // ADMIN / SUPERADMIN
 // =========================
 
-import AdminPanel from "@/pages/admin/AdminPanel.jsx"
-import SuperAdminPanel from "@/pages/admin/SuperAdminPanel.jsx"
+const AdminPanel = lazy(() => import("@/pages/admin/AdminPanel.jsx"))
+const SuperAdminPanel = lazy(() => import("@/pages/admin/SuperAdminPanel.jsx"))
 
 
 export default function App() {
@@ -91,6 +92,7 @@ export default function App() {
       <ScrollToTop />
       <CookieConsent />
 
+      <Suspense fallback={<div className="flex min-h-[40vh] items-center justify-center" role="status" aria-label="Loading page"><span className="h-8 w-8 animate-spin rounded-full border-2 border-current border-r-transparent" /></div>}>
       <Routes>
 
           {/* =====================================================
@@ -476,6 +478,7 @@ export default function App() {
           />
 
         </Routes>
+      </Suspense>
     </>
   )
 }
