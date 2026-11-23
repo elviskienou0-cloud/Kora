@@ -52,7 +52,8 @@ export function useActiveSection(ids) {
   const idsKey = ids.join("|")
 
   useEffect(() => {
-    const targets = ids
+    const targets = idsKey.split("|")
+      .filter(Boolean)
       .map((id) => document.getElementById(id))
       .filter(Boolean)
 
