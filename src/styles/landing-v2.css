@@ -96,11 +96,12 @@
   margin-top: 0;
   padding: 112px 24px 76px;
   overflow-x: clip;
+  overflow-y: visible;
   background:
     radial-gradient(ellipse at 78% 25%, rgb(212 175 55 / .16), transparent 38%),
     radial-gradient(ellipse at 15% 90%, rgb(51 91 145 / .22), transparent 42%),
-    #0d1728;
-  color: #fff;
+    #0d1728 !important;
+  color: #fff !important;
 }
 
 .kora-lp .kora-landing-hero-inner {
@@ -128,7 +129,7 @@
 .kora-lp .kora-landing-copy h1 {
   max-width: 13ch;
   margin-top: 1rem;
-  color: #fff;
+  color: #fff !important;
   font-size: clamp(2.55rem, 4.2vw, 4.15rem);
   font-weight: 850;
   letter-spacing: -.055em;
@@ -174,6 +175,9 @@
   background: #101827;
   box-shadow: 0 22px 55px rgb(0 0 0 / .28);
 }
+
+ .kora-lp .kora-phone-manager { transform: translateY(8px) scale(.97); }
+.kora-lp .kora-phone-client { transform: none; z-index: 1; }
 
 .kora-lp .kora-phone-screen {
   border-radius: 19px;
