@@ -176,24 +176,22 @@ export default function TalentDetail() {
 
         if (error) throw error
         if (!data) throw new Error("Ce talent n'est pas disponible.")
-        const talentWithSignedMedia = await resolveTalentProfileMedia(data)
+        const [talentWithSignedMedia, portfolioResult, managerResult] = await Promise.all([
+          resolveTalentProfileMedia(data),
+          supabase
+            .from("portfolio_items")
+            .select("id, talent_id, title, description, type, url, storage_path, mime_type, created_at")
+            .eq("talent_id", id)
+            .order("created_at", { ascending: true }),
+          supabase.rpc("get_talent_manager_profile", { p_talent_id: id }),
+        ])
 
-        const { data: portfolioRows, error: portfolioError } = await supabase
-          .from("portfolio_items")
-          .select("id, talent_id, title, description, type, url, storage_path, mime_type, created_at")
-          .eq("talent_id", id)
-          .order("created_at", { ascending: true })
+        if (portfolioResult.error) throw portfolioResult.error
 
-        if (portfolioError) throw portfolioError
-
-        let managerData = null
-        const { data: rpcManager, error: managerError } = await supabase.rpc(
-          "get_talent_manager_profile",
-          { p_talent_id: id }
-        )
-        if (!managerError) managerData = rpcManager?.[0] || null
-
-        const portfolioWithUrls = await resolvePortfolioUrls(portfolioRows || [])
+        const managerData = !managerResult.error
+          ? managerResult.data?.[0] || null
+          : null
+        const portfolioWithUrls = await resolvePortfolioUrls(portfolioResult.data || [])
 
         if (!mounted) return
 
@@ -388,6 +386,9 @@ export default function TalentDetail() {
                     src={talent.cover_url}
                     alt={`Couverture de ${talentName}`}
                     className="absolute inset-0 h-full w-full object-cover"
+                    loading="eager"
+                    fetchPriority="high"
+                    decoding="async"
                   />
                 ) : null}
                 <div className="absolute inset-0 bg-gradient-to-t from-black/25 via-transparent to-transparent" />
@@ -396,7 +397,7 @@ export default function TalentDetail() {
                 <div className="flex flex-col sm:flex-row sm:items-end gap-4 sm:gap-6">
                   <Avatar className="h-24 w-24 border-4 border-background shadow-lg shrink-0">
                     {talent.avatar_url ? (
-                      <img src={talent.avatar_url} alt={talentName} className="h-full w-full object-cover" />
+                      <img src={talent.avatar_url} alt={talentName} className="h-full w-full object-cover" loading="eager" decoding="async" />
                     ) : null}
                     <AvatarFallback className="gold-gradient text-white text-2xl font-black">{initials}</AvatarFallback>
                   </Avatar>
@@ -464,7 +465,7 @@ export default function TalentDetail() {
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     {portfolio.map((item) => (
                       <a key={item.id} href={item.url || "#"} target="_blank" rel="noreferrer" className="group rounded-2xl border border-border/60 overflow-hidden hover:border-gold/40 transition-colors">
-                        {isImage(item) && item.url ? <img src={item.url} alt={item.title || talentName} className="w-full h-48 object-cover" /> : isVideo(item) && item.url ? <video src={item.url} className="w-full h-48 object-cover bg-black" controls /> : <div className="h-48 bg-muted/40 flex items-center justify-center">{item.type === "link" ? <Link2 className="h-10 w-10 text-gold" /> : item.type === "document" ? <FileText className="h-10 w-10 text-gold" /> : <Video className="h-10 w-10 text-gold" />}</div>}
+                        {isImage(item) && item.url ? <img src={item.url} alt={item.title || talentName} className="w-full h-48 object-cover" loading="lazy" decoding="async" /> : isVideo(item) && item.url ? <video src={item.url} className="w-full h-48 object-cover bg-black" controls /> : <div className="h-48 bg-muted/40 flex items-center justify-center">{item.type === "link" ? <Link2 className="h-10 w-10 text-gold" /> : item.type === "document" ? <FileText className="h-10 w-10 text-gold" /> : <Video className="h-10 w-10 text-gold" />}</div>}
                         <div className="p-4"><p className="font-bold truncate">{item.title || "Portfolio"}</p><p className="text-xs text-muted-foreground mt-1">{item.type === "link" ? "Lien externe" : isVideo(item) ? "Vidéo" : isImage(item) ? "Image" : "Document"}</p></div>
                       </a>
                     ))}
