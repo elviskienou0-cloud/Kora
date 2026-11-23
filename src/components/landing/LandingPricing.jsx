@@ -160,6 +160,7 @@ export default function LandingPricing() {
 
                     <div className="mt-auto pt-7">
                       <KButton
+                        variant={highlighted ? "gold" : "glass"}
                         size="lg"
                         arrow
                         className="w-full"
