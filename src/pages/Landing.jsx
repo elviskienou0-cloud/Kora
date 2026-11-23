@@ -1,5 +1,4 @@
 import { useEffect, useMemo } from "react"
-import { MotionConfig, useReducedMotion } from "framer-motion"
 import { Globe, Star, Users } from "lucide-react"
 import LandingHero from "@/components/landing/LandingHero"
 import LandingEvolution from "@/components/landing/LandingEvolution.jsx"
@@ -25,16 +24,16 @@ const STAT_META = [
 
 export default function Landing() {
   const { t, language, setLanguage } = useI18n()
-  const reduce = useReducedMotion()
   const { stats: liveStats, loading: statsLoading } = useKoraStats({ realtime: false, initialLoading: true, emptyOnError: true })
 
   useEffect(() => {
     const root = document.documentElement
     const previous = root.style.scrollBehavior
+    const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches
     root.style.scrollBehavior = reduce ? "auto" : "smooth"
     if (!window.location.hash) window.scrollTo({ top: 0, behavior: "auto" })
     return () => { root.style.scrollBehavior = previous }
-  }, [reduce])
+  }, [])
 
   useEffect(() => {
     const meta = {
@@ -105,8 +104,7 @@ export default function Landing() {
   }
 
   return (
-    <MotionConfig reducedMotion="user">
-      <div id="top" className="kora-public-shell kora-lp relative flex min-h-screen flex-col">
+    <div id="top" className="kora-public-shell kora-lp relative flex min-h-screen flex-col">
         <LandingNav
           links={navLinks}
           labels={navLabels}
@@ -128,7 +126,6 @@ export default function Landing() {
         </main>
 
         <LandingFooter />
-      </div>
-    </MotionConfig>
+    </div>
   )
 }
