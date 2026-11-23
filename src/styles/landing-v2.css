@@ -85,3 +85,188 @@
   .kora-lp-gold, .kora-lp-aurora, .kora-lp-marquee-track { animation: none !important; }
   .kora-lp-marquee { overflow-x: auto; -webkit-mask-image: none; mask-image: none; }
 }
+
+
+/* Landing v2: densité visuelle mieux équilibrée, sans retirer de contenu. */
+.kora-lp-section {
+  padding-block: clamp(42px, 5vw, 72px);
+}
+.kora-lp-header {
+  margin-bottom: clamp(1.6rem, 3vw, 2.6rem);
+}
+.kora-lp-header > * + * {
+  margin-top: .8rem;
+}
+.kora-lp-title {
+  font-size: clamp(1.9rem, 1.25rem + 2.6vw, 3.1rem);
+  line-height: 1.08;
+}
+.kora-lp-lead {
+  max-width: 38rem;
+  font-size: clamp(.94rem, .9rem + .25vw, 1.08rem);
+  line-height: 1.62;
+}
+.kora-lp-card-title {
+  font-size: clamp(1.08rem, 1rem + .45vw, 1.35rem);
+}
+.kora-lp-body {
+  font-size: .91rem;
+  line-height: 1.6;
+}
+.kora-lp-chip {
+  min-width: 11.5rem;
+  gap: .7rem;
+  padding: .7rem .95rem;
+}
+.kora-lp #audience article {
+  padding: clamp(1.25rem, 2vw, 2rem);
+  border-radius: 1.5rem;
+}
+.kora-lp #audience article > span.mb-6,
+.kora-lp #audience article > span.mb-5 {
+  margin-bottom: 1rem;
+}
+.kora-lp #audience article .mt-8 {
+  margin-top: 1.25rem;
+}
+.kora-lp #why-kora .mb-14 {
+  margin-bottom: 2rem;
+}
+.kora-lp #why-kora .grid {
+  grid-auto-rows: minmax(10.5rem, auto);
+  gap: 1rem;
+}
+.kora-lp #why-kora .grid > * > div > div {
+  padding: 1.25rem;
+}
+.kora-lp #pricing .grid {
+  gap: 1rem;
+}
+.kora-lp #pricing [class*="h-[27rem]"] {
+  height: 22rem;
+}
+.kora-lp #pricing .rounded-\[2rem\] > .flex.h-full.flex-col {
+  padding: 1.25rem;
+}
+.kora-lp #faq .space-y-4 {
+  gap: .7rem;
+}
+.kora-lp #faq button {
+  padding-block: 1rem;
+}
+.kora-lp #faq .rounded-3xl {
+  border-radius: 1.1rem;
+}
+.kora-lp .kora-lp-marquee + .kora-lp-marquee {
+  margin-top: .25rem;
+}
+.kora-lp #final-cta-title {
+  font-size: clamp(1.8rem, 1.25rem + 2.5vw, 3rem);
+}
+@media (max-width: 767px) {
+  .kora-lp-section {
+    padding-block: 38px;
+  }
+  .kora-lp-container {
+    width: min(100%, 100% - 1.5rem);
+  }
+  .kora-lp-header {
+    margin-bottom: 1.5rem;
+  }
+  .kora-lp-header > * + * {
+    margin-top: .65rem;
+  }
+  .kora-lp-title {
+    font-size: clamp(1.7rem, 7vw, 2.25rem);
+  }
+  .kora-lp-lead {
+    font-size: .92rem;
+    line-height: 1.55;
+  }
+  .kora-lp #audience article {
+    padding: 1.2rem;
+    border-radius: 1.25rem;
+  }
+  .kora-lp #why-kora .grid {
+    grid-auto-rows: minmax(9rem, auto);
+    gap: .75rem;
+  }
+  .kora-lp #pricing .grid {
+    gap: .85rem;
+  }
+  .kora-lp #faq button {
+    gap: .8rem;
+    padding: .9rem 1rem;
+  }
+  .kora-lp #final-cta-title {
+    font-size: clamp(1.7rem, 7vw, 2.35rem);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .kora-lp * {
+    scroll-behavior: auto !important;
+  }
+}
+
+
+/* Second sizing pass: visibly smaller components across the full landing. */
+.kora-lp .kora-landing-hero-inner { gap: clamp(1.5rem, 3vw, 2.75rem); }
+.kora-lp .kora-landing-phones { transform: scale(.82); transform-origin: center; }
+.kora-lp .kora-phone { transform: scale(.9); }
+.kora-lp .kora-phone-label { font-size: .68rem; }
+.kora-lp .kora-landing-copy { padding: clamp(1.35rem, 2vw, 2rem); }
+.kora-lp .kora-landing-copy h1 { font-size: clamp(2rem, 3.6vw, 3.2rem); line-height: 1.08; }
+.kora-lp .kora-hero-description { font-size: .96rem; line-height: 1.55; }
+.kora-lp .kora-start-button { min-height: 2.7rem; padding-inline: 1.15rem; font-size: .9rem; }
+.kora-lp .kora-lp-eyebrow-pill { padding: .35rem .75rem; font-size: .65rem; }
+.kora-lp .kora-lp-title { font-size: clamp(1.75rem, 1.1rem + 2.1vw, 2.8rem); }
+.kora-lp .kora-lp-lead { font-size: .94rem; line-height: 1.58; }
+.kora-lp .kora-lp-card-title { font-size: clamp(1rem, .95rem + .35vw, 1.25rem); }
+.kora-lp .kora-lp-body { font-size: .86rem; line-height: 1.55; }
+.kora-lp #audience article { padding: 1.4rem; }
+.kora-lp #audience article > span.grid { width: 2.8rem; height: 2.8rem; border-radius: .85rem; }
+.kora-lp #audience article > span.grid svg { width: 1.25rem; height: 1.25rem; }
+.kora-lp #audience article > svg.absolute { width: 10rem; height: 10rem; }
+.kora-lp #audience article ul { margin-top: 1rem; gap: .55rem; }
+.kora-lp #audience article li svg { width: 1rem; height: 1rem; }
+.kora-lp #audience article li span { font-size: .84rem; }
+.kora-lp #audience article .relative.mt-8 { margin-top: 1.2rem; }
+.kora-lp #how-it-works article { min-height: 12rem; gap: 1rem; padding: 1.25rem; border-radius: 1.35rem; }
+.kora-lp #how-it-works article .kora-lp-num { font-size: clamp(3.2rem, 5vw, 5rem); }
+.kora-lp #how-it-works article h3 { font-size: clamp(1.05rem, 1rem + .35vw, 1.3rem); }
+.kora-lp #how-it-works article p { font-size: .86rem; }
+.kora-lp #categories .kora-lp-chip { min-width: 10rem; gap: .65rem; padding: .65rem .8rem; border-radius: .9rem; }
+.kora-lp #categories .kora-lp-chip > span:first-child { width: 2.25rem; height: 2.25rem; border-radius: .7rem; }
+.kora-lp #categories .kora-lp-chip > span:first-child svg { width: 1.2rem; height: 1.2rem; }
+.kora-lp #categories .kora-lp-chip > span:last-child > span:first-child { font-size: .85rem; }
+.kora-lp #why-kora .grid { grid-auto-rows: minmax(9.5rem, auto); gap: .8rem; }
+.kora-lp #why-kora .grid > * > div > div { padding: 1.15rem; }
+.kora-lp #why-kora .grid svg:not(.absolute) { max-width: 3.5rem; max-height: 3.5rem; }
+.kora-lp #why-kora .grid h3 { font-size: 1.12rem; margin-top: 1rem; }
+.kora-lp #why-kora .grid p { font-size: .84rem; }
+.kora-lp #why-kora .mb-14 { margin-bottom: 1.5rem; }
+.kora-lp #pricing .grid { gap: .8rem; }
+.kora-lp #pricing .grid > * { min-width: 0; }
+.kora-lp #faq .space-y-4 { gap: .6rem; }
+.kora-lp #faq button { padding: .85rem 1.1rem; gap: .8rem; }
+.kora-lp #faq button > span:first-child { font-size: .94rem; }
+.kora-lp #faq button > span:last-child { width: 2rem; height: 2rem; }
+.kora-lp #faq button svg { width: 1rem; height: 1rem; }
+.kora-lp #faq [role="region"] p { padding: 0 1.1rem 1rem; font-size: .85rem; }
+.kora-lp #final-cta-title { font-size: clamp(1.7rem, 1.1rem + 2vw, 2.7rem); }
+.kora-lp #final-cta-title + p { font-size: .92rem; }
+.kora-lp .kora-lp-section { padding-block: clamp(36px, 4vw, 58px); }
+.kora-lp .kora-lp-header { margin-bottom: clamp(1.25rem, 2.5vw, 2rem); }
+@media (max-width: 767px) {
+  .kora-lp .kora-landing-hero-inner { gap: .5rem; }
+  .kora-lp .kora-landing-phones { transform: scale(.74); margin-block: -2rem; }
+  .kora-lp .kora-phone { transform: scale(.84); }
+  .kora-lp .kora-landing-copy { padding: 1.15rem; }
+  .kora-lp .kora-landing-copy h1 { font-size: clamp(1.8rem, 7vw, 2.35rem); }
+  .kora-lp #audience article { padding: 1.1rem; }
+  .kora-lp #how-it-works article { min-height: 10rem; padding: 1rem; gap: .7rem; }
+  .kora-lp #how-it-works article .kora-lp-num { font-size: 3rem; }
+  .kora-lp #why-kora .grid { grid-auto-rows: minmax(8.5rem, auto); }
+  .kora-lp #pricing .grid { gap: .7rem; }
+  .kora-lp #faq button { padding: .8rem .9rem; }
+}
