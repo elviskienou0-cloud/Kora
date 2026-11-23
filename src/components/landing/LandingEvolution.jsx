@@ -36,6 +36,7 @@ function TalentPortrait({ talent, className = "", decorative = false }) {
 export default function LandingEvolution({ stats = [], loading = false }) {
   const { t, language } = useI18n()
   const [talents, setTalents] = useState([])
+  const [talentsLoading, setTalentsLoading] = useState(true)
   const [activeIndex, setActiveIndex] = useState(0)
   const reduceMotion = useReducedMotion()
 
@@ -55,11 +56,19 @@ export default function LandingEvolution({ stats = [], loading = false }) {
       if (error) {
         console.warn("KORA: impossible de charger les profils publics pour la vitrine.")
         setTalents([])
+        setTalentsLoading(false)
         return
       }
 
-      const talentsWithPhotos = await resolveTalentProfileMediaBatch(data || [])
-      if (mounted) setTalents(talentsWithPhotos)
+      try {
+        const talentsWithPhotos = await resolveTalentProfileMediaBatch(data || [])
+        if (mounted) setTalents(talentsWithPhotos)
+      } catch (mediaError) {
+        console.warn("KORA: impossible de charger les photos de la vitrine.", mediaError)
+        if (mounted) setTalents(data || [])
+      } finally {
+        if (mounted) setTalentsLoading(false)
+      }
     }
 
     loadTalents()
@@ -116,7 +125,13 @@ export default function LandingEvolution({ stats = [], loading = false }) {
               </div>
             </div>
 
-            {currentTalent ? (
+            {talentsLoading ? (
+              <Card className="kora-talent-empty">
+                <CardContent className="p-7 text-center">
+                  <p>{t("common.loading")}</p>
+                </CardContent>
+              </Card>
+            ) : currentTalent ? (
               <div className="kora-talent-stack" aria-label={language === "en" ? "Featured talent profiles" : "Profils de talents mis en avant"}>
                 {nextTalent && (
                   <div className="kora-talent-stack-card kora-talent-stack-card-back" aria-hidden="true">
