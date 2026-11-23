@@ -12,13 +12,13 @@ function StepCard({ index, count, progress, number, Icon, title, text, label }) 
   return (
     <motion.article
       style={{ scale: reduce ? 1 : scale, top: `calc(5.5rem + ${index * 18}px)` }}
-      className={cn("sticky mb-6 grid min-h-[14rem] grid-cols-[auto_1fr] items-center gap-5 overflow-hidden rounded-[2rem] p-6 sm:min-h-[15.5rem] sm:gap-10 sm:p-10", surface)}
+      className={cn("sticky mb-6 grid min-h-[11rem] grid-cols-[auto_1fr] items-center gap-4 overflow-hidden rounded-[1.4rem] p-5 sm:min-h-[12.5rem] sm:gap-6 sm:p-6", surface)}
     >
-      <span aria-hidden="true" className="kora-lp-outline-num kora-lp-num select-none text-[4.2rem] font-extrabold leading-none sm:text-[6.5rem]">{number}</span>
+      <span aria-hidden="true" className="kora-lp-outline-num kora-lp-num select-none text-[3.2rem] font-extrabold leading-none sm:text-[4.8rem]">{number}</span>
       <div>
-        <div className="mb-3 flex items-center gap-3">
-          <span className="grid h-10 w-10 place-items-center rounded-xl bg-gold/15 text-gold-dark">
-            <Icon className="h-5 w-5" strokeWidth={1.8} />
+        <div className="mb-2 flex items-center gap-2">
+          <span className="grid h-9 w-9 place-items-center rounded-lg bg-gold/15 text-gold-dark">
+            <Icon className="h-4 w-4" strokeWidth={1.8} />
           </span>
           <span className="text-[0.7rem] font-extrabold uppercase tracking-[0.16em] text-muted-foreground">{label}</span>
         </div>
@@ -52,7 +52,7 @@ export default function LandingProcess() {
           title={t("landing.processTitle")}
           description={t("landing.processDescription")}
         />
-        <div ref={stackRef} className="pb-[4vh]">
+        <div ref={stackRef} className="pb-[2vh]">
           {steps.map((step, i) => (
             <StepCard key={step.number} index={i} count={steps.length} progress={scrollYProgress} {...step} />
           ))}
