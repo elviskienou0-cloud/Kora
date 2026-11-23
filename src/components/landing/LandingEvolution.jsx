@@ -75,7 +75,7 @@ export default function LandingEvolution({ stats = [], loading = false }) {
     return () => { mounted = false }
   }, [])
 
-  const visibleStats = useMemo(() => stats.slice(0, 4), [stats])
+  const visibleStats = useMemo(() => stats.filter((stat) => loading || stat.value !== "—").slice(0, 3), [stats, loading])
   const statIcons = [Users, BriefcaseBusiness, Globe2, Star]
   const currentTalent = talents.length ? talents[activeIndex % talents.length] : null
   const nextTalent = talents.length > 1 ? talents[(activeIndex + 1) % talents.length] : null
