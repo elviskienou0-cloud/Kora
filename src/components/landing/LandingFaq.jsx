@@ -22,11 +22,9 @@ function FaqItem({ id, question, answer, open, onToggle }) {
           </span>
         </button>
       </h3>
-      {open && (
-        <div id={"faq-panel-" + id} role="region" aria-labelledby={"faq-button-" + id} className="px-5 pb-5 sm:px-6 sm:pb-6">
-          <p className="kora-lp-body">{answer}</p>
-        </div>
-      )}
+      <div hidden={!open} id={"faq-panel-" + id} role="region" aria-labelledby={"faq-button-" + id} className="px-5 pb-5 sm:px-6 sm:pb-6">
+        <p className="kora-lp-body">{answer}</p>
+      </div>
     </article>
   )
 }
