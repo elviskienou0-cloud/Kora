@@ -27,7 +27,7 @@ const STAT_META = [
 export default function Landing() {
   const { t, language, setLanguage } = useI18n()
   const reduce = useReducedMotion()
-  const { stats: liveStats, loading: statsLoading } = useKoraStats()
+  const { stats: liveStats, loading: statsLoading } = useKoraStats({ realtime: false })
 
   useEffect(() => {
     const root = document.documentElement
