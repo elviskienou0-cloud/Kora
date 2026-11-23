@@ -85,7 +85,7 @@
 
 .kora-lp-body {
   color: hsl(var(--muted-foreground));
-  font-size: .94rem;
+  font-size: 1rem;
   font-weight: 500;
   line-height: 1.65;
 }
@@ -310,7 +310,7 @@
   border-radius: 1rem;
   background: hsl(var(--card));
   color: var(--lp-ink);
-  font-size: .9rem;
+  font-size: 1rem;
   line-height: 1.3;
   transition: border-color .18s ease, transform .18s ease, background-color .18s ease;
 }
@@ -364,7 +364,7 @@
 .kora-lp .kora-evolution-stat > span:last-child {
   margin-top: .45rem;
   color: hsl(var(--muted-foreground));
-  font-size: .8rem;
+  font-size: .9rem;
   font-weight: 650;
 }
 
@@ -547,7 +547,7 @@
   .kora-lp-step-card,
   .kora-lp-feature-card { padding: 1.2rem; }
   .kora-lp-category-grid { gap: .6rem; }
-  .kora-lp-category-card { min-height: 68px; gap: .55rem; padding: .65rem; font-size: .82rem; }
+  .kora-lp-category-card { min-height: 68px; gap: .55rem; padding: .65rem; font-size: .94rem; }
   .kora-lp-category-icon { width: 2.25rem; height: 2.25rem; }
   .kora-lp .kora-evolution-stat { min-height: 125px; padding: .9rem; }
   .kora-lp .kora-talent-stack { height: 290px; }
