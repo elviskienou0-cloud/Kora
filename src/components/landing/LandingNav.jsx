@@ -1,4 +1,4 @@
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import { Link, useNavigate } from "react-router-dom"
 import { motion, useReducedMotion } from "framer-motion"
 import { Menu, X } from "lucide-react"
@@ -12,6 +12,15 @@ export default function LandingNav({ links, labels, language, onLanguageChange }
   const reduce = useReducedMotion()
   const [menuOpen, setMenuOpen] = useState(false)
   const active = useActiveSection(links.map((link) => link.id))
+
+  useEffect(() => {
+    if (!menuOpen) return undefined
+    const closeOnEscape = (event) => {
+      if (event.key === "Escape") setMenuOpen(false)
+    }
+    window.addEventListener("keydown", closeOnEscape)
+    return () => window.removeEventListener("keydown", closeOnEscape)
+  }, [menuOpen])
 
   const followSection = (event, id) => {
     event.preventDefault()
