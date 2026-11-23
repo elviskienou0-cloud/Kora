@@ -43,7 +43,7 @@ export default function Landing() {
       label: t(meta.key),
       icon: meta.icon,
     })),
-    [liveStats, language]
+    [liveStats, t, language]
   )
 
   const navLinks = [
