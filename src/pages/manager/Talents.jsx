@@ -49,7 +49,7 @@ import {
   deleteTalentPortfolioItems,
   uploadTalentPortfolioFiles,
 } from "@/lib/talentPortfolio"
-import { uploadTalentProfileMedia, resolveTalentProfileMedia } from "@/lib/talentMedia"
+import { uploadTalentProfileMedia, resolveTalentProfileMediaBatch } from "@/lib/talentMedia"
 
 const STATUS = {
   published: {
@@ -853,7 +853,7 @@ export default function ManagerTalents() {
       }
 
       if (Array.isArray(cached.talents)) {
-        const refreshedCachedTalents = await Promise.all(cached.talents.map((talent) => resolveTalentProfileMedia(talent)))
+        const refreshedCachedTalents = await resolveTalentProfileMediaBatch(cached.talents)
         setTalents(refreshedCachedTalents)
       }
       if (cached.subscription) setSubscription(cached.subscription)
@@ -937,15 +937,14 @@ export default function ManagerTalents() {
 
       if (error) throw error
 
-      const nextTalents = await Promise.all((data || []).map(async (talent) => {
-        const mediaResolved = await resolveTalentProfileMedia(talent)
-        return {
-        ...mediaResolved,
+      const mediaResolvedTalents = await resolveTalentProfileMediaBatch(data || [])
+      const nextTalents = mediaResolvedTalents.map((talent) => ({
+        ...talent,
         name: `${talent.first_name || ""} ${talent.last_name || ""}`.trim(),
         cat: talent.categories?.name || "Non classé",
         ratingValue: Number(talent.rating || 0),
         tasks: Number(talent.completed_projects || 0),
-      }}))
+      }))
 
       setTalents(nextTalents)
       saveTalentsCache(nextTalents, nextSubscription || subscription)

@@ -486,7 +486,7 @@ export default function KoraLayout() {
   // SIDEBAR
   // ==========================================================
 
-  const SidebarContent = () => (
+  const renderSidebarContent = () => (
     <aside className="flex flex-col h-full">
       <div className="p-5 border-b border-sidebar-border">
         <Link
@@ -766,7 +766,7 @@ export default function KoraLayout() {
     <div className={cn("min-h-screen flex", role === "superadmin" ? "kora-superadmin-glass" : "bg-background")}>
       {!isMobile && (
         <div className="w-64 shrink-0 h-screen sticky top-0 border-r border-sidebar-border bg-sidebar text-sidebar-foreground">
-          <SidebarContent />
+          {renderSidebarContent()}
         </div>
       )}
 
@@ -800,7 +800,7 @@ export default function KoraLayout() {
                 <X className="h-5 w-5" />
               </button>
 
-              <SidebarContent />
+              {renderSidebarContent()}
             </motion.aside>
           </>
         )}

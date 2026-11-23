@@ -11,8 +11,8 @@
   background: hsl(var(--card) / .92) !important;
   border-color: hsl(var(--border)) !important;
   color: hsl(var(--foreground));
-  backdrop-filter: blur(22px);
-  -webkit-backdrop-filter: blur(22px);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
 }
 .kora-superadmin-glass main { background: transparent; }
 .kora-superadmin-glass main [class*="rounded-xl"][class*="border"],
@@ -22,8 +22,7 @@
   background-color: hsl(var(--card)) !important;
   color: hsl(var(--card-foreground));
   box-shadow: 0 12px 30px rgb(23 43 77 / .06);
-  backdrop-filter: blur(14px);
-  -webkit-backdrop-filter: blur(14px);
+  /* Keep dashboard cards on the normal paint layer for smoother scrolling. */
 }
 .dark .kora-superadmin-glass main [class*="rounded-xl"][class*="border"],
 .dark .kora-superadmin-glass main [class*="rounded-2xl"][class*="border"],

@@ -1,6 +1,6 @@
 import { useQuery } from "@tanstack/react-query"
 import { supabase } from "@/lib/supabase"
-import { resolveTalentProfileMedia } from "@/lib/talentMedia"
+import { resolveTalentProfileMediaBatch } from "@/lib/talentMedia"
 import {
   buildPaginatedResult,
   getPaginationRange,
@@ -381,29 +381,27 @@ export function useTalentsQuery({
         }
       }
 
-      const enrichedRows = await Promise.all(rows.map(async (talent) => {
-        const mediaResolved = await resolveTalentProfileMedia(talent)
-        return ({
-          ...mediaResolved,
+      const mediaResolvedRows = await resolveTalentProfileMediaBatch(rows)
+      const enrichedRows = mediaResolvedRows.map((talent) => ({
+        ...talent,
 
-          categories:
-            categoryMap[
-              talent.category_id
-            ] || null,
+        categories:
+          categoryMap[
+            talent.category_id
+          ] || null,
 
-          countries:
-            countryMap[
-              talent.country_id
-            ] || null,
+        countries:
+          countryMap[
+            talent.country_id
+          ] || null,
 
-          talent_profile_skills: (
-            skillsMap.get(
-              talent.id
-            ) || []
-          ).map((skill) => ({
-            skills: skill,
-          })),
-        })
+        talent_profile_skills: (
+          skillsMap.get(
+            talent.id
+          ) || []
+        ).map((skill) => ({
+          skills: skill,
+        })),
       }))
 
       return buildPaginatedResult(

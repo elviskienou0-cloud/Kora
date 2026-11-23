@@ -48,6 +48,46 @@ export async function resolveTalentProfileMedia(talent) {
   return { ...talent, avatar_url, cover_url }
 }
 
+export async function resolveTalentProfileMediaBatch(talents = [], expiresIn = 3600) {
+  const rows = Array.isArray(talents) ? talents : []
+  if (rows.length === 0) return []
+
+  const paths = [...new Set(rows.flatMap((talent) => [
+    extractTalentMediaPath(talent?.avatar_url),
+    extractTalentMediaPath(talent?.cover_url),
+  ]).filter(Boolean))]
+
+  if (paths.length === 0) return rows
+
+  const { data, error } = await supabase.storage
+    .from(TALENT_PROFILE_MEDIA_BUCKET)
+    .createSignedUrls(paths, expiresIn)
+
+  if (error) {
+    console.warn("Impossible de signer les médias des talents :", error.message)
+    return Promise.all(rows.map((talent) => resolveTalentProfileMedia(talent, expiresIn)))
+  }
+
+  const signedUrls = new Map(
+    (data || [])
+      .filter((item) => item?.path && item?.signedUrl)
+      .map((item) => [item.path, item.signedUrl])
+  )
+
+  const resolve = (value) => {
+    const path = extractTalentMediaPath(value)
+    if (!path) return value || null
+    return signedUrls.get(path) || null
+  }
+
+  return rows.map((talent) => ({
+    ...talent,
+    avatar_url: resolve(talent?.avatar_url),
+    cover_url: resolve(talent?.cover_url),
+  }))
+}
+
+
 function safeName(name = "image") {
   return String(name || "image")
     .trim()
