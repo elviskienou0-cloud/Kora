@@ -9,7 +9,6 @@ import { useI18n } from "@/i18n/kora-i18n.jsx"
 import { Reveal, SectionHeader } from "./landingKit.jsx"
 
 const PLAN_ORDER = ["FREE", "PRO", "BUSINESS"]
-const PLAN_KEYS = { FREE: "Free", PRO: "Pro", BUSINESS: "Business" }
 
 const FEATURE_EN = {
   "Gestion des talents": "Talent management",
@@ -27,6 +26,20 @@ const FEATURE_EN = {
 export default function LandingPricing() {
   const { t, language } = useI18n()
   const { user } = useAuth()
+  const planCopy = {
+    FREE: {
+      name: t("landing.planFreeName"),
+      tagline: t("landing.planFreeTagline"),
+    },
+    PRO: {
+      name: t("landing.planProName"),
+      tagline: t("landing.planProTagline"),
+    },
+    BUSINESS: {
+      name: t("landing.planBusinessName"),
+      tagline: t("landing.planBusinessTagline"),
+    },
+  }
   const navigate = useNavigate()
   const locale = language === "en" ? "en-GB" : "fr-FR"
   const formatPrice = (value) => new Intl.NumberFormat(locale, { maximumFractionDigits: 0 }).format(value)
@@ -118,7 +131,7 @@ export default function LandingPricing() {
           ) : (
             cards.map((plan, index) => {
               const id = String(plan.id).toUpperCase()
-              const key = PLAN_KEYS[id]
+              const copy = planCopy[id]
               const highlighted = id === "PRO"
               const price = Number(plan.price)
               const unlimited = plan.talent_limit === null || plan.talent_limit === undefined
@@ -130,8 +143,8 @@ export default function LandingPricing() {
                   <article className={"kora-lp-plan-card flex h-full flex-col " + (highlighted ? "kora-lp-plan-card-featured" : "")}>
                     {highlighted && <span className="kora-lp-plan-badge">{t("landing.mostPopular")}</span>}
                     <div>
-                      <h3 className="kora-lp-card-title text-2xl">{t("landing.plan" + key + "Name")}</h3>
-                      <p className="kora-lp-body mt-2 min-h-10">{t("landing.plan" + key + "Tagline")}</p>
+                      <h3 className="kora-lp-card-title text-2xl">{copy.name}</h3>
+                      <p className="kora-lp-body mt-2 min-h-10">{copy.tagline}</p>
 
                       <div className="my-5 border-y border-border py-5">
                         {price > 0 ? (
@@ -140,7 +153,7 @@ export default function LandingPricing() {
                             <span className="text-sm font-semibold text-muted-foreground">{currency} {t("landing.perMonth")}</span>
                           </div>
                         ) : (
-                          <span className="kora-lp-plan-price">{t("landing.planFreeName")}</span>
+                          <span className="kora-lp-plan-price">{copy.name}</span>
                         )}
                         {Number(plan.trial_days) > 0 && (
                           <p className="mt-2 text-sm font-bold text-emerald-700 dark:text-emerald-300">
