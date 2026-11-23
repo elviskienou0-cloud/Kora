@@ -19,6 +19,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import LandingHeader from "@/components/landing/LandingHeader.jsx"
 import LandingFooter from "@/components/landing/LandingFooter.jsx"
 import { supabase } from "@/lib/supabase"
+import { resolveTalentProfileMediaBatch } from "@/lib/talentMedia"
 import { APP_PARAMS } from "@/lib/app-params"
 import { getCategoryIcon } from "@/lib/categoryIcons"
 import { cn, formatCurrency } from "@/lib/utils"
@@ -120,7 +121,9 @@ export default function Categories() {
         setTalents([])
         setTalentsError(error.message || "Impossible de charger les talents.")
       } else {
-        setTalents(data || [])
+        const resolvedTalents = await resolveTalentProfileMediaBatch(data || [])
+        if (!mounted) return
+        setTalents(resolvedTalents)
       }
 
       setTalentsLoading(false)
@@ -248,7 +251,7 @@ export default function Categories() {
                 >
                   <div className="kora-category-card-media">
                     {categoryTalent?.avatar_url ? (
-                      <img src={categoryTalent.avatar_url} alt="" loading="lazy" />
+                      <img src={categoryTalent.avatar_url} alt="" loading="lazy" decoding="async" />
                     ) : (
                       <div className="kora-category-card-fallback"><Icon className="h-7 w-7" strokeWidth={1.7} /></div>
                     )}
