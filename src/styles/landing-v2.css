@@ -181,11 +181,12 @@
 
 .kora-lp .kora-phone-screen {
   border-radius: 19px;
-  background: #172235;
+  background: #fff;
+  color: #18243a;
 }
 
-.kora-lp .kora-phone-brand { color: #fff; }
-.kora-lp .kora-phone-brand span { color: #e5bd51; }
+.kora-lp .kora-phone-brand { color: #18243a; }
+.kora-lp .kora-phone-brand span { color: #b8892a; }
 
 .kora-lp .kora-phone-home { background: rgb(255 255 255 / .5); }
 
