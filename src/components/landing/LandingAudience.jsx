@@ -20,7 +20,16 @@ function Points({ items, dark = false }) {
 export default function LandingAudience() {
   const { t } = useI18n()
   const navigate = useNavigate()
-  const points = (prefix) => [1, 2, 3].map((number) => t("landing." + prefix + number))
+  const clientPoints = [
+    t("landing.audienceClientPoint1"),
+    t("landing.audienceClientPoint2"),
+    t("landing.audienceClientPoint3"),
+  ]
+  const managerPoints = [
+    t("landing.audienceManagerPoint1"),
+    t("landing.audienceManagerPoint2"),
+    t("landing.audienceManagerPoint3"),
+  ]
 
   return (
     <section id="audience" className="kora-lp-section" aria-labelledby="audience-title">
@@ -40,7 +49,7 @@ export default function LandingAudience() {
               <span className="kora-lp-audience-icon"><Search className="h-6 w-6" aria-hidden="true" /></span>
               <h3 className="kora-lp-card-title">{t("landing.audienceClientTitle")}</h3>
               <p className="kora-lp-body mt-3">{t("landing.audienceClientText")}</p>
-              <Points items={points("audienceClientPoint")} />
+              <Points items={clientPoints} />
               <div className="mt-auto flex flex-wrap items-center gap-x-5 gap-y-3 pt-7">
                 <KButton size="lg" arrow onClick={() => navigate("/categories")}>{t("landing.audienceClientCta")}</KButton>
                 <Link to="/register?role=client" className="inline-flex min-h-12 items-center gap-1.5 text-sm font-bold text-foreground underline-offset-4 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring">
@@ -56,7 +65,7 @@ export default function LandingAudience() {
               <span className="kora-lp-audience-icon"><Briefcase className="h-6 w-6" aria-hidden="true" /></span>
               <h3 className="kora-lp-card-title">{t("landing.audienceManagerTitle")}</h3>
               <p className="kora-lp-body mt-3">{t("landing.audienceManagerText")}</p>
-              <Points items={points("audienceManagerPoint")} dark />
+              <Points items={managerPoints} dark />
               <div className="mt-auto flex flex-wrap items-center gap-x-5 gap-y-3 pt-7">
                 <KButton size="lg" onClick={() => navigate("/register?role=manager")}>{t("landing.audienceManagerCta")}</KButton>
                 <button
