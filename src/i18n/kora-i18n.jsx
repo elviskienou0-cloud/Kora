@@ -70,7 +70,7 @@ const fr = {
   },
 
   landing: {
-    "navHow": "Parcours",
+    "navHow": "Fonctionnement",
     "navCategories": "Catégories",
     "navCommunity": "Talents",
     "openMenu": "Ouvrir le menu",
