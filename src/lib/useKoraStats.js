@@ -45,6 +45,13 @@ function resolveAppCategoryId(row) {
   return null
 }
 
+const DEFAULT_STATS = [
+  { value: "0", label: "Talents inscrits" },
+  { value: "0", label: "Projets" },
+  { value: "0", label: "Pays représentés" },
+  { value: "—", label: "Satisfaction moyenne" },
+]
+
 const EMPTY_STATS = [
   { value: "—", label: "Talents inscrits" },
   { value: "—", label: "Projets" },
@@ -52,10 +59,10 @@ const EMPTY_STATS = [
   { value: "—", label: "Satisfaction moyenne" },
 ]
 
-export function useKoraStats({ enabled = true, realtime = true } = {}) {
-  const [stats, setStats] = useState(EMPTY_STATS)
+export function useKoraStats({ enabled = true, realtime = true, initialLoading = false, emptyOnError = false } = {}) {
+  const [stats, setStats] = useState(DEFAULT_STATS)
   const [categoryCounts, setCategoryCounts] = useState(buildEmptyCategoryCounts)
-  const [loading, setLoading] = useState(Boolean(enabled))
+  const [loading, setLoading] = useState(Boolean(enabled && initialLoading))
 
   useEffect(() => {
     if (!enabled) return undefined
@@ -73,7 +80,7 @@ export function useKoraStats({ enabled = true, realtime = true } = {}) {
 
         if (error) {
           console.error("Erreur statistiques live KORA :", error.message)
-          setStats(EMPTY_STATS)
+          setStats(emptyOnError ? EMPTY_STATS : DEFAULT_STATS)
           setCategoryCounts(buildEmptyCategoryCounts())
           return
         }
@@ -123,7 +130,7 @@ export function useKoraStats({ enabled = true, realtime = true } = {}) {
       cancelled = true
       if (channel) supabase.removeChannel(channel)
     }
-  }, [enabled, realtime])
+  }, [enabled, realtime, emptyOnError])
 
   return { stats, categoryCounts, loading }
 }
