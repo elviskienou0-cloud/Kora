@@ -10,7 +10,7 @@ function Points({ items, dark = false }) {
       {items.map((item) => (
         <li key={item} className="flex items-start gap-3">
           <CheckCircle2 className={dark ? "mt-0.5 h-5 w-5 shrink-0 text-amber-300" : "mt-0.5 h-5 w-5 shrink-0 text-emerald-600"} aria-hidden="true" />
-          <span className={dark ? "text-sm font-semibold leading-relaxed text-white/90" : "text-sm font-semibold leading-relaxed text-foreground/90"}>{item}</span>
+          <span className={dark ? "text-base font-semibold leading-relaxed text-white/90" : "text-base font-semibold leading-relaxed text-foreground/90"}>{item}</span>
         </li>
       ))}
     </ul>
