@@ -155,6 +155,7 @@ export default function LandingPricing() {
                         </span>
                         <span className="text-sm font-extrabold">{limitText(plan)}</span>
                       </div>
+                      <p className="mt-3 text-sm font-semibold text-muted-foreground">{t("landing.planAllFeatures")}</p>
                     </div>
 
                     <div className="mt-auto pt-7">
