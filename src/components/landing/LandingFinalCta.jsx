@@ -14,7 +14,7 @@ export default function LandingFinalCta() {
           <h2 id="final-cta-title">{t("landing.finalCtaTitle")}</h2>
           <p className="kora-lp-final-description">{t("landing.finalCtaDescription")}</p>
           <div className="mt-7 flex flex-col items-center justify-center gap-3 sm:flex-row">
-            <KButton size="lg" arrow onClick={() => navigate("/categories")} className="min-h-12 bg-white text-slate-950 hover:bg-white/90">
+            <KButton size="lg" arrow onClick={() => navigate("/categories")} className="min-h-12">
               {t("landing.discoverTalents")}
             </KButton>
             <Link
