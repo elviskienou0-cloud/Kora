@@ -18,10 +18,9 @@ import { useI18n } from "@/i18n/kora-i18n.jsx"
 import "@/styles/landing-v2.css"
 
 const STAT_META = [
-  { key: "landing.statsTalents", icon: Users },
-  { key: "landing.statsProjects", icon: Briefcase },
-  { key: "landing.statsCountries", icon: Globe },
-  { key: "landing.statsSatisfaction", icon: Star },
+  { key: "landing.statsTalents", icon: Users, index: 0 },
+  { key: "landing.statsCountries", icon: Globe, index: 2 },
+  { key: "landing.statsSatisfaction", icon: Star, index: 3 },
 ]
 
 export default function Landing() {
@@ -38,8 +37,8 @@ export default function Landing() {
   }, [reduce])
 
   const stats = useMemo(
-    () => STAT_META.map((meta, index) => ({
-      ...(liveStats[index] || { value: "—" }),
+    () => STAT_META.map((meta) => ({
+      ...(liveStats[meta.index] || { value: "—" }),
       label: t(meta.key),
       icon: meta.icon,
     })),
