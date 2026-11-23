@@ -55,7 +55,7 @@ const fr = {
   seo: {
     siteTitle: "KORA — Plateforme des talents africains",
     siteDescription: "Découvrez, contactez et collaborez avec les talents africains sur KORA.",
-    homeTitle: "KORA — Découvrez les talents africains",
+    homeTitle: "KORA | Découvrez les talents africains et collaborez avec leurs managers",
     homeDescription: "Trouvez des talents africains correspondant à vos besoins et développez vos collaborations avec KORA.",
     categoriesTitle: "Catégories de talents africains | KORA",
     categoriesDescription: "Explorez les catégories et découvrez les talents africains disponibles sur KORA.",
@@ -1555,8 +1555,8 @@ const en = {
   "seo": {
     "siteTitle": "KORA — African Talent Platform",
     "siteDescription": "Discover, contact and collaborate with African talents on KORA.",
-    "homeTitle": "KORA — Discover African talents",
-    "homeDescription": "Find African talents that match your needs and build collaborations with KORA.",
+    "homeTitle": "KORA | Discover African talent and collaborate with their managers",
+    "homeDescription": "Explore African talent profiles, contact their managers, and follow requests and collaborations on KORA.",
     "categoriesTitle": "African Talent Categories | KORA",
     "categoriesDescription": "Explore categories and discover African talents available on KORA.",
     "browseTitle": "Discover Talents | KORA",
