@@ -52,7 +52,7 @@ const EMPTY_STATS = [
   { value: "—", label: "Satisfaction moyenne" },
 ]
 
-export function useKoraStats({ enabled = true } = {}) {
+export function useKoraStats({ enabled = true, realtime = true } = {}) {
   const [stats, setStats] = useState(EMPTY_STATS)
   const [categoryCounts, setCategoryCounts] = useState(buildEmptyCategoryCounts)
   const [loading, setLoading] = useState(false)
@@ -61,6 +61,7 @@ export function useKoraStats({ enabled = true } = {}) {
     if (!enabled) return undefined
 
     let cancelled = false
+    let channel
 
     const load = async () => {
       setLoading(true)
@@ -104,8 +105,25 @@ export function useKoraStats({ enabled = true } = {}) {
     }
 
     load()
-    return () => { cancelled = true }
-  }, [enabled])
+
+    if (realtime) {
+      channel = supabase
+        .channel("kora-global-stats")
+        .on("postgres_changes", { event: "*", schema: "public", table: "talent_profiles" }, load)
+        .on("postgres_changes", { event: "*", schema: "public", table: "projects" }, load)
+        .on("postgres_changes", { event: "*", schema: "public", table: "categories" }, load)
+        .subscribe((status) => {
+          if (status === "CHANNEL_ERROR") {
+            console.warn("Supabase Realtime n’est pas disponible pour les statistiques KORA.")
+          }
+        })
+    }
+
+    return () => {
+      cancelled = true
+      if (channel) supabase.removeChannel(channel)
+    }
+  }, [enabled, realtime])
 
   return { stats, categoryCounts, loading }
 }
