@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from "react"
 import { AnimatePresence, motion, useReducedMotion } from "framer-motion"
-import { ArrowLeft, ArrowRight, MapPin, Star, UserRound, Users, BriefcaseBusiness, Globe2, Heart } from "lucide-react"
+import { ArrowLeft, ArrowRight, MapPin, Star, UserRound, Users, Globe2, Heart } from "lucide-react"
 import { Link } from "react-router-dom"
 import { Card, CardContent } from "@/components/ui/card"
 import { supabase } from "@/lib/supabase"
@@ -76,7 +76,7 @@ export default function LandingEvolution({ stats = [], loading = false }) {
   }, [])
 
   const visibleStats = useMemo(() => stats.filter((stat) => loading || stat.value !== "—").slice(0, 3), [stats, loading])
-  const statIcons = [Users, BriefcaseBusiness, Globe2, Star]
+  const statIcons = [Users, Globe2, Star]
   const currentTalent = talents.length ? talents[activeIndex % talents.length] : null
   const nextTalent = talents.length > 1 ? talents[(activeIndex + 1) % talents.length] : null
 
@@ -98,7 +98,7 @@ export default function LandingEvolution({ stats = [], loading = false }) {
         <div className="grid grid-cols-1 items-center gap-6 lg:grid-cols-[0.9fr_1.1fr] lg:gap-9">
           <div className="grid grid-cols-2 gap-3 sm:gap-4" aria-busy={loading}>
             {visibleStats.map((stat, index) => {
-              const Icon = statIcons[index] || Heart
+              const Icon = stat.icon || statIcons[index] || Heart
               return (
                 <article key={stat.label} className="kora-evolution-stat">
                   <span className="kora-evolution-stat-icon"><Icon size={21} strokeWidth={1.8} aria-hidden="true" /></span>
