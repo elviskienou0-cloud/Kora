@@ -98,8 +98,7 @@ export default function LandingNav({ links, labels, language, onLanguageChange }
           </div>
         </div>
 
-        {menuOpen && (
-          <div id="kora-mobile-nav" className="mt-2 rounded-2xl border border-border bg-background p-3 shadow-xl lg:hidden">
+        <div id="kora-mobile-nav" hidden={!menuOpen} className="mt-2 rounded-2xl border border-border bg-background p-3 shadow-xl lg:hidden">
             <ul className="grid gap-1">
               {links.map((link) => (
                 <li key={link.id}>
@@ -127,8 +126,7 @@ export default function LandingNav({ links, labels, language, onLanguageChange }
                 </Link>
               </li>
             </ul>
-          </div>
-        )}
+        </div>
       </motion.nav>
     </div>
   )
