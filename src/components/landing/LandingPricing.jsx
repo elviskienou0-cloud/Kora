@@ -50,20 +50,28 @@ export default function LandingPricing() {
     let cancelled = false
 
     const loadPlans = async () => {
-      const { data, error } = await supabase
-        .from("plans")
-        .select("id, name, price, currency, talent_limit, trial_days, features, is_active")
-        .eq("is_active", true)
-        .order("price", { ascending: true })
+      try {
+        const { data, error } = await supabase
+          .from("plans")
+          .select("id, name, price, currency, talent_limit, trial_days, features, is_active")
+          .eq("is_active", true)
+          .order("price", { ascending: true })
 
-      if (cancelled) return
-      if (error) {
-        console.error("Erreur chargement plans publics :", error)
-        setPlans([])
-      } else {
-        setPlans(data || [])
+        if (cancelled) return
+        if (error) {
+          console.error("Erreur chargement plans publics :", error)
+          setPlans([])
+        } else {
+          setPlans(data || [])
+        }
+      } catch (error) {
+        if (!cancelled) {
+          console.error("Erreur réseau pendant le chargement des offres KORA :", error)
+          setPlans([])
+        }
+      } finally {
+        if (!cancelled) setLoading(false)
       }
-      setLoading(false)
     }
 
     loadPlans()
