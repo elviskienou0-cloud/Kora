@@ -1,0 +1,87 @@
+/* KORA — landing v2 : échelle typographique et briques visuelles communes.
+   Police unique : Manrope (déjà chargée dans index.html), hiérarchie par graisse, taille et interlettrage. */
+
+.kora-lp {
+  --lp-ink: #2a2115;
+  --lp-gold: 212 175 55;
+  font-family: "Manrope", "Inter", system-ui, sans-serif;
+  font-feature-settings: "tnum" 0;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+.dark .kora-lp { --lp-ink: #f4f7fb; }
+
+/* Rythme vertical : une seule valeur pour toutes les sections */
+.kora-lp-section { padding-block: clamp(56px, 6.5vw, 96px); scroll-margin-top: 5.5rem; }
+.kora-lp-container { width: min(1240px, 100% - 2rem); margin-inline: auto; }
+@media (min-width: 640px) { .kora-lp-container { width: min(1240px, 100% - 3rem); } }
+
+/* Eyebrow */
+.kora-lp-eyebrow-pill {
+  display: inline-flex; align-items: center; gap: .55rem;
+  padding: .45rem .95rem; border-radius: 999px;
+  border: 1px solid hsl(var(--gold) / .35); background: hsl(var(--gold) / .1);
+  color: hsl(var(--gold-dark)); font-size: .72rem; font-weight: 800;
+  letter-spacing: .16em; text-transform: uppercase;
+}
+.dark .kora-lp-eyebrow-pill { color: hsl(var(--gold-light)); }
+.kora-lp-eyebrow-dot { width: .4rem; height: .4rem; border-radius: 999px; background: hsl(var(--gold)); box-shadow: 0 0 0 4px hsl(var(--gold) / .2); }
+
+/* Titres, chapô, texte */
+.kora-lp-header { max-width: 52rem; margin-bottom: clamp(2.25rem, 4vw, 3.75rem); }
+.kora-lp-header > * + * { margin-top: 1.1rem; }
+.kora-lp-title {
+  font-weight: 800; letter-spacing: -.035em; line-height: 1.04;
+  font-size: clamp(2rem, 1.15rem + 3.1vw, 3.5rem);
+  color: var(--lp-ink); text-wrap: balance;
+}
+.kora-lp-lead {
+  font-size: clamp(1rem, .95rem + .3vw, 1.18rem); line-height: 1.7; font-weight: 500;
+  color: hsl(var(--muted-foreground)); text-wrap: pretty; max-width: 40rem; margin-inline: auto;
+}
+.kora-lp-card-title { font-weight: 800; letter-spacing: -.022em; line-height: 1.15; font-size: clamp(1.15rem, 1rem + .6vw, 1.5rem); color: var(--lp-ink); }
+.kora-lp-body { font-size: .95rem; line-height: 1.7; font-weight: 500; color: hsl(var(--muted-foreground)); }
+.kora-lp-num { font-variant-numeric: tabular-nums; font-feature-settings: "tnum" 1; }
+
+/* Texte doré (dégradé statique, léger glissement si les animations sont permises) */
+.kora-lp-gold {
+  background-image: linear-gradient(100deg, #b8892a 0%, #e9c46a 40%, #d4af37 60%, #b8892a 100%);
+  background-size: 200% 100%; -webkit-background-clip: text; background-clip: text; color: transparent;
+  animation: kora-lp-shine 7s ease-in-out infinite alternate;
+}
+@keyframes kora-lp-shine { to { background-position: 100% 0; } }
+
+/* Halos de fond (fixes) */
+@keyframes kora-lp-aurora { 50% { transform: translate3d(5vw, -4vh, 0) scale(1.15); } }
+.kora-lp-aurora { animation: kora-lp-aurora 20s ease-in-out infinite; }
+
+/* Rangées défilantes des catégories */
+.kora-lp-marquee {
+  overflow: hidden;
+  -webkit-mask-image: linear-gradient(90deg, transparent, #000 7%, #000 93%, transparent);
+  mask-image: linear-gradient(90deg, transparent, #000 7%, #000 93%, transparent);
+}
+.kora-lp-marquee-track { display: flex; width: max-content; gap: 1rem; animation: kora-lp-left 44s linear infinite; }
+.kora-lp-marquee-track.is-reverse { animation-name: kora-lp-right; }
+.kora-lp-marquee:hover .kora-lp-marquee-track { animation-play-state: paused; }
+@keyframes kora-lp-left { to { transform: translateX(-50%); } }
+@keyframes kora-lp-right { from { transform: translateX(-50%); } to { transform: translateX(0); } }
+.kora-lp-chip {
+  display: flex; min-width: 12.5rem; align-items: center; gap: .85rem;
+  padding: .85rem 1.15rem; border-radius: 1.15rem;
+  border: 1px solid hsl(var(--border)); background: hsl(var(--card));
+  box-shadow: 0 10px 28px -20px rgb(42 33 21 / .35);
+  transition: transform .25s ease, border-color .25s ease, box-shadow .25s ease;
+}
+.kora-lp-chip:hover { transform: translateY(-3px); border-color: hsl(var(--gold) / .6); box-shadow: 0 18px 36px -20px rgb(212 175 55 / .55); }
+
+/* Chiffres des étapes (contour doré) */
+.kora-lp-outline-num { color: transparent; -webkit-text-stroke: 2px rgb(var(--lp-gold) / .7); }
+
+/* Bordure dorée tournante du plan recommandé */
+@keyframes kora-lp-spin { to { transform: rotate(360deg); } }
+
+@media (prefers-reduced-motion: reduce) {
+  .kora-lp-gold, .kora-lp-aurora, .kora-lp-marquee-track { animation: none !important; }
+  .kora-lp-marquee { overflow-x: auto; -webkit-mask-image: none; mask-image: none; }
+}
