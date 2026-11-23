@@ -3,29 +3,37 @@ import { Mail, MapPin, Phone, Heart } from "lucide-react"
 import { useI18n } from "@/i18n/kora-i18n.jsx"
 import koraLogo from "@/assets/kora-logo.svg"
 
-const FOOTER_LINKS = {
-  footerPlatform: [
-    { label: "footerHome", href: "/" },
-    { label: "footerCategories", href: "/categories" },
-    { label: "footerBecomeManager", href: "/register?role=manager" },
-    { label: "footerPricing", href: "#pricing" },
-  ],
-  footerSupport: [
-    { label: "footerContact", href: "/contact" },
-    { label: "footerFaq", href: "/faq" },
-    { label: "footerReport", href: "/signaler-un-probleme" },
-  ],
-  footerLegal: [
-    { label: "footerTerms", href: "/conditions" },
-    { label: "footerPrivacy", href: "/confidentialite" },
-    { label: "footerCookies", href: "/cookies" },
-    { label: "footerSalesTerms", href: "/cgv" },
-    { label: "footerLegalNotice", href: "/mentions-legales" },
-  ],
-}
-
 export default function LandingFooter() {
   const { t } = useI18n()
+  const sections = [
+    {
+      title: t("landing.footerPlatform"),
+      links: [
+        { label: t("landing.footerHome"), href: "/" },
+        { label: t("landing.footerCategories"), href: "/categories" },
+        { label: t("landing.footerBecomeManager"), href: "/register?role=manager" },
+        { label: t("landing.footerPricing"), href: "#pricing" },
+      ],
+    },
+    {
+      title: t("landing.footerSupport"),
+      links: [
+        { label: t("landing.footerContact"), href: "/contact" },
+        { label: t("landing.footerFaq"), href: "/faq" },
+        { label: t("landing.footerReport"), href: "/signaler-un-probleme" },
+      ],
+    },
+    {
+      title: t("landing.footerLegal"),
+      links: [
+        { label: t("landing.footerTerms"), href: "/conditions" },
+        { label: t("landing.footerPrivacy"), href: "/confidentialite" },
+        { label: t("landing.footerCookies"), href: "/cookies" },
+        { label: t("landing.footerSalesTerms"), href: "/cgv" },
+        { label: t("landing.footerLegalNotice"), href: "/mentions-legales" },
+      ],
+    },
+  ]
 
   return (
     <footer className="kora-public-footer relative border-t border-border bg-card/60">
@@ -53,19 +61,19 @@ export default function LandingFooter() {
           </address>
         </div>
 
-        {Object.entries(FOOTER_LINKS).map(([titleKey, links]) => (
-          <div key={titleKey}>
-            <h2 className="mb-4 text-sm font-extrabold text-foreground">{t("landing." + titleKey)}</h2>
+        {sections.map((section) => (
+          <div key={section.title}>
+            <h2 className="mb-4 text-sm font-extrabold text-foreground">{section.title}</h2>
             <ul className="space-y-2">
-              {links.map((link) => (
+              {section.links.map((link) => (
                 <li key={link.label}>
                   {link.href.startsWith("#") ? (
                     <a href={link.href} className="inline-flex min-h-10 items-center text-sm text-muted-foreground transition-colors hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring">
-                      {t("landing." + link.label)}
+                      {link.label}
                     </a>
                   ) : (
                     <Link to={link.href} className="inline-flex min-h-10 items-center text-sm text-muted-foreground transition-colors hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring">
-                      {t("landing." + link.label)}
+                      {link.label}
                     </Link>
                   )}
                 </li>
