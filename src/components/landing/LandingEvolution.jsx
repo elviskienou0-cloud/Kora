@@ -8,7 +8,7 @@ import { resolveTalentProfileMediaBatch } from "@/lib/talentMedia"
 import { useI18n } from "@/i18n/kora-i18n.jsx"
 
 function getName(talent) {
-  return (talent.first_name + " " + (talent.last_name || "")).trim() || talent.title || "Talent"
+  return ((talent.first_name || "") + " " + (talent.last_name || "")).trim() || talent.title || "Talent"
 }
 
 function TalentPortrait({ talent, className = "", decorative = false }) {
