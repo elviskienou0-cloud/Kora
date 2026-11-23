@@ -47,10 +47,10 @@ export default function LandingEvolution({ stats = [], loading = false }) {
       try {
         const { data, error } = await supabase
           .from("talent_profiles")
-          .select("id, first_name, last_name, title, city, avatar_url, rating, reviews_count, categories(name), countries(name)")
+          .select("id, first_name, last_name, title, city, avatar_url, rating, categories(name), countries(name)")
           .eq("status", "published")
           .eq("is_visible", true)
-          .order("rating", { ascending: false })
+          .order("rating", { ascending: false, nullsFirst: false })
           .limit(8)
 
         if (!mounted) return
