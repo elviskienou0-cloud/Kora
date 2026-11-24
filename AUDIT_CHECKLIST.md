@@ -228,7 +228,7 @@ Les cases restent décochées tant que le fichier n'a pas été lu intégralemen
 - [ ] `src/lib/utils.js`
 - [x] `src/main.jsx`
 - [x] `src/pages/AuthCallback.jsx`
-- [ ] `src/pages/Categories.jsx`
+- [x] `src/pages/Categories.jsx`
 - [ ] `src/pages/Cgv.jsx`
 - [ ] `src/pages/Conditions.jsx`
 - [ ] `src/pages/Confidentialite.jsx`
