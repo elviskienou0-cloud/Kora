@@ -1,12 +1,36 @@
+import { useEffect, useState } from "react"
 import { Link } from "react-router-dom"
 import { APP_PARAMS } from "@/lib/app-params"
 import { getCategoryIcon } from "@/lib/categoryIcons"
 import { useI18n } from "@/i18n/kora-i18n.jsx"
+import { supabase } from "@/lib/supabase"
 import { Reveal, SectionHeader } from "./landingKit.jsx"
 
 export default function LandingCategories() {
   const { t } = useI18n()
-  const cats = APP_PARAMS.categories
+  const [cats, setCats] = useState([])
+
+  useEffect(() => {
+    let mounted = true
+    const load = async () => {
+      try {
+        const { data, error } = await supabase
+          .from("categories")
+          .select("id, slug, name, icon")
+          .eq("is_active", true)
+          .order("name", { ascending: true })
+        if (error) throw error
+        if (mounted) setCats(data || [])
+      } catch (error) {
+        if (mounted) {
+          console.error("Erreur chargement catégories landing :", error)
+          setCats([])
+        }
+      }
+    }
+    load()
+    return () => { mounted = false }
+  }, [])
   const labels = {
     music: t("landing.categoryMusic"),
     fashion: t("landing.categoryFashion"),
@@ -35,10 +59,10 @@ export default function LandingCategories() {
         <Reveal>
           <div className="kora-lp-category-grid">
             {cats.map((category) => {
-              const Icon = getCategoryIcon(category.icon)
-              const label = labels[category.id] || category.name
+              const Icon = getCategoryIcon(category.icon || APP_PARAMS.categories.find((item) => item.id === category.slug)?.icon)
+              const label = labels[category.slug] || category.name
               return (
-                <Link key={category.id} to="/categories" className="kora-lp-category-card">
+                <Link key={category.id} to={`/categories?category=${encodeURIComponent(category.slug)}`} className="kora-lp-category-card">
                   <span className="kora-lp-category-icon"><Icon className="h-5 w-5" aria-hidden="true" /></span>
                   <span className="font-bold">{label}</span>
                 </Link>

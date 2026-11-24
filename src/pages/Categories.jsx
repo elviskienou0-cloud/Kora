@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react"
-import { useNavigate } from "react-router-dom"
+import { useNavigate, useSearchParams } from "react-router-dom"
 import { motion } from "framer-motion"
 import {
   Grid3X3,
@@ -79,7 +79,8 @@ function getInitials(name = "Talent") {
 export default function Categories() {
   const navigate = useNavigate()
 
-  const [active, setActive] = useState("all")
+  const [searchParams, setSearchParams] = useSearchParams()
+  const [active, setActive] = useState(() => searchParams.get("category") || "all")
   const [categories, setCategories] = useState([])
   const [categoriesLoading, setCategoriesLoading] = useState(true)
   const [categoriesError, setCategoriesError] = useState("")
@@ -119,6 +120,27 @@ export default function Categories() {
     loadCategories()
     return () => { mounted = false }
   }, [])
+
+  useEffect(() => {
+    setActive(searchParams.get("category") || "all")
+  }, [searchParams])
+
+  useEffect(() => {
+    if (active !== "all" && categories.length && !categories.some((category) => category.slug === active)) {
+      setActive("all")
+      const next = new URLSearchParams(searchParams)
+      next.delete("category")
+      setSearchParams(next, { replace: true })
+    }
+  }, [active, categories, searchParams, setSearchParams])
+
+  const selectCategory = (slug) => {
+    setActive(slug)
+    const next = new URLSearchParams(searchParams)
+    if (slug === "all") next.delete("category")
+    else next.set("category", slug)
+    setSearchParams(next, { replace: true })
+  }
 
   useEffect(() => {
     let mounted = true
@@ -242,7 +264,7 @@ export default function Categories() {
               <p className="text-muted-foreground font-medium">Sélectionnez une catégorie pour affiner</p>
             </div>
             {active !== "all" && (
-              <Button variant="ghost" size="sm" onClick={() => setActive("all")} className="gap-1.5">
+              <Button variant="ghost" size="sm" onClick={() => selectCategory("all")} className="gap-1.5">
                 <X className="h-4 w-4" /> Effacer le filtre
               </Button>
             )}
@@ -285,7 +307,7 @@ export default function Categories() {
               return (
                 <motion.button
                   key={cat.id}
-                  onClick={() => setActive(cat.slug)}
+                  onClick={() => selectCategory(cat.slug)}
                   variants={fadeInUp}
                   custom={i + 1}
                   whileHover={{ y: -4 }}
