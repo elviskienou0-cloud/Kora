@@ -112,6 +112,7 @@ Aucune correction de code n'a encore été appliquée.
 - Risque: les prochains déploiements peuvent rejouer une migration déjà appliquée et ne pas reproduire fidèlement l'état de production.
 - Correction appliquée sur cette branche: restauration des deux fichiers SQL exacts depuis `supabase_migrations.schema_migrations`; déplacement du fichier non appliqué et fusionné vers `supabase/migrations_archive/` afin de préserver son contenu sans le faire exécuter par la CLI. Aucune requête DDL n'a été exécutée sur la base active et aucune donnée n'a été supprimée.
 - Vérification après correction: à refaire par comparaison exhaustive des versions locales et distantes.
-- Commit: à renseigner après création du commit atomique.
-- Statut: correction de dépôt appliquée; validation finale en attente.
+- Commit: `c6b2a1b7a53e4f837a0bdd5132d592768c29e8cf`.
+- Vérification: 100 versions locales et 100 versions distantes; aucune version manquante ni migration locale non appliquée.
+- Statut: corrigé sur la branche d'audit; aucune modification de la base active.
 
