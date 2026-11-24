@@ -384,3 +384,15 @@ Les tests ont utilisé des identités existantes du projet, sans afficher leurs 
 - Commit: `KORA-025: permettre la suppression des notifications personnelles`.
 - Statut: corrigé sur la branche d'audit; build CI à vérifier.
 
+
+
+### KORA-026 | UX / fiabilité upload | basse | client et manager | avatar / couverture profil | `src/lib/profileMedia.js` / `uploadProfileImage`
+
+- Étapes: lecture intégrale du helper et comparaison avec le bucket public `profile-media`.
+- Attendu: validation locale identique aux MIME acceptés par Storage; aucun fichier orphelin si l'enregistrement du profil échoue.
+- Observé: le helper acceptait tout type `image/*`, alors que le bucket n'accepte que JPEG, PNG et WebP. En cas d'échec de mise à jour de `profiles`, le fichier déjà téléversé restait orphelin.
+- Cause: validation MIME trop large et absence de nettoyage après échec partiel.
+- Correction appliquée: whitelist MIME alignée sur le bucket et suppression du fichier si l'URL ou la mise à jour du profil échoue.
+- Commit: `KORA-026: aligner les uploads de profil sur Storage`.
+- Statut: corrigé sur la branche d'audit; build CI à vérifier.
+
