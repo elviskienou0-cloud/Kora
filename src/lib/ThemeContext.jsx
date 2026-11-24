@@ -1,4 +1,5 @@
 import { createContext, useCallback, useContext, useEffect, useMemo, useState } from "react"
+
 const STORAGE_KEY = "kora-theme"
 const DEFAULT_THEME = "light"
 
@@ -16,6 +17,7 @@ export function ThemeProvider({ children }) {
       return DEFAULT_THEME
     }
   })
+
   const defaultTheme = DEFAULT_THEME
   const effectiveTheme = theme
 
@@ -38,7 +40,7 @@ export function ThemeProvider({ children }) {
 
   const resetToDefault = useCallback(() => {
     setTheme(DEFAULT_THEME)
-  }, [setTheme]
+  }, [setTheme])
 
   const value = useMemo(() => ({
     theme,
