@@ -15,11 +15,11 @@
 
 ## Synthèse des constats (snapshot du 24 novembre 2026)
 
-- **33 constats** enregistrés.
+- **34 constats** enregistrés.
 - **Haute : 8** (1 corrigé, 2 partiellement corrigés/en attente de migration, 5 ouverts).
-- **Moyenne : 20** (9 corrigés, 3 partiellement corrigés/en attente de migration, 8 ouverts).
+- **Moyenne : 21** (10 corrigés, 4 partiellement corrigés/en attente de migration ou de traduction, 7 ouverts).
 - **Basse : 5** (5 corrigés).
-- **Total : 15 corrigés, 5 partiellement corrigés/en attente de déploiement, 13 ouverts.**
+- **Total : 16 corrigés, 6 partiellement corrigés/en attente de déploiement, 12 ouverts.**
 - Le statut « corrigé » désigne une correction sur la branche d'audit, pas une mise en production. Les migrations versionnées ne sont pas appliquées à Supabase.
 - Les sections ci-dessous sont triées par gravité, puis par identifiant.
 
@@ -154,7 +154,7 @@
 - `security:secrets`: réussi.
 - Workflow i18n séparé: réussi.
 - `npm audit --json`: 19 vulnérabilités signalées (1 faible, 12 modérées, 6 élevées, 0 critique). La synthèse de `npm ci` affiche 11 vulnérabilités; cet écart de comptage doit être réconcilié. L'étape audit du workflow utilise `|| true` et ne bloque donc pas la CI.
-- Ces validations CI couvrent le code jusqu'au commit `0ec9f0e182bc84ecd5de1018e25ccc9c4d3c4838`; le build qualité et les tests i18n sont réussis sur ce commit. Deux runs intermédiaires ont échoué à cause d'une fermeture JSX incorrecte dans les nouvelles actions de suppression des notifications; KORA-031 a corrigé le problème et les runs suivants sont réussis.
+- Ces validations CI couvrent le code jusqu'au commit `ed0439f70e863dbe2e1fe61c3ab847a4206d19ee`; le build qualité et les tests i18n sont réussis sur ce commit. Le commit suivant `c3ba9b234dd89f8d5675baa86c3481a49d30cd54` ne modifie que la checklist. Deux runs intermédiaires ont échoué à cause d'une fermeture JSX incorrecte dans les nouvelles actions de suppression des notifications; KORA-031 a corrigé le problème et les runs suivants sont réussis.
 - Tests SELECT RLS: exécutés avec `anon`, un client, un manager et le Super Admin; détails plus bas. Les tests INSERT/UPDATE/DELETE n'ont pas été exécutés sur des données métier réelles; policies et privilèges inspectés.
 - Aucun profil `admin` associé n'existe dans la base active; les permissions fines de cet acteur restent non testées.
 - Parcours navigateur/mobile de bout en bout: non exécutés; aucun appareil Android/iOS ni navigateur E2E connecté n'a été utilisé.
@@ -366,9 +366,9 @@ Les tests ont utilisé des identités existantes du projet, sans afficher leurs 
 - Attendu: toutes les routes accessibles en anglais affichent des libellés cohérents dans la langue choisie.
 - Observé: `Register.jsx`, `Categories.jsx`, `AdminPanel.jsx` et `Settings.jsx` ne consomment pas le contexte i18n et contiennent des libellés français statiques. Les pages Paiements et Abonnements contiennent également des textes français statiques.
 - Cause: ces vues n'ont pas été raccordées au dictionnaire FR/EN global.
-- Correction: non appliquée dans cette étape; les pages doivent être traduites sans changer les libellés métier ni les permissions.
-- Commit: aucun.
-- Statut: ouvert; audit i18n des routes restantes à poursuivre.
+- Correction appliquée partiellement: le libellé accessible du logo dans LandingNav est bilingue; le hero, le bandeau et la grille de catégories chargent les catégories DB, mais les huit catégories sans clé de traduction restent en français en mode anglais. Register, Categories et les vues admin restent à traduire.
+- Commit: `79bf2f3` (hero dynamique), `a22df0e` (grille et filtre URL), `ed0439f` (bandeau dynamique); correction d'aria-label dans le commit LandingNav du même audit.
+- Statut: partiellement corrigé; traduction complète des routes restantes ouverte.
 
 
 
@@ -415,8 +415,8 @@ Les tests ont utilisé des identités existantes du projet, sans afficher leurs 
 - Observé: le code ne connaissait que 11 catégories statiques; la table contient 19 catégories actives. Business, Créatif, Finance, Formation, Juridique, Marketing, Santé et Technologie étaient invisibles dans la page et ignorées par les compteurs. Le total de la page additionne désormais uniquement les catégories actives affichées.
 - Cause: liste frontend figée et résolution des compteurs limitée à `APP_PARAMS.categories`.
 - Correction appliquée: la page Catégories et le hero de la landing chargent maintenant les catégories actives depuis Supabase avec gestion des exceptions réseau; le hook construit les compteurs dynamiquement à partir du slug renvoyé par `get_kora_live_stats()`. Le total est calculé uniquement sur les catégories actives visibles.
-- Commit: `24727c67ffc4362213b765115548fdb53556e5be` (`KORA-032: charger les catégories depuis Supabase`).
-- Statut: corrigé; build/lint/tests et validation i18n CI réussis. La traduction anglaise de la page reste ouverte dans KORA-024.
+- Commits: `24727c67ffc4362213b765115548fdb53556e5be` (page/hook), `4cc7edd310150d6109a496efcfa6280cfec58a51` (hero), `a22df0e87376b98213e21d4aba41eef1a28f78a9` (liens et filtre URL), `ed0439f70e863dbe2e1fe61c3ab847a4206d19ee` (bandeau).
+- Statut: corrigé; build/lint/tests et validation i18n CI réussis. La traduction anglaise des catégories reste ouverte dans KORA-024.
 
 ### KORA-033 | incomplet / UX / accessibilité | moyenne | client et tous rôles connectés | accueil `/home` | `src/pages/Home.jsx`
 
@@ -438,6 +438,16 @@ Les tests ont utilisé des identités existantes du projet, sans afficher leurs 
 - Cause: effets asynchrones sans invalidation lorsque l'identité change.
 - Correction appliquée: ajout de gardes `mounted`, contrôle des erreurs Supabase et réinitialisation des états en cas de session absente/erreur.
 - Commit: `0ec9f0e182bc84ecd5de1018e25ccc9c4d3c4838` (`KORA-034: isoler les données de l'accueil par session`).
+- Statut: corrigé; build/lint/tests et validation i18n CI réussis.
+
+### KORA-035 | incomplet / transparence commerciale | moyenne | visiteurs et managers | landing / tarifs | `src/components/landing/LandingPricing.jsx`
+
+- Étapes: lecture intégrale de la section Tarifs et inspection du champ `plans.features` consommé depuis Supabase.
+- Attendu: chaque formule affiche les fonctionnalités réellement enregistrées pour cette formule.
+- Observé: les cartes affichaient un texte générique « toutes les fonctionnalités »; la section complémentaire ne listait que l'intersection des fonctionnalités communes à tous les plans. Les différences entre formules étaient invisibles.
+- Cause: le composant calculait uniquement les fonctionnalités communes et ne rendait pas les listes propres à chaque plan.
+- Correction appliquée: affichage de `plans.features` dans chaque carte, avec traduction anglaise connue et fallback sur le libellé source; suppression de la section redondante des fonctionnalités communes.
+- Commit: `b92165df98696e239f9ced2a07a271349b0f9934` (`KORA-035: afficher les fonctionnalités propres à chaque plan`).
 - Statut: corrigé; build/lint/tests et validation i18n CI réussis.
 
 ### KORA-019 | UX / i18n | basse | client et manager | liste des conversations | `src/pages/Messages.jsx` / `formatConversationTime`
@@ -503,14 +513,4 @@ Les tests ont utilisé des identités existantes du projet, sans afficher leurs 
 
 
 
-
-### KORA-035 | incomplet / transparence commerciale | moyenne | visiteurs et managers | landing / tarifs | `src/components/landing/LandingPricing.jsx`
-
-- Étapes: lecture intégrale de la section Tarifs et inspection du champ `plans.features` consommé depuis Supabase.
-- Attendu: chaque formule affiche les fonctionnalités réellement enregistrées pour cette formule.
-- Observé: les cartes affichaient un texte générique « toutes les fonctionnalités »; la section complémentaire ne listait que l'intersection des fonctionnalités communes à tous les plans. Les différences entre formules étaient invisibles.
-- Cause: le composant calculait uniquement les fonctionnalités communes et ne rendait pas les listes propres à chaque plan.
-- Correction appliquée: affichage de `plans.features` dans chaque carte, avec traduction anglaise connue et fallback sur le libellé source; suppression de la section redondante des fonctionnalités communes.
-- Commit: `KORA-035: afficher les fonctionnalités propres à chaque plan`.
-- Statut: corrigé sur la branche d'audit; build CI à vérifier.
 
