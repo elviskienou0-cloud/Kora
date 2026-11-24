@@ -222,9 +222,9 @@ Les cases restent décochées tant que le fichier n'a pas été lu intégralemen
 - [ ] `src/lib/saspayCheckout.js`
 - [x] `src/lib/supabase.js`
 - [x] `src/lib/talentMedia.js`
-- [ ] `src/lib/talentPortfolio.js`
+- [x] `src/lib/talentPortfolio.js`
 - [ ] `src/lib/talentShare.js`
-- [ ] `src/lib/useKoraStats.js`
+- [x] `src/lib/useKoraStats.js`
 - [ ] `src/lib/utils.js`
 - [x] `src/main.jsx`
 - [x] `src/pages/AuthCallback.jsx`
@@ -241,7 +241,7 @@ Les cases restent décochées tant que le fichier n'a pas été lu intégralemen
 - [ ] `src/pages/Landing.jsx`
 - [x] `src/pages/Login.jsx`
 - [ ] `src/pages/MentionsLegales.jsx`
-- [ ] `src/pages/Messages.jsx`
+- [x] `src/pages/Messages.jsx`
 - [x] `src/pages/OAuthConsent.jsx`
 - [x] `src/pages/Register.jsx`
 - [x] `src/pages/ResetPassword.jsx`
@@ -268,21 +268,21 @@ Les cases restent décochées tant que le fichier n'a pas été lu intégralemen
 - [ ] `src/pages/client/ClientSettings.jsx`
 - [ ] `src/pages/client/Dashboard.jsx`
 - [ ] `src/pages/client/Favorites.jsx`
-- [ ] `src/pages/client/Notifications.jsx`
+- [x] `src/pages/client/Notifications.jsx`
 - [ ] `src/pages/client/ProjectDetail.jsx`
 - [ ] `src/pages/client/ProjectForm.jsx`
 - [ ] `src/pages/client/Projects.jsx`
 - [ ] `src/pages/client/Requests.jsx`
 - [ ] `src/pages/client/ReviewProject.jsx`
 - [ ] `src/pages/manager/Dashboard.jsx`
-- [ ] `src/pages/manager/Notifications.jsx`
+- [x] `src/pages/manager/Notifications.jsx`
 - [ ] `src/pages/manager/RequestDetail.jsx`
 - [ ] `src/pages/manager/Requests.jsx`
 - [ ] `src/pages/manager/Settings.jsx`
 - [x] `src/pages/manager/Subscription.jsx`
 - [ ] `src/pages/manager/SubscriptionExpired.jsx`
 - [ ] `src/pages/manager/Talents.jsx`
-- [ ] `src/pages/talent/Detail.jsx`
+- [x] `src/pages/talent/Detail.jsx`
 - [ ] `src/pages/talent/TalentInviteButton.jsx`
 - [ ] `src/styles/landing-motion.css`
 - [ ] `src/styles/landing-refresh.css`
@@ -313,7 +313,7 @@ Les cases restent décochées tant que le fichier n'a pas été lu intégralemen
 - [ ] `supabase/archive/unapplied-migrations/README.md`
 - [x] `supabase/config.toml`
 - [ ] `supabase/functions/_shared/cors.ts`
-- [ ] `supabase/functions/admin-users/index.ts`
+- [x] `supabase/functions/admin-users/index.ts`
 - [x] `supabase/functions/create-payment/index.ts`
 - [ ] `supabase/functions/delete-account/index.ts`
 - [x] `supabase/functions/payment-webhook/index.ts`
