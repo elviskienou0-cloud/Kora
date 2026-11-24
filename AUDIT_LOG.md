@@ -128,3 +128,16 @@ Aucune correction de code n'a encore été appliquée.
 - Commit: `KORA-008: corriger la page Abonnements`.
 - Statut: corrigé sur la branche d'audit; build CI à vérifier.
 
+
+
+### KORA-007 | sécurité / dette de dépendances | haute | tous rôles | build / dépendances | `package-lock.json` et `.github/workflows/kora-quality.yml`
+
+- Étapes: lecture des journaux CI du commit d'audit; `npm ci` a installé 589 paquets; lecture de la sortie de `npm audit --json`.
+- Attendu: dépendances corrigées ou risques connus documentés; le contrôle de vulnérabilités doit être visible et exploitable.
+- Observé: le rapport JSON signale 19 vulnérabilités (1 faible, 12 modérées, 6 élevées, 0 critique), notamment dans `vite`, `nanoid`, `js-yaml`, `brace-expansion`, `source-map-js`, `react-router`, `react-quill`, `quill`, `moment`, `glob`, `minimatch`, `uuid`, `xcode`, `@capacitor/cli` et `zod`. Le workflow exécute `npm audit --json || true`, donc le rapport ne bloque pas la CI. La synthèse de `npm ci` affiche un total différent (11), à réconcilier avec le rapport JSON détaillé.
+- Cause: dépendances vulnérables et audit configuré comme rapport non bloquant.
+- Correction: non appliquée. Les mises à jour doivent être testées par groupes; le rapport propose une correction majeure pour Zod, qui nécessite une vérification de compatibilité.
+- Vérification positive: `npm run build` réussit malgré ces alertes.
+- Commit: aucun.
+- Statut: ouvert, priorité haute.
+
