@@ -38,8 +38,9 @@
 .kora-lp .kora-lp-nav-shell button,.kora-lp .kora-lp-nav-shell a{color:rgba(255,255,255,.86)}
 .kora-lp .kora-lp-nav-shell button:hover,.kora-lp .kora-lp-nav-shell a:hover{color:#fff}
 .kora-lp .kora-lp-nav-shell [class*=text-foreground]{color:#fff}
-.kora-lp .kora-lp-nav-shell [class*=hover\\:bg-muted]:hover{background:rgba(255,255,255,.08)}
+.kora-lp .kora-lp-nav-shell [class~="hover:bg-muted"]:hover{background:rgba(255,255,255,.08)}
 .kora-lp .kora-lp-nav-shell .text-primary{color:var(--spot-gold)}
+.kora-lp .kora-lp-nav-shell button.bg-gradient-to-br{color:#17120a}
 .kora-lp .kora-lp-nav-shell [class*=bg-background]{background:rgba(12,12,12,.96);border-color:var(--spot-line)}
 
 /* Spotlight hero */
@@ -120,6 +121,7 @@
 .kora-lp .kora-lp-audience-card li span{color:rgba(255,255,255,.84)}
 .kora-lp .kora-lp-audience-card .text-emerald-600,.kora-lp .kora-lp-audience-card-manager .text-amber-300{color:#E7C96D}
 .kora-lp .kora-lp-audience-card a,.kora-lp .kora-lp-audience-card button:not(.kora-start-button){color:#fff}
+.kora-lp .kora-lp-audience-card button.bg-gradient-to-br{color:#17120a}
 
 /* Sticky process stack on desktop */
 .kora-lp .kora-spotlight-process{display:grid;max-width:900px;gap:22px;margin-inline:auto;padding-bottom:18px}
@@ -132,6 +134,7 @@
 .kora-lp .kora-spotlight-process-item:nth-child(3) .kora-lp-step-card{background:linear-gradient(120deg,#1b1b1b,#111)}
 
 /* Categories and asymmetric bento */
+.kora-lp .kora-lp-category-grid{grid-template-columns:repeat(4,minmax(0,1fr));gap:12px}
 .kora-lp .kora-lp-category-card{min-height:88px;padding:14px 17px;border:1px solid var(--spot-line);border-radius:19px;background:#121212;color:#fff;transition:transform .3s var(--spot-ease),border-color .3s,background .3s}
 .kora-lp .kora-lp-category-card:hover{transform:translateY(-5px);border-color:rgba(212,175,55,.55);background:#1a1812}
 .kora-lp .kora-lp-category-icon{width:43px;height:43px;border-radius:14px;background:rgba(245,197,66,.11);color:#E7C96D}
