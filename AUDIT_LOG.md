@@ -281,3 +281,15 @@ Les tests ont utilisé des identités existantes du projet, sans afficher leurs 
 - Commit: `KORA-018: enregistrer le titre du talent`.
 - Statut: corrigé sur la branche d'audit; build CI à vérifier.
 
+
+
+### KORA-016 | incomplet | moyenne | client et manager | messagerie | `src/pages/Messages.jsx`, `public.messages`, schéma Storage
+
+- Étapes: lecture intégrale de la page Messages, inspection de la table `messages` et des buckets Storage actifs.
+- Attendu: la messagerie accepte les pièces jointes, les stocke dans un espace privé et n'autorise la lecture qu'aux participants de la conversation.
+- Observé: l'interface ne permet que l'envoi de texte. La table `messages` contient `body`, `sender_id`, `conversation_id`, `read_at`, `created_at`, sans champ de pièce jointe ni table liée. Aucun bucket dédié aux pièces jointes de messages n'existe.
+- Cause: le modèle et le parcours d'upload des pièces jointes ne sont pas implémentés.
+- Correction: aucune; le type de fichiers, la taille maximale et la politique de conservation doivent être validés avant de créer un bucket et des policies dédiés (D-009).
+- Commit: aucun.
+- Statut: ouvert.
+
