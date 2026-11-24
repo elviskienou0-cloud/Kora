@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react"
+import { useEffect, useRef, useState } from "react"
 import { Link, useNavigate } from "react-router-dom"
 import { Menu, X } from "lucide-react"
 import koraLogo from "@/assets/kora-logo.svg"
@@ -10,6 +10,8 @@ export default function LandingNav({ links, labels, language, onLanguageChange }
   const navigate = useNavigate()
   const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches
   const [menuOpen, setMenuOpen] = useState(false)
+  const [navHidden, setNavHidden] = useState(false)
+  const navShellRef = useRef(null)
   const active = useActiveSection(links.map((link) => link.id))
 
   useEffect(() => {
@@ -20,6 +22,41 @@ export default function LandingNav({ links, labels, language, onLanguageChange }
     window.addEventListener("keydown", closeOnEscape)
     return () => window.removeEventListener("keydown", closeOnEscape)
   }, [menuOpen])
+
+  useEffect(() => {
+    if (reduce) return undefined
+    let previousY = window.scrollY
+    let frame = 0
+
+    const updateDirection = () => {
+      frame = 0
+      const currentY = window.scrollY
+      const navHasFocus = navShellRef.current?.contains(document.activeElement)
+
+      if (menuOpen || navHasFocus || currentY < 120) {
+        setNavHidden(false)
+      } else if (currentY > previousY + 6) {
+        setNavHidden(true)
+      } else if (currentY < previousY - 6) {
+        setNavHidden(false)
+      }
+
+      previousY = currentY
+    }
+
+    const onScroll = () => {
+      if (!frame) frame = window.requestAnimationFrame(updateDirection)
+    }
+    const onFocus = () => setNavHidden(false)
+
+    window.addEventListener("scroll", onScroll, { passive: true })
+    navShellRef.current?.addEventListener("focusin", onFocus)
+    return () => {
+      window.removeEventListener("scroll", onScroll)
+      navShellRef.current?.removeEventListener("focusin", onFocus)
+      if (frame) window.cancelAnimationFrame(frame)
+    }
+  }, [menuOpen, reduce])
 
   const followSection = (event, id) => {
     event.preventDefault()
@@ -39,7 +76,7 @@ export default function LandingNav({ links, labels, language, onLanguageChange }
   )
 
   return (
-    <div className="pointer-events-none fixed inset-x-0 top-3 z-50 flex justify-center px-3">
+    <div ref={navShellRef} className={cn("kora-lp-nav-wrapper pointer-events-none fixed inset-x-0 top-3 z-50 flex justify-center px-3", navHidden && !menuOpen && "is-hidden")}>
       <nav
         aria-label={labels.aria}
         className="pointer-events-auto w-full max-w-6xl"
