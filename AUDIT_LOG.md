@@ -408,3 +408,15 @@ Les tests ont utilisé des identités existantes du projet, sans afficher leurs 
 - Commit: aucun.
 - Statut: ouvert, priorité haute; les interrupteurs ne doivent pas être présentés comme opérationnels tant que les consommateurs ne sont pas implémentés.
 
+
+
+### KORA-028 | sécurité / fail-open | haute | admin associé | espace administration | `src/pages/admin/AdminPanel.jsx` / chargement de `get_my_admin_access`
+
+- Étapes: lecture intégrale du composant et du flux de chargement des permissions.
+- Attendu: si le profil d'accès associé ne peut pas être chargé, aucune vue administrative ne doit être affichée.
+- Observé: en cas d'erreur RPC ou de réponse sans `access_level`, `adminAccess` restait `null`; les conditions de restriction ne s'exécutaient alors pas et le panneau affichait les vues comme si l'utilisateur avait tous les droits.
+- Cause: contrôle d'accès fail-open, sans état de chargement ni erreur bloquante.
+- Correction appliquée: chargement explicite des permissions; l'accès reste bloqué tant que le niveau n'est pas confirmé; ajout d'une action de nouvelle tentative.
+- Commit: `KORA-028: fermer l'accès admin si les permissions échouent`.
+- Statut: corrigé sur la branche d'audit; build CI à vérifier. Les policies RLS trop larges (KORA-021) restent à corriger séparément.
+
