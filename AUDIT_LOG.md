@@ -305,3 +305,15 @@ Les tests ont utilisé des identités existantes du projet, sans afficher leurs 
 - Commit: `KORA-019: respecter la langue dans les dates de messagerie`.
 - Statut: corrigé sur la branche d'audit; build CI à vérifier.
 
+
+
+### KORA-020 | sécurité / cohérence métier | moyenne | client et manager | abonnement | `public.ensure_my_subscription()`, `public.get_my_subscription()`
+
+- Étapes: lecture de `ensure_my_subscription` et `get_my_subscription`; vérification des appels dans les 10 pages client.
+- Attendu: seul un manager peut créer ou initialiser son abonnement; les clients ne doivent pas créer de lignes d'abonnement.
+- Observé: `ensure_my_subscription()` appelait `ensure_subscription_for_user(auth.uid())` sans vérifier le rôle; en outre, `ensure_subscription_for_user(uuid)` était directement exécutable par `authenticated` et ne contrôlait le rôle que lorsque l'appel ciblait un autre utilisateur. Un client pouvait donc appeler directement le RPC et créer une ligne FREE.
+- Cause: absence de contrôle du rôle dans les deux fonctions SECURITY DEFINER.
+- Correction appliquée sur cette branche: la migration `supabase/migrations/20261124240000_restrict_subscription_bootstrap_to_managers.sql` exige le rôle manager dans les deux fonctions pour un appel personnel; l'accès administrateur à un autre utilisateur reste protégé par `subscriptions.manage`.
+- Commit: `KORA-020: réserver l'initialisation d'abonnement aux managers`.
+- Statut: migration versionnée; non appliquée à la base active.
+
