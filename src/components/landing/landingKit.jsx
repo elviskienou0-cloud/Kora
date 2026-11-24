@@ -1,11 +1,42 @@
-import { useEffect, useState } from "react"
+import { useEffect, useRef, useState } from "react"
 import { cn } from "@/lib/utils"
 
 export const EASE = [0.22, 1, 0.36, 1]
 
-export function Reveal({ children, className }) {
-  return <div className={className}>{children}</div>
+export function Reveal({ children, className, delay = 0 }) {
+  const elementRef = useRef(null)
+  const [visible, setVisible] = useState(false)
+
+  useEffect(() => {
+    const element = elementRef.current
+    const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches
+    if (!element || reduceMotion || !("IntersectionObserver" in window)) {
+      setVisible(true)
+      return undefined
+    }
+
+    const observer = new IntersectionObserver(([entry]) => {
+      if (entry.isIntersecting) {
+        setVisible(true)
+        observer.unobserve(entry.target)
+      }
+    }, { threshold: 0.12, rootMargin: "0px 0px -36px 0px" })
+
+    observer.observe(element)
+    return () => observer.disconnect()
+  }, [])
+
+  return (
+    <div
+      ref={elementRef}
+      className={cn("kora-lp-reveal", visible && "is-visible", className)}
+      style={{ "--reveal-delay": Math.max(0, Math.min(Number(delay) || 0, 0.3)) + "s" }}
+    >
+      {children}
+    </div>
+  )
 }
+
 
 export function Eyebrow({ children }) {
   return (

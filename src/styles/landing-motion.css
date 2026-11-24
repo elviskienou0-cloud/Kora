@@ -1,0 +1,177 @@
+/* KORA landing motion layer. Keeps the existing React sections and routes intact. */
+
+.kora-lp-scroll-progress {
+  position: fixed;
+  inset: 0 auto auto 0;
+  z-index: 80;
+  width: 100%;
+  height: 3px;
+  overflow: hidden;
+  pointer-events: none;
+  background: transparent;
+}
+.kora-lp-scroll-progress > span {
+  display: block;
+  width: 100%;
+  height: 100%;
+  transform: scaleX(0);
+  transform-origin: left center;
+  background: linear-gradient(90deg, #d9a91e 0%, #F5C542 55%, #ffe69a 100%);
+  box-shadow: 0 0 12px rgb(245 197 66 / .42);
+  will-change: transform;
+}
+
+.kora-lp-marquee {
+  position: relative;
+  overflow: hidden;
+  padding: 1.15rem 0;
+  border-block: 1px solid rgb(23 23 23 / .07);
+  background: #faf9f5;
+  -webkit-mask-image: linear-gradient(90deg, transparent, #000 7%, #000 93%, transparent);
+  mask-image: linear-gradient(90deg, transparent, #000 7%, #000 93%, transparent);
+}
+.kora-lp-marquee-track {
+  display: flex;
+  width: max-content;
+  animation: koraMarquee 26s linear infinite;
+}
+.kora-lp-marquee:hover .kora-lp-marquee-track {
+  animation-play-state: paused;
+}
+.kora-lp-marquee-group {
+  display: flex;
+  flex: none;
+  align-items: center;
+  gap: clamp(1.5rem, 3vw, 3.25rem);
+  padding-inline: clamp(1rem, 2vw, 2rem);
+}
+.kora-lp-marquee-item {
+  display: inline-flex;
+  align-items: center;
+  gap: .75rem;
+  color: #4d4a42;
+  font-size: .78rem;
+  font-weight: 800;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+.kora-lp-marquee-item i {
+  width: .48rem;
+  height: .48rem;
+  border-radius: 50%;
+  background: #F5C542;
+  box-shadow: 0 0 0 4px rgb(245 197 66 / .15);
+}
+
+.kora-lp .kora-landing-copy > .kora-hero-proof {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: .7rem 1.1rem;
+  margin-top: 1.35rem;
+}
+.kora-lp .kora-hero-proof span {
+  display: inline-flex;
+  align-items: center;
+  gap: .42rem;
+  color: #68645b;
+  font-size: .75rem;
+  font-weight: 700;
+}
+.kora-lp .kora-hero-proof svg {
+  width: .95rem;
+  height: .95rem;
+  color: #a77c0c;
+}
+.kora-lp .kora-start-button {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  transition: transform .22s ease, box-shadow .22s ease;
+}
+.kora-lp .kora-start-button::after {
+  position: absolute;
+  z-index: -1;
+  inset: -40% auto -40% -45%;
+  width: 32%;
+  content: "";
+  transform: skewX(-20deg);
+  background: linear-gradient(90deg, transparent, rgb(255 255 255 / .52), transparent);
+  animation: koraButtonShimmer 5.5s ease-in-out infinite;
+}
+.kora-lp .kora-start-button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 14px 30px rgb(201 156 32 / .28) !important;
+}
+
+.kora-lp .kora-phone-manager {
+  translate: 0 0;
+  animation: koraPhoneFloat 6.5s ease-in-out infinite;
+}
+.kora-lp .kora-phone-client {
+  translate: 0 0;
+  animation: koraPhoneFloat 6.5s ease-in-out -3.25s infinite;
+}
+.kora-lp-reveal.is-visible {
+  animation: koraRevealIn .72s cubic-bezier(.22, 1, .36, 1) both;
+  animation-delay: var(--reveal-delay, 0s);
+}
+.kora-lp .kora-lp-faq-item [role="region"] {
+  animation: koraFaqOpen .24s ease both;
+}
+
+@keyframes koraMarquee {
+  to { transform: translateX(-50%); }
+}
+@keyframes koraButtonShimmer {
+  0%, 68%, 100% { left: -45%; }
+  84% { left: 125%; }
+}
+@keyframes koraPhoneFloat {
+  0%, 100% { translate: 0 0; }
+  50% { translate: 0 -9px; }
+}
+@keyframes koraRevealIn {
+  from { opacity: 0; transform: translate3d(0, 18px, 0); }
+  to { opacity: 1; transform: translate3d(0, 0, 0); }
+}
+@keyframes koraFaqOpen {
+  from { opacity: 0; transform: translateY(-5px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.dark .kora-lp-marquee {
+  border-color: rgb(255 255 255 / .08);
+  background: #202020;
+}
+.dark .kora-lp-marquee-item { color: rgb(255 255 255 / .72); }
+.dark .kora-lp .kora-hero-proof span { color: rgb(255 255 255 / .72); }
+.dark .kora-lp .kora-hero-proof svg { color: #F5D77A; }
+
+@media (max-width: 900px) {
+  .kora-lp .kora-landing-copy > .kora-hero-proof { justify-content: center; }
+}
+@media (max-width: 639px) {
+  .kora-lp-marquee { padding-block: .95rem; }
+  .kora-lp-marquee-item { font-size: .68rem; }
+  .kora-lp .kora-landing-copy > .kora-hero-proof { gap: .65rem .9rem; }
+  .kora-lp .kora-hero-proof span { font-size: .69rem; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .kora-lp-scroll-progress > span { will-change: auto; }
+  .kora-lp-marquee-track,
+  .kora-lp .kora-start-button::after,
+  .kora-lp .kora-phone-manager,
+  .kora-lp .kora-phone-client,
+  .kora-lp-reveal.is-visible,
+  .kora-lp .kora-lp-faq-item [role="region"] {
+    animation: none !important;
+  }
+  .kora-lp .kora-start-button,
+  .kora-lp .kora-phone-manager,
+  .kora-lp .kora-phone-client {
+    transition: none !important;
+    translate: none !important;
+  }
+}

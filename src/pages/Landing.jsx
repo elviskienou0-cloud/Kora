@@ -11,10 +11,12 @@ import LandingWhy from "@/components/landing/LandingWhy.jsx"
 import LandingPricing from "@/components/landing/LandingPricing.jsx"
 import LandingFaq from "@/components/landing/LandingFaq.jsx"
 import LandingFinalCta from "@/components/landing/LandingFinalCta.jsx"
-import { BackToTop } from "@/components/landing/LandingEffects.jsx"
+import { BackToTop, ScrollProgress } from "@/components/landing/LandingEffects.jsx"
+import LandingMarquee from "@/components/landing/LandingMarquee.jsx"
 import { useKoraStats } from "@/lib/useKoraStats"
 import { useI18n } from "@/i18n/kora-i18n.jsx"
 import "@/styles/landing-v2.css"
+import "@/styles/landing-motion.css"
 
 const STAT_META = [
   { key: "landing.statsTalents", icon: Users, index: 0 },
@@ -105,6 +107,7 @@ export default function Landing() {
 
   return (
     <div id="top" className="kora-public-shell kora-lp relative flex min-h-screen flex-col">
+        <ScrollProgress />
         <LandingNav
           links={navLinks}
           labels={navLabels}
@@ -115,6 +118,7 @@ export default function Landing() {
 
         <main className="relative z-10">
           <LandingHero />
+          <LandingMarquee language={language} />
           <LandingAudience />
           <LandingProcess />
           <LandingCategories />

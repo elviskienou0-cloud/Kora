@@ -1,5 +1,5 @@
 import { Link, useNavigate } from "react-router-dom"
-import { Bell, FolderKanban, MessageCircle, Search, UserRound } from "lucide-react"
+import { Bell, CheckCircle2, FolderKanban, MessageCircle, Search, ShieldCheck, UserRound, Users } from "lucide-react"
 import { KButton } from "@/components/ui/KButton"
 import { useI18n } from "@/i18n/kora-i18n.jsx"
 
@@ -61,7 +61,7 @@ function PhoneFrame({ type, t }) {
 
 export default function LandingHero() {
   const navigate = useNavigate()
-  const { t } = useI18n()
+  const { t, language } = useI18n()
 
   return (
     <section className="kora-landing-hero" aria-labelledby="kora-hero-title">
@@ -76,10 +76,15 @@ export default function LandingHero() {
             </KButton>
             <Link
               to="/register?role=manager"
-              className="inline-flex min-h-12 items-center gap-2 rounded-full px-2 text-sm font-bold text-white/85 underline-offset-4 hover:text-white hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white"
+              className="inline-flex min-h-12 items-center gap-2 rounded-full px-2 text-sm font-bold text-[#171717]/75 underline-offset-4 hover:text-[#171717] hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#a77c0c]"
             >
               {t("landing.audienceManagerCta")}
             </Link>
+          </div>
+          <div className="kora-hero-proof" aria-label={language === "en" ? "KORA platform benefits" : "Atouts de la plateforme KORA"}>
+            <span><CheckCircle2 aria-hidden="true" />{language === "en" ? "Profiles managed by managers" : "Profils gérés par des managers"}</span>
+            <span><ShieldCheck aria-hidden="true" />{language === "en" ? "Structured requests" : "Demandes structurées"}</span>
+            <span><Users aria-hidden="true" />{language === "en" ? "Clients and talent teams" : "Clients et équipes de talents"}</span>
           </div>
         </div>
 
