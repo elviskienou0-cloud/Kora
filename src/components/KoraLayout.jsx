@@ -31,9 +31,6 @@ import {
   ContactRound,
   ScrollText,
   ClipboardList,
-  Sun,
-  Moon,
-  Monitor,
   UserCog,
   WalletCards,
   Megaphone,
@@ -43,8 +40,8 @@ import { supabase } from "@/lib/supabase"
 import useIsMobile from "@/hooks/use-mobile.jsx"
 import { cn } from "@/lib/utils.js"
 import AnnouncementTicker from "@/components/AnnouncementTicker.jsx"
+import ThemeToggle from "@/components/ThemeToggle.jsx"
 import koraLogo from "@/assets/kora-logo.svg"
-import { useTheme } from "@/lib/ThemeContext.jsx"
 import "@/styles/superadmin-glass.css"
 
 function getMenuItems(t) {
@@ -372,7 +369,6 @@ export default function KoraLayout() {
   const location = useLocation()
   const isMobile = useIsMobile()
   const { t } = useI18n()
-  const { theme, setTheme } = useTheme()
 
   const menuItems = getMenuItems(t)
   const roleLabels = getRoleLabels(t)
@@ -763,7 +759,8 @@ export default function KoraLayout() {
   // ==========================================================
 
   return (
-    <div className={cn("min-h-screen flex", role === "superadmin" ? "kora-superadmin-glass" : "bg-background")}>
+    <div className={cn("kora-workspace min-h-screen flex", role === "superadmin" ? "kora-superadmin-glass" : "bg-background")}
+      data-kora-role={role || "client"}>
       {!isMobile && (
         <div className="w-64 shrink-0 h-screen sticky top-0 border-r border-sidebar-border bg-sidebar text-sidebar-foreground">
           {renderSidebarContent()}
@@ -870,43 +867,7 @@ export default function KoraLayout() {
             <div className="flex items-center gap-2">
               <LanguageSwitcher compact />
 
-              {(
-              <button
-                type="button"
-                onClick={() =>
-                  setTheme(
-                    theme === "light"
-                      ? "dark"
-                      : theme === "dark"
-                        ? "system"
-                        : "light"
-                  )
-                }
-                className="p-2 rounded-lg hover:bg-accent transition-colors"
-                aria-label={
-                  theme === "light"
-                    ? "Passer en mode sombre"
-                    : theme === "dark"
-                      ? "Utiliser le thème système"
-                      : "Passer en mode clair"
-                }
-                title={
-                  theme === "light"
-                    ? "Clair"
-                    : theme === "dark"
-                      ? "Sombre"
-                      : "Système"
-                }
-              >
-                {theme === "light" ? (
-                  <Sun className="h-5 w-5" />
-                ) : theme === "dark" ? (
-                  <Moon className="h-5 w-5" />
-                ) : (
-                  <Monitor className="h-5 w-5" />
-                )}
-              </button>
-              )}
+              <ThemeToggle />
 
               {role !== "admin" &&
                 role !== "superadmin" && (

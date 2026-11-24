@@ -4,6 +4,7 @@ import { Menu, X, LogIn, UserPlus } from "lucide-react"
 import useIsMobile from "@/hooks/use-mobile.jsx"
 import { LanguageSwitcher, useI18n } from "@/i18n/kora-i18n.jsx"
 import koraLogo from "@/assets/kora-logo.svg"
+import ThemeToggle from "@/components/ThemeToggle.jsx"
 
 const NAV_LINKS = [
   { href: "/categories", label: "Catégories", en: "Categories", type: "route" },
@@ -67,6 +68,7 @@ export default function LandingHeader() {
             </nav>
 
             <div className="kora-header-actions">
+              <ThemeToggle />
               <LanguageSwitcher compact showLabel className="kora-language-switcher" />
               <Link to="/login" className="kora-login-link">
                 <LogIn className="h-4 w-4" />
@@ -82,6 +84,7 @@ export default function LandingHeader() {
 
         {isMobile && (
           <div className="flex items-center gap-2">
+            <ThemeToggle />
             <LanguageSwitcher compact showLabel className="kora-language-switcher" />
             <button
               type="button"

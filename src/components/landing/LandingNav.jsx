@@ -5,6 +5,7 @@ import koraLogo from "@/assets/kora-logo.svg"
 import { KButton } from "@/components/ui/KButton"
 import { cn } from "@/lib/utils"
 import { scrollToSection, useActiveSection } from "./landingKit.jsx"
+import ThemeToggle from "@/components/ThemeToggle.jsx"
 
 export default function LandingNav({ links, labels, language, onLanguageChange }) {
   const navigate = useNavigate()
@@ -111,6 +112,7 @@ export default function LandingNav({ links, labels, language, onLanguageChange }
           </ul>
 
           <div className="ml-auto flex shrink-0 items-center gap-1">
+            <ThemeToggle />
             {languageButton}
             <Link
               to="/login"
