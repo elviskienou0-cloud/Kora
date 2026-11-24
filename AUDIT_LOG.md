@@ -66,3 +66,14 @@ Ces éléments ne sont pas des résultats négatifs. Ils restent à vérifier da
 ## Historique des corrections
 
 Aucune correction de code n'a encore été appliquée.
+
+### KORA-003 | incohérence | moyenne | manager | abonnement / création de paiement | `supabase/functions/create-payment/index.ts` / handler POST
+
+- Étapes: lecture intégrale de la fonction Edge `create-payment` et de la migration `20261106192218_enforce_saspay_monthly_subscription_payments.sql`.
+- Attendu: le montant accepté par le flux de paiement suit la configuration du plan gérée par l'administration.
+- Observé: la fonction lit bien `plans.price`, mais impose ensuite des montants constants (PRO = 2 500 XOF, BUSINESS = 5 000 XOF) avant de créer le paiement. Une modification tarifaire en base provoquera donc un refus HTTP 409.
+- Cause: validation tarifaire dupliquée en dur dans la fonction Edge.
+- Correction: non appliquée à ce stade. Le checkout utilise également des liens SasPay fixes par plan; remplacer uniquement le montant contrôlé sans confirmer le mode de paiement pourrait créer un écart entre le montant enregistré et celui effectivement demandé au prestataire.
+- Commit: aucun, en attente de l'arbitrage D-001 / D-004.
+- Statut: ouvert, correction bloquée par décision de paiement.
+
