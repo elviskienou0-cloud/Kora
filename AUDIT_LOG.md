@@ -77,3 +77,15 @@ Aucune correction de code n'a encore été appliquée.
 - Commit: aucun, en attente de l'arbitrage D-001 / D-004.
 - Statut: ouvert, correction bloquée par décision de paiement.
 
+
+
+### KORA-004 | incomplet | haute | manager et admin | abonnement / validation paiement | `src/pages/manager/Subscription.jsx`, `src/pages/admin/Payments.jsx`, `supabase/migrations/20261121100000_payment_proofs_private_storage.sql`
+
+- Étapes: lecture intégrale des deux pages, du helper `src/components/FileUpload.jsx` et de la migration de stockage des preuves.
+- Attendu: le manager dépose une capture de paiement dans le bucket privé; l'admin consulte cette preuve avant de valider le paiement.
+- Observé: la migration crée le bucket privé `payment-proofs` et la RPC `attach_payment_proof`, mais la page Manager ne propose aucun upload de preuve et son bouton « paiement effectué » ne fait que modifier `sessionStorage`. La page Admin ne sélectionne pas `proof_url` et n'affiche aucune preuve.
+- Cause: le stockage et la RPC de preuve ne sont pas raccordés au parcours d'abonnement et à l'interface de validation.
+- Correction: non appliquée dans cette étape. Le parcours de paiement doit d'abord être confirmé (D-004); la correction devra relier l'upload sécurisé et l'affichage d'une URL signée, sans rendre le bucket public.
+- Commit: aucun.
+- Statut: ouvert, correction requise après confirmation du flux de paiement.
+
