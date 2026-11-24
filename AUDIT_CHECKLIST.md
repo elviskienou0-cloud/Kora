@@ -122,8 +122,8 @@ Les cases restent décochées tant que le fichier n'a pas été lu intégralemen
 - [ ] `src/components/admin/AdminUserActions.jsx`
 - [x] `src/components/landing/LandingAudience.jsx`
 - [x] `src/components/landing/LandingCategories.jsx`
-- [ ] `src/components/landing/LandingEffects.jsx`
-- [ ] `src/components/landing/LandingEvolution.jsx`
+- [x] `src/components/landing/LandingEffects.jsx`
+- [x] `src/components/landing/LandingEvolution.jsx`
 - [x] `src/components/landing/LandingFaq.jsx`
 - [x] `src/components/landing/LandingFinalCta.jsx`
 - [x] `src/components/landing/LandingFooter.jsx`
@@ -135,7 +135,7 @@ Les cases restent décochées tant que le fichier n'a pas été lu intégralemen
 - [x] `src/components/landing/LandingPricing.jsx`
 - [x] `src/components/landing/LandingProcess.jsx`
 - [x] `src/components/landing/LandingWhy.jsx`
-- [ ] `src/components/landing/landingKit.jsx`
+- [x] `src/components/landing/landingKit.jsx`
 - [ ] `src/components/reviews/PublicPricingSection.jsx`
 - [ ] `src/components/reviews/ReviewsSection.jsx`
 - [ ] `src/components/reviews/TalentReviews.jsx`
