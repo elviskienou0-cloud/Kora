@@ -97,9 +97,10 @@ Aucune correction de code n'a encore été appliquée.
 - Attendu: si Google OAuth est présenté comme disponible, le bouton doit lancer une authentification réelle et valider la session Supabase.
 - Observé: aucun démarrage Google OAuth n'est présent dans Login, Register ou AuthContext. La route `/oauth/consent` affiche un écran de consentement autonome; son bouton attend 800 ms, change un état local, puis redirige vers `/home`, sans appel OAuth, serveur ni session.
 - Cause: écran de consentement simulé non relié à un fournisseur OAuth.
-- Correction: non appliquée à ce stade. Il faut soit retirer/désactiver cette route simulée, soit configurer un véritable flux OAuth; aucun fournisseur ni configuration Google n'est confirmé par le dépôt.
-- Commit: aucun.
-- Statut: ouvert.
+- Correction appliquée: suppression de la route publique `/oauth/consent` et du composant simulé, qui redirigeait vers `/home` sans authentifier l'utilisateur.
+- Limite restante: aucun démarrage Google OAuth réel n'a été trouvé dans Login, Register ou AuthContext. Le flux Google reste absent; sa configuration dépend de l'activation du fournisseur dans Supabase Auth.
+- Commit: `KORA-005: retirer le consentement OAuth simulé`.
+- Statut: simulation supprimée; Google OAuth reste ouvert comme fonctionnalité non implémentée.
 
 
 
