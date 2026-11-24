@@ -11,6 +11,7 @@ import GlobalI18nBridge from "@/components/GlobalI18nBridge.jsx"
 import { queryClient } from "@/lib/queryClient.js"
 import { showConsoleSecurityWarning } from "@/lib/consoleSecurityWarning.js"
 import "./index.css"
+import "./styles/workspace-theme.css"
 
 showConsoleSecurityWarning()
 
