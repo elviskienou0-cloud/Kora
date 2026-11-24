@@ -188,7 +188,7 @@
   position: absolute;
   top: 0;
   left: calc(50% - 210px);
-  color: #2A2115;
+  color: #171717;
   font-size: 9px;
   font-weight: 700;
   letter-spacing: .12em;
@@ -247,7 +247,7 @@
   line-height: 1;
 }
 .kora-wordmark span {
-  color: #2A2115;
+  color: #171717;
 }
 .kora-tagline {
   margin-top: 9px;
@@ -266,7 +266,7 @@
   letter-spacing: -.035em;
 }
 .kora-landing-copy h1 span {
-  color: #2A2115;
+  color: #171717;
 }
 .kora-hero-description {
   max-width: 590px;
@@ -279,7 +279,7 @@
   margin-top: 28px;
   min-width: 172px;
   border-radius: 7px !important;
-  background: #2A2115 !important;
+  background: #171717 !important;
   color: #FFFFFF !important;
   font-weight: 700 !important;
   box-shadow: none !important;
@@ -300,7 +300,7 @@
   text-decoration: none;
 }
 .kora-scroll-cue:hover {
-  color: #2A2115;
+  color: #171717;
 }
 @media (max-width: 900px) {
   .kora-landing-hero {
@@ -533,34 +533,34 @@
 .kora-public-shell :focus-visible { outline:3px solid hsl(var(--gold) / .55); outline-offset:3px; }
 
 /* Glass navigation remains light in both themes */
-.kora-glass-header-inner { background:hsl(0 0% 100% / .88) !important; color:#2A2115 !important; border-color:#dfe5ed !important; box-shadow:0 12px 34px rgb(42 33 21 / .09),inset 0 1px 0 rgb(255 255 255 / .8) !important; }
-.kora-brand-link, .kora-glass-nav-link, .kora-login-link { color:#2A2115 !important; }
+.kora-glass-header-inner { background:hsl(0 0% 100% / .88) !important; color:#171717 !important; border-color:#dfe5ed !important; box-shadow:0 12px 34px rgb(42 33 21 / .09),inset 0 1px 0 rgb(255 255 255 / .8) !important; }
+.kora-brand-link, .kora-glass-nav-link, .kora-login-link { color:#171717 !important; }
 .kora-glass-nav { background:rgb(241 243 246 / .72) !important; border-color:#e4e9f0 !important; }
-.kora-glass-nav-link:hover { background:rgb(42 33 21 / .08) !important; color:#2A2115 !important; }
-.kora-register-link { background:#2A2115 !important; border-color:#2A2115 !important; color:#fff !important; }
-.kora-mobile-glass-menu { background:rgb(255 255 255 / .96) !important; color:#2A2115 !important; border-color:#dfe5ed !important; }
-.kora-mobile-nav-link { color:#2A2115 !important; }
-.kora-language-switcher { color:#2A2115 !important; background:#f7f9fc !important; }
+.kora-glass-nav-link:hover { background:rgb(42 33 21 / .08) !important; color:#171717 !important; }
+.kora-register-link { background:#171717 !important; border-color:#171717 !important; color:#fff !important; }
+.kora-mobile-glass-menu { background:rgb(255 255 255 / .96) !important; color:#171717 !important; border-color:#dfe5ed !important; }
+.kora-mobile-nav-link { color:#171717 !important; }
+.kora-language-switcher { color:#171717 !important; background:#f7f9fc !important; }
 
 /* Hero */
-.kora-landing-hero { min-height:min(850px,calc(100svh - 76px)); margin-top:76px; padding:clamp(54px,7vw,96px) clamp(20px,4vw,64px) 72px; background:#fff !important; color:#2A2115 !important; }
+.kora-landing-hero { min-height:min(850px,calc(100svh - 76px)); margin-top:76px; padding:clamp(54px,7vw,96px) clamp(20px,4vw,64px) 72px; background:#fff !important; color:#171717 !important; }
 .kora-landing-hero-inner { width:min(1440px,100%); grid-template-columns:minmax(0,1.08fr) minmax(0,.92fr); gap:clamp(38px,6vw,100px); }
 .kora-landing-phones { gap:clamp(12px,2vw,24px); padding-top:32px; align-items:center; }
 .kora-phone-label { top:0; left:50%; transform:translateX(-50%); color:#6c7c91; font-size:9px; letter-spacing:.16em; white-space:nowrap; }
 .kora-phone { width:min(45%,230px); height:430px; flex-basis:230px; padding:7px; border:1px solid #cbd5e1; border-radius:32px; background:#f8fafc; box-shadow:0 24px 55px rgb(42 33 21 / .14),0 4px 12px rgb(42 33 21 / .07); }
 .kora-phone-manager { transform:translateY(18px) scale(.94); z-index:0; }
 .kora-phone-client { z-index:1; }
-.kora-phone-screen { border-radius:25px; padding:26px 13px 18px; background:#fff; color:#2A2115; }
-.kora-phone-notch { background:#2A2115; top:7px; }
+.kora-phone-screen { border-radius:25px; padding:26px 13px 18px; background:#fff; color:#171717; }
+.kora-phone-notch { background:#171717; top:7px; }
 .kora-phone-home { background:#aab5c4; bottom:8px; }
 .kora-phone-topbar { display:flex; align-items:center; justify-content:space-between; margin-bottom:18px; color:#66758a; }
-.kora-phone-brand { color:#2A2115; font-size:15px; font-weight:850; letter-spacing:-.06em; }
-.kora-phone-brand span { color:#2A2115; }
+.kora-phone-brand { color:#171717; font-size:15px; font-weight:850; letter-spacing:-.06em; }
+.kora-phone-brand span { color:#171717; }
 .kora-phone-eyebrow { margin:0 0 5px; color:#738198; font-size:9px; font-weight:800; letter-spacing:.12em; }
-.kora-phone-title { margin:0 0 14px; color:#2A2115; font-size:15px; line-height:1.25; font-weight:800; }
+.kora-phone-title { margin:0 0 14px; color:#171717; font-size:15px; line-height:1.25; font-weight:800; }
 .kora-phone-search { display:flex; align-items:center; gap:7px; padding:9px; margin-bottom:16px; border:1px solid #e1e7ef; border-radius:10px; background:#f6f8fb; color:#8b97a8; font-size:9px; }
 .kora-phone-row { display:flex; justify-content:space-between; align-items:center; gap:6px; margin:0 0 9px; color:#31435c; font-size:9px; font-weight:800; }
-.kora-phone-link { color:#2A2115; font-size:8px; font-weight:800; }
+.kora-phone-link { color:#171717; font-size:8px; font-weight:800; }
 .kora-phone-category-grid { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:7px; margin-bottom:16px; }
 .kora-phone-category { display:flex; align-items:center; gap:6px; min-width:0; padding:8px 6px; border:1px solid #e7ebf1; border-radius:9px; color:#43536a; font-size:8px; font-weight:700; }
 .kora-phone-category-mark { width:15px; height:15px; flex:0 0 auto; border-radius:5px; background:#e8edf4; box-shadow:inset 0 0 0 4px #f5f7fa; }
@@ -570,27 +570,27 @@
 .kora-phone-skeleton i { display:block; height:5px; border-radius:8px; background:#dce3ec; }
 .kora-phone-skeleton i:first-child { width:58%; background:#9ba9ba; }
 .kora-phone-skeleton i:last-child { width:38%; }
-.kora-phone-create { display:flex; justify-content:space-between; align-items:center; padding:10px 11px; margin:3px 0 13px; border-radius:9px; background:#2A2115; color:#fff; font-size:9px; font-weight:800; }
+.kora-phone-create { display:flex; justify-content:space-between; align-items:center; padding:10px 11px; margin:3px 0 13px; border-radius:9px; background:#171717; color:#fff; font-size:9px; font-weight:800; }
 .kora-phone-manager-grid { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:7px; margin-bottom:15px; }
-.kora-phone-manager-grid > div { display:grid; gap:8px; padding:10px 8px; border:1px solid #e6ebf2; border-radius:9px; color:#2A2115; }
+.kora-phone-manager-grid > div { display:grid; gap:8px; padding:10px 8px; border:1px solid #e6ebf2; border-radius:9px; color:#171717; }
 .kora-phone-manager-grid span { color:#53637a; font-size:8px; font-weight:700; }
 .kora-phone-status { width:6px; height:6px; border-radius:50%; background:#5e9b79; }
 .kora-phone-bottomline { display:flex; align-items:center; gap:6px; padding-top:10px; margin-top:10px; border-top:1px solid #e7ebf1; color:#6d7b8e; font-size:8px; }
 .kora-landing-copy { max-width:680px; }
-.kora-hero-eyebrow { margin:0 0 18px; color:#2A2115; font-size:11px; font-weight:800; letter-spacing:.16em; }
-.kora-landing-copy h1 { margin:0; max-width:680px; color:#2A2115 !important; font-size:clamp(38px,4.2vw,64px); font-weight:800; line-height:1.08; letter-spacing:-.055em; }
+.kora-hero-eyebrow { margin:0 0 18px; color:#171717; font-size:11px; font-weight:800; letter-spacing:.16em; }
+.kora-landing-copy h1 { margin:0; max-width:680px; color:#171717 !important; font-size:clamp(38px,4.2vw,64px); font-weight:800; line-height:1.08; letter-spacing:-.055em; }
 .kora-hero-description { margin-top:22px; color:#5d6c80 !important; font-size:clamp(14px,1.2vw,17px); line-height:1.8; }
-.kora-start-button { min-height:50px; margin-top:30px; padding:0 25px !important; border-radius:11px !important; background:#2A2115 !important; color:#fff !important; box-shadow:0 10px 22px rgb(42 33 21 / .16) !important; }
+.kora-start-button { min-height:50px; margin-top:30px; padding:0 25px !important; border-radius:11px !important; background:#171717 !important; color:#fff !important; box-shadow:0 10px 22px rgb(42 33 21 / .16) !important; }
 .kora-start-button:hover { background:#223d68 !important; transform:translateY(-1px); }
 .kora-scroll-cue { color:#78869a; }
-.kora-scroll-cue:hover { color:#2A2115; }
+.kora-scroll-cue:hover { color:#171717; }
 
 /* Spacious sections, left-aligned headings, restrained cards */
 #kora-content > section:not(.kora-landing-hero) { padding-block:clamp(76px,8vw,124px); }
 #kora-content > section:nth-of-type(2), #kora-content > #categories, #kora-content > #pricing { background:#f1f3f6 !important; }
 .dark .kora-public-shell #kora-content > section:nth-of-type(2), .dark .kora-public-shell #kora-content > #categories, .dark .kora-public-shell #kora-content > #pricing { background:#151f30 !important; }
 .kora-public-shell #features > div > div:first-child, .kora-public-shell #categories > div > div:first-child, .kora-public-shell #pricing > div > div:first-child { max-width:760px; margin-left:0; margin-right:auto; text-align:left; }
-.kora-public-shell #features h2, .kora-public-shell #categories h2, .kora-public-shell #pricing h2 { color:#2A2115; font-family:"Manrope",sans-serif; font-weight:800; letter-spacing:-.045em; }
+.kora-public-shell #features h2, .kora-public-shell #categories h2, .kora-public-shell #pricing h2 { color:#171717; font-family:"Manrope",sans-serif; font-weight:800; letter-spacing:-.045em; }
 .dark .kora-public-shell #features h2, .dark .kora-public-shell #categories h2, .dark .kora-public-shell #pricing h2 { color:#f4f7fb; }
 .kora-public-shell #features > div, .kora-public-shell #categories > div, .kora-public-shell #pricing > div { max-width:1480px; }
 .kora-public-shell #features .rounded-2xl, .kora-public-shell #pricing .rounded-2xl { border-color:#e1e6ee; box-shadow:0 12px 32px rgb(42 33 21 / .045); }
@@ -600,8 +600,8 @@
 .kora-process-section { padding-block:clamp(76px,8vw,124px); background:#fff; }
 .dark .kora-process-section { background:#0f1a2a; }
 .kora-process-section > div { max-width:1480px; }
-.kora-process-card { position:relative; min-height:220px; padding:28px; border:1px solid #e1e6ee; border-radius:18px; background:#fff; color:#2A2115; box-shadow:0 12px 32px rgb(42 33 21 / .045); }
-.kora-process-card svg { color:#2A2115; margin-bottom:26px; }
+.kora-process-card { position:relative; min-height:220px; padding:28px; border:1px solid #e1e6ee; border-radius:18px; background:#fff; color:#171717; box-shadow:0 12px 32px rgb(42 33 21 / .045); }
+.kora-process-card svg { color:#171717; margin-bottom:26px; }
 .kora-process-card h3 { margin:0 0 10px; font-size:18px; font-weight:800; }
 .kora-process-card p { color:#68778b; font-size:14px; line-height:1.7; }
 .kora-process-number { position:absolute; top:24px; right:25px; color:#aab5c4; font-size:12px; font-weight:800; letter-spacing:.12em; }
@@ -609,7 +609,7 @@
 .dark .kora-process-card p { color:#aeb9c8; }
 
 /* Premium navy footer */
-.kora-public-footer { margin-top:0 !important; border:0 !important; background:#2A2115 !important; color:#fff !important; }
+.kora-public-footer { margin-top:0 !important; border:0 !important; background:#171717 !important; color:#fff !important; }
 .kora-public-footer .text-foreground, .kora-public-footer .text-muted-foreground, .kora-public-footer h4, .kora-public-footer p, .kora-public-footer a, .kora-public-footer span { color:rgb(255 255 255 / .78); }
 .kora-public-footer a:hover { color:#FFFFFF !important; }
 .kora-public-footer .gold-text-gradient { background:none; color:#fff; -webkit-text-fill-color:#fff; }
@@ -619,15 +619,15 @@
 /* Public information pages */
 .kora-content-page { width:min(1440px,100%); margin:0 auto; padding:clamp(112px,12vw,160px) clamp(20px,4vw,64px) clamp(76px,8vw,120px); }
 .kora-page-intro { max-width:780px; margin:0 0 44px !important; text-align:left !important; }
-.kora-page-intro h1 { color:#2A2115; font-size:clamp(34px,4vw,52px); font-weight:800; letter-spacing:-.05em; }
+.kora-page-intro h1 { color:#171717; font-size:clamp(34px,4vw,52px); font-weight:800; letter-spacing:-.05em; }
 .dark .kora-page-intro h1 { color:#f4f7fb; }
 .kora-faq-item { border-radius:14px !important; border-color:#e1e6ee !important; box-shadow:0 5px 18px rgb(42 33 21 / .035); }
 .dark .kora-faq-item { border-color:#2b3a50 !important; }
-.kora-faq-item button { min-height:64px; font-weight:700; color:#2A2115; }
+.kora-faq-item button { min-height:64px; font-weight:700; color:#171717; }
 .dark .kora-faq-item button { color:#f4f7fb; }
 .kora-contact-card { border-radius:18px; border:1px solid #e1e6ee; background:#fff; padding:28px; box-shadow:0 12px 32px rgb(42 33 21 / .05); }
 .dark .kora-contact-card { border-color:#2b3a50; background:#172338; }
-.kora-contact-card h2 { color:#2A2115; }
+.kora-contact-card h2 { color:#171717; }
 .dark .kora-contact-card h2 { color:#f4f7fb; }
 
 @media (max-width:900px) {
@@ -663,10 +663,10 @@
 .kora-landing-category-media { position:relative; height:190px; overflow:hidden; border-radius:16px 16px 0 0; background:#e9eef4; }
 .kora-landing-category-media img { width:100%; height:100%; object-fit:cover; transition:transform .45s ease; }
 .kora-public-shell a:hover .kora-landing-category-media img { transform:scale(1.035); }
-.kora-landing-category-fallback { width:100%; height:100%; display:grid; place-items:center; color:#2A2115; background:linear-gradient(145deg,#f1f3f6,#e4eaf2); }
+.kora-landing-category-fallback { width:100%; height:100%; display:grid; place-items:center; color:#171717; background:linear-gradient(145deg,#f1f3f6,#e4eaf2); }
 .kora-category-card-media { position:relative; height:112px; margin:-1.25rem -1.25rem 1rem; overflow:hidden; border-radius:14px 14px 0 0; background:#e9eef4; }
 .kora-category-card-media img { width:100%; height:100%; object-fit:cover; }
-.kora-category-card-fallback { width:100%; height:100%; display:grid; place-items:center; color:#2A2115; background:linear-gradient(145deg,#f1f3f6,#e4eaf2); }
+.kora-category-card-fallback { width:100%; height:100%; display:grid; place-items:center; color:#171717; background:linear-gradient(145deg,#f1f3f6,#e4eaf2); }
 .kora-category-selected { position:absolute; right:10px; top:10px; }
 .dark .kora-landing-category-fallback, .dark .kora-category-card-fallback { background:linear-gradient(145deg,#243248,#1a273b); color:#FFFFFF; }
 @media (max-width:560px) { .kora-landing-category-media { height:138px; } .kora-category-card-media { height:96px; } }
@@ -693,7 +693,7 @@
 .dark .kora-public-shell .kora-phone-bottomline { color:#b4c1d1; }
 .dark .kora-public-shell .kora-phone-notch { background:#07101d; }
 .dark .kora-public-shell .kora-phone-home { background:#66758a; }
-.dark .kora-public-shell .kora-start-button { background:#2A2115 !important; color:#172b4d !important; }
+.dark .kora-public-shell .kora-start-button { background:#171717 !important; color:#172b4d !important; }
 .dark .kora-public-shell #features .rounded-2xl,
 .dark .kora-public-shell #pricing .rounded-2xl { background:#172338; color:#f4f7fb; }
 .dark .kora-public-shell #features p,
@@ -710,7 +710,7 @@
 .dark .kora-public-shell .kora-faq-item .text-muted-foreground { color:#b7c3d2; }
 .dark .kora-public-shell .kora-page-intro p { color:#b7c3d2; }
 .kora-categories-page > .relative.overflow-hidden { padding-top:76px; }
-.dark .kora-public-shell #kora-content > section:last-child .gold-gradient { background:#2A2115; }
+.dark .kora-public-shell #kora-content > section:last-child .gold-gradient { background:#171717; }
 .kora-public-shell #kora-content > section:last-child > div > div:first-child { border:1px solid #e1e6ee; box-shadow:0 20px 60px rgb(42 33 21 / .12); }
 .dark .kora-public-shell #kora-content > section:last-child > div > div:first-child { border-color:#2b3a50; }
 
@@ -723,16 +723,16 @@
 .kora-legal-page .kora-content-page h2 { color:hsl(var(--foreground)); font-weight:800; }
 .kora-legal-page .kora-content-page p,
 .kora-legal-page .kora-content-page li { color:hsl(var(--muted-foreground)); }
-.kora-legal-page .kora-content-page a { color:#2A2115; }
+.kora-legal-page .kora-content-page a { color:#171717; }
 .kora-auth-page { background:hsl(var(--background)) !important; color:hsl(var(--foreground)); }
 .kora-auth-page .bg-card { border-color:hsl(var(--border)); border-radius:18px; box-shadow:0 18px 48px rgb(42 33 21 / .09); }
-.kora-auth-page .gold-gradient { background:#2A2115 !important; }
-.kora-auth-page .gold-text-gradient { background:none; color:#2A2115; -webkit-text-fill-color:#2A2115; }
+.kora-auth-page .gold-gradient { background:#171717 !important; }
+.kora-auth-page .gold-text-gradient { background:none; color:#171717; -webkit-text-fill-color:#171717; }
 .kora-auth-page input,
 .kora-auth-page select { border-radius:10px; }
-.kora-auth-page .text-gold { color:#2A2115 !important; }
+.kora-auth-page .text-gold { color:#171717 !important; }
 .dark .kora-auth-page .bg-card { box-shadow:0 18px 48px rgb(0 0 0 / .22); }
-.dark .kora-auth-page .gold-gradient { background:#2A2115 !important; }
+.dark .kora-auth-page .gold-gradient { background:#171717 !important; }
 .dark .kora-auth-page .gold-text-gradient { color:#FFFFFF; -webkit-text-fill-color:#FFFFFF; }
 .dark .kora-auth-page .text-gold { color:#FFFFFF !important; }
 
@@ -844,22 +844,22 @@
 .kora-public-shell :focus-visible { outline-color: hsl(var(--ring) / .55); }
 .kora-public-shell .kora-process-card svg,
 .kora-public-shell .kora-landing-category-fallback,
-.kora-public-shell .kora-category-card-fallback { color: #2A2115; }
+.kora-public-shell .kora-category-card-fallback { color: #171717; }
 .dark .kora-public-shell .kora-process-card svg,
 .dark .kora-public-shell .kora-landing-category-fallback,
 .dark .kora-public-shell .kora-category-card-fallback { color: #FFFFFF; }
-.dark .kora-public-shell .kora-start-button { background: #FFFFFF !important; color: #2A2115 !important; }
+.dark .kora-public-shell .kora-start-button { background: #FFFFFF !important; color: #171717 !important; }
 .kora-public-shell .kora-start-button:hover { background: #D5A52B !important; color: #FFFFFF !important; }
-.dark .kora-public-shell .kora-start-button:hover { background: #F8F2E6 !important; color: #2A2115 !important; }
+.dark .kora-public-shell .kora-start-button:hover { background: #F8F2E6 !important; color: #171717 !important; }
 .kora-public-shell .kora-public-footer a:hover { color: #FFFFFF !important; }
 .kora-public-shell .kora-legal-page a,
-.kora-public-shell .kora-auth-page .text-gold { color: #2A2115 !important; }
+.kora-public-shell .kora-auth-page .text-gold { color: #171717 !important; }
 .dark .kora-public-shell .kora-auth-page .text-gold { color: hsl(var(--gold)) !important; }
 
 
 /* Landing hero brand treatment: solid KORA navy with high-contrast content */
 .kora-public-shell .kora-landing-hero {
-  background: #2A2115 !important;
+  background: #171717 !important;
   color: #FFFFFF !important;
 }
 .kora-public-shell .kora-landing-hero .kora-landing-copy h1,
@@ -875,16 +875,16 @@
 }
 .kora-public-shell .kora-landing-hero .kora-start-button {
   background: #FFFFFF !important;
-  color: #2A2115 !important;
+  color: #171717 !important;
   box-shadow: 0 12px 28px rgb(0 0 0 / .16) !important;
 }
 .kora-public-shell .kora-landing-hero .kora-start-button:hover {
   background: #F8F2E6 !important;
-  color: #2A2115 !important;
+  color: #171717 !important;
 }
 
 .dark .kora-public-shell .kora-landing-hero {
-  background: #2A2115 !important;
+  background: #171717 !important;
 }
 
 /* Landing page refinement: vivid hero, integrated glass and tactile motion */
@@ -899,18 +899,18 @@
 .kora-public-shell .kora-landing-copy { padding:clamp(24px,3vw,38px);border:1px solid rgb(255 255 255 / .2);border-radius:28px;background:linear-gradient(135deg,rgb(255 255 255 / .14),rgb(255 255 255 / .055));box-shadow:0 24px 70px rgb(38 27 10 / .18),inset 0 1px 0 rgb(255 255 255 / .18);backdrop-filter:blur(22px) saturate(145%);-webkit-backdrop-filter:blur(22px) saturate(145%); }
 .kora-public-shell .kora-landing-phones { filter:drop-shadow(0 24px 42px rgb(38 27 10 / .2)); }
 .kora-public-shell .kora-phone { border-color:rgb(255 255 255 / .38);background:rgb(255 255 255 / .16);backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px);box-shadow:0 18px 45px rgb(38 27 10 / .22); }
-.kora-public-shell .kora-phone-screen { background:linear-gradient(155deg,rgb(255 255 255 / .96),rgb(229 238 250 / .9));color:#2A2115; }
-.kora-public-shell .kora-phone-screen .kora-phone-eyebrow,.kora-public-shell .kora-phone-screen .kora-phone-title,.kora-public-shell .kora-phone-screen .kora-phone-row,.kora-public-shell .kora-phone-screen .kora-phone-brand { color:#2A2115; }
+.kora-public-shell .kora-phone-screen { background:linear-gradient(155deg,rgb(255 255 255 / .96),rgb(229 238 250 / .9));color:#171717; }
+.kora-public-shell .kora-phone-screen .kora-phone-eyebrow,.kora-public-shell .kora-phone-screen .kora-phone-title,.kora-public-shell .kora-phone-screen .kora-phone-row,.kora-public-shell .kora-phone-screen .kora-phone-brand { color:#171717; }
 .kora-public-shell .kora-phone-screen .kora-phone-search,.kora-public-shell .kora-phone-screen .kora-phone-category,.kora-public-shell .kora-phone-screen .kora-phone-profile,.kora-public-shell .kora-phone-screen .kora-phone-create,.kora-public-shell .kora-phone-screen .kora-phone-manager-grid > div { background:rgb(255 255 255 / .76);border-color:rgb(42 33 21 / .1); }
 .kora-public-shell .kora-process-section .kora-page-intro { text-align:center;max-width:780px;margin:0 auto 48px; }
 .kora-public-shell #categories > div > div:first-child,.kora-public-shell #why-kora > div > div:first-child,.kora-public-shell #pricing > div > div:first-child { text-align:center;margin-left:auto;margin-right:auto; }
 .kora-public-shell .kora-evolution-section { position:relative;overflow:hidden;background:linear-gradient(180deg,rgb(42 33 21 / .035),transparent 72%); }
-.kora-public-shell .kora-evolution-title { display:inline-flex;align-items:center;justify-content:center;padding:10px 25px;border:1.5px solid rgb(42 33 21 / .38);border-radius:999px;color:#2A2115;font-size:clamp(1.55rem,3vw,2.2rem);font-weight:850;letter-spacing:-.04em;box-shadow:0 8px 28px rgb(42 33 21 / .08),inset 0 1px 0 rgb(255 255 255 / .8);background:rgb(255 255 255 / .56);backdrop-filter:blur(14px); }
+.kora-public-shell .kora-evolution-title { display:inline-flex;align-items:center;justify-content:center;padding:10px 25px;border:1.5px solid rgb(42 33 21 / .38);border-radius:999px;color:#171717;font-size:clamp(1.55rem,3vw,2.2rem);font-weight:850;letter-spacing:-.04em;box-shadow:0 8px 28px rgb(42 33 21 / .08),inset 0 1px 0 rgb(255 255 255 / .8);background:rgb(255 255 255 / .56);backdrop-filter:blur(14px); }
 .dark .kora-public-shell .kora-evolution-title { color:#fff;border-color:rgb(255 255 255 / .38);background:rgb(255 255 255 / .07); }
 .kora-public-shell .kora-evolution-stat { min-height:176px;display:flex;flex-direction:column;align-items:flex-start;justify-content:center;padding:clamp(18px,2.5vw,28px);border:1px solid rgb(42 33 21 / .1);border-radius:22px;background:linear-gradient(145deg,rgb(255 255 255 / .9),rgb(255 255 255 / .56));box-shadow:0 14px 38px rgb(42 33 21 / .07),inset 0 1px 0 #fff;transition:border-color .25s ease,box-shadow .25s ease; }
 .kora-public-shell .kora-evolution-stat:hover { border-color:rgb(42 33 21 / .28);box-shadow:0 20px 44px rgb(42 33 21 / .12); }
-.kora-public-shell .kora-evolution-stat-icon { width:42px;height:42px;display:grid;place-items:center;border-radius:14px;margin-bottom:17px;color:#2A2115;background:#F8F2E6; }
-.kora-public-shell .kora-evolution-stat strong { color:#2A2115;font-size:clamp(1.7rem,3vw,2.45rem);line-height:1;font-weight:850;letter-spacing:-.045em; }
+.kora-public-shell .kora-evolution-stat-icon { width:42px;height:42px;display:grid;place-items:center;border-radius:14px;margin-bottom:17px;color:#171717;background:#F8F2E6; }
+.kora-public-shell .kora-evolution-stat strong { color:#171717;font-size:clamp(1.7rem,3vw,2.45rem);line-height:1;font-weight:850;letter-spacing:-.045em; }
 .kora-public-shell .kora-evolution-stat > span:last-child { margin-top:9px;color:#52627a;font-size:.88rem;font-weight:650; }
 .dark .kora-public-shell .kora-evolution-stat { border-color:rgb(255 255 255 / .1);background:linear-gradient(145deg,rgb(255 255 255 / .09),rgb(255 255 255 / .035)); }
 .dark .kora-public-shell .kora-evolution-stat strong,.dark .kora-public-shell .kora-evolution-stat-icon { color:#fff; }
@@ -920,10 +920,10 @@
 .dark .kora-public-shell .kora-talent-showcase { border-color:rgb(255 255 255 / .13);background:linear-gradient(145deg,rgb(255 255 255 / .1),rgb(255 255 255 / .035)); }
 .kora-talent-showcase-heading { display:flex;align-items:center;justify-content:space-between;gap:16px;margin-bottom:18px; }
 .kora-talent-showcase-heading p { margin-bottom:5px;color:#64748b;font-size:.72rem;font-weight:800;letter-spacing:.13em;text-transform:uppercase; }
-.kora-talent-showcase-heading h3 { color:#2A2115;font-size:clamp(1.2rem,2.2vw,1.55rem);font-weight:850;letter-spacing:-.035em; }
+.kora-talent-showcase-heading h3 { color:#171717;font-size:clamp(1.2rem,2.2vw,1.55rem);font-weight:850;letter-spacing:-.035em; }
 .dark .kora-talent-showcase-heading h3 { color:#fff; }.dark .kora-talent-showcase-heading p { color:#c4d0e0; }
 .kora-talent-controls { display:flex;gap:8px; }
-.kora-talent-controls button { width:38px;height:38px;display:grid;place-items:center;border:1px solid rgb(42 33 21 / .16);border-radius:50%;color:#2A2115;background:rgb(255 255 255 / .72);transition:transform .2s ease,background .2s ease; }
+.kora-talent-controls button { width:38px;height:38px;display:grid;place-items:center;border:1px solid rgb(42 33 21 / .16);border-radius:50%;color:#171717;background:rgb(255 255 255 / .72);transition:transform .2s ease,background .2s ease; }
 .kora-talent-controls button:hover:not(:disabled) { transform:translateY(-2px);background:#fff; }.kora-talent-controls button:disabled { opacity:.35;cursor:not-allowed; }
 .dark .kora-talent-controls button { color:#fff;border-color:rgb(255 255 255 / .18);background:rgb(255 255 255 / .08); }
 .kora-talent-stack { position:relative;height:340px;max-width:440px;margin:0 auto;touch-action:pan-y; }
@@ -934,9 +934,9 @@
 .kora-talent-card-photo img { width:100%;height:100%;object-fit:cover;object-position:center 35%; }
 .kora-talent-card-photo > span { position:absolute;left:14px;bottom:14px;padding:6px 11px;border:1px solid rgb(255 255 255 / .42);border-radius:999px;color:#fff;background:rgb(42 33 21 / .76);font-size:.72rem;font-weight:750;backdrop-filter:blur(10px); }
 .kora-talent-card-placeholder { display:grid;width:100%;height:100%;place-items:center;color:#526b8c; }
-.kora-talent-card-content { display:flex;flex:1;flex-direction:column;justify-content:space-between;padding:16px 18px;color:#2A2115; }
+.kora-talent-card-content { display:flex;flex:1;flex-direction:column;justify-content:space-between;padding:16px 18px;color:#171717; }
 .kora-talent-card-content h4 { font-size:1.08rem;font-weight:850; }.kora-talent-card-content p { margin-top:3px;color:#64748b;font-size:.83rem; }
-.kora-talent-card-meta { display:flex;justify-content:space-between;gap:12px;color:#64748b;font-size:.76rem; }.kora-talent-card-meta span { display:inline-flex;align-items:center;gap:5px;min-width:0; }.kora-talent-card-meta span:last-child svg { color:#2A2115;fill:#2A2115; }
+.kora-talent-card-meta { display:flex;justify-content:space-between;gap:12px;color:#64748b;font-size:.76rem; }.kora-talent-card-meta span { display:inline-flex;align-items:center;gap:5px;min-width:0; }.kora-talent-card-meta span:last-child svg { color:#171717;fill:#171717; }
 .kora-talent-hint { margin-top:15px;color:#64748b;font-size:.78rem;text-align:center; }.dark .kora-talent-hint { color:#c4d0e0; }
 .kora-public-shell .kora-talent-empty { min-height:340px;display:grid;place-items:center;border:1px dashed rgb(42 33 21 / .22);background:rgb(255 255 255 / .35); }
 .dark .kora-public-shell .kora-talent-empty { border-color:rgb(255 255 255 / .2);background:rgb(255 255 255 / .04);color:#fff; }
@@ -962,7 +962,7 @@
 
 .kora-public-shell .kora-landing-copy { text-align:center; }
 .kora-public-shell .kora-landing-copy .kora-start-button { margin-inline:auto; }
-.dark .kora-public-shell .kora-talent-card-content { color:#2A2115; }
+.dark .kora-public-shell .kora-talent-card-content { color:#171717; }
 
 
 /* KORA global warm-gold identity: shared by public and authenticated workspaces. */
@@ -1039,13 +1039,13 @@
     radial-gradient(ellipse at 88% 24%, rgb(255 239 188 / .58) 0%, transparent 34%),
     radial-gradient(ellipse at 68% 100%, rgb(198 145 26 / .38) 0%, transparent 44%),
     linear-gradient(128deg, #F6D783 0%, #E7B83F 52%, #C8951F 100%) !important;
-  color: #2A2115 !important;
+  color: #171717 !important;
 }
 .kora-public-shell .kora-landing-hero .kora-landing-copy h1,
 .kora-public-shell .kora-landing-hero .kora-hero-eyebrow,
 .kora-public-shell .kora-landing-hero .kora-phone-label,
 .kora-public-shell .kora-landing-hero .kora-hero-description {
-  color: #2A2115 !important;
+  color: #171717 !important;
 }
 .kora-public-shell .kora-landing-copy {
   border-color: rgb(255 255 255 / .45);
@@ -1054,13 +1054,13 @@
 }
 .kora-public-shell .kora-landing-hero .kora-start-button {
   background: #fff !important;
-  color: #2A2115 !important;
+  color: #171717 !important;
 }
-.kora-public-shell .kora-evolution-title { color:#2A2115; border-color:rgb(180 128 19 / .42); }
+.kora-public-shell .kora-evolution-title { color:#171717; border-color:rgb(180 128 19 / .42); }
 .kora-public-shell .kora-evolution-stat strong,
 .kora-public-shell .kora-evolution-stat-icon { color:#8B6210; }
 .kora-public-shell .kora-evolution-stat-icon { background:#FFF2CC; }
-.kora-public-shell .kora-talent-card-content { color:#2A2115; }
+.kora-public-shell .kora-talent-card-content { color:#171717; }
 .kora-public-shell .kora-talent-card-meta span:last-child svg { color:#B78216; fill:#B78216; }
 .dark .kora-public-shell .kora-landing-hero {
   background:
@@ -1155,4 +1155,162 @@
 @media (min-width: 768px) and (max-width: 1023px) {
   .kora-public-shell .kora-landing-hero-inner { grid-template-columns: .9fr 1.1fr; }
   .kora-public-shell .kora-landing-phones { transform: scale(.82); }
+}
+
+
+/* KORA global identity: white, champagne gold and deep black. */
+:root {
+  --background: 0 0% 100%;
+  --foreground: 0 0% 9%;
+  --card: 0 0% 100%;
+  --card-foreground: 0 0% 9%;
+  --popover: 0 0% 100%;
+  --popover-foreground: 0 0% 9%;
+  --primary: 44 90% 61%;
+  --primary-foreground: 0 0% 9%;
+  --secondary: 0 0% 96%;
+  --secondary-foreground: 0 0% 9%;
+  --muted: 0 0% 96%;
+  --muted-foreground: 0 0% 42%;
+  --accent: 44 100% 94%;
+  --accent-foreground: 0 0% 9%;
+  --border: 0 0% 89%;
+  --input: 0 0% 87%;
+  --ring: 44 90% 55%;
+  --gold: 44 90% 61%;
+  --gold-light: 46 95% 72%;
+  --gold-dark: 42 82% 48%;
+  --sidebar-background: 0 0% 9%;
+  --sidebar-foreground: 0 0% 96%;
+  --sidebar-primary: 44 90% 61%;
+  --sidebar-primary-foreground: 0 0% 9%;
+  --sidebar-accent: 0 0% 18%;
+  --sidebar-accent-foreground: 0 0% 98%;
+  --sidebar-border: 0 0% 20%;
+  --sidebar-ring: 44 90% 55%;
+}
+
+.dark {
+  --background: 0 0% 7%;
+  --foreground: 0 0% 96%;
+  --card: 0 0% 11%;
+  --card-foreground: 0 0% 96%;
+  --popover: 0 0% 11%;
+  --popover-foreground: 0 0% 96%;
+  --primary: 44 90% 61%;
+  --primary-foreground: 0 0% 9%;
+  --secondary: 0 0% 15%;
+  --secondary-foreground: 0 0% 94%;
+  --muted: 0 0% 15%;
+  --muted-foreground: 0 0% 66%;
+  --accent: 44 45% 20%;
+  --accent-foreground: 0 0% 96%;
+  --border: 0 0% 22%;
+  --input: 0 0% 24%;
+  --ring: 44 90% 61%;
+  --gold: 44 90% 61%;
+  --gold-light: 46 95% 72%;
+  --gold-dark: 42 82% 48%;
+  --sidebar-background: 0 0% 5%;
+  --sidebar-foreground: 0 0% 96%;
+  --sidebar-primary: 44 90% 61%;
+  --sidebar-primary-foreground: 0 0% 9%;
+  --sidebar-accent: 0 0% 15%;
+  --sidebar-accent-foreground: 0 0% 96%;
+  --sidebar-border: 0 0% 20%;
+  --sidebar-ring: 44 90% 61%;
+}
+
+/* Keep every public route on the same brand tokens. */
+.kora-public-shell {
+  --background: 0 0% 100%;
+  --foreground: 0 0% 9%;
+  --card: 0 0% 100%;
+  --card-foreground: 0 0% 9%;
+  --popover: 0 0% 100%;
+  --popover-foreground: 0 0% 9%;
+  --primary: 44 90% 61%;
+  --primary-foreground: 0 0% 9%;
+  --secondary: 0 0% 96%;
+  --secondary-foreground: 0 0% 9%;
+  --muted: 0 0% 96%;
+  --muted-foreground: 0 0% 42%;
+  --accent: 44 100% 94%;
+  --accent-foreground: 0 0% 9%;
+  --border: 0 0% 89%;
+  --input: 0 0% 87%;
+  --ring: 44 90% 55%;
+  --gold: 44 90% 61%;
+  --gold-light: 46 95% 72%;
+  --gold-dark: 42 82% 48%;
+}
+.dark .kora-public-shell {
+  --background: 0 0% 7%;
+  --foreground: 0 0% 96%;
+  --card: 0 0% 11%;
+  --card-foreground: 0 0% 96%;
+  --popover: 0 0% 11%;
+  --popover-foreground: 0 0% 96%;
+  --primary: 44 90% 61%;
+  --primary-foreground: 0 0% 9%;
+  --secondary: 0 0% 15%;
+  --secondary-foreground: 0 0% 94%;
+  --muted: 0 0% 15%;
+  --muted-foreground: 0 0% 66%;
+  --accent: 44 45% 20%;
+  --accent-foreground: 0 0% 96%;
+  --border: 0 0% 22%;
+  --input: 0 0% 24%;
+  --ring: 44 90% 61%;
+  --gold: 44 90% 61%;
+  --gold-light: 46 95% 72%;
+  --gold-dark: 42 82% 48%;
+}
+
+/* Gold is reserved for meaningful emphasis and primary actions. */
+.kora-public-shell .kora-wordmark span,
+.kora-public-shell .kora-landing-copy h1 span,
+.kora-public-shell .kora-phone-brand span {
+  color: #F5C542 !important;
+}
+.kora-public-shell .kora-start-button,
+.kora-public-shell .kora-register-link {
+  background: #F5C542 !important;
+  border-color: #F5C542 !important;
+  color: #171717 !important;
+}
+.kora-public-shell .kora-start-button:hover,
+.kora-public-shell .kora-register-link:hover {
+  background: #E7B52E !important;
+  border-color: #E7B52E !important;
+  color: #171717 !important;
+}
+.kora-public-shell .kora-glass-nav-link:hover,
+.kora-public-shell .kora-mobile-nav-link:hover {
+  background: rgb(245 197 66 / .16) !important;
+  color: #171717 !important;
+}
+.kora-public-shell .kora-landing-hero {
+  background: #FFFFFF !important;
+  color: #171717 !important;
+}
+.kora-public-shell .kora-landing-copy h1,
+.kora-public-shell .kora-wordmark,
+.kora-public-shell .kora-phone-brand {
+  color: #171717 !important;
+}
+.kora-public-shell .kora-phone {
+  border-color: #E5E5E5;
+}
+.kora-public-shell .kora-phone-notch {
+  background: #171717;
+}
+.kora-public-shell .kora-scroll-cue:hover {
+  color: #B88708;
+}
+.kora-superadmin-glass .kora-superadmin-active-nav,
+.dark .kora-superadmin-glass .kora-superadmin-active-nav {
+  color: #171717 !important;
+  background: #F5C542 !important;
+  border-color: #F5C542 !important;
 }
