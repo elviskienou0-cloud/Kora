@@ -129,7 +129,7 @@
 .kora-lp .kora-landing-copy h1 {
   max-width: 13ch;
   margin-top: 1rem;
-  color: #fff !important;
+  color: #171717 !important;
   font-size: clamp(2.55rem, 4.2vw, 4.15rem);
   font-weight: 850;
   letter-spacing: -.055em;
@@ -140,7 +140,7 @@
 .kora-lp .kora-hero-description {
   max-width: 39rem;
   margin-top: 1.25rem;
-  color: rgb(255 255 255 / .76);
+  color: #555555;
   font-size: 1.04rem;
   line-height: 1.7;
 }
@@ -159,7 +159,7 @@
   top: 0;
   left: 50%;
   transform: translateX(-50%);
-  color: rgb(255 255 255 / .62);
+  color: #6B6B6B;
   font-size: .65rem;
   font-weight: 800;
   letter-spacing: .14em;
@@ -196,7 +196,7 @@
   border-radius: 999px !important;
   background: linear-gradient(135deg, #F9D978, #F5C542) !important;
   color: #171717 !important;
-  box-shadow: 0 10px 26px rgb(212 175 55 / .2) !important;
+  box-shadow: 0 10px 26px rgb(245 197 66 / .2) !important;
 }
 
 /* Audience cards */
@@ -208,7 +208,7 @@
   border: 1px solid hsl(var(--border));
   border-radius: 1.5rem;
   background: hsl(var(--card));
-  box-shadow: 0 12px 32px -24px rgb(15 23 42 / .3);
+  box-shadow: 0 12px 32px -24px rgb(0 0 0 / .08);
 }
 
 .kora-lp-audience-card-manager {
@@ -251,7 +251,7 @@
 
 .kora-lp-audience-card-manager .kora-lp-audience-icon {
   background: rgb(255 255 255 / .1);
-  color: #f5d77d;
+  color: #F5C542;
 }
 
 /* Three clear steps */
@@ -262,7 +262,7 @@
   border: 1px solid hsl(var(--border));
   border-radius: 1.35rem;
   background: hsl(var(--card));
-  box-shadow: 0 12px 32px -25px rgb(15 23 42 / .35);
+  box-shadow: 0 12px 32px -25px rgb(0 0 0 / .08);
 }
 
 .kora-lp-step-number {
@@ -374,7 +374,7 @@
   border: 1px solid hsl(var(--border));
   border-radius: 1.5rem;
   background: hsl(var(--card));
-  box-shadow: 0 16px 38px -30px rgb(15 23 42 / .4);
+  box-shadow: 0 16px 38px -30px rgb(0 0 0 / .08);
   backdrop-filter: none;
 }
 
@@ -406,7 +406,7 @@
   border-color: hsl(var(--border));
   border-radius: 1.2rem;
   background: hsl(var(--card));
-  box-shadow: 0 14px 34px -24px rgb(15 23 42 / .5);
+  box-shadow: 0 14px 34px -24px rgb(0 0 0 / .08);
 }
 
 .kora-lp .kora-talent-stack-card-back { opacity: .38; }
@@ -427,7 +427,7 @@
 
 .kora-lp-plan-card-featured {
   border-color: hsl(var(--gold) / .7);
-  box-shadow: 0 18px 42px -30px rgb(160 117 22 / .55);
+  box-shadow: 0 18px 42px -30px rgb(201 156 32 / .28);
 }
 
 .kora-lp-plan-badge {
@@ -593,3 +593,33 @@
 .kora-lp .kora-talent-showcase {
   background: hsl(var(--card)) !important;
 }
+
+
+/* Brand palette: accessible light and dark landing hero treatments. */
+.kora-lp .kora-landing-hero {
+  background:
+    radial-gradient(ellipse at 78% 25%, rgb(245 197 66 / .14), transparent 38%),
+    #FFFFFF !important;
+  color: #171717 !important;
+}
+.kora-lp .kora-landing-copy h1 { color: #171717 !important; }
+.kora-lp .kora-hero-description { color: #555555; }
+.kora-lp .kora-phone-label { color: #666666; }
+.kora-lp .kora-start-button {
+  background: #F5C542 !important;
+  border-color: #F5C542 !important;
+  color: #171717 !important;
+}
+.kora-lp .kora-start-button:hover {
+  background: #E7B52E !important;
+  border-color: #E7B52E !important;
+}
+.dark .kora-lp .kora-landing-hero {
+  background:
+    radial-gradient(ellipse at 78% 25%, rgb(245 197 66 / .14), transparent 38%),
+    #171717 !important;
+  color: #FFFFFF !important;
+}
+.dark .kora-lp .kora-landing-copy h1 { color: #FFFFFF !important; }
+.dark .kora-lp .kora-hero-description { color: rgb(255 255 255 / .78); }
+.dark .kora-lp .kora-phone-label { color: rgb(255 255 255 / .68); }
