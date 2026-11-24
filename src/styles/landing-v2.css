@@ -1,8 +1,8 @@
 /* KORA landing page: one compact visual system, shared by every section. */
 
 .kora-lp {
-  --lp-ink: #18243a;
-  --lp-gold: #d4af37;
+  --lp-ink: #171717;
+  --lp-gold: #F5C542;
   font-family: "Manrope", "Inter", system-ui, sans-serif;
   -webkit-font-smoothing: antialiased;
   text-rendering: optimizeLegibility;
@@ -98,10 +98,10 @@
   overflow-x: clip;
   overflow-y: visible;
   background:
-    radial-gradient(ellipse at 78% 25%, rgb(212 175 55 / .16), transparent 38%),
-    radial-gradient(ellipse at 15% 90%, rgb(51 91 145 / .22), transparent 42%),
-    #0d1728 !important;
-  color: #fff !important;
+    radial-gradient(ellipse at 78% 25%, rgb(245 197 66 / .16), transparent 38%),
+    radial-gradient(ellipse at 15% 90%, rgb(23 23 23 / .035), transparent 42%),
+    #FFFFFF !important;
+  color: #171717 !important;
 }
 
 .kora-lp .kora-landing-hero-inner {
@@ -119,7 +119,7 @@
 }
 
 .kora-lp .kora-hero-eyebrow {
-  color: #f0cc68;
+  color: #B88708;
   font-size: .72rem;
   font-weight: 850;
   letter-spacing: .16em;
@@ -169,10 +169,10 @@
   width: min(44%, 188px);
   height: 340px;
   flex: 0 1 188px;
-  border: 4px solid #39465a;
+  border: 4px solid #D9D9D9;
   border-radius: 27px;
   padding: 7px;
-  background: #101827;
+  background: #171717;
   box-shadow: 0 22px 55px rgb(0 0 0 / .28);
 }
 
@@ -182,11 +182,11 @@
 .kora-lp .kora-phone-screen {
   border-radius: 19px;
   background: #fff;
-  color: #18243a;
+  color: #171717;
 }
 
-.kora-lp .kora-phone-brand { color: #18243a; }
-.kora-lp .kora-phone-brand span { color: #b8892a; }
+.kora-lp .kora-phone-brand { color: #171717; }
+.kora-lp .kora-phone-brand span { color: #C99C20; }
 
 .kora-lp .kora-phone-home { background: rgb(255 255 255 / .5); }
 
@@ -194,8 +194,8 @@
   min-height: 3rem;
   margin-top: 0;
   border-radius: 999px !important;
-  background: linear-gradient(135deg, #f0d47d, #d4af37) !important;
-  color: #172033 !important;
+  background: linear-gradient(135deg, #F9D978, #F5C542) !important;
+  color: #171717 !important;
   box-shadow: 0 10px 26px rgb(212 175 55 / .2) !important;
 }
 
@@ -213,7 +213,7 @@
 
 .kora-lp-audience-card-manager {
   border-color: rgb(255 255 255 / .1);
-  background: #192d4c;
+  background: #171717;
   color: #fff;
 }
 
@@ -235,7 +235,7 @@
 
 .kora-lp-audience-card-manager .kora-lp-audience-tag {
   background: rgb(255 255 255 / .1);
-  color: #f5d77d;
+  color: #F5C542;
 }
 
 .kora-lp-audience-icon {
@@ -478,13 +478,13 @@
   border-radius: 1.8rem;
   background:
     radial-gradient(circle at 90% 10%, rgb(212 175 55 / .2), transparent 32%),
-    linear-gradient(135deg, #15243d, #203b60);
+    linear-gradient(135deg, #171717, #292929);
   color: #fff;
   text-align: center;
 }
 
 .kora-lp-final-eyebrow {
-  color: #f0d27c;
+  color: #F5C542;
   font-size: .68rem;
   font-weight: 850;
   letter-spacing: .15em;
@@ -585,7 +585,7 @@
   background: rgb(255 255 255 / .08) !important;
 }
 .kora-lp .kora-phone {
-  background: #101827 !important;
+  background: #171717 !important;
 }
 .kora-lp .kora-landing-phones {
   filter: none !important;
