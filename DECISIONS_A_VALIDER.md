@@ -112,3 +112,15 @@ Les points ci-dessous sont volontairement laissés ouverts. Aucune logique tarif
 3. Autoriser les invitations pour les administrateurs associés, mais réserver le rôle Super Admin à une attribution manuelle en base.
 
 **Recommandation:** option 3. Elle conserve un contrôle centralisé tout en évitant l'auto-attribution publique. À confirmer au regard de la règle « admin attribué manuellement en base ».
+
+
+## D-011 | Permissions RLS des administrateurs associés
+
+**Constat:** 51 policies sur 21 tables accordent des accès via `is_admin()`, qui reconnaît tout compte `admin` ou `superadmin` sans consulter ses permissions. L'interface, elle, filtre les vues avec des permissions par rubrique.
+
+**Options**
+1. Conserver un modèle où tout administrateur associé possède les mêmes droits de données que le Super Admin.
+2. Faire respecter dans RLS les permissions de lecture existantes (`users.read`, `managers.read`, `clients.read`, `talents.read`, `requests.read`, `projects.read`, `messages.read`, `moderation.read`, `payments.read`, `subscriptions.read`, `logs.read`, `announcements.write)); réserver les écritures sans permission dédiée au Super Admin.
+3. Définir des permissions lecture/écriture distinctes pour chaque domaine, puis aligner frontend, RPC et RLS.
+
+**Recommandation:** option 3 à terme; option 2 comme correction minimale immédiate. Avant déploiement, créer un compte admin associé de test avec un sous-ensemble de permissions et vérifier que les accès REST directs sont refusés hors périmètre.
