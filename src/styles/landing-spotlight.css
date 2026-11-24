@@ -47,12 +47,12 @@
 .kora-lp .kora-landing-hero.kora-spotlight-hero{position:relative;isolation:isolate;display:flex;min-height:min(900px,100svh);align-items:center;justify-content:center;margin:0!important;padding:clamp(132px,16vh,176px) 24px 84px;overflow:clip;color:#fff!important;background:radial-gradient(ellipse at 50% 25%,rgba(212,175,55,.14),transparent 43%),radial-gradient(ellipse at 50% 90%,rgba(255,255,255,.045),transparent 42%),#050505!important}
 .kora-lp .kora-spotlight-hero-content{position:relative;z-index:3;width:min(1040px,100%);margin-inline:auto;text-align:center}
 .kora-lp .kora-spotlight-beams{position:absolute;z-index:-1;inset:0;overflow:clip;pointer-events:none}
-.kora-lp .kora-spotlight-beams i{position:absolute;top:-16%;left:50%;width:44vw;height:120%;margin-left:-22vw;clip-path:polygon(45% 0,55% 0,100% 100%,0 100%);background:linear-gradient(180deg,rgba(212,175,55,.19),transparent 72%);transform-origin:50% 0;animation:koraSpotBeam 13s ease-in-out infinite alternate}
+.kora-lp .kora-spotlight-beams i{position:absolute;top:-16%;left:50%;width:44vw;height:120%;margin-left:-22vw;clip-path:polygon(45% 0,55% 0,100% 100%,0 100%);background:linear-gradient(180deg,rgba(212,175,55,.19),transparent 72%);transform-origin:50% 0}
 .kora-lp .kora-spotlight-beams i:nth-child(1){--beam-a:18deg;--beam-b:8deg}
-.kora-lp .kora-spotlight-beams i:nth-child(2){--beam-a:-22deg;--beam-b:-11deg;animation-duration:16s;background:linear-gradient(180deg,rgba(255,255,255,.12),transparent 70%)}
-.kora-lp .kora-spotlight-beams i:nth-child(3){--beam-a:-3deg;--beam-b:5deg;opacity:.55;animation-duration:19s}
+.kora-lp .kora-spotlight-beams i:nth-child(2){--beam-a:-22deg;--beam-b:-11deg;background:linear-gradient(180deg,rgba(255,255,255,.12),transparent 70%)}
+.kora-lp .kora-spotlight-beams i:nth-child(3){--beam-a:-3deg;--beam-b:5deg;opacity:.55}
 .kora-lp .kora-spotlight-beams i{transform:rotate(var(--beam-a))}
-@keyframes koraSpotBeam{to{transform:rotate(var(--beam-b))}}
+
 .kora-lp .kora-spotlight-orbit{position:absolute;z-index:0;left:50%;top:52%;width:min(68vw,780px);aspect-ratio:1;border:1px solid rgba(212,175,55,.09);border-radius:50%;transform:translate(-50%,-50%);pointer-events:none}
 .kora-lp .kora-spotlight-orbit-two{width:min(52vw,600px);border-color:rgba(255,255,255,.06)}
 .kora-lp .kora-spotlight-pill{display:inline-flex;align-items:center;gap:12px;padding:8px 17px;border:1px solid rgba(255,255,255,.14);border-radius:999px;background:rgba(255,255,255,.055);color:rgba(255,255,255,.72);font-size:11px;font-weight:800;letter-spacing:.13em;text-transform:uppercase;backdrop-filter:blur(12px)}
@@ -79,8 +79,8 @@
 .kora-lp .kora-spotlight-picker button[aria-pressed=true]{background:var(--spot-gold);color:#17120a}
 .kora-lp .kora-spotlight-float{position:absolute;z-index:2;display:flex;align-items:center;gap:11px;width:220px;padding:13px 15px;border:1px solid rgba(255,255,255,.13);border-radius:19px;background:rgba(18,18,18,.7);color:#fff;box-shadow:0 22px 55px rgba(0,0,0,.3);backdrop-filter:blur(16px);animation:koraSpotFloat 6.5s ease-in-out infinite}
 .kora-lp .kora-spotlight-float-0{left:max(3%,calc((100% - 1240px)/2));top:28%}
-.kora-lp .kora-spotlight-float-1{right:max(3%,calc((100% - 1240px)/2));top:25%;animation-delay:-2.2s}
-.kora-lp .kora-spotlight-float-2{left:max(7%,calc((100% - 1140px)/2));bottom:15%;animation-delay:-4.4s}
+.kora-lp .kora-spotlight-float-1{right:max(3%,calc((100% - 1240px)/2));top:25%;animation:none}
+.kora-lp .kora-spotlight-float-2{left:max(7%,calc((100% - 1140px)/2));bottom:15%;animation:none}
 .kora-lp .kora-spotlight-float-icon{display:grid;width:38px;height:38px;flex:none;place-items:center;border-radius:12px;background:rgba(245,197,66,.13);color:#E7C96D}
 .kora-lp .kora-spotlight-float-copy{display:grid;gap:2px;min-width:0}
 .kora-lp .kora-spotlight-float-copy strong{overflow:hidden;color:#fff;font-size:12px;text-overflow:ellipsis;white-space:nowrap}
