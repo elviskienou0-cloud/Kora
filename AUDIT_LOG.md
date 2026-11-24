@@ -355,3 +355,15 @@ Les tests ont utilisé des identités existantes du projet, sans afficher leurs 
 - Commit: `KORA-023: fiabiliser les statistiques et leur traduction sur l'accueil`.
 - Statut: corrigé sur la branche d'audit; build CI à vérifier.
 
+
+
+### KORA-024 | i18n / UX | moyenne | tous rôles | catégories et espace admin | `src/pages/Categories.jsx`, `src/pages/admin/AdminPanel.jsx`, `src/pages/admin/Settings.jsx`, `src/pages/admin/Payments.jsx`, `src/pages/admin/Subscriptions.jsx`
+
+- Étapes: inspection des pages publiques et administratives et comparaison avec le système de langue global.
+- Attendu: toutes les routes accessibles en anglais affichent des libellés cohérents dans la langue choisie.
+- Observé: `Categories.jsx`, `AdminPanel.jsx` et `Settings.jsx` ne consomment pas le contexte i18n et contiennent des libellés français statiques. Les pages Paiements et Abonnements contiennent également des textes français statiques.
+- Cause: ces vues n'ont pas été raccordées au dictionnaire FR/EN global.
+- Correction: non appliquée dans cette étape; les pages doivent être traduites sans changer les libellés métier ni les permissions.
+- Commit: aucun.
+- Statut: ouvert; audit i18n des routes restantes à poursuivre.
+
