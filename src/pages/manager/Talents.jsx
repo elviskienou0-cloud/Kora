@@ -1428,12 +1428,13 @@ export default function ManagerTalents() {
       new Date(subscription.current_period_end).getTime() <= Date.now()
     )
 
-  const talentLimit =
-    currentPlanId === "BUSINESS"
+  const talentLimit = !subscription
+    ? 0
+    : subscription.talent_limit === null
       ? null
-      : currentPlanId === "PRO"
-        ? 3
-        : 1
+      : Number.isFinite(Number(subscription.talent_limit))
+        ? Number(subscription.talent_limit)
+        : 0
 
   const talentLimitReached =
     talentLimit !== null && talents.length >= talentLimit

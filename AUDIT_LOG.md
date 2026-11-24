@@ -178,3 +178,15 @@ Aucune correction de code n'a encore été appliquée.
 - Commit: aucun.
 - Statut: ouvert, action de configuration à planifier et tracer.
 
+
+
+### KORA-013 | incohérence métier | moyenne | manager | `/manager/talents` | `src/pages/manager/Talents.jsx` / calcul de `talentLimit`
+
+- Étapes: lecture du calcul de quota dans la page Manager et de la fonction `get_my_subscription()` dans Supabase.
+- Attendu: le quota appliqué dans l'interface provient de `plans.talent_limit`, comme le contrôle serveur `create_manager_talent`.
+- Observé: l'interface codait 1 talent pour FREE, 3 pour PRO et illimité pour BUSINESS, alors que `get_my_subscription()` renvoie déjà `talent_limit` depuis la base.
+- Cause: duplication des quotas dans le frontend.
+- Correction appliquée: l'interface utilise maintenant `subscription.talent_limit`; si la configuration est absente ou invalide, la création est bloquée par défaut au lieu de devenir illimitée.
+- Commit: `KORA-013: lire le quota talent depuis la configuration du plan`.
+- Statut: corrigé sur la branche d'audit; build CI à vérifier.
+
