@@ -5,6 +5,7 @@ import { KButton } from "@/components/ui/KButton"
 import { APP_PARAMS } from "@/lib/app-params"
 import { getCategoryIcon } from "@/lib/categoryIcons"
 import { useI18n } from "@/i18n/kora-i18n.jsx"
+import { supabase } from "@/lib/supabase"
 
 const CATEGORY_KEYS = {
   music:"landing.categoryMusic", fashion:"landing.categoryFashion", influence:"landing.categoryInfluence",
@@ -20,14 +21,37 @@ export default function LandingHero() {
   const [activeIndex, setActiveIndex] = useState(0)
   const [isVisible, setIsVisible] = useState(true)
   const [autoRotate, setAutoRotate] = useState(true)
+  const [categories, setCategories] = useState([])
   const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches
-  const categories = useMemo(() => APP_PARAMS.categories.map((category) => ({
-    ...category, label: CATEGORY_KEYS[category.id] ? t(CATEGORY_KEYS[category.id]) : category.name,
-  })), [t, language])
-  const activeCategory = categories[activeIndex] || categories[0]
-  const floatingCategories = categories.length > 3
-    ? [categories[2], categories[Math.floor(categories.length / 2)], categories[categories.length - 1]]
-    : categories
+  const translatedCategories = useMemo(() => categories.map((category) => ({
+    ...category, label: CATEGORY_KEYS[category.slug] ? t(CATEGORY_KEYS[category.slug]) : category.name,
+  })), [categories, t, language])
+  const activeCategory = translatedCategories[activeIndex] || translatedCategories[0]
+  const floatingCategories = translatedCategories.length > 3
+    ? [translatedCategories[2], translatedCategories[Math.floor(translatedCategories.length / 2)], translatedCategories[translatedCategories.length - 1]]
+    : translatedCategories
+
+  useEffect(() => {
+    let mounted = true
+    const loadCategories = async () => {
+      try {
+        const { data, error } = await supabase
+          .from("categories")
+          .select("id, slug, name, icon")
+          .eq("is_active", true)
+          .order("name", { ascending: true })
+        if (error) throw error
+        if (mounted) setCategories(data || [])
+      } catch (error) {
+        if (mounted) {
+          console.error("Erreur chargement catégories du hero :", error)
+          setCategories([])
+        }
+      }
+    }
+    loadCategories()
+    return () => { mounted = false }
+  }, [])
 
   useEffect(() => {
     const element = heroRef.current
@@ -38,12 +62,12 @@ export default function LandingHero() {
   }, [])
 
   useEffect(() => {
-    if (reduceMotion || !autoRotate || categories.length < 2) return undefined
+    if (reduceMotion || !autoRotate || translatedCategories.length < 2) return undefined
     const timer = window.setInterval(() => {
-      if (isVisible && document.visibilityState === "visible") setActiveIndex((index) => (index + 1) % categories.length)
+      if (isVisible && document.visibilityState === "visible") setActiveIndex((index) => (index + 1) % translatedCategories.length)
     }, 2800)
     return () => window.clearInterval(timer)
-  }, [autoRotate, categories.length, isVisible, reduceMotion])
+  }, [autoRotate, translatedCategories.length, isVisible, reduceMotion])
 
   return (
     <section ref={heroRef} className="kora-landing-hero kora-spotlight-hero" aria-labelledby="kora-hero-title">
@@ -51,7 +75,7 @@ export default function LandingHero() {
       <div className="kora-spotlight-orbit kora-spotlight-orbit-one" aria-hidden="true" />
       <div className="kora-spotlight-orbit kora-spotlight-orbit-two" aria-hidden="true" />
       {floatingCategories.map((category, index) => {
-        const Icon = getCategoryIcon(category.icon)
+        const Icon = getCategoryIcon(category.icon || APP_PARAMS.categories.find((item) => item.id === category.slug)?.icon)
         return <div className={"kora-spotlight-float kora-spotlight-float-" + index} key={category.id} aria-hidden="true">
           <span className="kora-spotlight-float-icon"><Icon size={18} /></span>
           <span className="kora-spotlight-float-copy"><strong>{category.label}</strong><small>{language === "en" ? "Talent universe" : "Univers de talents"}</small></span>
@@ -79,7 +103,7 @@ export default function LandingHero() {
         <div className="kora-spotlight-picker-wrap">
           <p>{language === "en" ? "Explore a talent universe" : "Explorez un univers de talents"}</p>
           <div className="kora-spotlight-picker" role="group" aria-label={language === "en" ? "Choose a category" : "Choisir une catégorie"}>
-            {categories.map((category, index) => <button key={category.id} type="button" onClick={() => { setAutoRotate(false); setActiveIndex(index) }} aria-pressed={activeIndex === index}>{category.label}</button>)}
+            {translatedCategories.map((category, index) => <button key={category.id} type="button" onClick={() => { setAutoRotate(false); setActiveIndex(index) }} aria-pressed={activeIndex === index}>{category.label}</button>)}
           </div>
         </div>
       </div>

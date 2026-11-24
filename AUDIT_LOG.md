@@ -360,7 +360,7 @@ Les tests ont utilisé des identités existantes du projet, sans afficher leurs 
 
 
 
-### KORA-024 | i18n / UX | moyenne | tous rôles | inscription, catégories et espace admin | `src/pages/Register.jsx`, `src/pages/Categories.jsx`, `src/pages/admin/AdminPanel.jsx`, `src/pages/admin/Settings.jsx`, `src/pages/admin/Payments.jsx`, `src/pages/admin/Subscriptions.jsx`
+### KORA-024 | i18n / UX | moyenne | tous rôles | inscription, catégories et espace admin | `src/pages/Register.jsx`, `src/pages/Categories.jsx`, `src/components/landing/LandingHero.jsx`, `src/components/landing/LandingNav.jsx`, `src/pages/admin/AdminPanel.jsx`, `src/pages/admin/Settings.jsx`, `src/pages/admin/Payments.jsx`, `src/pages/admin/Subscriptions.jsx`
 
 - Étapes: inspection des pages publiques et administratives et comparaison avec le système de langue global.
 - Attendu: toutes les routes accessibles en anglais affichent des libellés cohérents dans la langue choisie.
@@ -414,7 +414,7 @@ Les tests ont utilisé des identités existantes du projet, sans afficher leurs 
 - Attendu: la page publique et les compteurs affichent toutes les catégories actives réellement configurées dans Supabase.
 - Observé: le code ne connaissait que 11 catégories statiques; la table contient 19 catégories actives. Business, Créatif, Finance, Formation, Juridique, Marketing, Santé et Technologie étaient invisibles dans la page et ignorées par les compteurs. Le total de la page additionne désormais uniquement les catégories actives affichées.
 - Cause: liste frontend figée et résolution des compteurs limitée à `APP_PARAMS.categories`.
-- Correction appliquée: la page charge maintenant les catégories actives depuis Supabase avec gestion des exceptions réseau; le hook construit les compteurs dynamiquement à partir du slug renvoyé par `get_kora_live_stats()`. Le total est calculé uniquement sur les catégories actives visibles.
+- Correction appliquée: la page Catégories et le hero de la landing chargent maintenant les catégories actives depuis Supabase avec gestion des exceptions réseau; le hook construit les compteurs dynamiquement à partir du slug renvoyé par `get_kora_live_stats()`. Le total est calculé uniquement sur les catégories actives visibles.
 - Commit: `24727c67ffc4362213b765115548fdb53556e5be` (`KORA-032: charger les catégories depuis Supabase`).
 - Statut: corrigé; build/lint/tests et validation i18n CI réussis. La traduction anglaise de la page reste ouverte dans KORA-024.
 
