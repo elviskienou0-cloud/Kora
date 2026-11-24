@@ -101,3 +101,17 @@ Aucune correction de code n'a encore été appliquée.
 - Commit: aucun.
 - Statut: ouvert.
 
+
+
+### KORA-006 | sécurité / intégrité des déploiements | haute | tous rôles | schéma Supabase / migrations | `supabase/migrations/*`
+
+- Étapes: comparaison des 99 fichiers de migration du dépôt avec les 100 versions appliquées dans `supabase_migrations.schema_migrations` du projet Supabase actif.
+- Attendu: chaque migration appliquée en production possède un fichier versionné correspondant dans le dépôt; aucun fichier local ne doit réutiliser une migration déjà appliquée sous un autre numéro.
+- Observé: versions appliquées absentes du dépôt `20261121001412_payment_proofs_private_storage` et `20261122011054_payment_proofs_notify_superadmin`; le dépôt contenait à la place `20261121100000_payment_proofs_private_storage.sql`, non appliqué, qui fusionnait le contenu des deux versions.
+- Cause: dérive de l'historique de migrations entre Git et la base active.
+- Risque: les prochains déploiements peuvent rejouer une migration déjà appliquée et ne pas reproduire fidèlement l'état de production.
+- Correction appliquée sur cette branche: restauration des deux fichiers SQL exacts depuis `supabase_migrations.schema_migrations`; déplacement du fichier non appliqué et fusionné vers `supabase/migrations_archive/` afin de préserver son contenu sans le faire exécuter par la CLI. Aucune requête DDL n'a été exécutée sur la base active et aucune donnée n'a été supprimée.
+- Vérification après correction: à refaire par comparaison exhaustive des versions locales et distantes.
+- Commit: à renseigner après création du commit atomique.
+- Statut: correction de dépôt appliquée; validation finale en attente.
+

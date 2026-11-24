@@ -432,3 +432,7 @@ Les cases restent décochées tant que le fichier n'a pas été lu intégralemen
 ## Fichiers de suivi de l'audit
 
 Les livrables `AUDIT_CHECKLIST.md`, `AUDIT_LOG.md` et `DECISIONS_A_VALIDER.md` sont créés pendant l'audit et ne font pas partie de l'inventaire initial des fichiers applicatifs.
+
+- [x] `supabase/migrations/20261121001412_payment_proofs_private_storage.sql` (restauré depuis l'historique de production)
+- [x] `supabase/migrations/20261122011054_payment_proofs_notify_superadmin.sql` (restauré depuis l'historique de production)
+- [x] `supabase/migrations_archive/20261121100000_payment_proofs_private_storage_unapplied_duplicate.sql` (copie conservée hors du répertoire des migrations exécutables)
