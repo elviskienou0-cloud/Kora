@@ -17,6 +17,7 @@ import { useKoraStats } from "@/lib/useKoraStats"
 import { useI18n } from "@/i18n/kora-i18n.jsx"
 import "@/styles/landing-v2.css"
 import "@/styles/landing-motion.css"
+import "@/styles/landing-refresh.css"
 
 const STAT_META = [
   { key: "landing.statsTalents", icon: Users, index: 0 },
