@@ -154,7 +154,7 @@
 - `security:secrets`: réussi.
 - Workflow i18n séparé: réussi.
 - `npm audit --json`: 19 vulnérabilités signalées (1 faible, 12 modérées, 6 élevées, 0 critique). La synthèse de `npm ci` affiche 11 vulnérabilités; cet écart de comptage doit être réconcilié. L'étape audit du workflow utilise `|| true` et ne bloque donc pas la CI.
-- Ces validations CI couvrent le code jusqu'au commit `24727c67ffc4362213b765115548fdb53556e5be`; le dernier commit `7f52624ccd8ce7cd4a6e3732ad71f1501b6672fc` est documentaire. Deux runs intermédiaires ont échoué à cause d'une fermeture JSX incorrecte dans les nouvelles actions de suppression des notifications; KORA-031 a corrigé le problème et les runs suivants sont réussis.
+- Ces validations CI couvrent le code jusqu'au commit `24727c67ffc4362213b765115548fdb53556e5be`; le dernier commit `f016028292b94b73915a2ac02aa0afc727be03f4` est documentaire. Deux runs intermédiaires ont échoué à cause d'une fermeture JSX incorrecte dans les nouvelles actions de suppression des notifications; KORA-031 a corrigé le problème et les runs suivants sont réussis.
 - Tests SELECT RLS: exécutés avec `anon`, un client, un manager et le Super Admin; détails plus bas. Les tests INSERT/UPDATE/DELETE n'ont pas été exécutés sur des données métier réelles; policies et privilèges inspectés.
 - Aucun profil `admin` associé n'existe dans la base active; les permissions fines de cet acteur restent non testées.
 - Parcours navigateur/mobile de bout en bout: non exécutés; aucun appareil Android/iOS ni navigateur E2E connecté n'a été utilisé.
