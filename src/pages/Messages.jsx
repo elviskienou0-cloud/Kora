@@ -113,13 +113,13 @@ function formatConversationTime(value, locale = "fr-FR") {
   const now = new Date()
 
   if (date.toDateString() === now.toDateString()) {
-    return date.toLocaleTimeString("fr-FR", {
+    return date.toLocaleTimeString(locale, {
       hour: "2-digit",
       minute: "2-digit",
     })
   }
 
-  return date.toLocaleDateString("fr-FR", {
+  return date.toLocaleDateString(locale, {
     day: "2-digit",
     month: "2-digit",
   })

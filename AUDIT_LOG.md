@@ -293,3 +293,15 @@ Les tests ont utilisé des identités existantes du projet, sans afficher leurs 
 - Commit: aucun.
 - Statut: ouvert.
 
+
+
+### KORA-019 | UX / i18n | basse | client et manager | liste des conversations | `src/pages/Messages.jsx` / `formatConversationTime`
+
+- Étapes: lecture intégrale de la page Messages et comparaison des deux formatters de dates.
+- Attendu: la date de la dernière activité suit la langue sélectionnée.
+- Observé: `formatConversationTime` acceptait un paramètre `locale`, mais utilisait toujours `fr-FR` pour l'heure et la date. La liste des conversations restait donc en français en mode anglais.
+- Cause: locale passée mais non utilisée dans les deux appels `toLocale*`.
+- Correction appliquée: remplacement des locales fixes par le paramètre `locale`.
+- Commit: `KORA-019: respecter la langue dans les dates de messagerie`.
+- Statut: corrigé sur la branche d'audit; build CI à vérifier.
+
