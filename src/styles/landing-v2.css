@@ -623,3 +623,447 @@
 .dark .kora-lp .kora-landing-copy h1 { color: #FFFFFF !important; }
 .dark .kora-lp .kora-hero-description { color: rgb(255 255 255 / .78); }
 .dark .kora-lp .kora-phone-label { color: rgb(255 255 255 / .68); }
+
+
+/* Editorial landing refresh inspired by the supplied reference.
+   Keep motion short and event-driven: no scroll listeners, blur filters or infinite loops. */
+.kora-lp .kora-landing-hero {
+  position: relative;
+  min-height: 0;
+  padding: clamp(7.25rem, 11vw, 9rem) 1.25rem clamp(3.5rem, 6vw, 5.5rem);
+  overflow: hidden;
+  isolation: isolate;
+  background:
+    radial-gradient(ellipse at 50% 0%, rgb(245 197 66 / .16), transparent 42%),
+    linear-gradient(180deg, #fff 0%, #fff 76%, #faf9f5 100%) !important;
+  color: #171717 !important;
+}
+.kora-lp .kora-landing-hero::before {
+  content: "";
+  position: absolute;
+  z-index: -1;
+  top: 2rem;
+  left: 50%;
+  width: min(78vw, 760px);
+  aspect-ratio: 1;
+  border-radius: 50%;
+  transform: translateX(-50%);
+  background: radial-gradient(circle, rgb(245 197 66 / .11), transparent 68%);
+  pointer-events: none;
+}
+.kora-lp .kora-landing-hero-inner {
+  display: flex;
+  width: min(1120px, 100%);
+  flex-direction: column;
+  align-items: center;
+  gap: 0;
+  text-align: center;
+}
+.kora-lp .kora-landing-copy {
+  width: 100%;
+  max-width: 850px;
+  margin-inline: auto;
+  padding: 0;
+  background: transparent !important;
+  text-align: center;
+  animation: koraLandingEnter .65s cubic-bezier(.2,.8,.2,1) both;
+}
+.kora-lp .kora-hero-eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: .6rem;
+  padding: .48rem .9rem;
+  border: 1px solid rgb(201 156 32 / .3);
+  border-radius: 999px;
+  background: rgb(245 197 66 / .12);
+  color: #8b6810;
+  font-size: .72rem;
+  font-weight: 850;
+  letter-spacing: .13em;
+  line-height: 1.45;
+  text-transform: uppercase;
+}
+.kora-lp .kora-hero-eyebrow::before {
+  content: "";
+  width: .45rem;
+  height: .45rem;
+  flex: none;
+  border-radius: 50%;
+  background: #d5a91e;
+  box-shadow: 0 0 0 4px rgb(245 197 66 / .18);
+}
+.kora-lp .kora-landing-copy h1 {
+  max-width: 16ch;
+  margin: 1.35rem auto 0;
+  color: #171717 !important;
+  font-size: clamp(2.65rem, 6.1vw, 5.1rem);
+  font-weight: 900;
+  letter-spacing: -.065em;
+  line-height: .99;
+  text-wrap: balance;
+}
+.kora-lp .kora-landing-copy h1::after {
+  content: "";
+  display: block;
+  width: clamp(3.5rem, 8vw, 5.5rem);
+  height: .28rem;
+  margin: 1.2rem auto 0;
+  border-radius: 999px;
+  background: linear-gradient(90deg, #F5C542, #E6B52D);
+}
+.kora-lp .kora-hero-description {
+  max-width: 43rem;
+  margin: 1.35rem auto 0;
+  color: #555;
+  font-size: clamp(1rem, 1.5vw, 1.13rem);
+  line-height: 1.75;
+  text-wrap: pretty;
+}
+.kora-lp .kora-landing-copy > div {
+  justify-content: center;
+  margin-top: 1.8rem;
+  gap: .8rem;
+}
+.kora-lp .kora-start-button {
+  min-height: 3.2rem;
+  padding-inline: 1.55rem;
+  border: 1px solid #F5C542 !important;
+  border-radius: 999px !important;
+  background: #F5C542 !important;
+  color: #171717 !important;
+  box-shadow: 0 9px 24px rgb(201 156 32 / .2) !important;
+  transition: transform .2s ease, box-shadow .2s ease, background-color .2s ease;
+}
+.kora-lp .kora-start-button:hover {
+  transform: translateY(-2px);
+  background: #edbd37 !important;
+  box-shadow: 0 13px 28px rgb(201 156 32 / .25) !important;
+}
+.kora-lp .kora-landing-copy > div > a {
+  min-height: 3.2rem;
+  padding-inline: 1rem;
+  border-radius: 999px;
+  color: #292929 !important;
+  text-decoration: none;
+  transition: background-color .2s ease, color .2s ease;
+}
+.kora-lp .kora-landing-copy > div > a:hover {
+  background: rgb(23 23 23 / .06);
+  color: #171717 !important;
+}
+.kora-lp .kora-landing-phones {
+  position: relative;
+  z-index: 0;
+  width: min(100%, 790px);
+  min-height: 420px;
+  margin: clamp(2.6rem, 5vw, 3.8rem) auto 0;
+  padding: 3.7rem 2rem 1.4rem;
+  align-items: center;
+  justify-content: center;
+  gap: clamp(1rem, 4vw, 2.4rem);
+  overflow: hidden;
+  border: 1px solid rgb(255 255 255 / .1);
+  border-radius: clamp(1.6rem, 4vw, 2.4rem);
+  background:
+    radial-gradient(ellipse at 78% 12%, rgb(245 197 66 / .22), transparent 42%),
+    linear-gradient(145deg, #171717, #292929);
+  box-shadow: 0 24px 60px -38px rgb(0 0 0 / .5);
+  animation: koraLandingEnter .75s .12s cubic-bezier(.2,.8,.2,1) both;
+}
+.kora-lp .kora-landing-phones::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  opacity: .24;
+  background-image: linear-gradient(rgb(255 255 255 / .08) 1px, transparent 1px), linear-gradient(90deg, rgb(255 255 255 / .08) 1px, transparent 1px);
+  background-size: 34px 34px;
+  mask-image: linear-gradient(135deg, black, transparent 72%);
+  pointer-events: none;
+}
+.kora-lp .kora-phone-label {
+  top: 1.35rem;
+  left: 50%;
+  color: rgb(255 255 255 / .72);
+  font-size: .66rem;
+  font-weight: 850;
+  letter-spacing: .17em;
+  text-transform: uppercase;
+}
+.kora-lp .kora-phone {
+  position: relative;
+  z-index: 1;
+  width: min(42%, 220px);
+  height: 365px;
+  flex: 0 1 220px;
+  border: 4px solid #d5d5d5;
+  border-radius: 29px;
+  padding: 7px;
+  background: #171717 !important;
+  box-shadow: 0 18px 38px rgb(0 0 0 / .32);
+  transition: transform .3s ease, box-shadow .3s ease;
+}
+.kora-lp .kora-phone-manager { transform: translateY(12px) rotate(-2deg) scale(.96); }
+.kora-lp .kora-phone-client { transform: translateY(-2px) rotate(2deg); }
+.kora-lp .kora-phone-screen { overflow: hidden; }
+@media (hover: hover) and (pointer: fine) {
+  .kora-lp .kora-landing-phones:hover .kora-phone-manager { transform: translateY(7px) rotate(-1deg) scale(.97); }
+  .kora-lp .kora-landing-phones:hover .kora-phone-client { transform: translateY(-7px) rotate(1deg); }
+}
+.kora-lp .kora-lp-section {
+  position: relative;
+}
+.kora-lp #audience,
+.kora-lp #community,
+.kora-lp #pricing {
+  background: #faf9f5;
+}
+.kora-lp #how-it-works,
+.kora-lp #why-kora,
+.kora-lp #faq {
+  background: #fff;
+}
+.kora-lp .kora-lp-header {
+  margin-bottom: clamp(2rem, 3.6vw, 3rem);
+}
+.kora-lp .kora-lp-eyebrow-pill {
+  border-color: rgb(201 156 32 / .28);
+  background: rgb(245 197 66 / .12);
+  color: #86620b;
+}
+.kora-lp .kora-lp-title {
+  font-size: clamp(2rem, 1.3rem + 2.8vw, 3.35rem);
+  letter-spacing: -.052em;
+}
+.kora-lp .kora-lp-title-emphasis { color: #a77c0c; }
+.kora-lp .kora-lp-lead { max-width: 43rem; }
+.kora-lp-audience-card,
+.kora-lp-step-card,
+.kora-lp-feature-card,
+.kora-lp-plan-card,
+.kora-lp-faq-item,
+.kora-lp-category-card,
+.kora-lp .kora-evolution-stat,
+.kora-lp .kora-talent-showcase {
+  border-radius: 1.45rem;
+  box-shadow: 0 12px 32px -26px rgb(23 23 23 / .28);
+}
+.kora-lp-audience-card {
+  position: relative;
+  overflow: hidden;
+  border-color: rgb(23 23 23 / .1);
+  padding: clamp(1.5rem, 3vw, 2.25rem);
+  transition: transform .22s ease, box-shadow .22s ease, border-color .22s ease;
+}
+.kora-lp-audience-card::before,
+.kora-lp-step-card::before,
+.kora-lp-feature-card::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 1.5rem;
+  width: 2.8rem;
+  height: 3px;
+  border-radius: 0 0 999px 999px;
+  background: #F5C542;
+}
+.kora-lp-audience-card-manager {
+  border-color: #171717;
+  background:
+    radial-gradient(ellipse at 100% 0%, rgb(245 197 66 / .16), transparent 44%),
+    #171717;
+}
+.kora-lp-audience-card-manager::before { background: #F5C542; }
+.kora-lp-audience-card-manager .kora-lp-body { color: rgb(255 255 255 / .76); }
+.kora-lp-audience-card-client { background: #fff; }
+.kora-lp-audience-tag { border: 1px solid rgb(201 156 32 / .18); }
+.kora-lp-audience-icon,
+.kora-lp-step-icon,
+.kora-lp-feature-icon,
+.kora-lp-category-icon {
+  border: 1px solid rgb(201 156 32 / .18);
+  background: rgb(245 197 66 / .14);
+  color: #8b6810;
+}
+.kora-lp-audience-card-manager .kora-lp-audience-icon {
+  border-color: rgb(245 197 66 / .2);
+  background: rgb(245 197 66 / .12);
+  color: #F5C542;
+}
+.kora-lp-step-card,
+.kora-lp-feature-card {
+  position: relative;
+  overflow: hidden;
+  border-color: rgb(23 23 23 / .09);
+  background: #fff;
+  transition: transform .22s ease, box-shadow .22s ease, border-color .22s ease;
+}
+.kora-lp-step-number { color: #a77c0c; }
+.kora-lp-step-icon { margin-top: 1rem; }
+.kora-lp-category-card {
+  border-color: rgb(23 23 23 / .09);
+  background: #fff;
+  transition: transform .18s ease, border-color .18s ease, box-shadow .18s ease;
+}
+.kora-lp-category-card:hover {
+  transform: translateY(-3px);
+  border-color: rgb(201 156 32 / .55);
+  box-shadow: 0 12px 26px -20px rgb(201 156 32 / .55);
+}
+.kora-lp .kora-evolution-section {
+  background: #faf9f5;
+}
+.kora-lp .kora-evolution-stat,
+.kora-lp .kora-talent-showcase {
+  border-color: rgb(23 23 23 / .1);
+  background: #fff;
+}
+.kora-lp .kora-talent-controls button {
+  border-radius: 999px;
+  transition: border-color .18s ease, background-color .18s ease, transform .18s ease;
+}
+.kora-lp .kora-talent-controls button:hover:not(:disabled) {
+  transform: translateY(-2px);
+  border-color: #F5C542;
+  background: rgb(245 197 66 / .12);
+}
+.kora-lp-plan-card {
+  transition: transform .22s ease, border-color .22s ease, box-shadow .22s ease;
+}
+.kora-lp-plan-card-featured {
+  border: 1.5px solid #d7a91d;
+  background:
+    linear-gradient(180deg, rgb(245 197 66 / .08), transparent 34%),
+    #fff;
+  box-shadow: 0 18px 38px -30px rgb(167 124 12 / .48);
+}
+.kora-lp-plan-badge {
+  background: #F5C542;
+  color: #171717;
+}
+.kora-lp-plan-price { color: #8b6810; }
+.kora-lp-faq-item { border-color: rgb(23 23 23 / .1); }
+.kora-lp-faq-item.is-open {
+  border-color: rgb(201 156 32 / .65);
+  box-shadow: 0 10px 26px -22px rgb(201 156 32 / .55);
+}
+.kora-lp-final-card {
+  position: relative;
+  overflow: hidden;
+  border: 1px solid rgb(245 197 66 / .25);
+  border-radius: 2rem;
+  background:
+    radial-gradient(circle at 85% 10%, rgb(245 197 66 / .22), transparent 34%),
+    linear-gradient(135deg, #171717, #292929);
+  box-shadow: 0 24px 55px -38px rgb(0 0 0 / .5);
+}
+.kora-lp-final-card::after {
+  content: "";
+  position: absolute;
+  inset: 1rem;
+  border: 1px solid rgb(255 255 255 / .08);
+  border-radius: 1.4rem;
+  pointer-events: none;
+}
+.kora-lp-final-card > * { position: relative; z-index: 1; }
+.kora-lp .kora-public-footer {
+  background: #171717;
+  color: #fff;
+  border-color: rgb(255 255 255 / .12);
+}
+.kora-lp .kora-public-footer h2,
+.kora-lp .kora-public-footer .text-foreground { color: #fff; }
+.kora-lp .kora-public-footer .text-muted-foreground { color: rgb(255 255 255 / .66); }
+.kora-lp .kora-public-footer a:hover { color: #F5C542; }
+.kora-lp .kora-public-footer .border-border { border-color: rgb(255 255 255 / .12); }
+@media (hover: hover) and (pointer: fine) {
+  .kora-lp-audience-card:hover,
+  .kora-lp-step-card:hover,
+  .kora-lp-feature-card:hover,
+  .kora-lp-plan-card:hover {
+    transform: translateY(-4px);
+    border-color: rgb(201 156 32 / .42);
+    box-shadow: 0 18px 38px -28px rgb(23 23 23 / .34);
+  }
+}
+@keyframes koraLandingEnter {
+  from { opacity: 0; transform: translate3d(0, 16px, 0); }
+  to { opacity: 1; transform: translate3d(0, 0, 0); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .kora-lp .kora-landing-copy,
+  .kora-lp .kora-landing-phones {
+    animation: none !important;
+  }
+  .kora-lp .kora-phone,
+  .kora-lp .kora-start-button,
+  .kora-lp-audience-card,
+  .kora-lp-step-card,
+  .kora-lp-feature-card,
+  .kora-lp-plan-card,
+  .kora-lp-category-card {
+    transition: none !important;
+  }
+}
+@media (max-width: 900px) {
+  .kora-lp .kora-landing-hero { padding-top: 7.2rem; }
+  .kora-lp .kora-landing-phones { width: min(100%, 680px); }
+}
+@media (max-width: 639px) {
+  .kora-lp .kora-landing-hero { padding: 6.8rem .9rem 3rem; }
+  .kora-lp .kora-landing-copy h1 { max-width: 13ch; font-size: clamp(2.35rem, 10.5vw, 3.2rem); }
+  .kora-lp .kora-hero-description { font-size: .96rem; line-height: 1.65; }
+  .kora-lp .kora-landing-copy > div { align-items: stretch; }
+  .kora-lp .kora-landing-copy > div > * { justify-content: center; }
+  .kora-lp .kora-landing-phones {
+    min-height: 315px;
+    margin-top: 2.25rem;
+    padding: 3.3rem .65rem 1rem;
+    gap: .4rem;
+    border-radius: 1.5rem;
+  }
+  .kora-lp .kora-phone {
+    width: 47%;
+    height: 270px;
+    flex: 0 1 47%;
+    border-width: 3px;
+    border-radius: 22px;
+    padding: 5px;
+  }
+  .kora-lp .kora-phone-manager { transform: translateY(8px) rotate(-2deg) scale(.96); }
+  .kora-lp .kora-phone-client { transform: translateY(-2px) rotate(2deg); }
+  .kora-lp .kora-phone-label { top: 1.15rem; font-size: .56rem; }
+  .kora-lp .kora-phone-screen { border-radius: 15px; }
+  .kora-lp #audience,
+  .kora-lp #community,
+  .kora-lp #pricing { background: #faf9f5; }
+  .kora-lp .kora-public-footer .grid { gap: 1.8rem; }
+}
+@media (prefers-color-scheme: dark) {
+  .kora-lp:not(.light) .kora-landing-hero {
+    background: radial-gradient(ellipse at 50% 0%, rgb(245 197 66 / .12), transparent 42%), #171717 !important;
+    color: #fff !important;
+  }
+}
+.dark .kora-lp .kora-landing-hero {
+  background: radial-gradient(ellipse at 50% 0%, rgb(245 197 66 / .12), transparent 42%), #171717 !important;
+  color: #fff !important;
+}
+.dark .kora-lp .kora-hero-eyebrow { color: #F5D77A; }
+.dark .kora-lp .kora-landing-copy h1 { color: #fff !important; }
+.dark .kora-lp .kora-hero-description { color: rgb(255 255 255 / .75); }
+.dark .kora-lp .kora-landing-copy > div > a { color: rgb(255 255 255 / .86) !important; }
+.dark .kora-lp #audience,
+.dark .kora-lp #community,
+.dark .kora-lp #pricing { background: #202020; }
+.dark .kora-lp #how-it-works,
+.dark .kora-lp #why-kora,
+.dark .kora-lp #faq { background: #171717; }
+.dark .kora-lp-audience-card-client,
+.dark .dark .kora-lp-step-card,
+.dark .dark .kora-lp-feature-card,
+.dark .dark .kora-lp-plan-card { background: hsl(var(--card)); }
+.dark .kora-lp .kora-lp-eyebrow-pill { color: #F5D77A; }
+.dark .kora-lp .kora-lp-title-emphasis,
+.dark .kora-lp .kora-lp-plan-price { color: #F5D77A; }
+.dark .kora-lp .kora-public-footer { background: #101010; }
