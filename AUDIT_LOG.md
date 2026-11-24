@@ -257,3 +257,15 @@ Les tests ont utilisé des identités existantes du projet, sans afficher leurs 
 - L'advisor signale des fonctions `SECURITY DEFINER` exécutables par `authenticated`; plusieurs fonctions sensibles examinées contrôlent `auth.uid()`, le rôle, la propriété ou une permission admin. L'examen exhaustif des 49 fonctions signalées reste ouvert.
 - Les fonctions publiques `is_talent_public` et `get_talent_manager_profile` contrôlent la visibilité du talent; la seconde ne renvoie pas le numéro de téléphone.
 - L'advisor signale également la protection des mots de passe compromis désactivée (KORA-011).
+
+
+### KORA-015 | incohérence métier | moyenne | Super Admin | paramètres plateforme / transactions | `public.update_kora_setting(text,jsonb)`, `public.create_kora_transaction(...)`
+
+- Étapes: lecture intégrale des fonctions actives `update_kora_setting` et `create_kora_transaction`, inspection des triggers sur `kora_transactions` et de la configuration `app_settings`.
+- Attendu: aucun paramètre ne permet d'activer une commission KORA; le montant versé au manager reste égal au montant de transaction.
+- Observé: `create_kora_transaction` fixe actuellement `commission_rate = 0`, `commission_amount = 0` et `manager_amount = p_amount`; aucun trigger de commission n'est actif. En revanche, `update_kora_setting` acceptait encore la clé `commission_rate` et validait un taux de 0 à 100, bien que ce taux ne soit pas appliqué.
+- Cause: vestige de l'ancien modèle de commission dans la fonction de paramètres.
+- Correction appliquée sur cette branche: ajout de `supabase/migrations/20261124230000_block_commission_setting.sql`, qui refuse explicitement la clé `commission_rate`. Aucun paramètre existant n'a été supprimé; la table `app_settings` ne contient actuellement aucune ligne.
+- Commit: `KORA-015: interdire le paramètre de commission`.
+- Statut: migration versionnée sur la branche; non appliquée à la base active.
+

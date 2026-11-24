@@ -438,3 +438,5 @@ Les livrables `AUDIT_CHECKLIST.md`, `AUDIT_LOG.md` et `DECISIONS_A_VALIDER.md` s
 - [x] `supabase/migrations_archive/20261121100000_payment_proofs_private_storage_unapplied_duplicate.sql` (copie conservée hors du répertoire des migrations exécutables)
 
 - [x] `supabase/migrations/20261124220000_require_payment_proof_for_subscription_validation.sql` (nouvelle migration versionnée, non appliquée à la base active)
+
+- [x] `supabase/migrations/20261124230000_block_commission_setting.sql` (nouvelle migration versionnée, non appliquée à la base active)
