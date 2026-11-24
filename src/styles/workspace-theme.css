@@ -124,3 +124,87 @@ button, a { -webkit-tap-highlight-color: transparent; }
 @media(prefers-reduced-motion:reduce) {
   .kora-workspace *,.kora-workspace *::before,.kora-workspace *::after { scroll-behavior:auto !important; animation-duration:.01ms !important; transition-duration:.01ms !important; }
 }
+
+/* Public landing companion theme: preserve the same editorial layout in light mode. */
+html:not(.dark) .kora-lp {
+  --spot-bg:#F8F7F3; --spot-surface:#fff; --spot-surface-2:#F0EDE5;
+  --spot-ink:#201D16; --spot-muted:rgba(32,29,22,.68); --spot-line:rgba(48,39,20,.13);
+  color:#201D16 !important; background:#F8F7F3 !important;
+}
+html:not(.dark) .kora-lp .kora-lp-nav-shell { border-color:rgba(48,39,20,.13)!important; background:rgba(255,255,255,.9)!important; color:#201D16!important; box-shadow:0 16px 45px rgba(47,37,14,.1)!important; }
+html:not(.dark) .kora-lp .kora-lp-nav-shell ul a,
+html:not(.dark) .kora-lp .kora-lp-nav-shell button,
+html:not(.dark) .kora-lp .kora-lp-nav-shell a,
+html:not(.dark) .kora-lp .kora-lp-nav-shell [class*=text-foreground] { color:#393326!important; }
+html:not(.dark) .kora-lp .kora-lp-nav-shell ul a:hover,
+html:not(.dark) .kora-lp .kora-lp-nav-shell ul a[aria-current=location] { color:#201D16!important; background:#F5EBD0!important; }
+html:not(.dark) .kora-lp .kora-lp-nav-shell [class*=bg-background] { background:rgba(255,255,255,.98)!important; }
+html:not(.dark) .kora-lp .kora-landing-hero.kora-spotlight-hero { color:#201D16!important; background:radial-gradient(ellipse at 50% 24%,rgba(212,175,55,.2),transparent 45%),radial-gradient(ellipse at 50% 95%,rgba(255,255,255,.9),transparent 42%),linear-gradient(145deg,#FBF8F0,#F3EFE4)!important; }
+html:not(.dark) .kora-lp .kora-spotlight-hero h1 { color:#201D16!important; }
+html:not(.dark) .kora-lp .kora-spotlight-hero .kora-hero-description { color:rgba(32,29,22,.72)!important; }
+html:not(.dark) .kora-lp .kora-spotlight-pill { color:#5B4A22!important; background:rgba(255,255,255,.72)!important; border-color:rgba(151,111,20,.24)!important; }
+html:not(.dark) .kora-lp .kora-spotlight-proof span { color:rgba(32,29,22,.65)!important; }
+html:not(.dark) .kora-lp .kora-spotlight-picker { background:rgba(255,255,255,.76)!important; border-color:rgba(48,39,20,.13)!important; }
+html:not(.dark) .kora-lp .kora-spotlight-picker button { color:#514832!important; }
+html:not(.dark) .kora-lp .kora-spotlight-picker button:hover { color:#201D16!important; background:#F3EBD8!important; }
+html:not(.dark) .kora-lp .kora-spotlight-picker button[aria-pressed=true] { color:#201D16!important; background:#E5BD55!important; }
+html:not(.dark) .kora-lp .kora-spotlight-float { color:#201D16!important; background:rgba(255,255,255,.92)!important; border-color:rgba(48,39,20,.12)!important; box-shadow:0 20px 48px rgba(48,39,20,.12)!important; }
+html:not(.dark) .kora-lp .kora-spotlight-float-copy strong { color:#201D16!important; }
+html:not(.dark) .kora-lp .kora-spotlight-float-copy small { color:#746A55!important; }
+html:not(.dark) .kora-lp .kora-spotlight-marquee { background:#F2EEE4!important; border-color:rgba(48,39,20,.1)!important; }
+html:not(.dark) .kora-lp .kora-spotlight-marquee-word { -webkit-text-stroke-color:rgba(32,29,22,.34)!important; }
+html:not(.dark) .kora-lp .kora-spotlight-manifesto { background:#FBFAF7!important; }
+html:not(.dark) .kora-lp .kora-spotlight-manifesto p { color:#201D16!important; }
+html:not(.dark) .kora-lp #audience,
+html:not(.dark) .kora-lp #how-it-works,
+html:not(.dark) .kora-lp #categories,
+html:not(.dark) .kora-lp #community,
+html:not(.dark) .kora-lp #why-kora,
+html:not(.dark) .kora-lp #pricing,
+html:not(.dark) .kora-lp #faq,
+html:not(.dark) .kora-lp .kora-lp-final-section { background:#F8F7F3!important; }
+html:not(.dark) .kora-lp .kora-lp-title,
+html:not(.dark) .kora-lp .kora-lp-card-title { color:#201D16!important; }
+html:not(.dark) .kora-lp .kora-lp-lead,
+html:not(.dark) .kora-lp .kora-lp-body { color:rgba(32,29,22,.68)!important; }
+html:not(.dark) .kora-lp .kora-lp-audience-card,
+html:not(.dark) .kora-lp .kora-spotlight-process-item .kora-lp-step-card,
+html:not(.dark) .kora-lp .kora-spotlight-bento .kora-lp-feature-card,
+html:not(.dark) .kora-lp .kora-lp-category-card,
+html:not(.dark) .kora-lp .kora-lp-plan-card,
+html:not(.dark) .kora-lp .kora-lp-faq-item,
+html:not(.dark) .kora-lp .kora-lp-shared-features { color:#201D16!important; background:linear-gradient(145deg,#fff,#F7F4EC)!important; border-color:rgba(48,39,20,.12)!important; box-shadow:0 16px 42px rgba(48,39,20,.055)!important; }
+html:not(.dark) .kora-lp .kora-lp-audience-card .kora-lp-card-title,
+html:not(.dark) .kora-lp .kora-lp-audience-card .kora-lp-body,
+html:not(.dark) .kora-lp .kora-lp-audience-card li span,
+html:not(.dark) .kora-lp .kora-lp-plan-card .kora-lp-card-title,
+html:not(.dark) .kora-lp .kora-lp-plan-card .kora-lp-body,
+html:not(.dark) .kora-lp .kora-lp-plan-card .text-muted-foreground,
+html:not(.dark) .kora-lp .kora-lp-faq-item h3 span:first-child,
+html:not(.dark) .kora-lp .kora-lp-faq-item [role=region] p { color:#201D16!important; }
+html:not(.dark) .kora-lp .kora-lp-audience-card-manager,
+html:not(.dark) .kora-lp .kora-lp-plan-card-featured { background:linear-gradient(145deg,#FFF8E5,#F7E9C5)!important; border-color:rgba(176,130,24,.32)!important; }
+html:not(.dark) .kora-lp .kora-spotlight-step-label,
+html:not(.dark) .kora-lp .kora-lp-eyebrow-pill { color:#8A6418!important; }
+html:not(.dark) .kora-lp .kora-evolution-section { background:#F2EEE4!important; }
+html:not(.dark) .kora-lp .kora-evolution-stat,
+html:not(.dark) .kora-lp .kora-talent-showcase { background:#fff!important; border-color:rgba(48,39,20,.12)!important; }
+html:not(.dark) .kora-lp .kora-evolution-stat strong,
+html:not(.dark) .kora-lp .kora-evolution-title,
+html:not(.dark) .kora-lp .kora-talent-showcase-heading h3 { color:#201D16!important; }
+html:not(.dark) .kora-lp .kora-evolution-stat>span:last-child,
+html:not(.dark) .kora-lp .kora-talent-showcase-heading p,
+html:not(.dark) .kora-lp .kora-talent-hint { color:#746A55!important; }
+html:not(.dark) .kora-lp .kora-public-footer { background:#F1EEE6!important; border-color:rgba(48,39,20,.12)!important; color:#201D16!important; }
+html:not(.dark) .kora-lp .kora-public-footer h2 { color:#201D16!important; }
+html:not(.dark) .kora-lp .kora-public-footer p,
+html:not(.dark) .kora-lp .kora-public-footer a { color:#665D4C!important; }
+html:not(.dark) .kora-lp .kora-public-footer a:hover { color:#8A6418!important; }
+html:not(.dark) .kora-lp .kora-public-footer .border-t { border-color:rgba(48,39,20,.12)!important; }
+
+/* Reusable light/dark control */
+.kora-theme-toggle { display:inline-flex; width:40px; height:40px; flex:none; align-items:center; justify-content:center; border:1px solid hsl(var(--border)); border-radius:999px; color:hsl(var(--foreground)); background:hsl(var(--card)); transition:background .18s ease,color .18s ease,border-color .18s ease,transform .18s ease; }
+.kora-theme-toggle:hover { color:hsl(var(--primary)); background:hsl(var(--accent)); border-color:hsl(var(--gold) / .4); transform:translateY(-1px); }
+.kora-lp .kora-theme-toggle { color:#fff; background:rgba(255,255,255,.07); border-color:rgba(255,255,255,.16); }
+html:not(.dark) .kora-lp .kora-theme-toggle { color:#3B3323!important; background:rgba(255,255,255,.82)!important; border-color:rgba(48,39,20,.14)!important; }
+.kora-glass-header .kora-theme-toggle { width:38px; height:38px; }
