@@ -1089,3 +1089,57 @@
   background: rgb(245 197 66 / .18);
   color: #F5D77A;
 }
+
+
+/* Premium landing refinement: tighter rhythm, clearer hierarchy and consistent brand typography. */
+.kora-lp {
+  font-family: "Plus Jakarta Sans", "Manrope", "Inter", system-ui, sans-serif;
+}
+.kora-lp-section { padding-block: clamp(4rem, 7vw, 6rem); }
+.kora-lp-container { width: min(1120px, calc(100% - 2.5rem)); }
+.kora-lp-header { margin-bottom: clamp(2rem, 3.4vw, 3rem); }
+.kora-lp .kora-landing-copy h1 {
+  animation: koraHeroTitleIn .8s cubic-bezier(.2,.8,.2,1) both;
+}
+.kora-lp .kora-phone-status { animation: koraStatusPulse 2.8s ease-out infinite; }
+.kora-lp .kora-lp-audience-card,
+.kora-lp .kora-lp-step-card,
+.kora-lp .kora-lp-feature-card,
+.kora-lp .kora-lp-plan-card {
+  transition: transform .24s cubic-bezier(.2,.8,.2,1), border-color .24s ease, box-shadow .24s ease;
+}
+@media (hover: hover) and (pointer: fine) {
+  .kora-lp .kora-lp-audience-card:hover,
+  .kora-lp .kora-lp-step-card:hover,
+  .kora-lp .kora-lp-feature-card:hover,
+  .kora-lp .kora-lp-plan-card:hover {
+    transform: translateY(-4px);
+    border-color: rgb(245 197 66 / .55);
+    box-shadow: 0 20px 42px -28px rgb(23 23 23 / .28);
+  }
+}
+@keyframes koraHeroTitleIn {
+  from { opacity: 0; transform: translate3d(0, 14px, 0); }
+  to { opacity: 1; transform: translate3d(0, 0, 0); }
+}
+@keyframes koraStatusPulse {
+  0%, 100% { box-shadow: 0 0 0 0 rgb(94 155 121 / 0); }
+  50% { box-shadow: 0 0 0 5px rgb(94 155 121 / .12); }
+}
+@media (max-width: 639px) {
+  .kora-lp-section { padding-block: 4rem; }
+  .kora-lp-container { width: min(100% - 1.5rem, 1120px); }
+  .kora-lp-header { margin-bottom: 1.8rem; }
+  .kora-lp .kora-lp-audience-card:hover,
+  .kora-lp .kora-lp-step-card:hover,
+  .kora-lp .kora-lp-feature-card:hover,
+  .kora-lp .kora-lp-plan-card:hover { transform: none; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .kora-lp .kora-landing-copy h1,
+  .kora-lp .kora-phone-status { animation: none !important; }
+  .kora-lp .kora-lp-audience-card,
+  .kora-lp .kora-lp-step-card,
+  .kora-lp .kora-lp-feature-card,
+  .kora-lp .kora-lp-plan-card { transition: none !important; }
+}
