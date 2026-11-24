@@ -35,16 +35,18 @@ Les points ci-dessous sont volontairement laissés ouverts. Aucune logique tarif
 
 **Recommandation:** option 3. Faire valider une matrice complète avant de modifier les contrôles front, RPC, fonctions SQL ou policies.
 
-## D-004 | Paiement direct Orange Money / Moov Money vs SasPay
+## D-004 | Paramètres techniques des paiements directs Orange Money / Moov Money
 
-**Constat vérifié:** le README affirme que SasPay est actuellement utilisé pour les abonnements Manager. Le cahier d'audit impose Orange Money / Moov Money directs et exclut les agrégateurs tiers.
+**Décision métier déjà fixée par l'invariant:** KORA doit utiliser les paiements directs Orange Money et Moov Money. SasPay, CinetPay, PayDunya et tout autre agrégateur tiers sont exclus.
 
-**Options**
-1. Confirmer SasPay et réviser l'invariant de paiement direct.
-2. Remplacer SasPay par des flux directs Orange Money et Moov Money, après validation de leurs API, contrats et exigences opérateur.
-3. Maintenir temporairement le flux existant tout en bloquant toute nouvelle activation automatique, jusqu'à migration validée.
+**Informations techniques nécessaires avant implémentation**
+- Contrat/compte marchand Orange Money Burkina Faso et documentation API officielle.
+- Contrat/compte marchand Moov Money Burkina Faso et documentation API officielle.
+- Accès sandbox et production, identifiants marchand, clés de signature et règles de callback/webhook.
+- Règles de rapprochement et références de transaction.
+- Confirmation du parcours opérateur pour les deux moyens, sans activation automatique de l'abonnement.
 
-**Recommandation:** ne pas supprimer ni remplacer un flux de paiement en production avant validation technique et opérationnelle. Confirmer explicitement l'option cible; toute activation d'abonnement doit rester manuelle conformément à l'invariant métier.
+**Recommandation:** implémenter chaque intégration dans une Edge Function, conserver les secrets côté serveur, créer les paiements en attente et maintenir la validation manuelle par un administrateur après réception de la capture de paiement. Ne pas utiliser de variable `VITE_*` pour les secrets opérateur.
 
 ## D-005 | Périmètre de l'essai gratuit
 

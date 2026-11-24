@@ -13,15 +13,15 @@
 
 ## État initial vérifié
 
-### KORA-001 | incohérence | moyenne | tous rôles | documentation produit | `README.md` / section Abonnements et Paiements
+### KORA-001 | incohérence métier / paiement | haute | manager | abonnement / création de paiement | `README.md`, `supabase/functions/create-payment/index.ts`
 
-- Étapes: lecture intégrale du fichier `README.md`.
-- Attendu: la documentation reflète les invariants métier donnés pour cet audit.
-- Observé: le README décrit SasPay comme moyen actuel de paiement d'abonnement, alors que l'invariant de cet audit impose Orange Money / Moov Money directs et exclut les agrégateurs tiers.
-- Cause: contradiction entre la documentation du dépôt et les règles métier fournies.
-- Correction: aucune à ce stade; la décision de paiement doit être confirmée et le flux réel audité avant modification.
-- Commit: à renseigner après décision et correction éventuelle.
-- Statut: ouvert, décision requise.
+- Étapes: lecture intégrale du README et de l'Edge Function `create-payment`; recherche des intégrations Orange Money, Moov Money, SasPay, CinetPay et PayDunya.
+- Attendu: le manager paie directement via Orange Money ou Moov Money; aucun agrégateur tiers n'intervient.
+- Observé: le README documente SasPay et l'Edge Function `create-payment` construit le checkout via SasPay. Aucun flux direct Orange Money ou Moov Money n'a été trouvé dans le dépôt.
+- Cause: l'intégration de paiement actuelle repose sur un agrégateur, contrairement à l'invariant métier.
+- Correction: non appliquée. La cible métier est déjà claire; l'implémentation attend les API/contrats opérateur, identifiants marchand et paramètres de callback de chaque opérateur. Les secrets devront rester côté Edge Function.
+- Commit: aucun.
+- Statut: ouvert, priorité haute; intégration directe à réaliser.
 
 ### KORA-002 | incohérence | moyenne | manager | documentation abonnement | `README.md` / tableau des offres
 
