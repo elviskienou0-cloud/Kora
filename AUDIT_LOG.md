@@ -141,3 +141,15 @@ Aucune correction de code n'a encore été appliquée.
 - Commit: aucun.
 - Statut: ouvert, priorité haute.
 
+
+
+### KORA-009 | incomplet / incohérence métier | haute | admin et manager | paramètres / abonnements | `src/pages/admin/Settings.jsx`, `src/pages/admin/AdminPanel.jsx`, `public.plans`
+
+- Étapes: lecture intégrale de la page de paramètres et du routage admin; inspection des policies de `plans`, des fonctions SQL contenant `plan` ou `subscription`, et des valeurs de la table active.
+- Attendu: le Super Admin peut modifier les prix, quotas et paramètres des plans depuis l'interface d'administration; le frontend et le backend lisent la même configuration.
+- Observé: la page Paramètres expose uniquement les réglages généraux de la plateforme. Elle ne contient aucun champ de tarif ou de quota. La table `plans` n'a qu'une policy SELECT; aucune policy d'écriture ni RPC admin de mise à jour de plan n'a été trouvée dans les fonctions inspectées.
+- Cause: absence d'interface et de voie serveur dédiée à l'édition des plans.
+- Correction: non appliquée. Il faut définir le périmètre des plans dans D-001/D-003 avant d'ajouter les contrôles d'édition.
+- Commit: aucun.
+- Statut: ouvert, priorité haute.
+
