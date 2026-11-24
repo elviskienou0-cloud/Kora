@@ -18,6 +18,7 @@ import { useAuth } from "@/lib/AuthContext"
 import { useI18n } from "@/i18n/kora-i18n.jsx"
 import { APP_PARAMS } from "@/lib/app-params"
 import koraLogo from "@/assets/kora-logo.svg"
+import ThemeToggle from "@/components/ThemeToggle.jsx"
 
 export default function Login() {
   const navigate = useNavigate()
@@ -90,6 +91,7 @@ export default function Login() {
 
   return (
     <div className="min-h-screen flex items-center justify-center relative overflow-hidden bg-background py-12 px-4 kora-public-shell kora-auth-page">
+      <div className="fixed right-4 top-4 z-50"><ThemeToggle /></div>
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
