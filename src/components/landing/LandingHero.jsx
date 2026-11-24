@@ -89,7 +89,7 @@ export default function LandingHero() {
         </div>
 
         <div className="kora-landing-phones" aria-hidden="true">
-          <div className="kora-phone-label">{t("landing.platformPreview")}</div>
+          <div className="kora-phone-label">{language === "en" ? "ILLUSTRATIVE PREVIEW" : "APERÇU ILLUSTRATIF"}</div>
           <PhoneFrame type="manager" t={t} />
           <PhoneFrame type="client" t={t} />
         </div>

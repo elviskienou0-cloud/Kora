@@ -175,3 +175,36 @@
     translate: none !important;
   }
 }
+
+
+/* Reduced-motion users get a complete, stationary category list. */
+@media (prefers-reduced-motion: reduce) {
+  .kora-lp-marquee {
+    overflow: visible;
+    -webkit-mask-image: none;
+    mask-image: none;
+  }
+  .kora-lp-marquee-track {
+    width: 100%;
+    animation: none !important;
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+  .kora-lp-marquee-group {
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+  .kora-lp-marquee-group:nth-child(2) { display: none; }
+}
+
+
+/* Scroll-direction navigation: stays available at the top and on upward scroll. */
+.kora-lp-nav-wrapper {
+  transition: transform .28s cubic-bezier(.2,.8,.2,1);
+}
+.kora-lp-nav-wrapper.is-hidden {
+  transform: translate3d(0, -135%, 0);
+}
+@media (prefers-reduced-motion: reduce) {
+  .kora-lp-nav-wrapper { transition: none !important; }
+}
