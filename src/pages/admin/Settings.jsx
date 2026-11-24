@@ -44,7 +44,7 @@ const DESCRIPTION = {
 
 function parseValue(key, value) {
   if (value === undefined || value === null) return DEFAULTS[key]
-  if (["maintenance_mode", "registrations_enabled", "talent_auto_publish"].includes(key)) return Boolean(value)
+  if (["maintenance_mode", "registrations_enabled", "talent_auto_publish"].includes(key)) return value === true || value === "true"
   if (key === "default_theme") return ["light", "dark", "system"].includes(value) ? value : "system"
   return String(value)
 }
@@ -59,17 +59,18 @@ export default function AdminSettings({ canEdit = false }) {
   const loadSettings = useCallback(async () => {
     setLoading(true)
     setError("")
-    const { data, error: rpcError } = await supabase.rpc("get_kora_settings")
-    if (rpcError) {
-      setError(rpcError.message || "Impossible de charger les paramètres.")
-      setLoading(false)
-      return
-    }
+    try {
+      const { data, error: rpcError } = await supabase.rpc("get_kora_settings")
+      if (rpcError) throw rpcError
 
-    const next = { ...DEFAULTS }
-    for (const row of data || []) next[row.key] = parseValue(row.key, row.value)
-    setSettings(next)
-    setLoading(false)
+      const next = { ...DEFAULTS }
+      for (const row of data || []) next[row.key] = parseValue(row.key, row.value)
+      setSettings(next)
+    } catch (loadError) {
+      setError(loadError?.message || "Impossible de charger les paramètres.")
+    } finally {
+      setLoading(false)
+    }
   }, [])
 
   useEffect(() => { loadSettings() }, [loadSettings])
@@ -153,7 +154,6 @@ export default function AdminSettings({ canEdit = false }) {
                 {section.keys.map((key) => {
                   const value = settings[key]
                   const isBoolean = typeof DEFAULTS[key] === "boolean"
-                  const isNumber = false
 
                   return (
                     <div key={key} className="rounded-xl border border-border/60 p-4">
@@ -171,7 +171,9 @@ export default function AdminSettings({ canEdit = false }) {
                               type="button"
                               onClick={() => updateLocal(key, !value)}
                               className={`relative h-8 w-14 rounded-full border transition-colors ${value ? "bg-primary" : "bg-muted"}`}
-                              aria-pressed={value}
+                              role="switch"
+                              aria-checked={Boolean(value)}
+                              aria-label={LABELS[key]}
                               disabled={!canEdit}
                             >
                               <span className={`absolute top-1 h-6 w-6 rounded-full bg-background shadow transition-transform ${value ? "translate-x-7" : "translate-x-1"}`} />

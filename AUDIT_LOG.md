@@ -420,3 +420,15 @@ Les tests ont utilisé des identités existantes du projet, sans afficher leurs 
 - Commit: `KORA-028: fermer l'accès admin si les permissions échouent`.
 - Statut: corrigé sur la branche d'audit; build CI à vérifier. Les policies RLS trop larges (KORA-021) restent à corriger séparément.
 
+
+
+### KORA-029 | bug / accessibilité | basse | Super Admin | paramètres plateforme | `src/pages/admin/Settings.jsx` / `parseValue`, `loadSettings`, interrupteurs
+
+- Étapes: lecture intégrale de la page Paramètres.
+- Attendu: les booléens stockés sous forme JSON ou texte sont interprétés correctement; une erreur réseau ne laisse pas l'écran en chargement; chaque interrupteur possède un nom accessible.
+- Observé: `Boolean("false")` pouvait convertir une valeur textuelle false en true; une exception réseau hors réponse RPC pouvait laisser `loading` actif; les boutons de bascule n'avaient pas de nom accessible. Une variable `isNumber` était inutilisée.
+- Cause: parsing permissif et gestion d'erreur/accessibilité incomplètes.
+- Correction appliquée: parsing booléen explicite, `try/catch/finally` autour du chargement, rôle/état/nom accessible pour les interrupteurs, suppression de la variable morte.
+- Commit: `KORA-029: fiabiliser le chargement des paramètres admin`.
+- Statut: corrigé sur la branche d'audit; build CI à vérifier.
+
