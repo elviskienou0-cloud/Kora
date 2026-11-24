@@ -1,17 +1,11 @@
 import { createContext, useCallback, useContext, useEffect, useMemo, useState } from "react"
-import { supabase } from "@/lib/supabase"
-
 const STORAGE_KEY = "kora-theme"
-const DEFAULT_THEME = "system"
+const DEFAULT_THEME = "light"
 
 const ThemeContext = createContext(null)
 
 function normalizeTheme(value) {
-  return ["light", "dark", "system"].includes(value) ? value : DEFAULT_THEME
-}
-
-function getSystemTheme() {
-  return window.matchMedia?.("(prefers-color-scheme: dark)").matches ? "dark" : "light"
+  return value === "dark" ? "dark" : "light"
 }
 
 export function ThemeProvider({ children }) {
@@ -22,50 +16,15 @@ export function ThemeProvider({ children }) {
       return DEFAULT_THEME
     }
   })
-  const [defaultTheme, setDefaultTheme] = useState(DEFAULT_THEME)
-
-  useEffect(() => {
-    let cancelled = false
-
-    const loadDefaultTheme = async () => {
-      const { data } = await supabase.rpc("get_kora_default_theme")
-      if (!cancelled) {
-        const next = normalizeTheme(data)
-        setDefaultTheme(next)
-
-        let stored = null
-        try {
-          stored = window.localStorage.getItem(STORAGE_KEY)
-        } catch {
-          // Ignore storage restrictions.
-        }
-
-        if (!stored) setThemeState(next)
-      }
-    }
-
-    loadDefaultTheme()
-    return () => { cancelled = true }
-  }, [])
-
-  const effectiveTheme = theme === "system" ? getSystemTheme() : theme
+  const defaultTheme = DEFAULT_THEME
+  const effectiveTheme = theme
 
   useEffect(() => {
     const root = document.documentElement
     root.classList.toggle("dark", effectiveTheme === "dark")
     root.style.colorScheme = effectiveTheme
-
-    const media = window.matchMedia?.("(prefers-color-scheme: dark)")
-    if (theme !== "system" || !media) return undefined
-
-    const handleChange = () => {
-      root.classList.toggle("dark", media.matches)
-      root.style.colorScheme = media.matches ? "dark" : "light"
-    }
-
-    media.addEventListener?.("change", handleChange)
-    return () => media.removeEventListener?.("change", handleChange)
-  }, [effectiveTheme, theme])
+    root.dataset.theme = effectiveTheme
+  }, [effectiveTheme])
 
   const setTheme = useCallback((nextTheme) => {
     const next = normalizeTheme(nextTheme)
@@ -78,8 +37,8 @@ export function ThemeProvider({ children }) {
   }, [])
 
   const resetToDefault = useCallback(() => {
-    setTheme(defaultTheme)
-  }, [defaultTheme, setTheme])
+    setTheme(DEFAULT_THEME)
+  }, [setTheme]
 
   const value = useMemo(() => ({
     theme,
