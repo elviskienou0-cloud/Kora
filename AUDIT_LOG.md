@@ -40,21 +40,27 @@
 - Aucun `next.config.js`, `tsconfig.json` ou `app.json` n'existe à la racine.
 - `.env.example` contient uniquement l'URL Supabase et une clé publishable factice.
 - `.gitignore` ignore `.env` et `.env.*`, avec exception explicite pour `.env.example`.
-- Le snapshot courant de l'arborescence contient `.env.example`, mais aucun fichier `.env` suivi. L'historique Git n'a pas encore été audité pour rechercher d'éventuels secrets antérieurement commités.
+- Aucun fichier `.env` n'est suivi dans l'arborescence actuelle. Les deux versions historiques retrouvées sur le chemin `.env` de la branche principale ont été scannées sans détecter de motif `service_role`, `sb_secret` ou JWT; les autres branches historiques restent à examiner.
 - `vercel.json` définit une CSP en mode `Content-Security-Policy-Report-Only`; son efficacité réelle et ses violations doivent être examinées lors de l'audit sécurité.
 - `package.json` définit `npm run build` comme enchaînement de tests i18n, tests unitaires, lint, build Vite et contrôle des secrets.
 
-## Exécution initiale
+## Exécution et vérifications CI
 
-- Installation des dépendances: non exécutée dans cet environnement.
-- Build: non exécuté dans cet environnement.
-- Lint: non exécuté dans cet environnement.
-- Tests: non exécutés dans cet environnement.
-- `npm audit`: non exécuté dans cet environnement.
-- Tests RLS avec identités anon/client/manager/admin: non exécutés; aucun accès de test authentifié n'a été établi.
-- Parcours navigateur/mobile de bout en bout: non exécutés.
+- Environnement local Windows: non exécuté depuis cette session; le chemin local fourni n'est pas monté ici.
+- CI GitHub: `npm ci` a installé 589 paquets; le pipeline qualité a exécuté `npm run build`.
+- `test:i18n`: réussi.
+- `test:unit`: 5 tests réussis.
+- `lint`: réussi.
+- `vite build`: réussi.
+- `security:secrets`: réussi.
+- Workflow i18n séparé: réussi.
+- `npm audit --json`: 19 vulnérabilités signalées (1 faible, 12 modérées, 6 élevées, 0 critique). La synthèse de `npm ci` affiche 11 vulnérabilités; cet écart de comptage doit être réconcilié. L'étape audit du workflow utilise `|| true` et ne bloque donc pas la CI.
+- Ces validations CI couvrent le code jusqu'au commit `a47fd58cc22f8996bd5b5cf476264af4edec5ee5`; les derniers changements documentaires n'altèrent pas le code.
+- Tests SELECT RLS: exécutés avec `anon`, un client, un manager et le Super Admin; détails plus bas. Les tests INSERT/UPDATE/DELETE n'ont pas été exécutés sur des données métier réelles; policies et privilèges inspectés.
+- Aucun profil `admin` associé n'existe dans la base active; les permissions fines de cet acteur restent non testées.
+- Parcours navigateur/mobile de bout en bout: non exécutés; aucun appareil Android/iOS ni navigateur E2E connecté n'a été utilisé.
 
-Ces éléments ne sont pas des résultats négatifs. Ils restent à vérifier dans l'environnement local connecté au projet.
+Les résultats CI sont positifs pour le build, le lint et les tests existants, mais ne remplacent pas les tests E2E ni l'audit complet des fichiers.
 
 ## Registre des constats
 
@@ -65,7 +71,7 @@ Ces éléments ne sont pas des résultats négatifs. Ils restent à vérifier da
 
 ## Historique des corrections
 
-Aucune correction de code n'a encore été appliquée.
+Des corrections ciblées ont été commitées sur `audit/kora-full`; aucune n'a été fusionnée dans `main`. Les migrations ajoutées restent non appliquées à la base active.
 
 ### KORA-003 | incohérence | moyenne | manager | abonnement / création de paiement | `supabase/functions/create-payment/index.ts` / handler POST
 
@@ -79,15 +85,15 @@ Aucune correction de code n'a encore été appliquée.
 
 
 
-### KORA-004 | incomplet | haute | manager et admin | abonnement / validation paiement | `src/pages/manager/Subscription.jsx`, `src/pages/admin/Payments.jsx`, `supabase/migrations/20261121100000_payment_proofs_private_storage.sql`
+### KORA-004 | incomplet | haute | manager et admin | abonnement / validation paiement | `src/pages/manager/Subscription.jsx`, `src/pages/admin/Payments.jsx`, `supabase/migrations/20261121001412_payment_proofs_private_storage.sql`
 
 - Étapes: lecture intégrale des deux pages, du helper `src/components/FileUpload.jsx` et de la migration de stockage des preuves.
 - Attendu: le manager dépose une capture de paiement dans le bucket privé; l'admin consulte cette preuve avant de valider le paiement.
 - Observé: la migration crée le bucket privé `payment-proofs` et la RPC `attach_payment_proof`, mais la page Manager ne propose aucun upload de preuve et son bouton « paiement effectué » ne fait que modifier `sessionStorage`. La page Admin ne sélectionne pas `proof_url` et n'affiche aucune preuve.
 - Cause: le stockage et la RPC de preuve ne sont pas raccordés au parcours d'abonnement et à l'interface de validation.
 - Correction appliquée sur cette branche: le manager peut envoyer un fichier autorisé (JPG/PNG/WebP/PDF, 5 Mo max) dans le bucket privé via `attach_payment_proof`; l'admin consulte une URL signée temporaire avant validation. La migration `supabase/migrations/20261124220000_require_payment_proof_for_subscription_validation.sql` impose aussi côté SQL la présence d'une preuve avant le passage d'un paiement d'abonnement à `paid`.
-- Commit: `KORA-004: relier les preuves de paiement à la validation admin`.
-- Statut: code et migration versionnée corrigés sur la branche; migration non appliquée à la base active; tests CI à vérifier.
+- Commit: `bc6c641fb3e0fbf5e4aeddc1202854f474fe10b0` (`KORA-004: relier les preuves de paiement à la validation admin`).
+- Statut: code et migration versionnée corrigés; build/lint/tests CI réussis sur un commit ultérieur; migration non appliquée à la base active.
 
 
 
@@ -99,8 +105,8 @@ Aucune correction de code n'a encore été appliquée.
 - Cause: écran de consentement simulé non relié à un fournisseur OAuth.
 - Correction appliquée: suppression de la route publique `/oauth/consent` et du composant simulé, qui redirigeait vers `/home` sans authentifier l'utilisateur.
 - Limite restante: aucun démarrage Google OAuth réel n'a été trouvé dans Login, Register ou AuthContext. Le flux Google reste absent; sa configuration dépend de l'activation du fournisseur dans Supabase Auth.
-- Commit: `KORA-005: retirer le consentement OAuth simulé`.
-- Statut: simulation supprimée; Google OAuth reste ouvert comme fonctionnalité non implémentée.
+- Commit: `715c6840bb2d2320ed07df9a7eb512745cb23bb3` (`KORA-005: retirer le consentement OAuth simulé`).
+- Statut: simulation supprimée; build CI réussi; Google OAuth reste non implémenté.
 
 
 
@@ -112,10 +118,9 @@ Aucune correction de code n'a encore été appliquée.
 - Cause: dérive de l'historique de migrations entre Git et la base active.
 - Risque: les prochains déploiements peuvent rejouer une migration déjà appliquée et ne pas reproduire fidèlement l'état de production.
 - Correction appliquée sur cette branche: restauration des deux fichiers SQL exacts depuis `supabase_migrations.schema_migrations`; déplacement du fichier non appliqué et fusionné vers `supabase/migrations_archive/` afin de préserver son contenu sans le faire exécuter par la CLI. Aucune requête DDL n'a été exécutée sur la base active et aucune donnée n'a été supprimée.
-- Vérification après correction: à refaire par comparaison exhaustive des versions locales et distantes.
-- Commit: `c6b2a1b7a53e4f837a0bdd5132d592768c29e8cf`.
-- Vérification: 100 versions locales et 100 versions distantes; aucune version manquante ni migration locale non appliquée.
-- Statut: corrigé sur la branche d'audit; aucune modification de la base active.
+- Vérification après correction: 100 versions historiques locales et 100 versions appliquées distantes correspondent exactement. Trois migrations nouvelles sont présentes localement et non appliquées: `20261124220000`, `20261124230000`, `20261124240000`.
+- Commits: `c6b2a1b7a53e4f837a0bdd5132d592768c29e8cf` (restauration) et `7c7ac804d988310e08671748f9b224da41b818bd` (confirmation de parité).
+- Statut: historique appliqué réconcilié; trois nouvelles migrations en attente de revue/déploiement; aucune modification de la base active.
 
 
 
@@ -126,8 +131,8 @@ Aucune correction de code n'a encore été appliquée.
 - Observé: la route `subscriptions` rendait une page exportée sous le nom `AdminPayments` qui interrogeait `payments`, sans aucune requête sur `subscriptions`. La section Abonnements affichait donc une seconde liste de paiements.
 - Cause: mauvais composant et mauvaise table reliés à la route.
 - Correction appliquée: remplacement par une liste réelle des abonnements, avec recherche, filtre de statut, pagination, états de chargement/erreur/vide; la validation reste dans la section Paiements.
-- Commit: `KORA-008: corriger la page Abonnements`.
-- Statut: corrigé sur la branche d'audit; build CI à vérifier.
+- Commit: `2b935c4f29b22a2e70fa4ea10bc723f0bfed4ef4` (`KORA-008: corriger la page Abonnements`).
+- Statut: corrigé sur la branche; build/lint/tests CI réussis sur un commit ultérieur.
 
 
 
@@ -163,8 +168,8 @@ Aucune correction de code n'a encore été appliquée.
 - Observé: `AdminPanel` autorise un associé ayant `settings.read` à ouvrir la vue Paramètres; la page affiche systématiquement les boutons Enregistrer. La fonction SQL refuse pourtant toute modification sauf si `is_super_admin()` est vrai.
 - Cause: l'interface ne distingue pas les permissions de lecture et d'écriture.
 - Correction appliquée: `AdminPanel` passe une propriété `canEdit` vraie uniquement au Super Admin; la page désactive les contrôles et masque les boutons Enregistrer pour les autres admins. Le serveur reste l'autorité finale.
-- Commit: `KORA-010: masquer les actions d'écriture des paramètres aux associés`.
-- Statut: corrigé sur la branche d'audit; build CI à vérifier.
+- Commit: `a81ceab7acd13157a3607709b442d47c657842fd` (`KORA-010: masquer les actions d'écriture des paramètres aux associés`).
+- Statut: corrigé sur la branche; build/lint/tests CI réussis sur un commit ultérieur.
 
 
 
@@ -187,8 +192,8 @@ Aucune correction de code n'a encore été appliquée.
 - Observé: l'interface codait 1 talent pour FREE, 3 pour PRO et illimité pour BUSINESS, alors que `get_my_subscription()` renvoie déjà `talent_limit` depuis la base.
 - Cause: duplication des quotas dans le frontend.
 - Correction appliquée: l'interface utilise maintenant `subscription.talent_limit`; si la configuration est absente ou invalide, la création est bloquée par défaut au lieu de devenir illimitée.
-- Commit: `KORA-013: lire le quota talent depuis la configuration du plan`.
-- Statut: corrigé sur la branche d'audit; build CI à vérifier.
+- Commit: `2dab5efaca64bbd41239f8e7d4b8bb3567afd96e` (`KORA-013: lire le quota talent depuis la configuration du plan`).
+- Statut: corrigé sur la branche; build/lint/tests CI réussis sur un commit ultérieur.
 
 
 
@@ -278,8 +283,8 @@ Les tests ont utilisé des identités existantes du projet, sans afficher leurs 
 - Observé: le formulaire conservait `formData.title`, mais les deux branches d'écriture envoyaient systématiquement `title: null` / `p_title: null`.
 - Cause: valeur du formulaire ignorée lors de la persistance.
 - Correction appliquée: normalisation de `formData.title` puis transmission de la valeur aux deux branches INSERT et UPDATE.
-- Commit: `KORA-018: enregistrer le titre du talent`.
-- Statut: corrigé sur la branche d'audit; build CI à vérifier.
+- Commit: `5245f5580d220b3d0c13f29a489ff701287751a0` (`KORA-018: enregistrer le titre du talent`).
+- Statut: corrigé sur la branche; build/lint/tests CI réussis sur un commit ultérieur.
 
 
 
@@ -302,8 +307,8 @@ Les tests ont utilisé des identités existantes du projet, sans afficher leurs 
 - Observé: `formatConversationTime` acceptait un paramètre `locale`, mais utilisait toujours `fr-FR` pour l'heure et la date. La liste des conversations restait donc en français en mode anglais.
 - Cause: locale passée mais non utilisée dans les deux appels `toLocale*`.
 - Correction appliquée: remplacement des locales fixes par le paramètre `locale`.
-- Commit: `KORA-019: respecter la langue dans les dates de messagerie`.
-- Statut: corrigé sur la branche d'audit; build CI à vérifier.
+- Commit: `c04a9e508e1415bdc97d25bf1d9ba71bf66039af` (`KORA-019: respecter la langue dans les dates de messagerie`).
+- Statut: corrigé sur la branche; build/lint/tests CI réussis sur un commit ultérieur.
 
 
 
@@ -314,8 +319,8 @@ Les tests ont utilisé des identités existantes du projet, sans afficher leurs 
 - Observé: `ensure_my_subscription()` appelait `ensure_subscription_for_user(auth.uid())` sans vérifier le rôle; en outre, `ensure_subscription_for_user(uuid)` était directement exécutable par `authenticated` et ne contrôlait le rôle que lorsque l'appel ciblait un autre utilisateur. Un client pouvait donc appeler directement le RPC et créer une ligne FREE.
 - Cause: absence de contrôle du rôle dans les deux fonctions SECURITY DEFINER.
 - Correction appliquée sur cette branche: la migration `supabase/migrations/20261124240000_restrict_subscription_bootstrap_to_managers.sql` exige le rôle manager dans les deux fonctions pour un appel personnel; l'accès administrateur à un autre utilisateur reste protégé par `subscriptions.manage`.
-- Commit: `KORA-020: réserver l'initialisation d'abonnement aux managers`.
-- Statut: migration versionnée; non appliquée à la base active.
+- Commit: `9de65bb29743e368cc7679ec8b6119e314285eb4` (`KORA-020: réserver l'initialisation d'abonnement aux managers`).
+- Statut: migration versionnée; non appliquée à la base active; validation SQL à effectuer avant déploiement.
 
 
 
@@ -340,8 +345,8 @@ Les tests ont utilisé des identités existantes du projet, sans afficher leurs 
 - Observé: le helper acceptait tout type commençant par `image/`, alors que le bucket autorise uniquement JPEG, PNG et WebP (5 Mo max). Des formats tels que SVG, GIF ou HEIC passaient la validation locale puis échouaient au stockage.
 - Cause: validation MIME trop large par rapport à la policy Storage.
 - Correction appliquée: restriction côté client aux trois MIME réellement autorisés.
-- Commit: `KORA-022: aligner les formats image sur Storage`.
-- Statut: corrigé sur la branche d'audit; build CI à vérifier.
+- Commit: `70e7e5a92896a7da7249985f03d46009c8765a53` (`KORA-022: aligner les formats image sur Storage`).
+- Statut: corrigé sur la branche; build/lint/tests CI réussis sur un commit ultérieur.
 
 
 
@@ -352,8 +357,8 @@ Les tests ont utilisé des identités existantes du projet, sans afficher leurs 
 - Observé: en cas d'erreur RPC, l'accueil affichait des zéros par défaut; les libellés renvoyés par le hook étaient en français même en mode anglais.
 - Cause: valeur initiale `DEFAULT_STATS` et libellés français réutilisés directement dans Home.
 - Correction appliquée: Home demande l'état neutre en cas d'erreur, traduit les quatre libellés avec les clés i18n existantes; le hook initialise également ses valeurs à « — » lorsque `emptyOnError` est activé.
-- Commit: `KORA-023: fiabiliser les statistiques et leur traduction sur l'accueil`.
-- Statut: corrigé sur la branche d'audit; build CI à vérifier.
+- Commit: `a47fd58cc22f8996bd5b5cf476264af4edec5ee5` (`KORA-023: fiabiliser les statistiques et leur traduction sur l'accueil`).
+- Statut: corrigé sur la branche; build/lint/tests CI réussis.
 
 
 
