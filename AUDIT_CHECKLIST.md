@@ -130,7 +130,7 @@ Les cases restent décochées tant que le fichier n'a pas été lu intégralemen
 - [ ] `src/components/landing/LandingHeader.jsx`
 - [x] `src/components/landing/LandingHero.jsx`
 - [x] `src/components/landing/LandingManifesto.jsx`
-- [ ] `src/components/landing/LandingMarquee.jsx`
+- [x] `src/components/landing/LandingMarquee.jsx`
 - [x] `src/components/landing/LandingNav.jsx`
 - [x] `src/components/landing/LandingPricing.jsx`
 - [x] `src/components/landing/LandingProcess.jsx`
