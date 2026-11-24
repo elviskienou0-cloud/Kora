@@ -202,3 +202,15 @@ Aucune correction de code n'a encore été appliquée.
 - Commit: aucun.
 - Statut: ouvert.
 
+
+
+### KORA-014 | incohérence métier | moyenne | manager | `/manager/subscription` | `src/pages/manager/Subscription.jsx` / `getPlanDetails`
+
+- Étapes: lecture intégrale de la page abonnement et comparaison avec la colonne `plans.features` du projet actif.
+- Attendu: les avantages affichés correspondent à la configuration des plans, avec une présentation cohérente en français et en anglais.
+- Observé: la page charge `plan.features`, mais `getPlanDetails` ignore cette colonne pour FREE, PRO et BUSINESS et affiche des listes de clés i18n codées en dur. Les trois lignes de la table `plans` ont actuellement le même tableau de fonctionnalités, différent des listes présentées par le frontend.
+- Cause: deux sources de vérité distinctes pour le contenu des offres.
+- Correction: non appliquée; le contenu exact des plans et sa traduction dépendent de l'arbitrage D-003.
+- Commit: aucun.
+- Statut: ouvert, décision requise.
+
