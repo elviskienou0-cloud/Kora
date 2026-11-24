@@ -153,3 +153,15 @@ Aucune correction de code n'a encore été appliquée.
 - Commit: aucun.
 - Statut: ouvert, priorité haute.
 
+
+
+### KORA-010 | UX / incohérence de permissions | moyenne | admin associé | paramètres administration | `src/pages/admin/AdminPanel.jsx`, `src/pages/admin/Settings.jsx`, `public.update_kora_setting(text,jsonb)`
+
+- Étapes: lecture intégrale de la gestion des vues admin et de la page Settings; inspection de la fonction SQL `update_kora_setting`.
+- Attendu: un compte ayant seulement `settings.read` consulte les paramètres sans voir d'action d'écriture qu'il ne peut pas exécuter.
+- Observé: `AdminPanel` autorise un associé ayant `settings.read` à ouvrir la vue Paramètres; la page affiche systématiquement les boutons Enregistrer. La fonction SQL refuse pourtant toute modification sauf si `is_super_admin()` est vrai.
+- Cause: l'interface ne distingue pas les permissions de lecture et d'écriture.
+- Correction: non appliquée. La correction minimale recommandée est de rendre la page explicitement en lecture seule pour les associés, ou de réserver la vue à Super Admin tant qu'aucune permission d'écriture n'existe.
+- Commit: aucun.
+- Statut: ouvert.
+
