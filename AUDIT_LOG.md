@@ -214,3 +214,46 @@ Aucune correction de code n'a encore été appliquée.
 - Commit: aucun.
 - Statut: ouvert, décision requise.
 
+
+
+## Vérifications Supabase / RLS réalisées le 24 novembre 2026
+
+### Couverture des tables
+
+- 33 tables du schéma `public` inspectées: RLS activée sur les 33.
+- 32 tables accordent SELECT à `authenticated`; `subscription_notification_events` ne donne aucun accès direct à `anon` ou `authenticated` et ne possède aucune policy, ce qui la réserve aux traitements backend/service role.
+- 10 tables accordent SELECT à `anon`; les policies publiques portent sur les données de découverte (talents publiés, portfolio, compétences, catégories, pays, plans, avis visibles, annonces et paramètres publics).
+- Les tables privées `profiles`, `payments`, `subscriptions`, `messages`, `requests`, `projects`, `admin_audit_logs` ne donnent pas de lecture à `anon`.
+- Les opérations d'écriture absentes de la matrice de policies restent refusées par RLS même lorsque le rôle SQL dispose d'un privilège de table.
+
+### Tests SELECT exécutés sous les rôles PostgreSQL
+
+Les tests ont utilisé des identités existantes du projet, sans afficher leurs identifiants ni modifier leurs données.
+
+| Rôle simulé | Profils visibles | Talents visibles | Abonnements visibles | Paiements visibles | Messages visibles |
+|---|---:|---:|---:|---:|---:|
+| anon | aucun accès à profiles | 1 talent public | non autorisé | non autorisé | non autorisé |
+| client | 1 | 1 | 0 | 0 | 0 |
+| manager | 1 | 1 | 1 | 0 | 0 |
+| superadmin | 5 | 1 | 2 | 1 | 0 |
+
+- `anon` peut lire le talent public; les requêtes sur `profiles` et `payments` échouent avec permission denied.
+- Le client ne voit que son profil et aucune ligne de paiement ou d'abonnement.
+- Le manager voit son profil et son abonnement; il ne voit aucune ligne de paiement dans l'échantillon courant.
+- Le Super Admin voit les lignes administratives et les données de paiement.
+- Aucun profil de rôle `admin` standard n'existe dans la base active (0 compte); le test administrateur a donc utilisé le Super Admin.
+- Une tentative de modification du rôle du client a été refusée au niveau des privilèges SQL. `authenticated` ne possède pas UPDATE sur les colonnes `role`, `is_suspended`, `suspended_at`, `suspended_reason`, `id` ou `last_seen`; les colonnes de profil ordinaires autorisées disposent de droits distincts.
+- Une tentative d'UPDATE de talents dont `managed_by <> auth.uid()` n'a retourné aucune ligne. L'échantillon ne contient qu'un talent; ce test ne remplace pas un test avec deux managers propriétaires de talents distincts.
+- Les tests d'écriture n'ont pas été exécutés sur des données réelles; la couverture INSERT/UPDATE/DELETE a été vérifiée par inspection des policies et privilèges. Les parcours E2E restent à faire.
+
+### Migrations destructives
+
+- Les 100 versions appliquées ont été recherchées pour `DELETE FROM`, `TRUNCATE`, `DROP TABLE`, `DROP COLUMN` et `DROP SCHEMA`.
+- Résultat: aucune instruction de suppression de données ou de table/colonne détectée dans l'historique appliqué.
+- Les `DROP POLICY`, `DROP TRIGGER` et `DROP CONSTRAINT` trouvés servent à remplacer des policies, triggers et contraintes; ils ne suppriment pas les lignes métier.
+
+### Advisors Supabase
+
+- L'advisor signale des fonctions `SECURITY DEFINER` exécutables par `authenticated`; plusieurs fonctions sensibles examinées contrôlent `auth.uid()`, le rôle, la propriété ou une permission admin. L'examen exhaustif des 49 fonctions signalées reste ouvert.
+- Les fonctions publiques `is_talent_public` et `get_talent_manager_profile` contrôlent la visibilité du talent; la seconde ne renvoie pas le numéro de téléphone.
+- L'advisor signale également la protection des mots de passe compromis désactivée (KORA-011).
