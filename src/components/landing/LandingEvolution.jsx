@@ -1,5 +1,4 @@
 import { useEffect, useMemo, useState } from "react"
-import { AnimatePresence, motion, useReducedMotion } from "framer-motion"
 import { ArrowLeft, ArrowRight, MapPin, Star, UserRound, Users, Globe2, Heart } from "lucide-react"
 import { Link } from "react-router-dom"
 import { Card, CardContent } from "@/components/ui/card"
@@ -38,7 +37,6 @@ export default function LandingEvolution({ stats = [], loading = false }) {
   const [talents, setTalents] = useState([])
   const [talentsLoading, setTalentsLoading] = useState(true)
   const [activeIndex, setActiveIndex] = useState(0)
-  const reduceMotion = useReducedMotion()
 
   useEffect(() => {
     let mounted = true
@@ -51,7 +49,7 @@ export default function LandingEvolution({ stats = [], loading = false }) {
           .eq("status", "published")
           .eq("is_visible", true)
           .order("rating", { ascending: false, nullsFirst: false })
-          .limit(8)
+          .limit(4)
 
         if (!mounted) return
         if (error) {
@@ -143,41 +141,24 @@ export default function LandingEvolution({ stats = [], loading = false }) {
                     <span>{getName(nextTalent)}</span>
                   </div>
                 )}
-                <AnimatePresence mode="wait" initial={false}>
-                  <motion.div
-                    key={currentTalent.id}
-                    className="kora-talent-stack-card kora-talent-stack-card-front"
-                    initial={reduceMotion ? false : { opacity: 0, x: 24 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    exit={reduceMotion ? undefined : { opacity: 0, x: -24 }}
-                    transition={{ duration: reduceMotion ? 0 : 0.22, ease: "easeOut" }}
-                    drag={talents.length > 1 && !reduceMotion ? "x" : false}
-                    dragConstraints={{ left: 0, right: 0 }}
-                    dragElastic={0.24}
-                    dragMomentum={false}
-                    onDragEnd={(_, info) => {
-                      if (info.offset.x < -55 || info.velocity.x < -450) nextTalentCard()
-                      else if (info.offset.x > 55 || info.velocity.x > 450) previousTalent()
-                    }}
-                  >
-                    <Link to={"/talent/" + currentTalent.id} className="kora-talent-card-link" aria-label={(language === "en" ? "View profile of " : "Voir le profil de ") + getName(currentTalent)}>
-                      <div className="kora-talent-card-photo">
-                        <TalentPortrait talent={currentTalent} className="kora-talent-photo-image" />
-                        <span>{currentTalent.categories?.name || (language === "en" ? "Talent" : "Talent")}</span>
+                <div key={currentTalent.id} className="kora-talent-stack-card kora-talent-stack-card-front">
+                  <Link to={"/talent/" + currentTalent.id} className="kora-talent-card-link" aria-label={(language === "en" ? "View profile of " : "Voir le profil de ") + getName(currentTalent)}>
+                    <div className="kora-talent-card-photo">
+                      <TalentPortrait talent={currentTalent} className="kora-talent-photo-image" />
+                      <span>{currentTalent.categories?.name || (language === "en" ? "Talent" : "Talent")}</span>
+                    </div>
+                    <div className="kora-talent-card-content">
+                      <div>
+                        <h4>{getName(currentTalent)}</h4>
+                        <p>{currentTalent.title || (language === "en" ? "Talent profile" : "Profil talent")}</p>
                       </div>
-                      <div className="kora-talent-card-content">
-                        <div>
-                          <h4>{getName(currentTalent)}</h4>
-                          <p>{currentTalent.title || (language === "en" ? "Talent profile" : "Profil talent")}</p>
-                        </div>
-                        <div className="kora-talent-card-meta">
-                          <span><MapPin size={14} aria-hidden="true" />{currentTalent.countries?.name || currentTalent.city || (language === "en" ? "Location not provided" : "Localisation non renseignée")}</span>
-                          <span><Star size={14} aria-hidden="true" />{Number(currentTalent.rating || 0) > 0 ? Number(currentTalent.rating).toFixed(1) : "—"}</span>
-                        </div>
+                      <div className="kora-talent-card-meta">
+                        <span><MapPin size={14} aria-hidden="true" />{currentTalent.countries?.name || currentTalent.city || (language === "en" ? "Location not provided" : "Localisation non renseignée")}</span>
+                        <span><Star size={14} aria-hidden="true" />{Number(currentTalent.rating || 0) > 0 ? Number(currentTalent.rating).toFixed(1) : "—"}</span>
                       </div>
-                    </Link>
-                  </motion.div>
-                </AnimatePresence>
+                    </div>
+                  </Link>
+                </div>
               </div>
             ) : (
               <Card className="kora-talent-empty">
@@ -187,7 +168,7 @@ export default function LandingEvolution({ stats = [], loading = false }) {
                 </CardContent>
               </Card>
             )}
-            <p className="kora-talent-hint">{language === "en" ? "Use the arrows or swipe to browse published profiles." : "Utilisez les flèches ou faites glisser la carte pour parcourir les profils publiés."}</p>
+            <p className="kora-talent-hint">{language === "en" ? "Use the arrows to browse published profiles." : "Utilisez les flèches pour parcourir les profils publiés."}</p>
           </div>
         </div>
       </div>

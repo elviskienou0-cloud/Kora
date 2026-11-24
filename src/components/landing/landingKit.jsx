@@ -1,23 +1,10 @@
 import { useEffect, useState } from "react"
-import { motion, useReducedMotion } from "framer-motion"
 import { cn } from "@/lib/utils"
 
 export const EASE = [0.22, 1, 0.36, 1]
 
-export function Reveal({ children, className, delay = 0 }) {
-  const reduce = useReducedMotion()
-
-  return (
-    <motion.div
-      className={className}
-      initial={reduce ? false : { opacity: 0, y: 16 }}
-      whileInView={{ opacity: 1, y: 0 }}
-      viewport={{ once: true, margin: "-48px" }}
-      transition={{ duration: reduce ? 0 : 0.42, delay: reduce ? 0 : delay, ease: EASE }}
-    >
-      {children}
-    </motion.div>
-  )
+export function Reveal({ children, className }) {
+  return <div className={className}>{children}</div>
 }
 
 export function Eyebrow({ children }) {
