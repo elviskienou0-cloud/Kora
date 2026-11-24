@@ -372,3 +372,15 @@ Les tests ont utilisé des identités existantes du projet, sans afficher leurs 
 - Commit: aucun.
 - Statut: ouvert; audit i18n des routes restantes à poursuivre.
 
+
+
+### KORA-025 | incomplet | moyenne | client et manager | notifications | `src/pages/client/Notifications.jsx`, `src/pages/manager/Notifications.jsx`, `public.notifications`
+
+- Étapes: lecture intégrale des deux pages et inspection de la policy `notifications_delete_own`.
+- Attendu: un utilisateur peut supprimer ses propres notifications; RLS interdit toute suppression d'une notification appartenant à un autre utilisateur.
+- Observé: les pages permettaient de marquer une notification comme lue, mais n'exposaient aucune action de suppression alors que la policy DELETE personnelle existe.
+- Cause: action de suppression non raccordée à l'interface.
+- Correction appliquée: ajout d'une action Supprimer dans les deux pages, avec filtre explicite sur `id` et `user_id`, contrôle du résultat et actualisation du cache.
+- Commit: `KORA-025: permettre la suppression des notifications personnelles`.
+- Statut: corrigé sur la branche d'audit; build CI à vérifier.
+
