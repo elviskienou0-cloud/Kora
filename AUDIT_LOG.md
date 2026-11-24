@@ -269,3 +269,15 @@ Les tests ont utilisé des identités existantes du projet, sans afficher leurs 
 - Commit: `KORA-015: interdire le paramètre de commission`.
 - Statut: migration versionnée sur la branche; non appliquée à la base active.
 
+
+
+### KORA-018 | bug fonctionnel | moyenne | manager et client | fiche talent / édition | `src/pages/manager/Talents.jsx` / `saveTalent`
+
+- Étapes: lecture du formulaire TalentEditor, de `buildFormData` et des branches INSERT/UPDATE de `saveTalent`.
+- Attendu: le champ Titre saisi par le manager est enregistré dans `talent_profiles.title` à la création comme à la modification.
+- Observé: le formulaire conservait `formData.title`, mais les deux branches d'écriture envoyaient systématiquement `title: null` / `p_title: null`.
+- Cause: valeur du formulaire ignorée lors de la persistance.
+- Correction appliquée: normalisation de `formData.title` puis transmission de la valeur aux deux branches INSERT et UPDATE.
+- Commit: `KORA-018: enregistrer le titre du talent`.
+- Statut: corrigé sur la branche d'audit; build CI à vérifier.
+
