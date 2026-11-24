@@ -120,21 +120,21 @@ Les cases restent décochées tant que le fichier n'a pas été lu intégralemen
 - [ ] `src/components/admin/AdminPayments.jsx`
 - [ ] `src/components/admin/AdminStats.jsx`
 - [ ] `src/components/admin/AdminUserActions.jsx`
-- [ ] `src/components/landing/LandingAudience.jsx`
-- [ ] `src/components/landing/LandingCategories.jsx`
+- [x] `src/components/landing/LandingAudience.jsx`
+- [x] `src/components/landing/LandingCategories.jsx`
 - [ ] `src/components/landing/LandingEffects.jsx`
 - [ ] `src/components/landing/LandingEvolution.jsx`
-- [ ] `src/components/landing/LandingFaq.jsx`
-- [ ] `src/components/landing/LandingFinalCta.jsx`
-- [ ] `src/components/landing/LandingFooter.jsx`
+- [x] `src/components/landing/LandingFaq.jsx`
+- [x] `src/components/landing/LandingFinalCta.jsx`
+- [x] `src/components/landing/LandingFooter.jsx`
 - [ ] `src/components/landing/LandingHeader.jsx`
-- [ ] `src/components/landing/LandingHero.jsx`
-- [ ] `src/components/landing/LandingManifesto.jsx`
+- [x] `src/components/landing/LandingHero.jsx`
+- [x] `src/components/landing/LandingManifesto.jsx`
 - [ ] `src/components/landing/LandingMarquee.jsx`
-- [ ] `src/components/landing/LandingNav.jsx`
+- [x] `src/components/landing/LandingNav.jsx`
 - [x] `src/components/landing/LandingPricing.jsx`
-- [ ] `src/components/landing/LandingProcess.jsx`
-- [ ] `src/components/landing/LandingWhy.jsx`
+- [x] `src/components/landing/LandingProcess.jsx`
+- [x] `src/components/landing/LandingWhy.jsx`
 - [ ] `src/components/landing/landingKit.jsx`
 - [ ] `src/components/reviews/PublicPricingSection.jsx`
 - [ ] `src/components/reviews/ReviewsSection.jsx`
