@@ -33,7 +33,6 @@ import {
   ClipboardList,
   Sun,
   Moon,
-  Monitor,
   UserCog,
   WalletCards,
   Megaphone,
@@ -763,7 +762,8 @@ export default function KoraLayout() {
   // ==========================================================
 
   return (
-    <div className={cn("min-h-screen flex", role === "superadmin" ? "kora-superadmin-glass" : "bg-background")}>
+    <div className={cn("kora-workspace min-h-screen flex", role === "superadmin" ? "kora-superadmin-glass" : "bg-background")}
+      data-kora-role={role || "client"}>
       {!isMobile && (
         <div className="w-64 shrink-0 h-screen sticky top-0 border-r border-sidebar-border bg-sidebar text-sidebar-foreground">
           {renderSidebarContent()}
@@ -874,36 +874,17 @@ export default function KoraLayout() {
               <button
                 type="button"
                 onClick={() =>
-                  setTheme(
-                    theme === "light"
-                      ? "dark"
-                      : theme === "dark"
-                        ? "system"
-                        : "light"
-                  )
+                  setTheme(theme === "light" ? "dark" : "light")
                 }
                 className="p-2 rounded-lg hover:bg-accent transition-colors"
-                aria-label={
-                  theme === "light"
-                    ? "Passer en mode sombre"
-                    : theme === "dark"
-                      ? "Utiliser le thème système"
-                      : "Passer en mode clair"
-                }
-                title={
-                  theme === "light"
-                    ? "Clair"
-                    : theme === "dark"
-                      ? "Sombre"
-                      : "Système"
-                }
+                aria-label={theme === "light" ? "Passer en mode sombre" : "Passer en mode clair"}
+                aria-pressed={theme === "dark"}
+                title={theme === "light" ? "Mode clair" : "Mode sombre"}
               >
                 {theme === "light" ? (
-                  <Sun className="h-5 w-5" />
-                ) : theme === "dark" ? (
                   <Moon className="h-5 w-5" />
                 ) : (
-                  <Monitor className="h-5 w-5" />
+                  <Sun className="h-5 w-5" />
                 )}
               </button>
               )}
