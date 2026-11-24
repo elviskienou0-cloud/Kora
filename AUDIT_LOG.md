@@ -85,9 +85,9 @@ Aucune correction de code n'a encore été appliquée.
 - Attendu: le manager dépose une capture de paiement dans le bucket privé; l'admin consulte cette preuve avant de valider le paiement.
 - Observé: la migration crée le bucket privé `payment-proofs` et la RPC `attach_payment_proof`, mais la page Manager ne propose aucun upload de preuve et son bouton « paiement effectué » ne fait que modifier `sessionStorage`. La page Admin ne sélectionne pas `proof_url` et n'affiche aucune preuve.
 - Cause: le stockage et la RPC de preuve ne sont pas raccordés au parcours d'abonnement et à l'interface de validation.
-- Correction: non appliquée dans cette étape. Le parcours de paiement doit d'abord être confirmé (D-004); la correction devra relier l'upload sécurisé et l'affichage d'une URL signée, sans rendre le bucket public.
-- Commit: aucun.
-- Statut: ouvert, correction requise après confirmation du flux de paiement.
+- Correction appliquée sur cette branche: le manager peut envoyer un fichier autorisé (JPG/PNG/WebP/PDF, 5 Mo max) dans le bucket privé via `attach_payment_proof`; l'admin consulte une URL signée temporaire avant validation. La migration `supabase/migrations/20261124220000_require_payment_proof_for_subscription_validation.sql` impose aussi côté SQL la présence d'une preuve avant le passage d'un paiement d'abonnement à `paid`.
+- Commit: `KORA-004: relier les preuves de paiement à la validation admin`.
+- Statut: code et migration versionnée corrigés sur la branche; migration non appliquée à la base active; tests CI à vérifier.
 
 
 
