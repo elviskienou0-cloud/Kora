@@ -8,15 +8,15 @@ Les cases restent décochées tant que le fichier n'a pas été lu intégralemen
 
 ## Inventaire
 
-- [ ] `.env.example`
-- [ ] `.github/workflows/i18n-validation.yml`
-- [ ] `.github/workflows/kora-quality.yml`
-- [ ] `.github/workflows/subscription-expiry-notifications.yml`
-- [ ] `.gitignore`
+- [x] `.env.example`
+- [x] `.github/workflows/i18n-validation.yml`
+- [x] `.github/workflows/kora-quality.yml`
+- [x] `.github/workflows/subscription-expiry-notifications.yml`
+- [x] `.gitignore`
 - [ ] `.oxlintrc.json`
 - [ ] `PATCH_CLIENT_PROFILES.md`
 - [ ] `PHASE16_INSTALL.md`
-- [ ] `README.md`
+- [x] `README.md`
 - [ ] `android/.gitignore`
 - [ ] `android/app/.gitignore`
 - [ ] `android/app/build.gradle`
@@ -75,38 +75,38 @@ Les cases restent décochées tant que le fichier n'a pas été lu intégralemen
 - [ ] `android/gradlew.bat`
 - [ ] `android/settings.gradle`
 - [ ] `android/variables.gradle`
-- [ ] `capacitor.config.ts`
+- [x] `capacitor.config.ts`
 - [ ] `docs/SUBSCRIPTION_NOTIFICATIONS.md`
 - [ ] `docs/architecture/kora-public-site-information-architecture.md`
 - [ ] `docs/compliance/CIL-DOSSIER-KORA-2026-10.md`
-- [ ] `eslint.config.js`
+- [x] `eslint.config.js`
 - [ ] `index.html`
-- [ ] `jsconfig.json`
+- [x] `jsconfig.json`
 - [ ] `package-lock.json`
-- [ ] `package.json`
-- [ ] `postcss.config.js`
+- [x] `package.json`
+- [x] `postcss.config.js`
 - [ ] `public/favicon.svg`
 - [ ] `public/icons.svg`
 - [ ] `public/maintenance.html`
 - [ ] `public/og-kora.svg`
 - [ ] `public/robots.txt`
 - [ ] `public/sitemap.xml`
-- [ ] `scripts/check-i18n.mjs`
-- [ ] `scripts/check-secrets.mjs`
-- [ ] `src/App.jsx`
+- [x] `scripts/check-i18n.mjs`
+- [x] `scripts/check-secrets.mjs`
+- [x] `src/App.jsx`
 - [ ] `src/assets/hero.png`
 - [ ] `src/assets/kora-logo.svg`
 - [ ] `src/components/AnnouncementTicker.jsx`
 - [ ] `src/components/AuthLayout.jsx`
 - [ ] `src/components/CookieConsent.jsx`
-- [ ] `src/components/FileUpload.jsx`
+- [x] `src/components/FileUpload.jsx`
 - [ ] `src/components/FormDraftPersistence.jsx`
 - [ ] `src/components/GlobalI18nBridge.jsx`
 - [ ] `src/components/GoogleIcon.jsx`
 - [ ] `src/components/KoraLayout.jsx`
-- [ ] `src/components/ProtectedRoute.jsx`
+- [x] `src/components/ProtectedRoute.jsx`
 - [ ] `src/components/ReviewSection.jsx`
-- [ ] `src/components/RoleGuard.jsx`
+- [x] `src/components/RoleGuard.jsx`
 - [ ] `src/components/ScrollToTop.jsx`
 - [ ] `src/components/TalentForm.jsx`
 - [ ] `src/components/TalentRequestButton.jsx`
@@ -204,10 +204,10 @@ Les cases restent décochées tant que le fichier n'a pas été lu intégralemen
 - [ ] `src/i18n/language-preferences.js`
 - [ ] `src/i18n/language.js`
 - [ ] `src/index.css`
-- [ ] `src/lib/AuthContext.jsx`
+- [x] `src/lib/AuthContext.jsx`
 - [ ] `src/lib/PageNotFound.jsx`
 - [ ] `src/lib/ThemeContext.jsx`
-- [ ] `src/lib/admin.js`
+- [x] `src/lib/admin.js`
 - [ ] `src/lib/app-params.js`
 - [ ] `src/lib/authReturnTo.js`
 - [ ] `src/lib/categoryIcons.js`
@@ -216,18 +216,18 @@ Les cases restent décochées tant que le fichier n'a pas été lu intégralemen
 - [ ] `src/lib/notificationSound.js`
 - [ ] `src/lib/pagination.js`
 - [ ] `src/lib/paymentProvider.js`
-- [ ] `src/lib/profileMedia.js`
+- [x] `src/lib/profileMedia.js`
 - [ ] `src/lib/queryClient.js`
 - [ ] `src/lib/requestInvitations.js`
 - [ ] `src/lib/saspayCheckout.js`
-- [ ] `src/lib/supabase.js`
-- [ ] `src/lib/talentMedia.js`
+- [x] `src/lib/supabase.js`
+- [x] `src/lib/talentMedia.js`
 - [ ] `src/lib/talentPortfolio.js`
 - [ ] `src/lib/talentShare.js`
 - [ ] `src/lib/useKoraStats.js`
 - [ ] `src/lib/utils.js`
-- [ ] `src/main.jsx`
-- [ ] `src/pages/AuthCallback.jsx`
+- [x] `src/main.jsx`
+- [x] `src/pages/AuthCallback.jsx`
 - [ ] `src/pages/Categories.jsx`
 - [ ] `src/pages/Cgv.jsx`
 - [ ] `src/pages/Conditions.jsx`
@@ -236,15 +236,15 @@ Les cases restent décochées tant que le fichier n'a pas été lu intégralemen
 - [ ] `src/pages/Cookies.jsx`
 - [ ] `src/pages/DataRights.jsx`
 - [ ] `src/pages/FAQ.jsx`
-- [ ] `src/pages/ForgotPassword.jsx`
+- [x] `src/pages/ForgotPassword.jsx`
 - [ ] `src/pages/Home.jsx`
 - [ ] `src/pages/Landing.jsx`
-- [ ] `src/pages/Login.jsx`
+- [x] `src/pages/Login.jsx`
 - [ ] `src/pages/MentionsLegales.jsx`
 - [ ] `src/pages/Messages.jsx`
-- [ ] `src/pages/OAuthConsent.jsx`
-- [ ] `src/pages/Register.jsx`
-- [ ] `src/pages/ResetPassword.jsx`
+- [x] `src/pages/OAuthConsent.jsx`
+- [x] `src/pages/Register.jsx`
+- [x] `src/pages/ResetPassword.jsx`
 - [ ] `src/pages/SignalerProbleme.jsx`
 - [ ] `src/pages/admin/AdminAssociateDashboard.jsx`
 - [ ] `src/pages/admin/AdminPanel.jsx`
@@ -255,7 +255,7 @@ Les cases restent décochées tant que le fichier n'a pas été lu intégralemen
 - [ ] `src/pages/admin/Logs.jsx`
 - [ ] `src/pages/admin/Managers.jsx`
 - [ ] `src/pages/admin/Messages.jsx`
-- [ ] `src/pages/admin/Payments.jsx`
+- [x] `src/pages/admin/Payments.jsx`
 - [ ] `src/pages/admin/Projects.jsx`
 - [ ] `src/pages/admin/Reports.jsx`
 - [ ] `src/pages/admin/Requests.jsx`
@@ -279,7 +279,7 @@ Les cases restent décochées tant que le fichier n'a pas été lu intégralemen
 - [ ] `src/pages/manager/RequestDetail.jsx`
 - [ ] `src/pages/manager/Requests.jsx`
 - [ ] `src/pages/manager/Settings.jsx`
-- [ ] `src/pages/manager/Subscription.jsx`
+- [x] `src/pages/manager/Subscription.jsx`
 - [ ] `src/pages/manager/SubscriptionExpired.jsx`
 - [ ] `src/pages/manager/Talents.jsx`
 - [ ] `src/pages/talent/Detail.jsx`
@@ -311,13 +311,13 @@ Les cases restent décochées tant que le fichier n'a pas été lu intégralemen
 - [ ] `supabase/archive/unapplied-migrations/20261009222000_global_expired_manager_write_lock.sql`
 - [ ] `supabase/archive/unapplied-migrations/20261009223000_expired_manager_write_trigger_guard.sql`
 - [ ] `supabase/archive/unapplied-migrations/README.md`
-- [ ] `supabase/config.toml`
+- [x] `supabase/config.toml`
 - [ ] `supabase/functions/_shared/cors.ts`
 - [ ] `supabase/functions/admin-users/index.ts`
-- [ ] `supabase/functions/create-payment/index.ts`
+- [x] `supabase/functions/create-payment/index.ts`
 - [ ] `supabase/functions/delete-account/index.ts`
-- [ ] `supabase/functions/payment-webhook/index.ts`
-- [ ] `supabase/functions/subscription-notifications/index.ts`
+- [x] `supabase/functions/payment-webhook/index.ts`
+- [x] `supabase/functions/subscription-notifications/index.ts`
 - [ ] `supabase/migrations/20260928200000_security_hardening.sql`
 - [ ] `supabase/migrations/20260928200100_profiles_editable_columns.sql`
 - [ ] `supabase/migrations/20260929100000_admin_dashboard_overview.sql`
@@ -329,7 +329,7 @@ Les cases restent décochées tant que le fichier n'a pas été lu intégralemen
 - [ ] `supabase/migrations/20260929231000_fix_admin_audit_logging.sql`
 - [ ] `supabase/migrations/20260929232000_admin_user_action_hardening.sql`
 - [ ] `supabase/migrations/20260929233000_lock_internal_admin_audit.sql`
-- [ ] `supabase/migrations/20260930100000_saspay_manual_subscription.sql`
+- [x] `supabase/migrations/20260930100000_saspay_manual_subscription.sql`
 - [ ] `supabase/migrations/20260930101500_business_plan_label.sql`
 - [ ] `supabase/migrations/20260930120000_invitations_saspay_fixes.sql`
 - [ ] `supabase/migrations/20260930130000_fix_rls_helper_permissions.sql`
@@ -384,7 +384,7 @@ Les cases restent décochées tant que le fichier n'a pas été lu intégralemen
 - [ ] `supabase/migrations/20261106192018_require_subscription_manage_for_cross_user_access.sql`
 - [ ] `supabase/migrations/20261106192031_restrict_private_app_settings_to_super_admin.sql`
 - [ ] `supabase/migrations/20261106192159_fix_service_role_guard_in_user_data_deletion.sql`
-- [ ] `supabase/migrations/20261106192218_enforce_saspay_monthly_subscription_payments.sql`
+- [x] `supabase/migrations/20261106192218_enforce_saspay_monthly_subscription_payments.sql`
 - [ ] `supabase/migrations/20261106192406_respect_settings_read_permission_for_private_settings.sql`
 - [ ] `supabase/migrations/20261106192425_restrict_admin_audit_log_writer_to_internal_callers.sql`
 - [ ] `supabase/migrations/20261106192606_use_invoker_security_for_public_read_rpcs.sql`
@@ -404,7 +404,7 @@ Les cases restent décochées tant que le fichier n'a pas été lu intégralemen
 - [ ] `supabase/migrations/20261108092917_harden_touch_presence_rate_limit.sql`
 - [ ] `supabase/migrations/20261108124750_disable_presence_tracking.sql`
 - [ ] `supabase/migrations/20261108125406_remove_permissive_expired_manager_lock_policies.sql`
-- [ ] `supabase/migrations/20261108130016_make_payment_validation_idempotent_and_no_refunds.sql`
+- [x] `supabase/migrations/20261108130016_make_payment_validation_idempotent_and_no_refunds.sql`
 - [ ] `supabase/migrations/20261108131602_require_completed_project_for_talent_reviews.sql`
 - [ ] `supabase/migrations/20261108132246_restrict_client_dml_on_sensitive_tables.sql`
 - [ ] `supabase/migrations/20261108133110_enforce_suspension_server_side_and_hide_suspended_talents.sql`
@@ -416,14 +416,19 @@ Les cases restent décochées tant que le fichier n'a pas été lu intégralemen
 - [ ] `supabase/migrations/20261108134705_block_subscription_payment_for_suspended_managers.sql`
 - [ ] `supabase/migrations/20261108135124_split_public_and_private_talent_portfolio_storage_policies.sql`
 - [ ] `supabase/migrations/20261108135523_close_suspended_manager_plan_helper_gaps.sql`
-- [ ] `supabase/migrations/20261121100000_payment_proofs_private_storage.sql`
+- [x] `supabase/migrations/20261121100000_payment_proofs_private_storage.sql`
 - [ ] `supabase/phase16_business_admin_fix.sql`
 - [ ] `supabase/public_reviews_fix.sql`
 - [ ] `supabase/supabase_live_dashboard_stats.sql`
 - [ ] `supabase/supabase_phase13_admin.sql`
 - [ ] `supabase/talent_profile_media_and_custom_categories.sql`
-- [ ] `tailwind.config.js`
+- [x] `tailwind.config.js`
 - [ ] `tests/i18n/language-preferences.test.mjs`
 - [ ] `tests/payments/saspay-checkout.test.mjs`
-- [ ] `vercel.json`
-- [ ] `vite.config.js`
+- [x] `vercel.json`
+- [x] `vite.config.js`
+
+
+## Fichiers de suivi de l'audit
+
+Les livrables `AUDIT_CHECKLIST.md`, `AUDIT_LOG.md` et `DECISIONS_A_VALIDER.md` sont créés pendant l'audit et ne font pas partie de l'inventaire initial des fichiers applicatifs.
