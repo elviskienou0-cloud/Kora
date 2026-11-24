@@ -190,3 +190,15 @@ Aucune correction de code n'a encore été appliquée.
 - Commit: `KORA-013: lire le quota talent depuis la configuration du plan`.
 - Statut: corrigé sur la branche d'audit; build CI à vérifier.
 
+
+
+### KORA-012 | incomplet | moyenne | client et manager | fiche talent publique | `src/pages/talent/Detail.jsx`, `src/pages/manager/Talents.jsx`, `public.get_talent_manager_profile(uuid)`, schéma public
+
+- Étapes: lecture des zones de chargement et d'affichage de la fiche talent, du formulaire manager, des colonnes de `talent_profiles` et `profiles`, et des fonctions publiques de contact manager.
+- Attendu: une fiche talent présente les réseaux sociaux, un calendrier de disponibilité et le numéro de téléphone du manager comme canal de contact.
+- Observé: la fiche affiche un booléen Disponible/Indisponible, un portfolio de fichiers/liens génériques et un bouton qui ouvre une conversation KORA. Aucun calendrier de créneaux ni champ social dédié n'existe dans le schéma public inspecté. Le profil manager public renvoie seulement `id, name, avatar, role`; le numéro est dans `profiles.phone` et n'est pas exposé par cette fonction.
+- Cause: les champs et parcours de calendrier/réseaux sociaux/contact téléphonique ne sont pas implémentés dans le modèle actuel.
+- Correction: aucune. Le numéro de téléphone est une donnée personnelle; sa visibilité publique doit être décidée avant toute exposition (D-007). Le périmètre exact du calendrier et des réseaux doit être confirmé.
+- Commit: aucun.
+- Statut: ouvert.
+
