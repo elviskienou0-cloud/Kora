@@ -55,7 +55,7 @@
 - `security:secrets`: réussi.
 - Workflow i18n séparé: réussi.
 - `npm audit --json`: 19 vulnérabilités signalées (1 faible, 12 modérées, 6 élevées, 0 critique). La synthèse de `npm ci` affiche 11 vulnérabilités; cet écart de comptage doit être réconcilié. L'étape audit du workflow utilise `|| true` et ne bloque donc pas la CI.
-- Ces validations CI couvrent le code jusqu'au commit `a47fd58cc22f8996bd5b5cf476264af4edec5ee5`; les derniers changements documentaires n'altèrent pas le code.
+- Ces validations CI couvrent le code jusqu'au commit `24727c67ffc4362213b765115548fdb53556e5be`; le dernier commit `df12b9425d0e2819b95ba5cf7023c2f002cf8e05` est documentaire. Deux runs intermédiaires ont échoué à cause d'une fermeture JSX incorrecte dans les nouvelles actions de suppression des notifications; KORA-031 a corrigé le problème et les runs suivants sont réussis.
 - Tests SELECT RLS: exécutés avec `anon`, un client, un manager et le Super Admin; détails plus bas. Les tests INSERT/UPDATE/DELETE n'ont pas été exécutés sur des données métier réelles; policies et privilèges inspectés.
 - Aucun profil `admin` associé n'existe dans la base active; les permissions fines de cet acteur restent non testées.
 - Parcours navigateur/mobile de bout en bout: non exécutés; aucun appareil Android/iOS ni navigateur E2E connecté n'a été utilisé.
@@ -381,8 +381,8 @@ Les tests ont utilisé des identités existantes du projet, sans afficher leurs 
 - Observé: les pages permettaient de marquer une notification comme lue, mais n'exposaient aucune action de suppression alors que la policy DELETE personnelle existe.
 - Cause: action de suppression non raccordée à l'interface.
 - Correction appliquée: ajout d'une action Supprimer dans les deux pages, avec filtre explicite sur `id` et `user_id`, contrôle du résultat et actualisation du cache.
-- Commit: `KORA-025: permettre la suppression des notifications personnelles`.
-- Statut: corrigé sur la branche d'audit; build CI à vérifier.
+- Commits: `42a06d036f549b84a31f0cf5997e6af833de4ac2` (ajout) et `d73e1b7060f47ce8996695436ebde6a51b30fe8f` (correction JSX KORA-031).
+- Statut: corrigé sur la branche; build/lint/tests et validation i18n CI réussis.
 
 
 
@@ -393,8 +393,8 @@ Les tests ont utilisé des identités existantes du projet, sans afficher leurs 
 - Observé: le helper acceptait tout type `image/*`, alors que le bucket n'accepte que JPEG, PNG et WebP. En cas d'échec de mise à jour de `profiles`, le fichier déjà téléversé restait orphelin.
 - Cause: validation MIME trop large et absence de nettoyage après échec partiel.
 - Correction appliquée: whitelist MIME alignée sur le bucket et suppression du fichier si l'URL ou la mise à jour du profil échoue.
-- Commit: `KORA-026: aligner les uploads de profil sur Storage`.
-- Statut: corrigé sur la branche d'audit; build CI à vérifier.
+- Commit: `ad051251a579a7f84d7e980647228c02b3fe183d` (`KORA-026: aligner les uploads de profil sur Storage`).
+- Statut: corrigé sur la branche; build/lint/tests CI réussis sur le commit `d73e1b7`.
 
 
 
@@ -417,8 +417,8 @@ Les tests ont utilisé des identités existantes du projet, sans afficher leurs 
 - Observé: en cas d'erreur RPC ou de réponse sans `access_level`, `adminAccess` restait `null`; les conditions de restriction ne s'exécutaient alors pas et le panneau affichait les vues comme si l'utilisateur avait tous les droits.
 - Cause: contrôle d'accès fail-open, sans état de chargement ni erreur bloquante.
 - Correction appliquée: chargement explicite des permissions; l'accès reste bloqué tant que le niveau n'est pas confirmé; ajout d'une action de nouvelle tentative.
-- Commit: `KORA-028: fermer l'accès admin si les permissions échouent`.
-- Statut: corrigé sur la branche d'audit; build CI à vérifier. Les policies RLS trop larges (KORA-021) restent à corriger séparément.
+- Commit: `eb8bdb0d28992706fb172c1d89ff791090bcea88` (`KORA-028: fermer l'accès admin si les permissions échouent`).
+- Statut: corrigé sur la branche; build/lint/tests CI réussis sur le commit `d73e1b7`. Les policies RLS trop larges (KORA-021) restent à corriger séparément.
 
 
 
@@ -429,8 +429,8 @@ Les tests ont utilisé des identités existantes du projet, sans afficher leurs 
 - Observé: `Boolean("false")` pouvait convertir une valeur textuelle false en true; une exception réseau hors réponse RPC pouvait laisser `loading` actif; les boutons de bascule n'avaient pas de nom accessible. Une variable `isNumber` était inutilisée.
 - Cause: parsing permissif et gestion d'erreur/accessibilité incomplètes.
 - Correction appliquée: parsing booléen explicite, `try/catch/finally` autour du chargement, rôle/état/nom accessible pour les interrupteurs, suppression de la variable morte.
-- Commit: `KORA-029: fiabiliser le chargement des paramètres admin`.
-- Statut: corrigé sur la branche d'audit; build CI à vérifier.
+- Commit: `09df2cbc2456f46af3fc41c7323d957e49f780d9` (`KORA-029: fiabiliser le chargement des paramètres admin`).
+- Statut: corrigé sur la branche; build/lint/tests CI réussis sur le commit `d73e1b7`.
 
 
 
@@ -453,8 +453,8 @@ Les tests ont utilisé des identités existantes du projet, sans afficher leurs 
 - Observé: la fermeture du bloc conditionnel `unread` se trouvait après le bouton Supprimer; ESLint et le build échouaient avec « Adjacent JSX elements must be wrapped ».
 - Cause: fermeture JSX mal positionnée lors de l'ajout du bouton Supprimer.
 - Correction appliquée: fermeture du bloc conditionnel immédiatement après le bouton Marquer comme lu; bouton Supprimer rendu comme élément frère.
-- Commit: `KORA-031: corriger la structure JSX des notifications`.
-- Statut: corrigé sur la branche; CI à relancer.
+- Commit: `d73e1b7060f47ce8996695436ebde6a51b30fe8f` (`KORA-031: corriger la structure JSX des notifications`).
+- Statut: corrigé; build/lint/tests et validation i18n CI réussis.
 
 
 
@@ -465,6 +465,6 @@ Les tests ont utilisé des identités existantes du projet, sans afficher leurs 
 - Observé: le code ne connaissait que 11 catégories statiques; la table contient 19 catégories actives. Business, Créatif, Finance, Formation, Juridique, Marketing, Santé et Technologie étaient invisibles dans la page et ignorées par les compteurs. Le total de la page additionne désormais uniquement les catégories actives affichées.
 - Cause: liste frontend figée et résolution des compteurs limitée à `APP_PARAMS.categories`.
 - Correction appliquée: la page charge maintenant les catégories actives depuis Supabase avec gestion des exceptions réseau; le hook construit les compteurs dynamiquement à partir du slug renvoyé par `get_kora_live_stats()`. Le total est calculé uniquement sur les catégories actives visibles.
-- Commit: `KORA-032: charger les catégories depuis Supabase`.
-- Statut: corrigé sur la branche; build CI à vérifier. La traduction anglaise de la page reste ouverte dans KORA-024.
+- Commit: `24727c67ffc4362213b765115548fdb53556e5be` (`KORA-032: charger les catégories depuis Supabase`).
+- Statut: corrigé; build/lint/tests et validation i18n CI réussis. La traduction anglaise de la page reste ouverte dans KORA-024.
 
