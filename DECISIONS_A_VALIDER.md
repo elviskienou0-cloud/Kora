@@ -80,3 +80,16 @@ Les points ci-dessous sont volontairement laissés ouverts. Aucune logique tarif
 3. Ajouter profils sociaux structurés et calendrier de disponibilités par dates/créneaux, avec fuseau horaire.
 
 **Recommandation:** option 3 si le calendrier doit servir à des demandes de booking réelles; sinon option 2 et conserver le statut de disponibilité simple. Ne pas créer de calendrier simulé ou non connecté à une source de données.
+
+
+## D-009 | Pièces jointes de la messagerie
+
+**Constat:** la messagerie actuelle stocke uniquement le texte. Aucun champ ou bucket de pièce jointe n'existe.
+
+**Options**
+1. Images uniquement, limite de 5 Mo.
+2. Images et PDF, limite de 10 Mo.
+3. Images, PDF et documents bureautiques, limite de 10 Mo.
+4. Ajouter également des vidéos, avec une limite distincte.
+
+**Recommandation:** option 2 pour une première version. Utiliser un bucket privé, des chemins liés à `conversation_id` et `message_id`, des policies vérifiant la participation à la conversation, et des URL signées temporaires. La taille et les MIME doivent être contrôlés côté client et côté Storage. Ne pas rendre les pièces jointes publiques.
