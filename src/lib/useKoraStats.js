@@ -60,7 +60,7 @@ const EMPTY_STATS = [
 ]
 
 export function useKoraStats({ enabled = true, realtime = true, initialLoading = false, emptyOnError = false } = {}) {
-  const [stats, setStats] = useState(DEFAULT_STATS)
+  const [stats, setStats] = useState(() => (emptyOnError ? EMPTY_STATS : DEFAULT_STATS))
   const [categoryCounts, setCategoryCounts] = useState(buildEmptyCategoryCounts)
   const [loading, setLoading] = useState(Boolean(enabled && initialLoading))
 

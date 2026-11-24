@@ -146,11 +146,16 @@ export default function Home() {
     if (isAuthenticated) loadUnreadMessages()
   }, [isAuthenticated, user?.authId])
 
-  const { stats: globalStats } = useKoraStats({ enabled: isAuthenticated })
-
-  const stats = globalStats.slice(0, 3).map((stat, index) => ({
+  const { stats: globalStats } = useKoraStats({ enabled: isAuthenticated, emptyOnError: true })
+  const statLabelKeys = ["landing.statsTalents", "landing.statsProjects", "landing.statsCountries", "landing.statsSatisfaction"]
+  const translatedGlobalStats = globalStats.map((stat, index) => ({
     ...stat,
-    label: index === 0 ? "Talents inscrits" : stat.label,
+    label: t(statLabelKeys[index] || "landing.statsTalents"),
+  }))
+
+  const stats = translatedGlobalStats.slice(0, 3).map((stat, index) => ({
+    ...stat,
+    label: index === 0 ? t("landing.statsTalents") : stat.label,
     color: [
       "from-blue-400/20 text-blue-600",
       "from-emerald-400/20 text-emerald-600",
@@ -258,7 +263,7 @@ export default function Home() {
                 </div>
               </div>
               <div className="mt-6 grid grid-cols-2 gap-2.5 sm:mt-8 sm:grid-cols-4 sm:gap-3">
-                {globalStats.slice(0, 4).map((s, index) => {
+                {translatedGlobalStats.slice(0, 4).map((s, index) => {
                   const Icon = [Users, Briefcase, Star, TrendingUp][index] || Star
                   return (
                     <div key={s.label} className={cn("min-w-0 rounded-2xl border p-3 sm:p-4", user.role === "client" ? "border-amber-200/80 bg-white/85 shadow-[0_2px_10px_rgba(92,68,20,0.04)]" : "border-white/25 bg-white/15 backdrop-blur-sm")}>

@@ -343,3 +343,15 @@ Les tests ont utilisé des identités existantes du projet, sans afficher leurs 
 - Commit: `KORA-022: aligner les formats image sur Storage`.
 - Statut: corrigé sur la branche d'audit; build CI à vérifier.
 
+
+
+### KORA-023 | UX / i18n / données réelles | basse | tous rôles connectés | accueil `/home` | `src/pages/Home.jsx`, `src/lib/useKoraStats.js`
+
+- Étapes: lecture de l'accueil, du hook `useKoraStats` et des clés i18n de la landing page.
+- Attendu: les statistiques indisponibles affichent un état neutre et leurs libellés suivent la langue choisie.
+- Observé: en cas d'erreur RPC, l'accueil affichait des zéros par défaut; les libellés renvoyés par le hook étaient en français même en mode anglais.
+- Cause: valeur initiale `DEFAULT_STATS` et libellés français réutilisés directement dans Home.
+- Correction appliquée: Home demande l'état neutre en cas d'erreur, traduit les quatre libellés avec les clés i18n existantes; le hook initialise également ses valeurs à « — » lorsque `emptyOnError` est activé.
+- Commit: `KORA-023: fiabiliser les statistiques et leur traduction sur l'accueil`.
+- Statut: corrigé sur la branche d'audit; build CI à vérifier.
+
