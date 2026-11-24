@@ -490,3 +490,15 @@ Les tests ont utilisé des identités existantes du projet, sans afficher leurs 
 - Commit: `KORA-033: rendre les actions de l'accueil fonctionnelles`.
 - Statut: corrigé sur la branche d'audit; build CI à vérifier.
 
+
+
+### KORA-034 | sécurité / confidentialité / concurrence asynchrone | moyenne | tous rôles connectés | accueil `/home` | `src/pages/Home.jsx` / chargement recommandations, favoris, messages non lus et activité
+
+- Étapes: lecture intégrale de l'accueil et inspection des effets déclenchés lors d'un changement de session.
+- Attendu: une réponse asynchrone lancée pour un utilisateur ne doit jamais remplacer les données de l'utilisateur connecté ensuite.
+- Observé: les chargements des favoris, messages non lus et activités n'avaient pas de garde de démontage/changement d'identité; une réponse tardive pouvait afficher des données du compte précédent après un changement de session. Les erreurs de certaines requêtes étaient aussi ignorées.
+- Cause: effets asynchrones sans invalidation lorsque l'identité change.
+- Correction appliquée: ajout de gardes `mounted`, contrôle des erreurs Supabase et réinitialisation des états en cas de session absente/erreur.
+- Commit: `KORA-034: isoler les données de l'accueil par session`.
+- Statut: corrigé sur la branche d'audit; build CI à vérifier.
+

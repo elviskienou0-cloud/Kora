@@ -73,6 +73,8 @@ export default function Home() {
   }, [isLoading, isAuthenticated, navigate])
 
   useEffect(() => {
+    let mounted = true
+
     async function loadRecommended() {
       setLoadingRecommended(true)
       try {
@@ -91,6 +93,7 @@ export default function Home() {
           .limit(4)
 
         if (error) throw error
+        if (!mounted) return
         setRecommended(
           (data || []).map((t) => ({
             id: t.id,
@@ -114,6 +117,7 @@ export default function Home() {
             .from("favorites")
             .select("talent_id")
             .eq("client_id", user.authId)
+          if (!mounted) return
           if (favoriteError) {
             console.error("Erreur chargement favoris :", favoriteError.message)
             setFavoriteIds(new Set())
@@ -124,15 +128,17 @@ export default function Home() {
           setFavoriteIds(new Set())
         }
       } catch (error) {
+        if (!mounted) return
         console.error("Erreur chargement accueil :", error)
         setRecommended([])
         setFavoriteIds(new Set())
       } finally {
-        setLoadingRecommended(false)
+        if (mounted) setLoadingRecommended(false)
       }
     }
 
     if (isAuthenticated) loadRecommended()
+    return () => { mounted = false }
   }, [isAuthenticated, user?.authId, user?.role])
 
   const [unreadMessages, setUnreadMessages] = useState(0)
@@ -172,31 +178,45 @@ export default function Home() {
 
 
   useEffect(() => {
+    let mounted = true
+
     async function loadUnreadMessages() {
-      if (!user?.authId) return
-
-      const { data: participantRows } = await supabase
-        .from("conversation_participants")
-        .select("conversation_id")
-        .eq("user_id", user.authId)
-
-      const conversationIds = (participantRows || []).map((r) => r.conversation_id)
-      if (conversationIds.length === 0) {
+      if (!user?.authId) {
         setUnreadMessages(0)
         return
       }
 
-      const { count } = await supabase
-        .from("messages")
-        .select("id", { count: "exact", head: true })
-        .in("conversation_id", conversationIds)
-        .neq("sender_id", user.authId)
-        .is("read_at", null)
+      try {
+        const { data: participantRows, error: participantsError } = await supabase
+          .from("conversation_participants")
+          .select("conversation_id")
+          .eq("user_id", user.authId)
+        if (participantsError) throw participantsError
 
-      setUnreadMessages(count ?? 0)
+        const conversationIds = (participantRows || []).map((row) => row.conversation_id)
+        if (conversationIds.length === 0) {
+          if (mounted) setUnreadMessages(0)
+          return
+        }
+
+        const { count, error: messagesError } = await supabase
+          .from("messages")
+          .select("id", { count: "exact", head: true })
+          .in("conversation_id", conversationIds)
+          .neq("sender_id", user.authId)
+          .is("read_at", null)
+        if (messagesError) throw messagesError
+        if (mounted) setUnreadMessages(count ?? 0)
+      } catch (error) {
+        if (!mounted) return
+        console.error("Erreur chargement messages non lus :", error)
+        setUnreadMessages(0)
+      }
     }
 
     if (isAuthenticated) loadUnreadMessages()
+    else setUnreadMessages(0)
+    return () => { mounted = false }
   }, [isAuthenticated, user?.authId])
 
   const { stats: globalStats } = useKoraStats({ enabled: isAuthenticated, emptyOnError: true })
@@ -220,26 +240,33 @@ export default function Home() {
   const [activity, setActivity] = useState([])
 
   useEffect(() => {
+    let mounted = true
+
     async function loadActivity() {
-      if (!user?.authId) return
-
-      const { data, error } = await supabase
-        .from("activity_logs")
-        .select("id, action, entity_type, metadata, created_at")
-        .eq("user_id", user.authId)
-        .order("created_at", { ascending: false })
-        .limit(5)
-
-      if (error) {
-        console.error("Erreur chargement activité :", error.message)
+      if (!user?.authId) {
         setActivity([])
         return
       }
 
-      setActivity(data || [])
+      try {
+        const { data, error } = await supabase
+          .from("activity_logs")
+          .select("id, action, entity_type, metadata, created_at")
+          .eq("user_id", user.authId)
+          .order("created_at", { ascending: false })
+          .limit(5)
+        if (error) throw error
+        if (mounted) setActivity(data || [])
+      } catch (error) {
+        if (!mounted) return
+        console.error("Erreur chargement activité :", error)
+        setActivity([])
+      }
     }
 
     if (isAuthenticated) loadActivity()
+    else setActivity([])
+    return () => { mounted = false }
   }, [isAuthenticated, user?.authId])
 
   if (isLoading || !user) return null
