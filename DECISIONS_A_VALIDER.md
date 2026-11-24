@@ -26,14 +26,21 @@ Les points ci-dessous sont volontairement laissés ouverts. Aucune logique tarif
 
 ## D-003 | Périmètre des plans
 
-**Constat:** le README annonce Gratuit 1 talent, Pro 3 talents et Business illimité. Les invariants d'audit imposent un essai d'un mois pour les nouveaux managers et citent Standard limité à 1 talent, mais ne définissent pas entièrement les droits de chaque plan.
+**Constat vérifié dans Supabase au 24/11/2026:** trois plans actifs existent:
+- `FREE`: 0 XOF, `trial_days=30`, `talent_limit=1`.
+- `PRO`: 2 500 XOF, `trial_days=0`, `talent_limit=3`.
+- `BUSINESS`: 5 000 XOF, `trial_days=0`, `talent_limit=null` (illimité).
+
+Les trois plans possèdent actuellement exactement les mêmes 10 fonctionnalités: gestion des talents, profil talent, portfolio et médias, gestion du cachet, demandes, messagerie, notifications, projets, profil manager et organisation du portefeuille. Les différences réelles sont donc le prix, la durée d'essai et le quota de talents.
+
+**Écart à clarifier:** l'invariant fourni mentionne un plan « Standard » limité à 1 talent, mais aucun plan `STANDARD` n'existe dans la table active; le quota d'un talent est actuellement celui du plan `FREE`.
 
 **Options**
-1. Confirmer les limites et fonctionnalités exactes du README.
-2. Définir un plan Standard distinct.
-3. Définir une matrice officielle des droits, quotas et restrictions par plan dans l'admin.
+1. Confirmer que `FREE` correspond au plan Standard et conserver les trois formules actuelles.
+2. Renommer `FREE` en `STANDARD` et adapter les parcours/migrations.
+3. Définir une matrice différenciée des fonctionnalités, quotas et restrictions pour chaque plan.
 
-**Recommandation:** option 3. Faire valider une matrice complète avant de modifier les contrôles front, RPC, fonctions SQL ou policies.
+**Recommandation:** option 3, en confirmant d'abord le nom commercial attendu du plan à 1 talent. Ne modifier aucun contrôle de plan, tarif ou quota avant validation de cette matrice.
 
 ## D-004 | Paramètres techniques des paiements directs Orange Money / Moov Money
 
