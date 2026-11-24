@@ -331,3 +331,15 @@ Les tests ont utilisé des identités existantes du projet, sans afficher leurs 
 - Commit: aucun.
 - Statut: ouvert, priorité haute.
 
+
+
+### KORA-022 | UX / validation upload | basse | manager | édition média talent | `src/lib/talentMedia.js` / `uploadTalentProfileMedia`
+
+- Étapes: lecture intégrale du helper d'upload et comparaison avec la configuration réelle du bucket `talent-profile-media`.
+- Attendu: la validation côté client accepte exactement les types MIME autorisés par Storage.
+- Observé: le helper acceptait tout type commençant par `image/`, alors que le bucket autorise uniquement JPEG, PNG et WebP (5 Mo max). Des formats tels que SVG, GIF ou HEIC passaient la validation locale puis échouaient au stockage.
+- Cause: validation MIME trop large par rapport à la policy Storage.
+- Correction appliquée: restriction côté client aux trois MIME réellement autorisés.
+- Commit: `KORA-022: aligner les formats image sur Storage`.
+- Statut: corrigé sur la branche d'audit; build CI à vérifier.
+
