@@ -21,7 +21,7 @@
   border-color: hsl(var(--border)) !important;
   background-color: hsl(var(--card)) !important;
   color: hsl(var(--card-foreground));
-  box-shadow: 0 12px 30px rgb(23 43 77 / .06);
+  box-shadow: 0 12px 30px rgb(0 0 0 / .06);
   /* Keep dashboard cards on the normal paint layer for smoother scrolling. */
 }
 .dark .kora-superadmin-glass main [class*="rounded-xl"][class*="border"],
@@ -51,9 +51,9 @@
   box-shadow: 0 8px 20px rgb(23 43 77 / .12);
 }
 .dark .kora-superadmin-glass .kora-superadmin-active-nav {
-  color: #172B4D !important;
-  background: #FFFFFF !important;
-  border-color: #FFFFFF;
+  color: #171717 !important;
+  background: #F5C542 !important;
+  border-color: #F5C542;
 }
 .kora-superadmin-glass nav button:hover,
 .kora-superadmin-glass nav a:hover { color: hsl(var(--foreground)); }
