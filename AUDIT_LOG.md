@@ -396,3 +396,15 @@ Les tests ont utilisé des identités existantes du projet, sans afficher leurs 
 - Commit: `KORA-026: aligner les uploads de profil sur Storage`.
 - Statut: corrigé sur la branche d'audit; build CI à vérifier.
 
+
+
+### KORA-027 | incomplet / faux réglages | haute | Super Admin et tous utilisateurs | paramètres plateforme | `src/pages/admin/Settings.jsx`, `src/lib/ThemeContext.jsx`, `src/pages/Register.jsx`, `src/pages/manager/Talents.jsx`, `public/maintenance.html`
+
+- Étapes: lecture de la page Settings, recherche des clés `maintenance_mode`, `registrations_enabled`, `talent_auto_publish`, `default_theme` dans les pages et fonctions SQL actives.
+- Attendu: chaque réglage enregistré par le Super Admin produit réellement l'effet annoncé.
+- Observé: la page admin enregistre les quatre clés dans `app_settings`, mais aucun consommateur frontend ou fonction métier n'a été trouvé pour `maintenance_mode`, `registrations_enabled` ou `talent_auto_publish`. `get_kora_default_theme()` existe côté SQL, mais `ThemeContext.jsx` utilise une constante locale `light` et ne l'appelle pas. La page `public/maintenance.html` est statique et aucun middleware/rewrite n'applique le mode maintenance global.
+- Cause: interface de paramètres créée sans raccordement des effets opérationnels.
+- Correction: non appliquée; le mode maintenance global doit être conçu pour retourner une vraie page et un statut HTTP approprié sans exposer de secret; l'inscription et l'auto-publication doivent être contrôlées côté serveur.
+- Commit: aucun.
+- Statut: ouvert, priorité haute; les interrupteurs ne doivent pas être présentés comme opérationnels tant que les consommateurs ne sont pas implémentés.
+
