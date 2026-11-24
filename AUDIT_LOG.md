@@ -15,11 +15,11 @@
 
 ## Synthèse des constats (snapshot du 24 novembre 2026)
 
-- **31 constats** enregistrés.
+- **33 constats** enregistrés.
 - **Haute : 8** (1 corrigé, 2 partiellement corrigés/en attente de migration, 5 ouverts).
-- **Moyenne : 18** (7 corrigés, 3 partiellement corrigés/en attente de migration, 8 ouverts).
+- **Moyenne : 20** (9 corrigés, 3 partiellement corrigés/en attente de migration, 8 ouverts).
 - **Basse : 5** (5 corrigés).
-- **Total : 13 corrigés, 5 partiellement corrigés/en attente de déploiement, 13 ouverts.**
+- **Total : 15 corrigés, 5 partiellement corrigés/en attente de déploiement, 13 ouverts.**
 - Le statut « corrigé » désigne une correction sur la branche d'audit, pas une mise en production. Les migrations versionnées ne sont pas appliquées à Supabase.
 - Les sections ci-dessous sont triées par gravité, puis par identifiant.
 
@@ -154,7 +154,7 @@
 - `security:secrets`: réussi.
 - Workflow i18n séparé: réussi.
 - `npm audit --json`: 19 vulnérabilités signalées (1 faible, 12 modérées, 6 élevées, 0 critique). La synthèse de `npm ci` affiche 11 vulnérabilités; cet écart de comptage doit être réconcilié. L'étape audit du workflow utilise `|| true` et ne bloque donc pas la CI.
-- Ces validations CI couvrent le code jusqu'au commit `24727c67ffc4362213b765115548fdb53556e5be`; le dernier commit `f016028292b94b73915a2ac02aa0afc727be03f4` est documentaire. Deux runs intermédiaires ont échoué à cause d'une fermeture JSX incorrecte dans les nouvelles actions de suppression des notifications; KORA-031 a corrigé le problème et les runs suivants sont réussis.
+- Ces validations CI couvrent le code jusqu'au commit `0ec9f0e182bc84ecd5de1018e25ccc9c4d3c4838`; le build qualité et les tests i18n sont réussis sur ce commit. Deux runs intermédiaires ont échoué à cause d'une fermeture JSX incorrecte dans les nouvelles actions de suppression des notifications; KORA-031 a corrigé le problème et les runs suivants sont réussis.
 - Tests SELECT RLS: exécutés avec `anon`, un client, un manager et le Super Admin; détails plus bas. Les tests INSERT/UPDATE/DELETE n'ont pas été exécutés sur des données métier réelles; policies et privilèges inspectés.
 - Aucun profil `admin` associé n'existe dans la base active; les permissions fines de cet acteur restent non testées.
 - Parcours navigateur/mobile de bout en bout: non exécutés; aucun appareil Android/iOS ni navigateur E2E connecté n'a été utilisé.
@@ -418,6 +418,28 @@ Les tests ont utilisé des identités existantes du projet, sans afficher leurs 
 - Commit: `24727c67ffc4362213b765115548fdb53556e5be` (`KORA-032: charger les catégories depuis Supabase`).
 - Statut: corrigé; build/lint/tests et validation i18n CI réussis. La traduction anglaise de la page reste ouverte dans KORA-024.
 
+### KORA-033 | incomplet / UX / accessibilité | moyenne | client et tous rôles connectés | accueil `/home` | `src/pages/Home.jsx`
+
+- Étapes: lecture intégrale de l'accueil et vérification des handlers de ses contrôles.
+- Attendu: chaque contrôle visible effectue une action réelle et les cartes interactives sont utilisables au clavier.
+- Observé: le champ de recherche desktop n'avait ni état ni handler; le bouton cœur des talents recommandés n'avait aucun handler et pouvait déclencher la navigation de la carte. La carte entière était cliquable sans rôle clavier.
+- Cause: contrôles visuels non raccordés aux parcours métier.
+- Correction appliquée: suppression du champ de recherche inerte (l'action Explorer reste disponible), raccordement du cœur à la table `favorites` pour les clients seulement, gestion d'erreur et d'état pending, arrêt de propagation; carte rendue accessible au clavier avec rôle link.
+- Commit: `8c959ada168b0f72db28745d9c536cba1cfcf9c7` (`KORA-033: rendre les actions de l'accueil fonctionnelles`).
+- Statut: corrigé; build/lint/tests et validation i18n CI réussis.
+
+
+
+### KORA-034 | sécurité / confidentialité / concurrence asynchrone | moyenne | tous rôles connectés | accueil `/home` | `src/pages/Home.jsx` / chargement recommandations, favoris, messages non lus et activité
+
+- Étapes: lecture intégrale de l'accueil et inspection des effets déclenchés lors d'un changement de session.
+- Attendu: une réponse asynchrone lancée pour un utilisateur ne doit jamais remplacer les données de l'utilisateur connecté ensuite.
+- Observé: les chargements des favoris, messages non lus et activités n'avaient pas de garde de démontage/changement d'identité; une réponse tardive pouvait afficher des données du compte précédent après un changement de session. Les erreurs de certaines requêtes étaient aussi ignorées.
+- Cause: effets asynchrones sans invalidation lorsque l'identité change.
+- Correction appliquée: ajout de gardes `mounted`, contrôle des erreurs Supabase et réinitialisation des états en cas de session absente/erreur.
+- Commit: `0ec9f0e182bc84ecd5de1018e25ccc9c4d3c4838` (`KORA-034: isoler les données de l'accueil par session`).
+- Statut: corrigé; build/lint/tests et validation i18n CI réussis.
+
 ### KORA-019 | UX / i18n | basse | client et manager | liste des conversations | `src/pages/Messages.jsx` / `formatConversationTime`
 
 - Étapes: lecture intégrale de la page Messages et comparaison des deux formatters de dates.
@@ -479,26 +501,4 @@ Les tests ont utilisé des identités existantes du projet, sans afficher leurs 
 
 
 
-
-### KORA-033 | incomplet / UX / accessibilité | moyenne | client et tous rôles connectés | accueil `/home` | `src/pages/Home.jsx`
-
-- Étapes: lecture intégrale de l'accueil et vérification des handlers de ses contrôles.
-- Attendu: chaque contrôle visible effectue une action réelle et les cartes interactives sont utilisables au clavier.
-- Observé: le champ de recherche desktop n'avait ni état ni handler; le bouton cœur des talents recommandés n'avait aucun handler et pouvait déclencher la navigation de la carte. La carte entière était cliquable sans rôle clavier.
-- Cause: contrôles visuels non raccordés aux parcours métier.
-- Correction appliquée: suppression du champ de recherche inerte (l'action Explorer reste disponible), raccordement du cœur à la table `favorites` pour les clients seulement, gestion d'erreur et d'état pending, arrêt de propagation; carte rendue accessible au clavier avec rôle link.
-- Commit: `KORA-033: rendre les actions de l'accueil fonctionnelles`.
-- Statut: corrigé sur la branche d'audit; build CI à vérifier.
-
-
-
-### KORA-034 | sécurité / confidentialité / concurrence asynchrone | moyenne | tous rôles connectés | accueil `/home` | `src/pages/Home.jsx` / chargement recommandations, favoris, messages non lus et activité
-
-- Étapes: lecture intégrale de l'accueil et inspection des effets déclenchés lors d'un changement de session.
-- Attendu: une réponse asynchrone lancée pour un utilisateur ne doit jamais remplacer les données de l'utilisateur connecté ensuite.
-- Observé: les chargements des favoris, messages non lus et activités n'avaient pas de garde de démontage/changement d'identité; une réponse tardive pouvait afficher des données du compte précédent après un changement de session. Les erreurs de certaines requêtes étaient aussi ignorées.
-- Cause: effets asynchrones sans invalidation lorsque l'identité change.
-- Correction appliquée: ajout de gardes `mounted`, contrôle des erreurs Supabase et réinitialisation des états en cas de session absente/erreur.
-- Commit: `KORA-034: isoler les données de l'accueil par session`.
-- Statut: corrigé sur la branche d'audit; build CI à vérifier.
 
