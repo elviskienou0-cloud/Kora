@@ -317,3 +317,17 @@ Les tests ont utilisé des identités existantes du projet, sans afficher leurs 
 - Commit: `KORA-020: réserver l'initialisation d'abonnement aux managers`.
 - Statut: migration versionnée; non appliquée à la base active.
 
+
+
+### KORA-021 | sécurité / autorisations admin | haute | admin associé | 21 tables du schéma public | policies RLS utilisant `is_admin()`
+
+- Étapes: inspection de toutes les policies RLS publiques; comparaison avec `is_admin()`, `admin_has_permission()` et la matrice `associatePermissionByView` de `AdminPanel.jsx`.
+- Attendu: un administrateur associé n'accède qu'aux tables et opérations correspondant à ses permissions attribuées; le Super Admin conserve l'accès complet.
+- Observé: 51 policies sur 21 tables utilisent `is_admin()`. Cette fonction renvoie vrai pour tout profil de rôle `admin` ou `superadmin`, sans vérifier les permissions de l'administrateur associé. Exemples: lecture des conversations/messages, notifications, paiements/transactions, portefeuilles, talents, projets, demandes, avis, compétences et demandes de vérification; plusieurs policies autorisent aussi INSERT/UPDATE/DELETE.
+- Cause: policies RLS héritées du modèle « admin global », alors que le frontend possède désormais des permissions par vue.
+- Risque: un admin associé sans permission correspondante peut appeler directement Supabase et contourner les restrictions de navigation de l'interface.
+- Correction: non appliquée. Il faut remplacer les accès admin génériques par `admin_has_permission(permission)` pour les lectures autorisées et réserver les écritures sans permission dédiée au Super Admin. La matrice exacte doit être validée et testée avec un vrai compte admin associé.
+- Limite de vérification: aucun profil `admin` associé n'existe actuellement dans la base active; seul un Super Admin a pu être testé.
+- Commit: aucun.
+- Statut: ouvert, priorité haute.
+
