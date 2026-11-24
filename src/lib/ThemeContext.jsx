@@ -26,6 +26,9 @@ export function ThemeProvider({ children }) {
     root.classList.toggle("dark", effectiveTheme === "dark")
     root.style.colorScheme = effectiveTheme
     root.dataset.theme = effectiveTheme
+
+    const themeColor = document.querySelector('meta[name="theme-color"]')
+    if (themeColor) themeColor.content = effectiveTheme === "dark" ? "#17130B" : "#F8F7F3"
   }, [effectiveTheme])
 
   const setTheme = useCallback((nextTheme) => {
