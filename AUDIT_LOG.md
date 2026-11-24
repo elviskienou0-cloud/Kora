@@ -502,3 +502,15 @@ Les tests ont utilisé des identités existantes du projet, sans afficher leurs 
 
 
 
+
+
+### KORA-035 | incomplet / transparence commerciale | moyenne | visiteurs et managers | landing / tarifs | `src/components/landing/LandingPricing.jsx`
+
+- Étapes: lecture intégrale de la section Tarifs et inspection du champ `plans.features` consommé depuis Supabase.
+- Attendu: chaque formule affiche les fonctionnalités réellement enregistrées pour cette formule.
+- Observé: les cartes affichaient un texte générique « toutes les fonctionnalités »; la section complémentaire ne listait que l'intersection des fonctionnalités communes à tous les plans. Les différences entre formules étaient invisibles.
+- Cause: le composant calculait uniquement les fonctionnalités communes et ne rendait pas les listes propres à chaque plan.
+- Correction appliquée: affichage de `plans.features` dans chaque carte, avec traduction anglaise connue et fallback sur le libellé source; suppression de la section redondante des fonctionnalités communes.
+- Commit: `KORA-035: afficher les fonctionnalités propres à chaque plan`.
+- Statut: corrigé sur la branche d'audit; build CI à vérifier.
+

@@ -132,7 +132,7 @@ Les cases restent décochées tant que le fichier n'a pas été lu intégralemen
 - [ ] `src/components/landing/LandingManifesto.jsx`
 - [ ] `src/components/landing/LandingMarquee.jsx`
 - [ ] `src/components/landing/LandingNav.jsx`
-- [ ] `src/components/landing/LandingPricing.jsx`
+- [x] `src/components/landing/LandingPricing.jsx`
 - [ ] `src/components/landing/LandingProcess.jsx`
 - [ ] `src/components/landing/LandingWhy.jsx`
 - [ ] `src/components/landing/landingKit.jsx`
@@ -238,7 +238,7 @@ Les cases restent décochées tant que le fichier n'a pas été lu intégralemen
 - [ ] `src/pages/FAQ.jsx`
 - [x] `src/pages/ForgotPassword.jsx`
 - [x] `src/pages/Home.jsx`
-- [ ] `src/pages/Landing.jsx`
+- [x] `src/pages/Landing.jsx`
 - [x] `src/pages/Login.jsx`
 - [ ] `src/pages/MentionsLegales.jsx`
 - [x] `src/pages/Messages.jsx`
