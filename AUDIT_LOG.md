@@ -165,3 +165,15 @@ Aucune correction de code n'a encore été appliquée.
 - Commit: aucun.
 - Statut: ouvert.
 
+
+
+### KORA-011 | sécurité | moyenne | client et manager | inscription / mot de passe | configuration Supabase Auth
+
+- Étapes: lecture de l'advisor de sécurité Supabase du projet actif, observé le 24 novembre 2026.
+- Attendu: la protection contre les mots de passe compromis est activée pour empêcher l'utilisation de secrets connus dans des fuites publiques.
+- Observé: l'advisor `auth_leaked_password_protection` signale `Leaked Password Protection Disabled`.
+- Cause: option de sécurité Auth désactivée dans la configuration du projet.
+- Correction: non appliquée. Ce paramètre relève de la configuration Supabase Auth et non d'une migration SQL; aucune modification manuelle non versionnée n'a été faite.
+- Commit: aucun.
+- Statut: ouvert, action de configuration à planifier et tracer.
+
