@@ -57,3 +57,26 @@ Les points ci-dessous sont volontairement laissés ouverts. Aucune logique tarif
 **À confirmer:** « blocage complet » peut signifier interdiction de toute action métier tout en conservant la possibilité de connexion, de consulter l'état du compte, de télécharger ses données ou de soumettre une preuve de paiement. Ces exceptions ne doivent pas être déduites.
 
 **Recommandation:** définir une matrice des actions autorisées après expiration avant de modifier les guards ou policies.
+
+## D-007 | Visibilité du numéro du manager sur les fiches talents
+
+**Constat:** le numéro est stocké dans `profiles.phone`, mais la fonction publique `get_talent_manager_profile` ne renvoie pas ce champ. La fiche talent ouvre actuellement une conversation KORA.
+
+**Options**
+1. Numéro visible publiquement à tous les visiteurs.
+2. Numéro visible uniquement aux clients connectés.
+3. Numéro révélé après action volontaire du client, avec consentement explicite du manager pour chaque talent.
+4. Conserver la messagerie KORA comme canal principal et proposer le téléphone uniquement sur activation volontaire.
+
+**Recommandation:** option 3 ou 4. Le numéro doit rester privé par défaut; prévoir un consentement explicite du manager avant toute exposition, avec possibilité de retrait.
+
+## D-008 | Réseaux sociaux et calendrier de disponibilité
+
+**Constat:** le modèle actuel permet des liens génériques de portfolio et un booléen `available`; il ne comporte pas de champs sociaux structurés ni de calendrier de créneaux.
+
+**Options**
+1. Garder uniquement les liens génériques du portfolio et le statut Disponible/Indisponible.
+2. Ajouter des profils sociaux structurés (Instagram, TikTok, YouTube, Facebook, LinkedIn, site web) sans calendrier de réservation.
+3. Ajouter profils sociaux structurés et calendrier de disponibilités par dates/créneaux, avec fuseau horaire.
+
+**Recommandation:** option 3 si le calendrier doit servir à des demandes de booking réelles; sinon option 2 et conserver le statut de disponibilité simple. Ne pas créer de calendrier simulé ou non connecté à une source de données.
