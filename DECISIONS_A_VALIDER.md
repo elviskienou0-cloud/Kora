@@ -118,7 +118,7 @@ Les points ci-dessous sont volontairement laissés ouverts. Aucune logique tarif
 
 ## D-011 | Permissions RLS des administrateurs associés
 
-**Constat:** 51 policies sur 21 tables accordent des accès via `is_admin()`, qui reconnaît tout compte `admin` ou `superadmin` sans consulter ses permissions. L'interface, elle, filtre les vues avec des permissions par rubrique.
+**Constat:** 51 policies sur 21 tables publiques et 5 policies Storage accordent des accès via `is_admin()`, qui reconnaît tout compte `admin` ou `superadmin` sans consulter ses permissions. L'interface, elle, filtre les vues avec des permissions par rubrique.
 
 **Options**
 1. Conserver un modèle où tout administrateur associé possède les mêmes droits de données que le Super Admin.
