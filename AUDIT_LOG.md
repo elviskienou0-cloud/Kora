@@ -362,11 +362,11 @@ Les tests ont utilisé des identités existantes du projet, sans afficher leurs 
 
 
 
-### KORA-024 | i18n / UX | moyenne | tous rôles | catégories et espace admin | `src/pages/Categories.jsx`, `src/pages/admin/AdminPanel.jsx`, `src/pages/admin/Settings.jsx`, `src/pages/admin/Payments.jsx`, `src/pages/admin/Subscriptions.jsx`
+### KORA-024 | i18n / UX | moyenne | tous rôles | inscription, catégories et espace admin | `src/pages/Register.jsx`, `src/pages/Categories.jsx`, `src/pages/admin/AdminPanel.jsx`, `src/pages/admin/Settings.jsx`, `src/pages/admin/Payments.jsx`, `src/pages/admin/Subscriptions.jsx`
 
 - Étapes: inspection des pages publiques et administratives et comparaison avec le système de langue global.
 - Attendu: toutes les routes accessibles en anglais affichent des libellés cohérents dans la langue choisie.
-- Observé: `Categories.jsx`, `AdminPanel.jsx` et `Settings.jsx` ne consomment pas le contexte i18n et contiennent des libellés français statiques. Les pages Paiements et Abonnements contiennent également des textes français statiques.
+- Observé: `Register.jsx`, `Categories.jsx`, `AdminPanel.jsx` et `Settings.jsx` ne consomment pas le contexte i18n et contiennent des libellés français statiques. Les pages Paiements et Abonnements contiennent également des textes français statiques.
 - Cause: ces vues n'ont pas été raccordées au dictionnaire FR/EN global.
 - Correction: non appliquée dans cette étape; les pages doivent être traduites sans changer les libellés métier ni les permissions.
 - Commit: aucun.
@@ -402,7 +402,7 @@ Les tests ont utilisé des identités existantes du projet, sans afficher leurs 
 
 - Étapes: lecture de la page Settings, recherche des clés `maintenance_mode`, `registrations_enabled`, `talent_auto_publish`, `default_theme` dans les pages et fonctions SQL actives.
 - Attendu: chaque réglage enregistré par le Super Admin produit réellement l'effet annoncé.
-- Observé: la page admin enregistre les quatre clés dans `app_settings`, mais aucun consommateur frontend ou fonction métier n'a été trouvé pour `maintenance_mode`, `registrations_enabled` ou `talent_auto_publish`. `get_kora_default_theme()` existe côté SQL, mais `ThemeContext.jsx` utilise une constante locale `light` et ne l'appelle pas. La page `public/maintenance.html` est statique et aucun middleware/rewrite n'applique le mode maintenance global.
+- Observé: la page admin enregistre les clés de configuration dans `app_settings`, mais aucun consommateur n'a été trouvé pour `site_name`, `site_tagline`, `support_email`, `contact_email`, `currency`, `maintenance_mode`, `registrations_enabled` ou `talent_auto_publish`. Le site utilise encore les constantes de `APP_PARAMS` pour le nom, le slogan et les emails. `get_kora_default_theme()` existe côté SQL, mais `ThemeContext.jsx` utilise une constante locale `light` et ne l'appelle pas. La page `public/maintenance.html` est statique et aucun middleware/rewrite n'applique le mode maintenance global.
 - Cause: interface de paramètres créée sans raccordement des effets opérationnels.
 - Correction: non appliquée; le mode maintenance global doit être conçu pour retourner une vraie page et un statut HTTP approprié sans exposer de secret; l'inscription et l'auto-publication doivent être contrôlées côté serveur.
 - Commit: aucun.
@@ -431,4 +431,16 @@ Les tests ont utilisé des identités existantes du projet, sans afficher leurs 
 - Correction appliquée: parsing booléen explicite, `try/catch/finally` autour du chargement, rôle/état/nom accessible pour les interrupteurs, suppression de la variable morte.
 - Commit: `KORA-029: fiabiliser le chargement des paramètres admin`.
 - Statut: corrigé sur la branche d'audit; build CI à vérifier.
+
+
+
+### KORA-030 | incohérence métier / configuration | moyenne | manager et Super Admin | plans / configuration globale | `src/lib/app-params.js`
+
+- Étapes: lecture intégrale de `APP_PARAMS` et comparaison avec les lignes `plans` de Supabase et les règles de prix/quota.
+- Attendu: les prix, durées et limites de talents proviennent d'une seule source administrable; aucune valeur tarifaire n'est dupliquée dans le frontend.
+- Observé: `APP_PARAMS.plans` contient encore les prix 0/2500/5000 FCFA, les limites 1/3/illimité et `commissionPct: 0`, alors que la table `plans` possède déjà les champs `price`, `trial_days` et `talent_limit`. Le parcours manager utilise désormais la valeur DB pour le quota, mais cette configuration statique reste présente et son graphe d'utilisation doit être vérifié avant suppression.
+- Cause: ancienne configuration frontend conservée en parallèle de la configuration Supabase.
+- Correction: non appliquée; rechercher tous les consommateurs de `APP_PARAMS.plans`, puis supprimer le doublon s'il est inutilisé ou le remplacer par les données DB.
+- Commit: aucun.
+- Statut: ouvert.
 
