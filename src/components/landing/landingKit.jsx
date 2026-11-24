@@ -3,7 +3,7 @@ import { cn } from "@/lib/utils"
 
 export const EASE = [0.22, 1, 0.36, 1]
 
-export function Reveal({ children, className, delay = 0 }) {
+export function Reveal({ children, className, delay = 0, style }) {
   const elementRef = useRef(null)
   const [visible, setVisible] = useState(false)
 
@@ -30,7 +30,7 @@ export function Reveal({ children, className, delay = 0 }) {
     <div
       ref={elementRef}
       className={cn("kora-lp-reveal", visible && "is-visible", className)}
-      style={{ "--reveal-delay": Math.max(0, Math.min(Number(delay) || 0, 0.3)) + "s" }}
+      style={{ ...style, "--reveal-delay": Math.max(0, Math.min(Number(delay) || 0, 0.3)) + "s" }}
     >
       {children}
     </div>
