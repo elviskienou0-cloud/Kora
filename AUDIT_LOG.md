@@ -13,6 +13,16 @@
 
 ## État initial vérifié
 
+## Synthèse des constats (snapshot du 24 novembre 2026)
+
+- **31 constats** enregistrés.
+- **Haute : 8** (1 corrigé, 2 partiellement corrigés/en attente de migration, 5 ouverts).
+- **Moyenne : 18** (7 corrigés, 3 partiellement corrigés/en attente de migration, 8 ouverts).
+- **Basse : 5** (5 corrigés).
+- **Total : 13 corrigés, 5 partiellement corrigés/en attente de déploiement, 13 ouverts.**
+- Le statut « corrigé » désigne une correction sur la branche d'audit, pas une mise en production. Les migrations versionnées ne sont pas appliquées à Supabase.
+- Les sections ci-dessous sont triées par gravité, puis par identifiant.
+
 ### KORA-001 | incohérence métier / paiement | haute | manager | abonnement / création de paiement | `README.md`, `supabase/functions/create-payment/index.ts`
 
 - Étapes: lecture intégrale du README et de l'Edge Function `create-payment`; recherche des intégrations Orange Money, Moov Money, SasPay, CinetPay et PayDunya.
@@ -22,6 +32,95 @@
 - Correction: non appliquée. La cible métier est déjà claire; l'implémentation attend les API/contrats opérateur, identifiants marchand et paramètres de callback de chaque opérateur. Les secrets devront rester côté Edge Function.
 - Commit: aucun.
 - Statut: ouvert, priorité haute; intégration directe à réaliser.
+
+### KORA-004 | incomplet | haute | manager et admin | abonnement / validation paiement | `src/pages/manager/Subscription.jsx`, `src/pages/admin/Payments.jsx`, `supabase/migrations/20261121001412_payment_proofs_private_storage.sql`
+
+- Étapes: lecture intégrale des deux pages, du helper `src/components/FileUpload.jsx` et de la migration de stockage des preuves.
+- Attendu: le manager dépose une capture de paiement dans le bucket privé; l'admin consulte cette preuve avant de valider le paiement.
+- Observé: la migration crée le bucket privé `payment-proofs` et la RPC `attach_payment_proof`, mais la page Manager ne propose aucun upload de preuve et son bouton « paiement effectué » ne fait que modifier `sessionStorage`. La page Admin ne sélectionne pas `proof_url` et n'affiche aucune preuve.
+- Cause: le stockage et la RPC de preuve ne sont pas raccordés au parcours d'abonnement et à l'interface de validation.
+- Correction appliquée sur cette branche: le manager peut envoyer un fichier autorisé (JPG/PNG/WebP/PDF, 5 Mo max) dans le bucket privé via `attach_payment_proof`; l'admin consulte une URL signée temporaire avant validation. La migration `supabase/migrations/20261124220000_require_payment_proof_for_subscription_validation.sql` impose aussi côté SQL la présence d'une preuve avant le passage d'un paiement d'abonnement à `paid`.
+- Commit: `bc6c641fb3e0fbf5e4aeddc1202854f474fe10b0` (`KORA-004: relier les preuves de paiement à la validation admin`).
+- Statut: code et migration versionnée corrigés; build/lint/tests CI réussis sur un commit ultérieur; migration non appliquée à la base active.
+
+
+
+### KORA-006 | sécurité / intégrité des déploiements | haute | tous rôles | schéma Supabase / migrations | `supabase/migrations/*`
+
+- Étapes: comparaison des 99 fichiers de migration du dépôt avec les 100 versions appliquées dans `supabase_migrations.schema_migrations` du projet Supabase actif.
+- Attendu: chaque migration appliquée en production possède un fichier versionné correspondant dans le dépôt; aucun fichier local ne doit réutiliser une migration déjà appliquée sous un autre numéro.
+- Observé: versions appliquées absentes du dépôt `20261121001412_payment_proofs_private_storage` et `20261122011054_payment_proofs_notify_superadmin`; le dépôt contenait à la place `20261121100000_payment_proofs_private_storage.sql`, non appliqué, qui fusionnait le contenu des deux versions.
+- Cause: dérive de l'historique de migrations entre Git et la base active.
+- Risque: les prochains déploiements peuvent rejouer une migration déjà appliquée et ne pas reproduire fidèlement l'état de production.
+- Correction appliquée sur cette branche: restauration des deux fichiers SQL exacts depuis `supabase_migrations.schema_migrations`; déplacement du fichier non appliqué et fusionné vers `supabase/migrations_archive/` afin de préserver son contenu sans le faire exécuter par la CLI. Aucune requête DDL n'a été exécutée sur la base active et aucune donnée n'a été supprimée.
+- Vérification après correction: 100 versions historiques locales et 100 versions appliquées distantes correspondent exactement. Trois migrations nouvelles sont présentes localement et non appliquées: `20261124220000`, `20261124230000`, `20261124240000`.
+- Commits: `c6b2a1b7a53e4f837a0bdd5132d592768c29e8cf` (restauration) et `7c7ac804d988310e08671748f9b224da41b818bd` (confirmation de parité).
+- Statut: problème initial corrigé; historique appliqué réconcilié. Les trois migrations ajoutées pour KORA-004/015/020 restent en attente de revue/déploiement; aucune modification de la base active.
+
+
+
+### KORA-007 | sécurité / dette de dépendances | haute | tous rôles | build / dépendances | `package-lock.json` et `.github/workflows/kora-quality.yml`
+
+- Étapes: lecture des journaux CI du commit d'audit; `npm ci` a installé 589 paquets; lecture de la sortie de `npm audit --json`.
+- Attendu: dépendances corrigées ou risques connus documentés; le contrôle de vulnérabilités doit être visible et exploitable.
+- Observé: le rapport JSON signale 19 vulnérabilités (1 faible, 12 modérées, 6 élevées, 0 critique), notamment dans `vite`, `nanoid`, `js-yaml`, `brace-expansion`, `source-map-js`, `react-router`, `react-quill`, `quill`, `moment`, `glob`, `minimatch`, `uuid`, `xcode`, `@capacitor/cli` et `zod`. Le workflow exécute `npm audit --json || true`, donc le rapport ne bloque pas la CI. La synthèse de `npm ci` affiche un total différent (11), à réconcilier avec le rapport JSON détaillé.
+- Cause: dépendances vulnérables et audit configuré comme rapport non bloquant.
+- Correction: non appliquée. Les mises à jour doivent être testées par groupes; le rapport propose une correction majeure pour Zod, qui nécessite une vérification de compatibilité.
+- Vérification positive: `npm run build` réussit malgré ces alertes.
+- Commit: aucun.
+- Statut: ouvert, priorité haute.
+
+
+
+### KORA-009 | incomplet / incohérence métier | haute | admin et manager | paramètres / abonnements | `src/pages/admin/Settings.jsx`, `src/pages/admin/AdminPanel.jsx`, `public.plans`
+
+- Étapes: lecture intégrale de la page de paramètres et du routage admin; inspection des policies de `plans`, des fonctions SQL contenant `plan` ou `subscription`, et des valeurs de la table active.
+- Attendu: le Super Admin peut modifier les prix, quotas et paramètres des plans depuis l'interface d'administration; le frontend et le backend lisent la même configuration.
+- Observé: la page Paramètres expose uniquement les réglages généraux de la plateforme. Elle ne contient aucun champ de tarif ou de quota. La table `plans` n'a qu'une policy SELECT; aucune policy d'écriture ni RPC admin de mise à jour de plan n'a été trouvée dans les fonctions inspectées.
+- Cause: absence d'interface et de voie serveur dédiée à l'édition des plans.
+- Correction: non appliquée. Il faut définir le périmètre des plans dans D-001/D-003 avant d'ajouter les contrôles d'édition.
+- Commit: aucun.
+- Statut: ouvert, priorité haute.
+
+
+
+### KORA-021 | sécurité / autorisations admin | haute | admin associé | 21 tables publiques et Storage | policies RLS utilisant `is_admin()`
+
+- Étapes: inspection de toutes les policies RLS publiques; comparaison avec `is_admin()`, `admin_has_permission()` et la matrice `associatePermissionByView` de `AdminPanel.jsx`.
+- Attendu: un administrateur associé n'accède qu'aux tables et opérations correspondant à ses permissions attribuées; le Super Admin conserve l'accès complet.
+- Observé: 51 policies sur 21 tables publiques et 5 policies Storage sur `storage.objects` utilisent `is_admin()`. Cette fonction renvoie vrai pour tout profil de rôle `admin` ou `superadmin`, sans vérifier les permissions de l'administrateur associé. Exemples: lecture des conversations/messages, notifications, paiements/transactions, portefeuilles, talents, projets, demandes, avis, compétences et demandes de vérification; les policies Storage autorisent aussi un associé à lire, téléverser, modifier ou supprimer des fichiers de portfolio de n'importe quel talent.
+- Cause: policies RLS héritées du modèle « admin global », alors que le frontend possède désormais des permissions par vue.
+- Risque: un admin associé sans permission correspondante peut appeler directement Supabase et contourner les restrictions de navigation de l'interface.
+- Correction: non appliquée. Il faut remplacer les accès admin génériques par `admin_has_permission(permission)` pour les lectures autorisées et réserver les écritures sans permission dédiée au Super Admin. La matrice exacte doit être validée et testée avec un vrai compte admin associé.
+- Limite de vérification: aucun profil `admin` associé n'existe actuellement dans la base active; seul un Super Admin a pu être testé.
+- Commit: aucun.
+- Statut: ouvert, priorité haute.
+
+
+
+### KORA-027 | incomplet / faux réglages | haute | Super Admin et tous utilisateurs | paramètres plateforme | `src/pages/admin/Settings.jsx`, `src/lib/ThemeContext.jsx`, `src/pages/Register.jsx`, `src/pages/manager/Talents.jsx`, `public/maintenance.html`
+
+- Étapes: lecture de la page Settings, recherche des clés `maintenance_mode`, `registrations_enabled`, `talent_auto_publish`, `default_theme` dans les pages et fonctions SQL actives.
+- Attendu: chaque réglage enregistré par le Super Admin produit réellement l'effet annoncé.
+- Observé: la page admin enregistre les clés de configuration dans `app_settings`, mais aucun consommateur n'a été trouvé pour `site_name`, `site_tagline`, `support_email`, `contact_email`, `currency`, `maintenance_mode`, `registrations_enabled` ou `talent_auto_publish`. Le site utilise encore les constantes de `APP_PARAMS` pour le nom, le slogan et les emails. `get_kora_default_theme()` existe côté SQL, mais `ThemeContext.jsx` utilise une constante locale `light` et ne l'appelle pas. La page `public/maintenance.html` est statique et aucun middleware/rewrite n'applique le mode maintenance global.
+- Cause: interface de paramètres créée sans raccordement des effets opérationnels.
+- Correction: non appliquée; le mode maintenance global doit être conçu pour retourner une vraie page et un statut HTTP approprié sans exposer de secret; l'inscription et l'auto-publication doivent être contrôlées côté serveur.
+- Commit: aucun.
+- Statut: ouvert, priorité haute; les interrupteurs ne doivent pas être présentés comme opérationnels tant que les consommateurs ne sont pas implémentés.
+
+
+
+### KORA-028 | sécurité / fail-open | haute | admin associé | espace administration | `src/pages/admin/AdminPanel.jsx` / chargement de `get_my_admin_access`
+
+- Étapes: lecture intégrale du composant et du flux de chargement des permissions.
+- Attendu: si le profil d'accès associé ne peut pas être chargé, aucune vue administrative ne doit être affichée.
+- Observé: en cas d'erreur RPC ou de réponse sans `access_level`, `adminAccess` restait `null`; les conditions de restriction ne s'exécutaient alors pas et le panneau affichait les vues comme si l'utilisateur avait tous les droits.
+- Cause: contrôle d'accès fail-open, sans état de chargement ni erreur bloquante.
+- Correction appliquée: chargement explicite des permissions; l'accès reste bloqué tant que le niveau n'est pas confirmé; ajout d'une action de nouvelle tentative.
+- Commit: `eb8bdb0d28992706fb172c1d89ff791090bcea88` (`KORA-028: fermer l'accès admin si les permissions échouent`).
+- Statut: corrigé sur la branche; build/lint/tests CI réussis sur le commit `d73e1b7`. Les policies RLS trop larges (KORA-021) restent à corriger séparément.
+
+
 
 ### KORA-002 | incohérence | moyenne | manager | documentation abonnement | `README.md` / tableau des offres
 
@@ -81,19 +180,7 @@ Des corrections ciblées ont été commitées sur `audit/kora-full`; aucune n'a 
 - Cause: validation tarifaire dupliquée en dur dans la fonction Edge.
 - Correction: non appliquée à ce stade. Le checkout utilise également des liens SasPay fixes par plan; remplacer uniquement le montant contrôlé sans confirmer le mode de paiement pourrait créer un écart entre le montant enregistré et celui effectivement demandé au prestataire.
 - Commit: aucun, en attente de l'arbitrage D-001 / D-004.
-- Statut: ouvert, correction bloquée par décision de paiement.
-
-
-
-### KORA-004 | incomplet | haute | manager et admin | abonnement / validation paiement | `src/pages/manager/Subscription.jsx`, `src/pages/admin/Payments.jsx`, `supabase/migrations/20261121001412_payment_proofs_private_storage.sql`
-
-- Étapes: lecture intégrale des deux pages, du helper `src/components/FileUpload.jsx` et de la migration de stockage des preuves.
-- Attendu: le manager dépose une capture de paiement dans le bucket privé; l'admin consulte cette preuve avant de valider le paiement.
-- Observé: la migration crée le bucket privé `payment-proofs` et la RPC `attach_payment_proof`, mais la page Manager ne propose aucun upload de preuve et son bouton « paiement effectué » ne fait que modifier `sessionStorage`. La page Admin ne sélectionne pas `proof_url` et n'affiche aucune preuve.
-- Cause: le stockage et la RPC de preuve ne sont pas raccordés au parcours d'abonnement et à l'interface de validation.
-- Correction appliquée sur cette branche: le manager peut envoyer un fichier autorisé (JPG/PNG/WebP/PDF, 5 Mo max) dans le bucket privé via `attach_payment_proof`; l'admin consulte une URL signée temporaire avant validation. La migration `supabase/migrations/20261124220000_require_payment_proof_for_subscription_validation.sql` impose aussi côté SQL la présence d'une preuve avant le passage d'un paiement d'abonnement à `paid`.
-- Commit: `bc6c641fb3e0fbf5e4aeddc1202854f474fe10b0` (`KORA-004: relier les preuves de paiement à la validation admin`).
-- Statut: code et migration versionnée corrigés; build/lint/tests CI réussis sur un commit ultérieur; migration non appliquée à la base active.
+- Statut: ouvert; le flux SasPay doit être remplacé par des intégrations directes. Détails opérateurs requis (D-004) et tarifs à confirmer (D-001).
 
 
 
@@ -110,20 +197,6 @@ Des corrections ciblées ont été commitées sur `audit/kora-full`; aucune n'a 
 
 
 
-### KORA-006 | sécurité / intégrité des déploiements | haute | tous rôles | schéma Supabase / migrations | `supabase/migrations/*`
-
-- Étapes: comparaison des 99 fichiers de migration du dépôt avec les 100 versions appliquées dans `supabase_migrations.schema_migrations` du projet Supabase actif.
-- Attendu: chaque migration appliquée en production possède un fichier versionné correspondant dans le dépôt; aucun fichier local ne doit réutiliser une migration déjà appliquée sous un autre numéro.
-- Observé: versions appliquées absentes du dépôt `20261121001412_payment_proofs_private_storage` et `20261122011054_payment_proofs_notify_superadmin`; le dépôt contenait à la place `20261121100000_payment_proofs_private_storage.sql`, non appliqué, qui fusionnait le contenu des deux versions.
-- Cause: dérive de l'historique de migrations entre Git et la base active.
-- Risque: les prochains déploiements peuvent rejouer une migration déjà appliquée et ne pas reproduire fidèlement l'état de production.
-- Correction appliquée sur cette branche: restauration des deux fichiers SQL exacts depuis `supabase_migrations.schema_migrations`; déplacement du fichier non appliqué et fusionné vers `supabase/migrations_archive/` afin de préserver son contenu sans le faire exécuter par la CLI. Aucune requête DDL n'a été exécutée sur la base active et aucune donnée n'a été supprimée.
-- Vérification après correction: 100 versions historiques locales et 100 versions appliquées distantes correspondent exactement. Trois migrations nouvelles sont présentes localement et non appliquées: `20261124220000`, `20261124230000`, `20261124240000`.
-- Commits: `c6b2a1b7a53e4f837a0bdd5132d592768c29e8cf` (restauration) et `7c7ac804d988310e08671748f9b224da41b818bd` (confirmation de parité).
-- Statut: historique appliqué réconcilié; trois nouvelles migrations en attente de revue/déploiement; aucune modification de la base active.
-
-
-
 ### KORA-008 | bug fonctionnel | moyenne | admin | `/admin?view=subscriptions` | `src/pages/admin/Subscriptions.jsx` / composant principal
 
 - Étapes: navigation via `AdminPanel.jsx` vers la vue `subscriptions`; lecture intégrale de la page.
@@ -133,31 +206,6 @@ Des corrections ciblées ont été commitées sur `audit/kora-full`; aucune n'a 
 - Correction appliquée: remplacement par une liste réelle des abonnements, avec recherche, filtre de statut, pagination, états de chargement/erreur/vide; la validation reste dans la section Paiements.
 - Commit: `2b935c4f29b22a2e70fa4ea10bc723f0bfed4ef4` (`KORA-008: corriger la page Abonnements`).
 - Statut: corrigé sur la branche; build/lint/tests CI réussis sur un commit ultérieur.
-
-
-
-### KORA-007 | sécurité / dette de dépendances | haute | tous rôles | build / dépendances | `package-lock.json` et `.github/workflows/kora-quality.yml`
-
-- Étapes: lecture des journaux CI du commit d'audit; `npm ci` a installé 589 paquets; lecture de la sortie de `npm audit --json`.
-- Attendu: dépendances corrigées ou risques connus documentés; le contrôle de vulnérabilités doit être visible et exploitable.
-- Observé: le rapport JSON signale 19 vulnérabilités (1 faible, 12 modérées, 6 élevées, 0 critique), notamment dans `vite`, `nanoid`, `js-yaml`, `brace-expansion`, `source-map-js`, `react-router`, `react-quill`, `quill`, `moment`, `glob`, `minimatch`, `uuid`, `xcode`, `@capacitor/cli` et `zod`. Le workflow exécute `npm audit --json || true`, donc le rapport ne bloque pas la CI. La synthèse de `npm ci` affiche un total différent (11), à réconcilier avec le rapport JSON détaillé.
-- Cause: dépendances vulnérables et audit configuré comme rapport non bloquant.
-- Correction: non appliquée. Les mises à jour doivent être testées par groupes; le rapport propose une correction majeure pour Zod, qui nécessite une vérification de compatibilité.
-- Vérification positive: `npm run build` réussit malgré ces alertes.
-- Commit: aucun.
-- Statut: ouvert, priorité haute.
-
-
-
-### KORA-009 | incomplet / incohérence métier | haute | admin et manager | paramètres / abonnements | `src/pages/admin/Settings.jsx`, `src/pages/admin/AdminPanel.jsx`, `public.plans`
-
-- Étapes: lecture intégrale de la page de paramètres et du routage admin; inspection des policies de `plans`, des fonctions SQL contenant `plan` ou `subscription`, et des valeurs de la table active.
-- Attendu: le Super Admin peut modifier les prix, quotas et paramètres des plans depuis l'interface d'administration; le frontend et le backend lisent la même configuration.
-- Observé: la page Paramètres expose uniquement les réglages généraux de la plateforme. Elle ne contient aucun champ de tarif ou de quota. La table `plans` n'a qu'une policy SELECT; aucune policy d'écriture ni RPC admin de mise à jour de plan n'a été trouvée dans les fonctions inspectées.
-- Cause: absence d'interface et de voie serveur dédiée à l'édition des plans.
-- Correction: non appliquée. Il faut définir le périmètre des plans dans D-001/D-003 avant d'ajouter les contrôles d'édition.
-- Commit: aucun.
-- Statut: ouvert, priorité haute.
 
 
 
@@ -185,18 +233,6 @@ Des corrections ciblées ont été commitées sur `audit/kora-full`; aucune n'a 
 
 
 
-### KORA-013 | incohérence métier | moyenne | manager | `/manager/talents` | `src/pages/manager/Talents.jsx` / calcul de `talentLimit`
-
-- Étapes: lecture du calcul de quota dans la page Manager et de la fonction `get_my_subscription()` dans Supabase.
-- Attendu: le quota appliqué dans l'interface provient de `plans.talent_limit`, comme le contrôle serveur `create_manager_talent`.
-- Observé: l'interface codait 1 talent pour FREE, 3 pour PRO et illimité pour BUSINESS, alors que `get_my_subscription()` renvoie déjà `talent_limit` depuis la base.
-- Cause: duplication des quotas dans le frontend.
-- Correction appliquée: l'interface utilise maintenant `subscription.talent_limit`; si la configuration est absente ou invalide, la création est bloquée par défaut au lieu de devenir illimitée.
-- Commit: `2dab5efaca64bbd41239f8e7d4b8bb3567afd96e` (`KORA-013: lire le quota talent depuis la configuration du plan`).
-- Statut: corrigé sur la branche; build/lint/tests CI réussis sur un commit ultérieur.
-
-
-
 ### KORA-012 | incomplet | moyenne | client et manager | fiche talent publique | `src/pages/talent/Detail.jsx`, `src/pages/manager/Talents.jsx`, `public.get_talent_manager_profile(uuid)`, schéma public
 
 - Étapes: lecture des zones de chargement et d'affichage de la fiche talent, du formulaire manager, des colonnes de `talent_profiles` et `profiles`, et des fonctions publiques de contact manager.
@@ -206,6 +242,18 @@ Des corrections ciblées ont été commitées sur `audit/kora-full`; aucune n'a 
 - Correction: aucune. Le numéro de téléphone est une donnée personnelle; sa visibilité publique doit être décidée avant toute exposition (D-007). Le périmètre exact du calendrier et des réseaux doit être confirmé.
 - Commit: aucun.
 - Statut: ouvert.
+
+
+
+### KORA-013 | incohérence métier | moyenne | manager | `/manager/talents` | `src/pages/manager/Talents.jsx` / calcul de `talentLimit`
+
+- Étapes: lecture du calcul de quota dans la page Manager et de la fonction `get_my_subscription()` dans Supabase.
+- Attendu: le quota appliqué dans l'interface provient de `plans.talent_limit`, comme le contrôle serveur `create_manager_talent`.
+- Observé: l'interface codait 1 talent pour FREE, 3 pour PRO et illimité pour BUSINESS, alors que `get_my_subscription()` renvoie déjà `talent_limit` depuis la base.
+- Cause: duplication des quotas dans le frontend.
+- Correction appliquée: l'interface utilise maintenant `subscription.talent_limit`; si la configuration est absente ou invalide, la création est bloquée par défaut au lieu de devenir illimitée.
+- Commit: `2dab5efaca64bbd41239f8e7d4b8bb3567afd96e` (`KORA-013: lire le quota talent depuis la configuration du plan`).
+- Statut: corrigé sur la branche; build/lint/tests CI réussis sur un commit ultérieur.
 
 
 
@@ -271,20 +319,8 @@ Les tests ont utilisé des identités existantes du projet, sans afficher leurs 
 - Observé: `create_kora_transaction` fixe actuellement `commission_rate = 0`, `commission_amount = 0` et `manager_amount = p_amount`; aucun trigger de commission n'est actif. En revanche, `update_kora_setting` acceptait encore la clé `commission_rate` et validait un taux de 0 à 100, bien que ce taux ne soit pas appliqué.
 - Cause: vestige de l'ancien modèle de commission dans la fonction de paramètres.
 - Correction appliquée sur cette branche: ajout de `supabase/migrations/20261124230000_block_commission_setting.sql`, qui refuse explicitement la clé `commission_rate`. Aucun paramètre existant n'a été supprimé; la table `app_settings` ne contient actuellement aucune ligne.
-- Commit: `KORA-015: interdire le paramètre de commission`.
+- Commit: `5174d3bd77e901d8fabe059b3de0a90a9f491dd5` (`KORA-015: interdire le paramètre de commission`).
 - Statut: migration versionnée sur la branche; non appliquée à la base active.
-
-
-
-### KORA-018 | bug fonctionnel | moyenne | manager et client | fiche talent / édition | `src/pages/manager/Talents.jsx` / `saveTalent`
-
-- Étapes: lecture du formulaire TalentEditor, de `buildFormData` et des branches INSERT/UPDATE de `saveTalent`.
-- Attendu: le champ Titre saisi par le manager est enregistré dans `talent_profiles.title` à la création comme à la modification.
-- Observé: le formulaire conservait `formData.title`, mais les deux branches d'écriture envoyaient systématiquement `title: null` / `p_title: null`.
-- Cause: valeur du formulaire ignorée lors de la persistance.
-- Correction appliquée: normalisation de `formData.title` puis transmission de la valeur aux deux branches INSERT et UPDATE.
-- Commit: `5245f5580d220b3d0c13f29a489ff701287751a0` (`KORA-018: enregistrer le titre du talent`).
-- Statut: corrigé sur la branche; build/lint/tests CI réussis sur un commit ultérieur.
 
 
 
@@ -300,14 +336,14 @@ Les tests ont utilisé des identités existantes du projet, sans afficher leurs 
 
 
 
-### KORA-019 | UX / i18n | basse | client et manager | liste des conversations | `src/pages/Messages.jsx` / `formatConversationTime`
+### KORA-018 | bug fonctionnel | moyenne | manager et client | fiche talent / édition | `src/pages/manager/Talents.jsx` / `saveTalent`
 
-- Étapes: lecture intégrale de la page Messages et comparaison des deux formatters de dates.
-- Attendu: la date de la dernière activité suit la langue sélectionnée.
-- Observé: `formatConversationTime` acceptait un paramètre `locale`, mais utilisait toujours `fr-FR` pour l'heure et la date. La liste des conversations restait donc en français en mode anglais.
-- Cause: locale passée mais non utilisée dans les deux appels `toLocale*`.
-- Correction appliquée: remplacement des locales fixes par le paramètre `locale`.
-- Commit: `c04a9e508e1415bdc97d25bf1d9ba71bf66039af` (`KORA-019: respecter la langue dans les dates de messagerie`).
+- Étapes: lecture du formulaire TalentEditor, de `buildFormData` et des branches INSERT/UPDATE de `saveTalent`.
+- Attendu: le champ Titre saisi par le manager est enregistré dans `talent_profiles.title` à la création comme à la modification.
+- Observé: le formulaire conservait `formData.title`, mais les deux branches d'écriture envoyaient systématiquement `title: null` / `p_title: null`.
+- Cause: valeur du formulaire ignorée lors de la persistance.
+- Correction appliquée: normalisation de `formData.title` puis transmission de la valeur aux deux branches INSERT et UPDATE.
+- Commit: `5245f5580d220b3d0c13f29a489ff701287751a0` (`KORA-018: enregistrer le titre du talent`).
 - Statut: corrigé sur la branche; build/lint/tests CI réussis sur un commit ultérieur.
 
 
@@ -321,44 +357,6 @@ Les tests ont utilisé des identités existantes du projet, sans afficher leurs 
 - Correction appliquée sur cette branche: la migration `supabase/migrations/20261124240000_restrict_subscription_bootstrap_to_managers.sql` exige le rôle manager dans les deux fonctions pour un appel personnel; l'accès administrateur à un autre utilisateur reste protégé par `subscriptions.manage`.
 - Commit: `9de65bb29743e368cc7679ec8b6119e314285eb4` (`KORA-020: réserver l'initialisation d'abonnement aux managers`).
 - Statut: migration versionnée; non appliquée à la base active; validation SQL à effectuer avant déploiement.
-
-
-
-### KORA-021 | sécurité / autorisations admin | haute | admin associé | 21 tables publiques et Storage | policies RLS utilisant `is_admin()`
-
-- Étapes: inspection de toutes les policies RLS publiques; comparaison avec `is_admin()`, `admin_has_permission()` et la matrice `associatePermissionByView` de `AdminPanel.jsx`.
-- Attendu: un administrateur associé n'accède qu'aux tables et opérations correspondant à ses permissions attribuées; le Super Admin conserve l'accès complet.
-- Observé: 51 policies sur 21 tables publiques et 5 policies Storage sur `storage.objects` utilisent `is_admin()`. Cette fonction renvoie vrai pour tout profil de rôle `admin` ou `superadmin`, sans vérifier les permissions de l'administrateur associé. Exemples: lecture des conversations/messages, notifications, paiements/transactions, portefeuilles, talents, projets, demandes, avis, compétences et demandes de vérification; les policies Storage autorisent aussi un associé à lire, téléverser, modifier ou supprimer des fichiers de portfolio de n'importe quel talent.
-- Cause: policies RLS héritées du modèle « admin global », alors que le frontend possède désormais des permissions par vue.
-- Risque: un admin associé sans permission correspondante peut appeler directement Supabase et contourner les restrictions de navigation de l'interface.
-- Correction: non appliquée. Il faut remplacer les accès admin génériques par `admin_has_permission(permission)` pour les lectures autorisées et réserver les écritures sans permission dédiée au Super Admin. La matrice exacte doit être validée et testée avec un vrai compte admin associé.
-- Limite de vérification: aucun profil `admin` associé n'existe actuellement dans la base active; seul un Super Admin a pu être testé.
-- Commit: aucun.
-- Statut: ouvert, priorité haute.
-
-
-
-### KORA-022 | UX / validation upload | basse | manager | édition média talent | `src/lib/talentMedia.js` / `uploadTalentProfileMedia`
-
-- Étapes: lecture intégrale du helper d'upload et comparaison avec la configuration réelle du bucket `talent-profile-media`.
-- Attendu: la validation côté client accepte exactement les types MIME autorisés par Storage.
-- Observé: le helper acceptait tout type commençant par `image/`, alors que le bucket autorise uniquement JPEG, PNG et WebP (5 Mo max). Des formats tels que SVG, GIF ou HEIC passaient la validation locale puis échouaient au stockage.
-- Cause: validation MIME trop large par rapport à la policy Storage.
-- Correction appliquée: restriction côté client aux trois MIME réellement autorisés.
-- Commit: `70e7e5a92896a7da7249985f03d46009c8765a53` (`KORA-022: aligner les formats image sur Storage`).
-- Statut: corrigé sur la branche; build/lint/tests CI réussis sur un commit ultérieur.
-
-
-
-### KORA-023 | UX / i18n / données réelles | basse | tous rôles connectés | accueil `/home` | `src/pages/Home.jsx`, `src/lib/useKoraStats.js`
-
-- Étapes: lecture de l'accueil, du hook `useKoraStats` et des clés i18n de la landing page.
-- Attendu: les statistiques indisponibles affichent un état neutre et leurs libellés suivent la langue choisie.
-- Observé: en cas d'erreur RPC, l'accueil affichait des zéros par défaut; les libellés renvoyés par le hook étaient en français même en mode anglais.
-- Cause: valeur initiale `DEFAULT_STATS` et libellés français réutilisés directement dans Home.
-- Correction appliquée: Home demande l'état neutre en cas d'erreur, traduit les quatre libellés avec les clés i18n existantes; le hook initialise également ses valeurs à « — » lorsque `emptyOnError` est activé.
-- Commit: `a47fd58cc22f8996bd5b5cf476264af4edec5ee5` (`KORA-023: fiabiliser les statistiques et leur traduction sur l'accueil`).
-- Statut: corrigé sur la branche; build/lint/tests CI réussis.
 
 
 
@@ -383,54 +381,6 @@ Les tests ont utilisé des identités existantes du projet, sans afficher leurs 
 - Correction appliquée: ajout d'une action Supprimer dans les deux pages, avec filtre explicite sur `id` et `user_id`, contrôle du résultat et actualisation du cache.
 - Commits: `42a06d036f549b84a31f0cf5997e6af833de4ac2` (ajout) et `d73e1b7060f47ce8996695436ebde6a51b30fe8f` (correction JSX KORA-031).
 - Statut: corrigé sur la branche; build/lint/tests et validation i18n CI réussis.
-
-
-
-### KORA-026 | UX / fiabilité upload | basse | client et manager | avatar / couverture profil | `src/lib/profileMedia.js` / `uploadProfileImage`
-
-- Étapes: lecture intégrale du helper et comparaison avec le bucket public `profile-media`.
-- Attendu: validation locale identique aux MIME acceptés par Storage; aucun fichier orphelin si l'enregistrement du profil échoue.
-- Observé: le helper acceptait tout type `image/*`, alors que le bucket n'accepte que JPEG, PNG et WebP. En cas d'échec de mise à jour de `profiles`, le fichier déjà téléversé restait orphelin.
-- Cause: validation MIME trop large et absence de nettoyage après échec partiel.
-- Correction appliquée: whitelist MIME alignée sur le bucket et suppression du fichier si l'URL ou la mise à jour du profil échoue.
-- Commit: `ad051251a579a7f84d7e980647228c02b3fe183d` (`KORA-026: aligner les uploads de profil sur Storage`).
-- Statut: corrigé sur la branche; build/lint/tests CI réussis sur le commit `d73e1b7`.
-
-
-
-### KORA-027 | incomplet / faux réglages | haute | Super Admin et tous utilisateurs | paramètres plateforme | `src/pages/admin/Settings.jsx`, `src/lib/ThemeContext.jsx`, `src/pages/Register.jsx`, `src/pages/manager/Talents.jsx`, `public/maintenance.html`
-
-- Étapes: lecture de la page Settings, recherche des clés `maintenance_mode`, `registrations_enabled`, `talent_auto_publish`, `default_theme` dans les pages et fonctions SQL actives.
-- Attendu: chaque réglage enregistré par le Super Admin produit réellement l'effet annoncé.
-- Observé: la page admin enregistre les clés de configuration dans `app_settings`, mais aucun consommateur n'a été trouvé pour `site_name`, `site_tagline`, `support_email`, `contact_email`, `currency`, `maintenance_mode`, `registrations_enabled` ou `talent_auto_publish`. Le site utilise encore les constantes de `APP_PARAMS` pour le nom, le slogan et les emails. `get_kora_default_theme()` existe côté SQL, mais `ThemeContext.jsx` utilise une constante locale `light` et ne l'appelle pas. La page `public/maintenance.html` est statique et aucun middleware/rewrite n'applique le mode maintenance global.
-- Cause: interface de paramètres créée sans raccordement des effets opérationnels.
-- Correction: non appliquée; le mode maintenance global doit être conçu pour retourner une vraie page et un statut HTTP approprié sans exposer de secret; l'inscription et l'auto-publication doivent être contrôlées côté serveur.
-- Commit: aucun.
-- Statut: ouvert, priorité haute; les interrupteurs ne doivent pas être présentés comme opérationnels tant que les consommateurs ne sont pas implémentés.
-
-
-
-### KORA-028 | sécurité / fail-open | haute | admin associé | espace administration | `src/pages/admin/AdminPanel.jsx` / chargement de `get_my_admin_access`
-
-- Étapes: lecture intégrale du composant et du flux de chargement des permissions.
-- Attendu: si le profil d'accès associé ne peut pas être chargé, aucune vue administrative ne doit être affichée.
-- Observé: en cas d'erreur RPC ou de réponse sans `access_level`, `adminAccess` restait `null`; les conditions de restriction ne s'exécutaient alors pas et le panneau affichait les vues comme si l'utilisateur avait tous les droits.
-- Cause: contrôle d'accès fail-open, sans état de chargement ni erreur bloquante.
-- Correction appliquée: chargement explicite des permissions; l'accès reste bloqué tant que le niveau n'est pas confirmé; ajout d'une action de nouvelle tentative.
-- Commit: `eb8bdb0d28992706fb172c1d89ff791090bcea88` (`KORA-028: fermer l'accès admin si les permissions échouent`).
-- Statut: corrigé sur la branche; build/lint/tests CI réussis sur le commit `d73e1b7`. Les policies RLS trop larges (KORA-021) restent à corriger séparément.
-
-
-
-### KORA-029 | bug / accessibilité | basse | Super Admin | paramètres plateforme | `src/pages/admin/Settings.jsx` / `parseValue`, `loadSettings`, interrupteurs
-
-- Étapes: lecture intégrale de la page Paramètres.
-- Attendu: les booléens stockés sous forme JSON ou texte sont interprétés correctement; une erreur réseau ne laisse pas l'écran en chargement; chaque interrupteur possède un nom accessible.
-- Observé: `Boolean("false")` pouvait convertir une valeur textuelle false en true; une exception réseau hors réponse RPC pouvait laisser `loading` actif; les boutons de bascule n'avaient pas de nom accessible. Une variable `isNumber` était inutilisée.
-- Cause: parsing permissif et gestion d'erreur/accessibilité incomplètes.
-- Correction appliquée: parsing booléen explicite, `try/catch/finally` autour du chargement, rôle/état/nom accessible pour les interrupteurs, suppression de la variable morte.
-- Commit: `09df2cbc2456f46af3fc41c7323d957e49f780d9` (`KORA-029: fiabiliser le chargement des paramètres admin`).
-- Statut: corrigé sur la branche; build/lint/tests CI réussis sur le commit `d73e1b7`.
 
 
 
@@ -467,4 +417,64 @@ Les tests ont utilisé des identités existantes du projet, sans afficher leurs 
 - Correction appliquée: la page charge maintenant les catégories actives depuis Supabase avec gestion des exceptions réseau; le hook construit les compteurs dynamiquement à partir du slug renvoyé par `get_kora_live_stats()`. Le total est calculé uniquement sur les catégories actives visibles.
 - Commit: `24727c67ffc4362213b765115548fdb53556e5be` (`KORA-032: charger les catégories depuis Supabase`).
 - Statut: corrigé; build/lint/tests et validation i18n CI réussis. La traduction anglaise de la page reste ouverte dans KORA-024.
+
+### KORA-019 | UX / i18n | basse | client et manager | liste des conversations | `src/pages/Messages.jsx` / `formatConversationTime`
+
+- Étapes: lecture intégrale de la page Messages et comparaison des deux formatters de dates.
+- Attendu: la date de la dernière activité suit la langue sélectionnée.
+- Observé: `formatConversationTime` acceptait un paramètre `locale`, mais utilisait toujours `fr-FR` pour l'heure et la date. La liste des conversations restait donc en français en mode anglais.
+- Cause: locale passée mais non utilisée dans les deux appels `toLocale*`.
+- Correction appliquée: remplacement des locales fixes par le paramètre `locale`.
+- Commit: `c04a9e508e1415bdc97d25bf1d9ba71bf66039af` (`KORA-019: respecter la langue dans les dates de messagerie`).
+- Statut: corrigé sur la branche; build/lint/tests CI réussis sur un commit ultérieur.
+
+
+
+### KORA-022 | UX / validation upload | basse | manager | édition média talent | `src/lib/talentMedia.js` / `uploadTalentProfileMedia`
+
+- Étapes: lecture intégrale du helper d'upload et comparaison avec la configuration réelle du bucket `talent-profile-media`.
+- Attendu: la validation côté client accepte exactement les types MIME autorisés par Storage.
+- Observé: le helper acceptait tout type commençant par `image/`, alors que le bucket autorise uniquement JPEG, PNG et WebP (5 Mo max). Des formats tels que SVG, GIF ou HEIC passaient la validation locale puis échouaient au stockage.
+- Cause: validation MIME trop large par rapport à la policy Storage.
+- Correction appliquée: restriction côté client aux trois MIME réellement autorisés.
+- Commit: `70e7e5a92896a7da7249985f03d46009c8765a53` (`KORA-022: aligner les formats image sur Storage`).
+- Statut: corrigé sur la branche; build/lint/tests CI réussis sur un commit ultérieur.
+
+
+
+### KORA-023 | UX / i18n / données réelles | basse | tous rôles connectés | accueil `/home` | `src/pages/Home.jsx`, `src/lib/useKoraStats.js`
+
+- Étapes: lecture de l'accueil, du hook `useKoraStats` et des clés i18n de la landing page.
+- Attendu: les statistiques indisponibles affichent un état neutre et leurs libellés suivent la langue choisie.
+- Observé: en cas d'erreur RPC, l'accueil affichait des zéros par défaut; les libellés renvoyés par le hook étaient en français même en mode anglais.
+- Cause: valeur initiale `DEFAULT_STATS` et libellés français réutilisés directement dans Home.
+- Correction appliquée: Home demande l'état neutre en cas d'erreur, traduit les quatre libellés avec les clés i18n existantes; le hook initialise également ses valeurs à « — » lorsque `emptyOnError` est activé.
+- Commit: `a47fd58cc22f8996bd5b5cf476264af4edec5ee5` (`KORA-023: fiabiliser les statistiques et leur traduction sur l'accueil`).
+- Statut: corrigé sur la branche; build/lint/tests CI réussis.
+
+
+
+### KORA-026 | UX / fiabilité upload | basse | client et manager | avatar / couverture profil | `src/lib/profileMedia.js` / `uploadProfileImage`
+
+- Étapes: lecture intégrale du helper et comparaison avec le bucket public `profile-media`.
+- Attendu: validation locale identique aux MIME acceptés par Storage; aucun fichier orphelin si l'enregistrement du profil échoue.
+- Observé: le helper acceptait tout type `image/*`, alors que le bucket n'accepte que JPEG, PNG et WebP. En cas d'échec de mise à jour de `profiles`, le fichier déjà téléversé restait orphelin.
+- Cause: validation MIME trop large et absence de nettoyage après échec partiel.
+- Correction appliquée: whitelist MIME alignée sur le bucket et suppression du fichier si l'URL ou la mise à jour du profil échoue.
+- Commit: `ad051251a579a7f84d7e980647228c02b3fe183d` (`KORA-026: aligner les uploads de profil sur Storage`).
+- Statut: corrigé sur la branche; build/lint/tests CI réussis sur le commit `d73e1b7`.
+
+
+
+### KORA-029 | bug / accessibilité | basse | Super Admin | paramètres plateforme | `src/pages/admin/Settings.jsx` / `parseValue`, `loadSettings`, interrupteurs
+
+- Étapes: lecture intégrale de la page Paramètres.
+- Attendu: les booléens stockés sous forme JSON ou texte sont interprétés correctement; une erreur réseau ne laisse pas l'écran en chargement; chaque interrupteur possède un nom accessible.
+- Observé: `Boolean("false")` pouvait convertir une valeur textuelle false en true; une exception réseau hors réponse RPC pouvait laisser `loading` actif; les boutons de bascule n'avaient pas de nom accessible. Une variable `isNumber` était inutilisée.
+- Cause: parsing permissif et gestion d'erreur/accessibilité incomplètes.
+- Correction appliquée: parsing booléen explicite, `try/catch/finally` autour du chargement, rôle/état/nom accessible pour les interrupteurs, suppression de la variable morte.
+- Commit: `09df2cbc2456f46af3fc41c7323d957e49f780d9` (`KORA-029: fiabiliser le chargement des paramètres admin`).
+- Statut: corrigé sur la branche; build/lint/tests CI réussis sur le commit `d73e1b7`.
+
+
 
