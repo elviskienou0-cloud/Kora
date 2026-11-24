@@ -444,3 +444,15 @@ Les tests ont utilisé des identités existantes du projet, sans afficher leurs 
 - Commit: aucun.
 - Statut: ouvert.
 
+
+
+### KORA-031 | bug de syntaxe JSX | moyenne | client et manager | notifications | `src/pages/client/Notifications.jsx`, `src/pages/manager/Notifications.jsx`
+
+- Étapes: exécution CI après KORA-025.
+- Attendu: les boutons Marquer comme lu (conditionnel) et Supprimer (toujours disponible) sont deux éléments JSX frères correctement structurés.
+- Observé: la fermeture du bloc conditionnel `unread` se trouvait après le bouton Supprimer; ESLint et le build échouaient avec « Adjacent JSX elements must be wrapped ».
+- Cause: fermeture JSX mal positionnée lors de l'ajout du bouton Supprimer.
+- Correction appliquée: fermeture du bloc conditionnel immédiatement après le bouton Marquer comme lu; bouton Supprimer rendu comme élément frère.
+- Commit: `KORA-031: corriger la structure JSX des notifications`.
+- Statut: corrigé sur la branche; CI à relancer.
+

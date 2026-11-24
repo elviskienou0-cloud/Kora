@@ -258,6 +258,7 @@ export default function ClientNotifications() {
                           <Button variant="ghost" size="sm" className="mt-3" onClick={() => markRead(notification)}>
                             <Check className="mr-2 h-4 w-4" /> {t("notifications.markRead")}
                           </Button>
+                        )}
                         <Button
                           variant="ghost"
                           size="sm"
@@ -268,7 +269,6 @@ export default function ClientNotifications() {
                           <Trash2 className="mr-2 h-4 w-4" />
                           {language === "en" ? "Delete" : "Supprimer"}
                         </Button>
-                        )}
                       </div>
                     </div>
                   </CardContent>
