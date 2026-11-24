@@ -456,3 +456,15 @@ Les tests ont utilisé des identités existantes du projet, sans afficher leurs 
 - Commit: `KORA-031: corriger la structure JSX des notifications`.
 - Statut: corrigé sur la branche; CI à relancer.
 
+
+
+### KORA-032 | bug fonctionnel / données | moyenne | client et manager | page Catégories et statistiques | `src/pages/Categories.jsx`, `src/lib/useKoraStats.js`, `public.categories`, `public.get_kora_live_stats()`
+
+- Étapes: lecture intégrale de la page Catégories et du hook de statistiques; comparaison de `APP_PARAMS.categories` avec la table active Supabase.
+- Attendu: la page publique et les compteurs affichent toutes les catégories actives réellement configurées dans Supabase.
+- Observé: le code ne connaissait que 11 catégories statiques; la table contient 19 catégories actives. Business, Créatif, Finance, Formation, Juridique, Marketing, Santé et Technologie étaient invisibles dans la page et ignorées par les compteurs. Le total de la page additionne désormais uniquement les catégories actives affichées.
+- Cause: liste frontend figée et résolution des compteurs limitée à `APP_PARAMS.categories`.
+- Correction appliquée: la page charge maintenant les catégories actives depuis Supabase avec gestion des exceptions réseau; le hook construit les compteurs dynamiquement à partir du slug renvoyé par `get_kora_live_stats()`. Le total est calculé uniquement sur les catégories actives visibles.
+- Commit: `KORA-032: charger les catégories depuis Supabase`.
+- Statut: corrigé sur la branche; build CI à vérifier. La traduction anglaise de la page reste ouverte dans KORA-024.
+

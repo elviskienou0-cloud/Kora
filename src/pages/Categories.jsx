@@ -20,7 +20,6 @@ import LandingHeader from "@/components/landing/LandingHeader.jsx"
 import LandingFooter from "@/components/landing/LandingFooter.jsx"
 import { supabase } from "@/lib/supabase"
 import { resolveTalentProfileMediaBatch } from "@/lib/talentMedia"
-import { APP_PARAMS } from "@/lib/app-params"
 import { getCategoryIcon } from "@/lib/categoryIcons"
 import { cn, formatCurrency } from "@/lib/utils"
 import { useKoraStats } from "@/lib/useKoraStats"
@@ -56,12 +55,20 @@ const CATEGORY_ALIASES = {
   gastronomy: ["gastronomie", "traiteur", "chef", "cuisine", "chef-prive"],
 }
 
-function categoryMatches(talent, categoryId) {
-  if (!categoryId || categoryId === "all") return true
-  const category = APP_PARAMS.categories.find((item) => item.id === categoryId)
-  if (!category) return false
-  const values = [talent?.categories?.id, talent?.categories?.slug, talent?.categories?.name].map(normalize).filter(Boolean)
-  const wanted = new Set([normalize(category.id), normalize(category.name), ...(CATEGORY_ALIASES[category.id] || [])].map(normalize))
+function categoryMatches(talent, category) {
+  if (!category || category === "all") return true
+  const values = [
+    talent?.category_id,
+    talent?.categories?.id,
+    talent?.categories?.slug,
+    talent?.categories?.name,
+  ].map(normalize).filter(Boolean)
+  const wanted = new Set([
+    category.id,
+    category.slug,
+    category.name,
+    ...(CATEGORY_ALIASES[category.slug] || []),
+  ].map(normalize))
   return values.some((value) => wanted.has(value))
 }
 
@@ -73,6 +80,9 @@ export default function Categories() {
   const navigate = useNavigate()
 
   const [active, setActive] = useState("all")
+  const [categories, setCategories] = useState([])
+  const [categoriesLoading, setCategoriesLoading] = useState(true)
+  const [categoriesError, setCategoriesError] = useState("")
   const [search, setSearch] = useState("")
   const [showMobile, setShowMobile] = useState(false)
   const { categoryCounts } = useKoraStats()
@@ -80,6 +90,35 @@ export default function Categories() {
   const [talents, setTalents] = useState([])
   const [talentsLoading, setTalentsLoading] = useState(true)
   const [talentsError, setTalentsError] = useState("")
+
+  useEffect(() => {
+    let mounted = true
+
+    const loadCategories = async () => {
+      setCategoriesLoading(true)
+      setCategoriesError("")
+      try {
+        const { data, error } = await supabase
+          .from("categories")
+          .select("id, slug, name, icon")
+          .eq("is_active", true)
+          .order("name", { ascending: true })
+
+        if (error) throw error
+        if (mounted) setCategories(data || [])
+      } catch (error) {
+        if (mounted) {
+          setCategories([])
+          setCategoriesError(error?.message || "Impossible de charger les catégories.")
+        }
+      } finally {
+        if (mounted) setCategoriesLoading(false)
+      }
+    }
+
+    loadCategories()
+    return () => { mounted = false }
+  }, [])
 
   useEffect(() => {
     let mounted = true
@@ -142,19 +181,20 @@ export default function Categories() {
     }
   }, [])
 
-  const filtered = APP_PARAMS.categories.filter((c) =>
-    c.name.toLowerCase().includes(search.toLowerCase())
+  const filtered = categories.filter((category) =>
+    category.name.toLowerCase().includes(search.toLowerCase()) ||
+    category.slug.toLowerCase().includes(search.toLowerCase())
   )
 
+  const activeCategory = categories.find((category) => category.slug === active)
   const selectedTalents = useMemo(() => {
     return talents
-      .filter((talent) => categoryMatches(talent, active))
+      .filter((talent) => categoryMatches(talent, activeCategory))
       .slice(0, 8)
-  }, [talents, active])
+  }, [talents, activeCategory])
 
-  const activeCategory = APP_PARAMS.categories.find((c) => c.id === active)
-  const allTalentCount = APP_PARAMS.categories.reduce(
-    (sum, category) => sum + (categoryCounts[category.id] ?? 0),
+  const allTalentCount = categories.reduce(
+    (sum, category) => sum + Number(categoryCounts[category.slug] || 0),
     0,
   )
   const activeTalentCount = active === "all" ? allTalentCount : (categoryCounts[active] ?? 0)
@@ -169,7 +209,7 @@ export default function Categories() {
         </div>
         <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-14 text-center">
           <Badge variant="gold" className="mb-4 px-4 py-1.5 text-xs font-bold">
-            {APP_PARAMS.categories.length} domaines • {allTalentCount.toLocaleString("fr-FR")} {allTalentCount === 1 ? "talent" : "talents"}
+            {categories.length} domaines • {allTalentCount.toLocaleString("fr-FR")} {allTalentCount === 1 ? "talent" : "talents"}
           </Badge>
           <h1 className="text-4xl sm:text-5xl font-black tracking-tight mb-4">
             Explorez toutes les <span className="gold-text-gradient">catégories</span>
@@ -207,6 +247,13 @@ export default function Categories() {
               </Button>
             )}
           </div>
+          {categoriesLoading ? (
+            <Card><CardContent className="p-8 text-center text-sm text-muted-foreground">Chargement des catégories…</CardContent></Card>
+          ) : categoriesError ? (
+            <Card><CardContent role="alert" className="p-8 text-center text-sm text-destructive">{categoriesError}</CardContent></Card>
+          ) : categories.length === 0 ? (
+            <Card><CardContent className="p-8 text-center text-sm text-muted-foreground">Aucune catégorie active.</CardContent></Card>
+          ) : (
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
             <motion.button
               onClick={() => setActive("all")}
@@ -232,13 +279,13 @@ export default function Categories() {
               </p>
             </motion.button>
             {filtered.map((cat, i) => {
-              const Icon = getCategoryIcon(cat.icon)
+              const Icon = getCategoryIcon(cat.icon || cat.slug)
               const isActive = active === cat.id
-              const categoryTalent = talents.find((talent) => Boolean(talent.avatar_url) && categoryMatches(talent, cat.id))
+              const categoryTalent = talents.find((talent) => Boolean(talent.avatar_url) && categoryMatches(talent, cat))
               return (
                 <motion.button
                   key={cat.id}
-                  onClick={() => setActive(cat.id)}
+                  onClick={() => setActive(cat.slug)}
                   variants={fadeInUp}
                   custom={i + 1}
                   whileHover={{ y: -4 }}
@@ -258,11 +305,12 @@ export default function Categories() {
                     {isActive && <Badge variant="gold" className="kora-category-selected">Sélectionné</Badge>}
                   </div>
                   <h3 className="font-black text-base mb-1 line-clamp-2 min-h-[2.5rem]">{cat.name}</h3>
-                  <p className="text-sm font-bold gold-text-gradient">{(categoryCounts[cat.id] ?? 0).toLocaleString("fr-FR")} talents</p>
+                  <p className="text-sm font-bold gold-text-gradient">{(categoryCounts[cat.slug] ?? 0).toLocaleString("fr-FR")} talents</p>
                 </motion.button>
               )
             })}
           </div>
+          )}
         </motion.section>
 
         <motion.section initial="hidden" animate="visible" variants={stagger} className="space-y-6">

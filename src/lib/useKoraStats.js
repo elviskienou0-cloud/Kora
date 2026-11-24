@@ -1,49 +1,7 @@
 import { useEffect, useState } from "react"
-import { APP_PARAMS } from "@/lib/app-params"
 import { supabase } from "@/lib/supabase"
 
-const buildEmptyCategoryCounts = () =>
-  Object.fromEntries(APP_PARAMS.categories.map((category) => [category.id, 0]))
-
-const normalize = (value) =>
-  String(value || "")
-    .trim()
-    .toLowerCase()
-    .normalize("NFD")
-    .replace(/[\u0300-\u036f]/g, "")
-    .replace(/&/g, "et")
-    .replace(/[^a-z0-9]+/g, "-")
-    .replace(/^-+|-+$/g, "")
-
-const categoryAliases = {
-  music: ["music", "musique", "musicien", "chanteur", "chanteuse", "danseur", "danseuse", "spectacle", "artiste-musicien"],
-  fashion: ["fashion", "mode", "mannequin", "mannequinat", "styliste", "modele"],
-  influence: ["influence", "influenceur", "influenceuse", "createur-de-contenu", "createur", "content-creator", "streamer"],
-  sport: ["sport", "sportif", "sportive", "athlete", "coach-sportif"],
-  events: ["evenementiel", "evenement", "hote", "hotesse", "dj", "organisateur", "decorateur"],
-  culture: ["culture", "traditions", "griot", "conteur", "conteuse", "folklore", "percussion"],
-  cinema: ["cinema", "audiovisuel", "acteur", "actrice", "realisateur", "realisatrice", "cadreur", "technicien", "plateau"],
-  voice: ["voix", "doublage", "voix-off", "speaker", "speakerine"],
-  comedy: ["humour", "humoriste", "animation", "animateur", "animatrice", "mc", "maitre-de-ceremonie"],
-  beauty: ["beaute", "image", "maquilleur", "maquilleuse", "coiffeur", "coiffeuse", "styliste-plateau"],
-  gastronomy: ["gastronomie", "traiteur", "chef", "cuisine", "chef-prive"],
-}
-
-function resolveAppCategoryId(row) {
-  const values = [row?.id, row?.slug, row?.name].map(normalize).filter(Boolean)
-
-  for (const category of APP_PARAMS.categories) {
-    const keys = new Set([
-      normalize(category.id),
-      normalize(category.name),
-      ...(categoryAliases[category.id] || []),
-    ].map(normalize))
-
-    if (values.some((value) => keys.has(value))) return category.id
-  }
-
-  return null
-}
+const buildEmptyCategoryCounts = () => ({})
 
 const DEFAULT_STATS = [
   { value: "0", label: "Talents inscrits" },
@@ -89,8 +47,8 @@ export function useKoraStats({ enabled = true, realtime = true, initialLoading =
         const nextCategoryCounts = buildEmptyCategoryCounts()
 
         for (const row of Array.isArray(payload.categories) ? payload.categories : []) {
-          const appCategoryId = resolveAppCategoryId(row)
-          if (appCategoryId) nextCategoryCounts[appCategoryId] = Number(row.count || 0)
+          const categoryKey = String(row?.slug || row?.id || "").trim()
+          if (categoryKey) nextCategoryCounts[categoryKey] = Number(row.count || 0)
         }
 
         setCategoryCounts(nextCategoryCounts)
