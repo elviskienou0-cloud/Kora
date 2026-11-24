@@ -518,11 +518,11 @@
 .kora-glass-header-inner { background:hsl(0 0% 100% / .88) !important; color:#171717 !important; border-color:#dfe5ed !important; box-shadow:0 12px 34px rgb(42 33 21 / .09),inset 0 1px 0 rgb(255 255 255 / .8) !important; }
 .kora-brand-link, .kora-glass-nav-link, .kora-login-link { color:#171717 !important; }
 .kora-glass-nav { background:rgb(241 243 246 / .72) !important; border-color:#e4e9f0 !important; }
-.kora-glass-nav-link:hover { background:rgb(42 33 21 / .08) !important; color:#171717 !important; }
-.kora-register-link { background:#171717 !important; border-color:#171717 !important; color:#fff !important; }
+.kora-glass-nav-link:hover { background:rgb(245 197 66 / .16) !important; color:#171717 !important; }
+.kora-register-link { background:#F5C542 !important; border-color:#F5C542 !important; color:#171717 !important; }
 .kora-mobile-glass-menu { background:rgb(255 255 255 / .96) !important; color:#171717 !important; border-color:#dfe5ed !important; }
 .kora-mobile-nav-link { color:#171717 !important; }
-.kora-language-switcher { color:#171717 !important; background:#f7f9fc !important; }
+.kora-language-switcher { color:#171717 !important; background:#FFFFFF !important; border-color:#E5E5E5 !important; }
 
 /* Hero */
 .kora-landing-hero { min-height:min(850px,calc(100svh - 76px)); margin-top:76px; padding:clamp(54px,7vw,96px) clamp(20px,4vw,64px) 72px; background:#fff !important; color:#171717 !important; }
