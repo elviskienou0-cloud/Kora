@@ -89,3 +89,15 @@ Aucune correction de code n'a encore été appliquée.
 - Commit: aucun.
 - Statut: ouvert, correction requise après confirmation du flux de paiement.
 
+
+
+### KORA-005 | incomplet / simulation | moyenne | client et manager | connexion / OAuth | `src/pages/Login.jsx`, `src/pages/Register.jsx`, `src/lib/AuthContext.jsx`, `src/pages/OAuthConsent.jsx`
+
+- Étapes: lecture intégrale des pages Login/Register/OAuthConsent et du contexte Auth; recherche des appels `signInWithOAuth`, `signInWithIdToken` et des références Google dans ces fichiers.
+- Attendu: si Google OAuth est présenté comme disponible, le bouton doit lancer une authentification réelle et valider la session Supabase.
+- Observé: aucun démarrage Google OAuth n'est présent dans Login, Register ou AuthContext. La route `/oauth/consent` affiche un écran de consentement autonome; son bouton attend 800 ms, change un état local, puis redirige vers `/home`, sans appel OAuth, serveur ni session.
+- Cause: écran de consentement simulé non relié à un fournisseur OAuth.
+- Correction: non appliquée à ce stade. Il faut soit retirer/désactiver cette route simulée, soit configurer un véritable flux OAuth; aucun fournisseur ni configuration Google n'est confirmé par le dépôt.
+- Commit: aucun.
+- Statut: ouvert.
+
