@@ -49,7 +49,7 @@ function parseValue(key, value) {
   return String(value)
 }
 
-export default function AdminSettings() {
+export default function AdminSettings({ canEdit = false }) {
   const [settings, setSettings] = useState(DEFAULTS)
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState("")
@@ -114,6 +114,11 @@ export default function AdminSettings() {
               <CardDescription>
                 Les modifications sont enregistrées directement dans Supabase et utilisées par les workflows KORA concernés.
               </CardDescription>
+              {!canEdit && (
+                <p className="mt-2 text-xs text-muted-foreground">
+                  Mode lecture seule. Seul le Super Admin peut modifier ces paramètres.
+                </p>
+              )}
             </div>
             <Button variant="outline" className="gap-2" onClick={loadSettings} disabled={loading}>
               <RefreshCw className={loading ? "h-4 w-4 animate-spin" : "h-4 w-4"} />
@@ -167,12 +172,14 @@ export default function AdminSettings() {
                               onClick={() => updateLocal(key, !value)}
                               className={`relative h-8 w-14 rounded-full border transition-colors ${value ? "bg-primary" : "bg-muted"}`}
                               aria-pressed={value}
+                              disabled={!canEdit}
                             >
                               <span className={`absolute top-1 h-6 w-6 rounded-full bg-background shadow transition-transform ${value ? "translate-x-7" : "translate-x-1"}`} />
                             </button>
                           ) : key === "default_theme" ? (
                             <select
                               value={value}
+                              disabled={!canEdit}
                               onChange={(event) => updateLocal(key, event.target.value)}
                               className="h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm sm:w-64"
                             >
@@ -184,15 +191,18 @@ export default function AdminSettings() {
                             <Input
                               type={key.includes("email") ? "email" : "text"}
                               value={value ?? ""}
+                              disabled={!canEdit}
                               onChange={(event) => updateLocal(key, event.target.value)}
                               className="w-full sm:w-64"
                             />
                           )}
 
-                          <Button type="button" size="sm" onClick={() => save(key)} disabled={saving === key} className="shrink-0 gap-2">
-                            {saving === key ? <Loader2 className="h-4 w-4 animate-spin" /> : saved === key ? <Check className="h-4 w-4" /> : <Save className="h-4 w-4" />}
-                            {saved === key ? "Enregistré" : "Enregistrer"}
-                          </Button>
+                          {canEdit && (
+                            <Button type="button" size="sm" onClick={() => save(key)} disabled={saving === key} className="shrink-0 gap-2">
+                              {saving === key ? <Loader2 className="h-4 w-4 animate-spin" /> : saved === key ? <Check className="h-4 w-4" /> : <Save className="h-4 w-4" />}
+                              {saved === key ? "Enregistré" : "Enregistrer"}
+                            </Button>
+                          )}
                         </div>
                       </div>
                     </div>

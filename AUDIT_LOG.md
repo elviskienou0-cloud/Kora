@@ -161,9 +161,9 @@ Aucune correction de code n'a encore été appliquée.
 - Attendu: un compte ayant seulement `settings.read` consulte les paramètres sans voir d'action d'écriture qu'il ne peut pas exécuter.
 - Observé: `AdminPanel` autorise un associé ayant `settings.read` à ouvrir la vue Paramètres; la page affiche systématiquement les boutons Enregistrer. La fonction SQL refuse pourtant toute modification sauf si `is_super_admin()` est vrai.
 - Cause: l'interface ne distingue pas les permissions de lecture et d'écriture.
-- Correction: non appliquée. La correction minimale recommandée est de rendre la page explicitement en lecture seule pour les associés, ou de réserver la vue à Super Admin tant qu'aucune permission d'écriture n'existe.
-- Commit: aucun.
-- Statut: ouvert.
+- Correction appliquée: `AdminPanel` passe une propriété `canEdit` vraie uniquement au Super Admin; la page désactive les contrôles et masque les boutons Enregistrer pour les autres admins. Le serveur reste l'autorité finale.
+- Commit: `KORA-010: masquer les actions d'écriture des paramètres aux associés`.
+- Statut: corrigé sur la branche d'audit; build CI à vérifier.
 
 
 

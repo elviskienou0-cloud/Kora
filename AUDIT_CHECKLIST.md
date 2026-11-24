@@ -247,7 +247,7 @@ Les cases restent décochées tant que le fichier n'a pas été lu intégralemen
 - [x] `src/pages/ResetPassword.jsx`
 - [ ] `src/pages/SignalerProbleme.jsx`
 - [ ] `src/pages/admin/AdminAssociateDashboard.jsx`
-- [ ] `src/pages/admin/AdminPanel.jsx`
+- [x] `src/pages/admin/AdminPanel.jsx`
 - [ ] `src/pages/admin/Administrators.jsx`
 - [ ] `src/pages/admin/Announcements.jsx`
 - [ ] `src/pages/admin/Clients.jsx`
@@ -259,7 +259,7 @@ Les cases restent décochées tant que le fichier n'a pas été lu intégralemen
 - [ ] `src/pages/admin/Projects.jsx`
 - [ ] `src/pages/admin/Reports.jsx`
 - [ ] `src/pages/admin/Requests.jsx`
-- [ ] `src/pages/admin/Settings.jsx`
+- [x] `src/pages/admin/Settings.jsx`
 - [x] `src/pages/admin/Subscriptions.jsx`
 - [ ] `src/pages/admin/SuperAdminPanel.jsx`
 - [ ] `src/pages/admin/Talents.jsx`

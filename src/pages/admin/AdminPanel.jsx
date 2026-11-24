@@ -159,7 +159,7 @@ export default function AdminPanel() {
       case "announcements":
         return <AdminAnnouncements />
       case "settings":
-        return <AdminSettings />
+        return <AdminSettings canEdit={adminAccess?.access_level === "super_admin"} />
       case "administrators":
         return <AdminAdministrators />
       case "dashboard":
