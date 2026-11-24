@@ -196,3 +196,15 @@
   }
   .kora-lp-marquee-group:nth-child(2) { display: none; }
 }
+
+
+/* Scroll-direction navigation: stays available at the top and on upward scroll. */
+.kora-lp-nav-wrapper {
+  transition: transform .28s cubic-bezier(.2,.8,.2,1);
+}
+.kora-lp-nav-wrapper.is-hidden {
+  transform: translate3d(0, -135%, 0);
+}
+@media (prefers-reduced-motion: reduce) {
+  .kora-lp-nav-wrapper { transition: none !important; }
+}
