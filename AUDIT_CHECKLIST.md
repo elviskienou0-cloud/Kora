@@ -206,11 +206,11 @@ Les cases restent décochées tant que le fichier n'a pas été lu intégralemen
 - [ ] `src/index.css`
 - [x] `src/lib/AuthContext.jsx`
 - [ ] `src/lib/PageNotFound.jsx`
-- [ ] `src/lib/ThemeContext.jsx`
+- [x] `src/lib/ThemeContext.jsx`
 - [x] `src/lib/admin.js`
-- [ ] `src/lib/app-params.js`
+- [x] `src/lib/app-params.js`
 - [ ] `src/lib/authReturnTo.js`
-- [ ] `src/lib/categoryIcons.js`
+- [x] `src/lib/categoryIcons.js`
 - [ ] `src/lib/consoleSecurityWarning.js`
 - [ ] `src/lib/messaging.js`
 - [ ] `src/lib/notificationSound.js`
