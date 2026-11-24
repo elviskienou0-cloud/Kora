@@ -93,3 +93,22 @@ Les points ci-dessous sont volontairement laissés ouverts. Aucune logique tarif
 4. Ajouter également des vidéos, avec une limite distincte.
 
 **Recommandation:** option 2 pour une première version. Utiliser un bucket privé, des chemins liés à `conversation_id` et `message_id`, des policies vérifiant la participation à la conversation, et des URL signées temporaires. La taille et les MIME doivent être contrôlés côté client et côté Storage. Ne pas rendre les pièces jointes publiques.
+
+
+### Complément D-002 | Stack mobile réellement présente
+
+- Le dépôt utilise React + Vite pour le web, Supabase pour Auth/DB/Storage/Edge Functions, et Capacitor pour l'application Android.
+- Aucun Next.js, Prisma, React Native ou Expo n'a été trouvé dans le manifeste et l'arborescence inspectés.
+- Le projet contient un dossier Android; aucun dossier iOS n'a été trouvé dans l'arborescence actuelle.
+- **Recommandation:** conserver Capacitor pour éviter une réécriture tant que les besoins natifs ne l'exigent pas; valider explicitement le support iOS et les parcours mobiles sur appareils réels avant lancement.
+
+## D-010 | Attribution du rôle administrateur
+
+**Constat:** l'inscription publique ne propose que Client et Manager. En parallèle, un parcours d'invitation réservé au Super Admin permet à un utilisateur invité d'accepter un accès Admin associé.
+
+**Options**
+1. Exiger exclusivement une modification manuelle en base; supprimer le parcours d'invitation.
+2. Autoriser les invitations créées par le Super Admin, sans jamais proposer Admin dans l'inscription publique.
+3. Autoriser les invitations pour les administrateurs associés, mais réserver le rôle Super Admin à une attribution manuelle en base.
+
+**Recommandation:** option 3. Elle conserve un contrôle centralisé tout en évitant l'auto-attribution publique. À confirmer au regard de la règle « admin attribué manuellement en base ».
