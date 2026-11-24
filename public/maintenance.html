@@ -1,0 +1,353 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#ffffff">
+  <meta name="description" content="KORA évolue. Notre plateforme est temporairement indisponible pendant une opération de maintenance. Nous serons bientôt de retour.">
+  <meta name="robots" content="noindex, nofollow">
+  <title>Maintenance en cours | KORA</title>
+  <style>
+    :root {
+      color-scheme: light;
+      --white: #fff;
+      --ink: #101010;
+      --gold: #e9b927;
+      --gold-deep: #9d7610;
+      --gold-soft: #fff8e5;
+      --muted: #777;
+      --line: #eaeaea;
+      --surface: #f8f8f6;
+    }
+    *, *::before, *::after { box-sizing: border-box; }
+    html { min-width: 320px; scroll-behavior: smooth; }
+    body {
+      min-height: 100vh;
+      margin: 0;
+      background: var(--white);
+      color: var(--ink);
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      -webkit-font-smoothing: antialiased;
+    }
+    a { color: inherit; }
+    .page {
+      display: flex;
+      width: min(1160px, calc(100% - 64px));
+      min-height: 100vh;
+      margin-inline: auto;
+      flex-direction: column;
+    }
+    .site-header {
+      display: flex;
+      min-height: 100px;
+      align-items: center;
+      justify-content: space-between;
+      gap: 20px;
+      border-bottom: 1px solid var(--line);
+    }
+    .logo {
+      color: var(--ink);
+      font-size: 29px;
+      font-weight: 950;
+      letter-spacing: -2px;
+      text-decoration: none;
+    }
+    .logo span { color: var(--gold); }
+    .status-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      padding: 10px 15px;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      background: var(--surface);
+      color: #555;
+      font-size: 12px;
+      font-weight: 650;
+    }
+    .status-dot {
+      width: 8px;
+      height: 8px;
+      flex: 0 0 auto;
+      border-radius: 50%;
+      background: var(--gold);
+      animation: pulse 2s ease-in-out infinite;
+    }
+    main {
+      display: grid;
+      flex: 1;
+      grid-template-columns: 1fr .9fr;
+      align-items: center;
+      gap: 70px;
+      padding-block: 80px;
+    }
+    .eyebrow {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 30px;
+      color: #8b701f;
+      font-size: 11px;
+      font-weight: 800;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+    }
+    .eyebrow::before {
+      width: 27px;
+      height: 2px;
+      background: var(--gold);
+      content: "";
+    }
+    h1 {
+      max-width: 580px;
+      margin: 0;
+      font-size: clamp(48px, 6vw, 76px);
+      font-weight: 850;
+      letter-spacing: -5px;
+      line-height: .99;
+    }
+    h1 span { color: #c99d1d; }
+    .description {
+      max-width: 480px;
+      margin: 28px 0 0;
+      color: var(--muted);
+      font-size: 16px;
+      line-height: 1.9;
+    }
+    .secondary {
+      max-width: 430px;
+      margin: 35px 0 0;
+      padding-left: 18px;
+      border-left: 2px solid var(--gold);
+      font-size: 14px;
+      font-weight: 650;
+      line-height: 1.8;
+    }
+    .visual {
+      position: relative;
+      display: grid;
+      min-height: 420px;
+      overflow: hidden;
+      place-items: center;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: var(--surface);
+      animation: appear .8s ease both;
+    }
+    .visual::before, .visual::after {
+      position: absolute;
+      width: 260px;
+      height: 260px;
+      border: 1px solid #e8e5db;
+      border-radius: 50%;
+      content: "";
+    }
+    .visual::after { width: 340px; height: 340px; }
+    .art {
+      position: relative;
+      z-index: 1;
+      width: min(85%, 390px);
+      animation: float 5s ease-in-out infinite;
+    }
+    .art svg { display: block; width: 100%; height: auto; }
+    .orbit {
+      transform-box: view-box;
+      transform-origin: 200px 200px;
+      animation: rotate 25s linear infinite;
+    }
+    .node {
+      transform-box: fill-box;
+      transform-origin: center;
+      animation: pulse 3s ease-in-out infinite;
+    }
+    .status-card {
+      display: flex;
+      grid-column: 1 / -1;
+      align-items: center;
+      justify-content: space-between;
+      gap: 20px;
+      padding: 25px 28px;
+      border: 1px solid var(--line);
+      border-radius: 7px;
+      background: var(--white);
+    }
+    .status-info { display: flex; align-items: center; gap: 15px; }
+    .status-icon {
+      display: grid;
+      width: 43px;
+      height: 43px;
+      flex: 0 0 auto;
+      place-items: center;
+      border-radius: 5px;
+      background: var(--gold-soft);
+      color: var(--gold-deep);
+      font-size: 19px;
+    }
+    .status-info strong { display: block; margin-bottom: 5px; font-size: 13px; }
+    .status-info p { margin: 0; color: var(--muted); font-size: 12px; line-height: 1.6; }
+    .activity {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      color: #777;
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+    }
+    .activity-bars { display: flex; height: 20px; align-items: center; gap: 3px; }
+    .activity-bars i {
+      display: block;
+      width: 3px;
+      height: 8px;
+      background: var(--gold);
+      animation: bars 1s ease-in-out infinite alternate;
+    }
+    .activity-bars i:nth-child(2) { animation-delay: .2s; }
+    .activity-bars i:nth-child(3) { animation-delay: .4s; }
+    .activity-bars i:nth-child(4) { animation-delay: .6s; }
+    footer {
+      display: flex;
+      min-height: 100px;
+      align-items: center;
+      justify-content: space-between;
+      gap: 20px;
+      border-top: 1px solid var(--line);
+    }
+    .footer-brand { color: var(--muted); font-size: 12px; line-height: 1.8; }
+    .footer-brand strong {
+      display: block;
+      color: var(--ink);
+      font-size: 15px;
+      letter-spacing: 1px;
+    }
+    .footer-copy { color: var(--muted); font-size: 11px; line-height: 1.8; text-align: right; }
+    @keyframes pulse {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50% { opacity: .45; transform: scale(.82); }
+    }
+    @keyframes float {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-10px); }
+    }
+    @keyframes rotate { to { transform: rotate(360deg); } }
+    @keyframes bars { from { height: 5px; } to { height: 18px; } }
+    @keyframes appear {
+      from { opacity: 0; transform: translateY(15px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    @media (max-width: 850px) {
+      main { grid-template-columns: 1fr; gap: 45px; padding-block: 60px; }
+      .visual { min-height: 350px; }
+      .status-card { grid-column: auto; }
+    }
+    @media (max-width: 560px) {
+      .page { width: calc(100% - 36px); }
+      .site-header { min-height: 78px; }
+      .logo { font-size: 25px; }
+      .status-pill { padding: 8px 10px; font-size: 10px; }
+      main { gap: 35px; padding-block: 55px 40px; }
+      .eyebrow { margin-bottom: 23px; font-size: 9px; }
+      h1 { font-size: clamp(45px, 12vw, 61px); letter-spacing: -3px; }
+      .description { margin-top: 23px; font-size: 14px; }
+      .secondary { margin-top: 25px; font-size: 13px; }
+      .visual { min-height: 290px; }
+      .status-card { align-items: flex-start; flex-direction: column; padding: 18px; }
+      footer { align-items: flex-start; flex-direction: column; padding-block: 23px; }
+      .footer-copy { text-align: left; }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after {
+        scroll-behavior: auto !important;
+        animation-duration: .01ms !important;
+        animation-iteration-count: 1 !important;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="page">
+    <header class="site-header">
+      <a class="logo" href="/" aria-label="KORA, accueil">KORA<span>.</span></a>
+      <div class="status-pill">
+        <span class="status-dot" aria-hidden="true"></span>
+        <span>Maintenance en cours</span>
+      </div>
+    </header>
+
+    <main>
+      <section aria-labelledby="main-title">
+        <div class="eyebrow">Une nouvelle étape se prépare</div>
+        <h1 id="main-title">Nous préparons <span>la suite.</span></h1>
+        <p class="description">
+          KORA évolue pour vous offrir une expérience encore plus fluide et performante.
+          Notre plateforme est temporairement indisponible pendant que nous effectuons
+          quelques améliorations.
+        </p>
+        <p class="secondary">
+          Chaque connexion compte. Nous mettons tout en œuvre pour vous retrouver très bientôt.
+        </p>
+      </section>
+
+      <section class="visual" aria-label="Illustration abstraite de connexions et d'évolution">
+        <div class="art">
+          <svg viewBox="0 0 400 400" fill="none" xmlns="http://www.w3.org/2000/svg"
+               role="img" aria-labelledby="illustration-title">
+            <title id="illustration-title">Un réseau de connexions en évolution</title>
+            <circle cx="200" cy="200" r="130" stroke="#DEDACF" stroke-dasharray="3 8"/>
+            <g class="orbit">
+              <circle cx="200" cy="70" r="7" fill="#E9B927"/>
+              <circle cx="330" cy="200" r="5" fill="#111111"/>
+              <circle cx="200" cy="330" r="7" fill="#E9B927"/>
+              <circle cx="70" cy="200" r="5" fill="#111111"/>
+            </g>
+            <path d="M200 100V160M300 200H240M200 300V240M100 200H160"
+                  stroke="#C8C3B6" stroke-width="2"/>
+            <path d="M200 160L240 200L200 240L160 200L200 160Z"
+                  fill="#FFF8E5" stroke="#D7B348" stroke-width="2"/>
+            <circle cx="200" cy="200" r="42" fill="#111111"/>
+            <text x="200" y="207" text-anchor="middle" fill="#E9B927"
+                  font-size="23" font-weight="900" letter-spacing="-1">K</text>
+            <circle class="node" cx="200" cy="100" r="12" fill="white" stroke="#111" stroke-width="2"/>
+            <circle class="node" cx="300" cy="200" r="12" fill="#E9B927"/>
+            <circle class="node" cx="200" cy="300" r="12" fill="white" stroke="#111" stroke-width="2"/>
+            <circle class="node" cx="100" cy="200" r="12" fill="#E9B927"/>
+            <path d="M140 140L160 160M260 140L240 160M140 260L160 240M260 260L240 240"
+                  stroke="#D5D1C7" stroke-width="2"/>
+            <circle cx="140" cy="140" r="5" fill="#111"/>
+            <circle cx="260" cy="140" r="5" fill="#E9B927"/>
+            <circle cx="140" cy="260" r="5" fill="#E9B927"/>
+            <circle cx="260" cy="260" r="5" fill="#111"/>
+          </svg>
+        </div>
+      </section>
+
+      <section class="status-card" aria-label="État du service">
+        <div class="status-info">
+          <div class="status-icon" aria-hidden="true">↗</div>
+          <div>
+            <strong>Maintenance en cours</strong>
+            <p>Nos équipes travaillent à améliorer votre expérience.</p>
+          </div>
+        </div>
+        <div class="activity" role="status" aria-live="polite">
+          <span>Activité en cours</span>
+          <span class="activity-bars" aria-hidden="true"><i></i><i></i><i></i><i></i></span>
+        </div>
+      </section>
+    </main>
+
+    <footer>
+      <div class="footer-brand">
+        <strong>KORA.</strong>
+        Construire les connexions qui révèlent les talents.
+      </div>
+      <div class="footer-copy">© <span id="year">2026</span> KORA. Tous droits réservés.</div>
+    </footer>
+  </div>
+
+  <script>
+    document.getElementById("year").textContent = String(new Date().getFullYear());
+  </script>
+</body>
+</html>
