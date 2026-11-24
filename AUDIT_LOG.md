@@ -116,3 +116,15 @@ Aucune correction de code n'a encore été appliquée.
 - Vérification: 100 versions locales et 100 versions distantes; aucune version manquante ni migration locale non appliquée.
 - Statut: corrigé sur la branche d'audit; aucune modification de la base active.
 
+
+
+### KORA-008 | bug fonctionnel | moyenne | admin | `/admin?view=subscriptions` | `src/pages/admin/Subscriptions.jsx` / composant principal
+
+- Étapes: navigation via `AdminPanel.jsx` vers la vue `subscriptions`; lecture intégrale de la page.
+- Attendu: afficher les abonnements de la table `subscriptions`.
+- Observé: la route `subscriptions` rendait une page exportée sous le nom `AdminPayments` qui interrogeait `payments`, sans aucune requête sur `subscriptions`. La section Abonnements affichait donc une seconde liste de paiements.
+- Cause: mauvais composant et mauvaise table reliés à la route.
+- Correction appliquée: remplacement par une liste réelle des abonnements, avec recherche, filtre de statut, pagination, états de chargement/erreur/vide; la validation reste dans la section Paiements.
+- Commit: `KORA-008: corriger la page Abonnements`.
+- Statut: corrigé sur la branche d'audit; build CI à vérifier.
+

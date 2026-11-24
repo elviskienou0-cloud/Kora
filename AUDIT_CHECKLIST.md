@@ -260,7 +260,7 @@ Les cases restent décochées tant que le fichier n'a pas été lu intégralemen
 - [ ] `src/pages/admin/Reports.jsx`
 - [ ] `src/pages/admin/Requests.jsx`
 - [ ] `src/pages/admin/Settings.jsx`
-- [ ] `src/pages/admin/Subscriptions.jsx`
+- [x] `src/pages/admin/Subscriptions.jsx`
 - [ ] `src/pages/admin/SuperAdminPanel.jsx`
 - [ ] `src/pages/admin/Talents.jsx`
 - [ ] `src/pages/admin/Users.jsx`
