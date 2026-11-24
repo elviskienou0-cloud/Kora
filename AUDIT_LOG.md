@@ -478,3 +478,15 @@ Les tests ont utilisé des identités existantes du projet, sans afficher leurs 
 
 
 
+
+
+### KORA-033 | incomplet / UX / accessibilité | moyenne | client et tous rôles connectés | accueil `/home` | `src/pages/Home.jsx`
+
+- Étapes: lecture intégrale de l'accueil et vérification des handlers de ses contrôles.
+- Attendu: chaque contrôle visible effectue une action réelle et les cartes interactives sont utilisables au clavier.
+- Observé: le champ de recherche desktop n'avait ni état ni handler; le bouton cœur des talents recommandés n'avait aucun handler et pouvait déclencher la navigation de la carte. La carte entière était cliquable sans rôle clavier.
+- Cause: contrôles visuels non raccordés aux parcours métier.
+- Correction appliquée: suppression du champ de recherche inerte (l'action Explorer reste disponible), raccordement du cœur à la table `favorites` pour les clients seulement, gestion d'erreur et d'état pending, arrêt de propagation; carte rendue accessible au clavier avec rôle link.
+- Commit: `KORA-033: rendre les actions de l'accueil fonctionnelles`.
+- Statut: corrigé sur la branche d'audit; build CI à vérifier.
+

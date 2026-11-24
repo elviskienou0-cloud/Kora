@@ -237,7 +237,7 @@ Les cases restent décochées tant que le fichier n'a pas été lu intégralemen
 - [ ] `src/pages/DataRights.jsx`
 - [ ] `src/pages/FAQ.jsx`
 - [x] `src/pages/ForgotPassword.jsx`
-- [ ] `src/pages/Home.jsx`
+- [x] `src/pages/Home.jsx`
 - [ ] `src/pages/Landing.jsx`
 - [x] `src/pages/Login.jsx`
 - [ ] `src/pages/MentionsLegales.jsx`
