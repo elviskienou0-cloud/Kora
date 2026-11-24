@@ -1060,10 +1060,32 @@
 .dark .kora-lp #why-kora,
 .dark .kora-lp #faq { background: #171717; }
 .dark .kora-lp-audience-card-client,
-.dark .dark .kora-lp-step-card,
-.dark .dark .kora-lp-feature-card,
-.dark .dark .kora-lp-plan-card { background: hsl(var(--card)); }
+.dark .kora-lp .kora-lp-step-card,
+.dark .kora-lp .kora-lp-feature-card,
+.dark .kora-lp .kora-lp-plan-card { background: hsl(var(--card)); }
 .dark .kora-lp .kora-lp-eyebrow-pill { color: #F5D77A; }
 .dark .kora-lp .kora-lp-title-emphasis,
 .dark .kora-lp .kora-lp-plan-price { color: #F5D77A; }
 .dark .kora-lp .kora-public-footer { background: #101010; }
+
+.kora-lp .kora-lp-nav-shell {
+  border-color: rgb(23 23 23 / .1);
+  background: rgb(255 255 255 / .94);
+  box-shadow: 0 12px 32px -24px rgb(23 23 23 / .38);
+}
+.kora-lp .kora-lp-nav-shell a[aria-current="location"] {
+  background: rgb(245 197 66 / .22);
+  color: #171717;
+}
+.kora-lp .kora-lp-nav-shell > button:focus-visible,
+.kora-lp .kora-lp-nav-shell a:focus-visible {
+  outline-color: #a77c0c;
+}
+.dark .kora-lp .kora-lp-nav-shell {
+  border-color: rgb(255 255 255 / .12);
+  background: rgb(23 23 23 / .94);
+}
+.dark .kora-lp .kora-lp-nav-shell a[aria-current="location"] {
+  background: rgb(245 197 66 / .18);
+  color: #F5D77A;
+}
