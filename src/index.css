@@ -573,10 +573,10 @@
 .dark .kora-public-shell #kora-content > section:nth-of-type(2), .dark .kora-public-shell #kora-content > #categories, .dark .kora-public-shell #kora-content > #pricing { background:#151f30 !important; }
 .kora-public-shell #features > div > div:first-child, .kora-public-shell #categories > div > div:first-child, .kora-public-shell #pricing > div > div:first-child { max-width:760px; margin-left:0; margin-right:auto; text-align:left; }
 .kora-public-shell #features h2, .kora-public-shell #categories h2, .kora-public-shell #pricing h2 { color:#171717; font-family:"Manrope",sans-serif; font-weight:800; letter-spacing:-.045em; }
-.dark .kora-public-shell #features h2, .dark .kora-public-shell #categories h2, .dark .kora-public-shell #pricing h2 { color:#f4f7fb; }
+.dark .kora-public-shell #features h2, .dark .kora-public-shell #categories h2, .dark .kora-public-shell #pricing h2 { color:#FFFFFF; }
 .kora-public-shell #features > div, .kora-public-shell #categories > div, .kora-public-shell #pricing > div { max-width:1480px; }
 .kora-public-shell #features .rounded-2xl, .kora-public-shell #pricing .rounded-2xl { border-color:#e1e6ee; box-shadow:0 12px 32px rgb(42 33 21 / .045); }
-.dark .kora-public-shell #features .rounded-2xl, .dark .kora-public-shell #pricing .rounded-2xl { border-color:#2b3a50; box-shadow:0 12px 32px rgb(0 0 0 / .12); }
+.dark .kora-public-shell #features .rounded-2xl, .dark .kora-public-shell #pricing .rounded-2xl { border-color:#383838; box-shadow:0 12px 32px rgb(0 0 0 / .12); }
 .kora-public-shell #features svg { stroke-width:1.65; }
 .kora-public-shell #testimonials:not(:has(.kora-review-section)) { display:none; }
 .kora-process-section { padding-block:clamp(76px,8vw,124px); background:#fff; }
@@ -587,8 +587,8 @@
 .kora-process-card h3 { margin:0 0 10px; font-size:18px; font-weight:800; }
 .kora-process-card p { color:#68778b; font-size:14px; line-height:1.7; }
 .kora-process-number { position:absolute; top:24px; right:25px; color:#aab5c4; font-size:12px; font-weight:800; letter-spacing:.12em; }
-.dark .kora-process-card { background:#172338; color:#f4f7fb; border-color:#2b3a50; }
-.dark .kora-process-card p { color:#aeb9c8; }
+.dark .kora-process-card { background:#202020; color:#FFFFFF; border-color:#383838; }
+.dark .kora-process-card p { color:#D1D1D1; }
 
 /* Premium navy footer */
 .kora-public-footer { margin-top:0 !important; border:0 !important; background:#171717 !important; color:#fff !important; }
@@ -602,15 +602,15 @@
 .kora-content-page { width:min(1440px,100%); margin:0 auto; padding:clamp(112px,12vw,160px) clamp(20px,4vw,64px) clamp(76px,8vw,120px); }
 .kora-page-intro { max-width:780px; margin:0 0 44px !important; text-align:left !important; }
 .kora-page-intro h1 { color:#171717; font-size:clamp(34px,4vw,52px); font-weight:800; letter-spacing:-.05em; }
-.dark .kora-page-intro h1 { color:#f4f7fb; }
+.dark .kora-page-intro h1 { color:#FFFFFF; }
 .kora-faq-item { border-radius:14px !important; border-color:#e1e6ee !important; box-shadow:0 5px 18px rgb(42 33 21 / .035); }
-.dark .kora-faq-item { border-color:#2b3a50 !important; }
+.dark .kora-faq-item { border-color:#383838 !important; }
 .kora-faq-item button { min-height:64px; font-weight:700; color:#171717; }
-.dark .kora-faq-item button { color:#f4f7fb; }
+.dark .kora-faq-item button { color:#FFFFFF; }
 .kora-contact-card { border-radius:18px; border:1px solid #e1e6ee; background:#fff; padding:28px; box-shadow:0 12px 32px rgb(42 33 21 / .05); }
-.dark .kora-contact-card { border-color:#2b3a50; background:#172338; }
+.dark .kora-contact-card { border-color:#383838; background:#202020; }
 .kora-contact-card h2 { color:#171717; }
-.dark .kora-contact-card h2 { color:#f4f7fb; }
+.dark .kora-contact-card h2 { color:#FFFFFF; }
 
 @media (max-width:900px) {
   .kora-landing-hero { min-height:auto; padding:44px 22px 74px; }
@@ -655,46 +655,46 @@
 
 
 /* Complete dark-theme adaptation for the public experience */
-.dark .kora-public-shell .kora-landing-hero { background:#101d32 !important; color:#f4f7fb !important; }
-.dark .kora-public-shell .kora-landing-copy h1 { color:#f4f7fb !important; }
-.dark .kora-public-shell .kora-hero-description { color:#bac6d6 !important; }
+.dark .kora-public-shell .kora-landing-hero { background:#171717 !important; color:#FFFFFF !important; }
+.dark .kora-public-shell .kora-landing-copy h1 { color:#FFFFFF !important; }
+.dark .kora-public-shell .kora-hero-description { color:#D1D1D1 !important; }
 .dark .kora-public-shell .kora-hero-eyebrow { color:#FFFFFF; }
-.dark .kora-public-shell .kora-phone { border-color:#33445d; background:#0d192b; box-shadow:0 24px 55px rgb(0 0 0 / .3); }
-.dark .kora-public-shell .kora-phone-screen { background:#17263d; color:#f4f7fb; }
+.dark .kora-public-shell .kora-phone { border-color:#3A3A3A; background:#101010; box-shadow:0 24px 55px rgb(0 0 0 / .3); }
+.dark .kora-public-shell .kora-phone-screen { background:#202020; color:#FFFFFF; }
 .dark .kora-public-shell .kora-phone-brand,
 .dark .kora-public-shell .kora-phone-title,
-.dark .kora-public-shell .kora-phone-row { color:#f4f7fb; }
+.dark .kora-public-shell .kora-phone-row { color:#FFFFFF; }
 .dark .kora-public-shell .kora-phone-search,
 .dark .kora-public-shell .kora-phone-category,
 .dark .kora-public-shell .kora-phone-profile,
-.dark .kora-public-shell .kora-phone-manager-grid > div { background:#1d304b; border-color:#31435d; color:#c3cfdd; }
+.dark .kora-public-shell .kora-phone-manager-grid > div { background:#242424; border-color:#3A3A3A; color:#D0D0D0; }
 .dark .kora-public-shell .kora-phone-category-mark,
-.dark .kora-public-shell .kora-phone-avatar { background:#30445f; color:#c3cfdd; }
-.dark .kora-public-shell .kora-phone-skeleton i { background:#536780; }
+.dark .kora-public-shell .kora-phone-avatar { background:#333333; color:#D0D0D0; }
+.dark .kora-public-shell .kora-phone-skeleton i { background:#666666; }
 .dark .kora-public-shell .kora-phone-manager-grid span,
-.dark .kora-public-shell .kora-phone-bottomline { color:#b4c1d1; }
-.dark .kora-public-shell .kora-phone-notch { background:#07101d; }
+.dark .kora-public-shell .kora-phone-bottomline { color:#D1D1D1; }
+.dark .kora-public-shell .kora-phone-notch { background:#080808; }
 .dark .kora-public-shell .kora-phone-home { background:#66758a; }
-.dark .kora-public-shell .kora-start-button { background:#171717 !important; color:#172b4d !important; }
+.dark .kora-public-shell .kora-start-button { background:#F5C542 !important; border-color:#F5C542 !important; color:#171717 !important; }
 .dark .kora-public-shell #features .rounded-2xl,
-.dark .kora-public-shell #pricing .rounded-2xl { background:#172338; color:#f4f7fb; }
+.dark .kora-public-shell #pricing .rounded-2xl { background:#202020; color:#FFFFFF; }
 .dark .kora-public-shell #features p,
-.dark .kora-public-shell #pricing p { color:#aeb9c8; }
+.dark .kora-public-shell #pricing p { color:#D1D1D1; }
 .dark .kora-public-shell #features h3,
-.dark .kora-public-shell #pricing h3 { color:#f4f7fb; }
-.dark .kora-public-shell #testimonials .kora-review-section { color:#f4f7fb; }
-.dark .kora-public-shell .kora-public-footer { background:#0b1729 !important; }
-.dark .kora-public-shell .kora-contact-card { color:#f4f7fb; }
-.dark .kora-public-shell .kora-contact-card p { color:#b7c3d2; }
-.dark .kora-public-shell .kora-faq-item { background:#172338; }
-.dark .kora-public-shell .kora-faq-item button:hover { background:#20324b; }
-.dark .kora-public-shell .kora-faq-item button { color:#f4f7fb; }
-.dark .kora-public-shell .kora-faq-item .text-muted-foreground { color:#b7c3d2; }
-.dark .kora-public-shell .kora-page-intro p { color:#b7c3d2; }
+.dark .kora-public-shell #pricing h3 { color:#FFFFFF; }
+.dark .kora-public-shell #testimonials .kora-review-section { color:#FFFFFF; }
+.dark .kora-public-shell .kora-public-footer { background:#101010 !important; }
+.dark .kora-public-shell .kora-contact-card { color:#FFFFFF; }
+.dark .kora-public-shell .kora-contact-card p { color:#D1D1D1; }
+.dark .kora-public-shell .kora-faq-item { background:#202020; }
+.dark .kora-public-shell .kora-faq-item button:hover { background:#303030; }
+.dark .kora-public-shell .kora-faq-item button { color:#FFFFFF; }
+.dark .kora-public-shell .kora-faq-item .text-muted-foreground { color:#D1D1D1; }
+.dark .kora-public-shell .kora-page-intro p { color:#D1D1D1; }
 .kora-categories-page > .relative.overflow-hidden { padding-top:76px; }
-.dark .kora-public-shell #kora-content > section:last-child .gold-gradient { background:#171717; }
+.dark .kora-public-shell #kora-content > section:last-child .gold-gradient { background:#F5C542; }
 .kora-public-shell #kora-content > section:last-child > div > div:first-child { border:1px solid #e1e6ee; box-shadow:0 20px 60px rgb(42 33 21 / .12); }
-.dark .kora-public-shell #kora-content > section:last-child > div > div:first-child { border-color:#2b3a50; }
+.dark .kora-public-shell #kora-content > section:last-child > div > div:first-child { border-color:#383838; }
 
 
 /* Remaining public routes: legal, support and authentication */
@@ -708,15 +708,15 @@
 .kora-legal-page .kora-content-page a { color:#171717; }
 .kora-auth-page { background:hsl(var(--background)) !important; color:hsl(var(--foreground)); }
 .kora-auth-page .bg-card { border-color:hsl(var(--border)); border-radius:18px; box-shadow:0 18px 48px rgb(42 33 21 / .09); }
-.kora-auth-page .gold-gradient { background:#171717 !important; }
-.kora-auth-page .gold-text-gradient { background:none; color:#171717; -webkit-text-fill-color:#171717; }
+.kora-auth-page .gold-gradient { background:#F5C542 !important; }
+.kora-auth-page .gold-text-gradient { background:none; color:#B88708; -webkit-text-fill-color:#B88708; }
 .kora-auth-page input,
 .kora-auth-page select { border-radius:10px; }
-.kora-auth-page .text-gold { color:#171717 !important; }
+.kora-auth-page .text-gold { color:#B88708 !important; }
 .dark .kora-auth-page .bg-card { box-shadow:0 18px 48px rgb(0 0 0 / .22); }
-.dark .kora-auth-page .gold-gradient { background:#171717 !important; }
-.dark .kora-auth-page .gold-text-gradient { color:#FFFFFF; -webkit-text-fill-color:#FFFFFF; }
-.dark .kora-auth-page .text-gold { color:#FFFFFF !important; }
+.dark .kora-auth-page .gold-gradient { background:#F5C542 !important; }
+.dark .kora-auth-page .gold-text-gradient { color:#F5C542; -webkit-text-fill-color:#F5C542; }
+.dark .kora-auth-page .text-gold { color:#F5C542 !important; }
 
 
 /* KORA global design system: shared by public, client, manager and administration */
