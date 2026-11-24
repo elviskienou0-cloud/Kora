@@ -1,6 +1,34 @@
-import { useEffect, useState } from "react"
+import { useEffect, useRef, useState } from "react"
 import { ChevronUp } from "lucide-react"
 import { KButton } from "@/components/ui/KButton"
+
+export function ScrollProgress() {
+  const progressRef = useRef(null)
+
+  useEffect(() => {
+    let frame = 0
+    const update = () => {
+      if (frame) return
+      frame = window.requestAnimationFrame(() => {
+        frame = 0
+        const scrollable = document.documentElement.scrollHeight - window.innerHeight
+        const progress = scrollable > 0 ? Math.min(1, Math.max(0, window.scrollY / scrollable)) : 0
+        progressRef.current?.style.setProperty("transform", "scaleX(" + progress + ")")
+      })
+    }
+
+    window.addEventListener("scroll", update, { passive: true })
+    window.addEventListener("resize", update)
+    update()
+    return () => {
+      window.removeEventListener("scroll", update)
+      window.removeEventListener("resize", update)
+      if (frame) window.cancelAnimationFrame(frame)
+    }
+  }, [])
+
+  return <div className="kora-lp-scroll-progress" aria-hidden="true"><span ref={progressRef} /></div>
+}
 
 export function BackToTop({ label }) {
   const [visible, setVisible] = useState(false)
