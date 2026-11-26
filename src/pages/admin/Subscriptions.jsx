@@ -1,100 +1,54 @@
 import { useCallback, useEffect, useState } from "react"
-import {
-  ChevronLeft,
-  ChevronRight,
-  Loader2,
-  RefreshCw,
-  Search,
-} from "lucide-react"
+import { ChevronLeft, ChevronRight, Loader2, RefreshCw, Search } from "lucide-react"
 
-import { Button } from "@/components/ui/button"
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
+import { Button } from "@/components/ui/button"
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
-
 import { supabase } from "@/lib/supabase"
 
 const PAGE_SIZE = 20
 
 const STATUS_LABELS = {
   pending: "En attente",
-  paid: "Payé",
-  failed: "Échec",
+  trialing: "Essai gratuit",
+  active: "Actif",
+  expired: "Expiré",
   cancelled: "Annulé",
-  refunded: "Remboursé",
 }
 
 function formatDate(value) {
   if (!value) return "—"
-
   const date = new Date(value)
-
-  return Number.isNaN(date.getTime())
-    ? "—"
-    : date.toLocaleString("fr-FR")
-}
-
-function formatMoney(value, currency) {
-  if (value === null || value === undefined) {
-    return "—"
-  }
-
-  try {
-    return new Intl.NumberFormat("fr-FR", {
-      style: "currency",
-      currency: currency || "XOF",
-      maximumFractionDigits: 0,
-    }).format(Number(value))
-  } catch {
-    return `${Number(value).toLocaleString("fr-FR")} ${
-      currency || "XOF"
-    }`
-  }
+  return Number.isNaN(date.getTime()) ? "—" : date.toLocaleDateString("fr-FR")
 }
 
 function statusClass(status) {
   switch (status) {
-    case "paid":
+    case "active":
+    case "trialing":
       return "border-emerald-500/30 bg-emerald-500/10 text-emerald-700"
-
     case "pending":
       return "border-amber-500/30 bg-amber-500/10 text-amber-700"
-
-    case "failed":
-      return "border-red-500/30 bg-red-500/10 text-red-700"
-
-    case "refunded":
-      return "border-violet-500/30 bg-violet-500/10 text-violet-700"
-
+    case "expired":
     case "cancelled":
       return "border-slate-500/30 bg-slate-500/10 text-slate-700"
-
     default:
       return "border-border text-muted-foreground"
   }
 }
 
-export default function AdminPayments() {
+export default function AdminSubscriptions() {
   const [items, setItems] = useState([])
   const [search, setSearch] = useState("")
   const [statusFilter, setStatusFilter] = useState("all")
   const [page, setPage] = useState(1)
   const [totalCount, setTotalCount] = useState(0)
-
   const [loading, setLoading] = useState(true)
   const [refreshing, setRefreshing] = useState(false)
   const [error, setError] = useState("")
 
-  const totalPages = Math.max(
-    1,
-    Math.ceil(totalCount / PAGE_SIZE)
-  )
+  const totalPages = Math.max(1, Math.ceil(totalCount / PAGE_SIZE))
 
   const load = useCallback(async () => {
     setLoading(true)
@@ -103,85 +57,38 @@ export default function AdminPayments() {
     try {
       const from = (page - 1) * PAGE_SIZE
       const to = from + PAGE_SIZE - 1
-
       let query = supabase
-        .from("payments")
+        .from("subscriptions")
         .select(
-          `
-            id,
-            user_id,
-            subscription_id,
-            plan_id,
-            provider,
-            provider_payment_id,
-            reference,
-            amount,
-            currency,
-            billing_cycle,
-            status,
-            checkout_url,
-            paid_at,
-            metadata,
-            created_at,
-            updated_at
-          `,
+          "id, user_id, plan_id, plan, status, trial_start, trial_end, current_period_start, current_period_end, starts_at, ends_at, provider, created_at, updated_at",
           { count: "exact" }
         )
-        .order("created_at", {
-          ascending: false,
-        })
+        .order("created_at", { ascending: false })
         .range(from, to)
 
-      if (statusFilter !== "all") {
-        query = query.eq(
-          "status",
-          statusFilter
-        )
-      }
+      if (statusFilter !== "all") query = query.eq("status", statusFilter)
 
       const value = search.trim()
-
       if (value) {
-        const safe = value
-          .replace(/[%(),]/g, " ")
-          .trim()
-
+        const safe = value.replace(/[%,()]/g, " ").trim()
         if (safe) {
-          query = query.or(
-            [
-              `reference.ilike.%${safe}%`,
-              `provider.ilike.%${safe}%`,
-              `status.ilike.%${safe}%`,
-            ].join(",")
-          )
+          if (/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(safe)) {
+            query = query.eq("user_id", safe)
+          } else {
+            query = query.ilike("plan_id", `%${safe}%`)
+          }
         }
       }
 
-      const {
-        data,
-        error: queryError,
-        count,
-      } = await query
-
-      if (queryError) {
-        throw queryError
-      }
+      const { data, error: queryError, count } = await query
+      if (queryError) throw queryError
 
       setItems(data || [])
       setTotalCount(count || 0)
     } catch (err) {
-      console.error(
-        "Erreur chargement paiements admin :",
-        err
-      )
-
       setItems([])
       setTotalCount(0)
-
-      setError(
-        err?.message ||
-          "Impossible de charger les paiements."
-      )
+      setError(err?.message || "Impossible de charger les abonnements.")
     } finally {
       setLoading(false)
     }
@@ -192,28 +99,15 @@ export default function AdminPayments() {
   }, [load])
 
   useEffect(() => {
-    const timer = window.setTimeout(() => {
-      setPage(1)
-    }, 250)
-
-    return () => {
-      window.clearTimeout(timer)
-    }
-  }, [search])
-
-  useEffect(() => {
     setPage(1)
-  }, [statusFilter])
+  }, [search, statusFilter])
 
   useEffect(() => {
-    if (page > totalPages) {
-      setPage(totalPages)
-    }
+    if (page > totalPages) setPage(totalPages)
   }, [page, totalPages])
 
   const refresh = async () => {
     setRefreshing(true)
-
     try {
       await load()
     } finally {
@@ -223,103 +117,56 @@ export default function AdminPayments() {
 
   return (
     <div className="space-y-6">
-      <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h1 className="text-2xl font-black">
-            Paiements
-          </h1>
-
+          <h1 className="text-2xl font-black">Abonnements</h1>
           <p className="text-sm text-muted-foreground">
-            Transactions réelles enregistrées dans
-            Supabase.
+            Suivi des abonnements et des périodes d'essai enregistrés dans Supabase.
           </p>
         </div>
-
-        <Button
-          variant="outline"
-          onClick={refresh}
-          disabled={refreshing}
-          className="gap-2"
-        >
-          {refreshing ? (
-            <Loader2 className="h-4 w-4 animate-spin" />
-          ) : (
-            <RefreshCw className="h-4 w-4" />
-          )}
+        <Button variant="outline" onClick={refresh} disabled={refreshing} className="gap-2">
+          {refreshing ? <Loader2 className="h-4 w-4 animate-spin" /> : <RefreshCw className="h-4 w-4" />}
           Actualiser
         </Button>
       </div>
 
-      <Card className="border-border/60 overflow-hidden">
+      <Card className="border-border/60">
         <CardHeader>
-          <div className="flex flex-col xl:flex-row xl:items-center xl:justify-between gap-4">
-            <div>
-              <CardTitle className="font-black">
-                Transactions
-              </CardTitle>
-
-              <CardDescription>
-                {totalCount.toLocaleString("fr-FR")} paiement
-                {totalCount > 1 ? "s" : ""} au total.
-                <span className="block mt-1">
-                  Le statut de paiement reste contrôlé côté
-                  serveur/webhook.
-                </span>
-              </CardDescription>
+          <CardTitle>Comptes abonnés</CardTitle>
+          <CardDescription>
+            {totalCount.toLocaleString("fr-FR")} abonnement{totalCount > 1 ? "s" : ""} au total.
+            La validation des paiements reste dans la section Paiements.
+          </CardDescription>
+          <div className="flex flex-col gap-3 pt-2 sm:flex-row">
+            <div className="relative w-full sm:max-w-sm">
+              <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+              <Input
+                aria-label="Rechercher un abonnement par identifiant de compte ou plan"
+                value={search}
+                onChange={(event) => setSearch(event.target.value)}
+                placeholder="Identifiant du compte ou plan…"
+                className="pl-10"
+              />
             </div>
-
-            <div className="flex flex-col sm:flex-row gap-3">
-              <div className="relative w-full sm:w-80">
-                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-
-                <Input
-                  value={search}
-                  onChange={(event) =>
-                    setSearch(event.target.value)
-                  }
-                  placeholder="Référence, prestataire..."
-                  className="pl-10"
-                />
-              </div>
-
-              <select
-                value={statusFilter}
-                onChange={(event) =>
-                  setStatusFilter(event.target.value)
-                }
-                className="h-10 rounded-md border border-input bg-background px-3 text-sm"
-              >
-                <option value="all">
-                  Tous les statuts
-                </option>
-
-                <option value="pending">
-                  En attente
-                </option>
-
-                <option value="paid">
-                  Payés
-                </option>
-
-                <option value="failed">
-                  Échecs
-                </option>
-
-                <option value="cancelled">
-                  Annulés
-                </option>
-
-                <option value="refunded">
-                  Remboursés
-                </option>
-              </select>
-            </div>
+            <select
+              aria-label="Filtrer les abonnements par statut"
+              value={statusFilter}
+              onChange={(event) => setStatusFilter(event.target.value)}
+              className="h-10 rounded-md border border-input bg-background px-3 text-sm"
+            >
+              <option value="all">Tous les statuts</option>
+              <option value="trialing">Essai gratuit</option>
+              <option value="active">Actifs</option>
+              <option value="expired">Expirés</option>
+              <option value="cancelled">Annulés</option>
+              <option value="pending">En attente</option>
+            </select>
           </div>
         </CardHeader>
 
         {error && (
           <CardContent className="pt-0">
-            <div className="rounded-xl border border-red-500/30 bg-red-500/5 p-4 text-sm text-red-700">
+            <div role="alert" className="rounded-xl border border-red-500/30 bg-red-500/5 p-4 text-sm text-red-700">
               {error}
             </div>
           </CardContent>
@@ -327,89 +174,42 @@ export default function AdminPayments() {
 
         <CardContent className="p-0">
           {loading ? (
-            <div className="py-16 flex items-center justify-center gap-2 text-sm text-muted-foreground">
+            <div className="flex items-center justify-center gap-2 py-16 text-sm text-muted-foreground">
               <Loader2 className="h-5 w-5 animate-spin" />
-              Chargement…
+              Chargement des abonnements…
             </div>
           ) : (
             <div className="overflow-x-auto">
               <table className="w-full text-sm">
                 <thead>
                   <tr className="border-y bg-muted/30 text-left">
-                    <th className="px-5 py-3 text-xs uppercase tracking-wider">
-                      Référence
-                    </th>
-
-                    <th className="px-5 py-3 text-xs uppercase tracking-wider">
-                      Prestataire
-                    </th>
-
-                    <th className="px-5 py-3 text-xs uppercase tracking-wider">
-                      Montant
-                    </th>
-
-                    <th className="px-5 py-3 text-xs uppercase tracking-wider">
-                      Statut
-                    </th>
-
-                    <th className="px-5 py-3 text-xs uppercase tracking-wider">
-                      Date
-                    </th>
+                    <th className="px-5 py-3 text-xs uppercase tracking-wider">Compte</th>
+                    <th className="px-5 py-3 text-xs uppercase tracking-wider">Plan</th>
+                    <th className="px-5 py-3 text-xs uppercase tracking-wider">Statut</th>
+                    <th className="px-5 py-3 text-xs uppercase tracking-wider">Début</th>
+                    <th className="px-5 py-3 text-xs uppercase tracking-wider">Fin de période</th>
+                    <th className="px-5 py-3 text-xs uppercase tracking-wider">Source</th>
                   </tr>
                 </thead>
-
                 <tbody>
                   {items.map((item) => (
-                    <tr
-                      key={item.id}
-                      className="border-b last:border-b-0"
-                    >
-                      <td className="px-5 py-4">
-                        <p className="font-bold">
-                          {item.reference ||
-                            String(item.id).slice(
-                              0,
-                              8
-                            )}
-                        </p>
-
-                        <p className="text-xs text-muted-foreground break-all">
-                          {item.provider_payment_id ||
-                            "ID prestataire non renseigné"}
-                        </p>
+                    <tr key={item.id} className="border-b last:border-b-0">
+                      <td className="px-5 py-4 font-mono text-xs" title={item.user_id}>
+                        {item.user_id ? item.user_id.slice(0, 8) : "—"}
                       </td>
-
+                      <td className="px-5 py-4 font-semibold">{item.plan_id || item.plan || "—"}</td>
                       <td className="px-5 py-4">
-                        <Badge variant="outline">
-                          {item.provider || "—"}
+                        <Badge variant="outline" className={statusClass(item.status)}>
+                          {STATUS_LABELS[item.status] || item.status || "—"}
                         </Badge>
                       </td>
-
-                      <td className="px-5 py-4 font-semibold">
-                        {formatMoney(
-                          item.amount,
-                          item.currency
-                        )}
-                      </td>
-
-                      <td className="px-5 py-4">
-                        <Badge
-                          variant="outline"
-                          className={statusClass(
-                            item.status
-                          )}
-                        >
-                          {STATUS_LABELS[
-                            item.status
-                          ] ||
-                            item.status ||
-                            "—"}
-                        </Badge>
-                      </td>
-
                       <td className="px-5 py-4 text-xs text-muted-foreground">
-                        {formatDate(item.created_at)}
+                        {formatDate(item.trial_start || item.current_period_start || item.starts_at || item.created_at)}
                       </td>
+                      <td className="px-5 py-4 text-xs text-muted-foreground">
+                        {formatDate(item.trial_end || item.current_period_end || item.ends_at)}
+                      </td>
+                      <td className="px-5 py-4 text-xs text-muted-foreground">{item.provider || "—"}</td>
                     </tr>
                   ))}
                 </tbody>
@@ -417,10 +217,9 @@ export default function AdminPayments() {
 
               {!items.length && (
                 <div className="py-14 text-center text-sm text-muted-foreground">
-                  {search.trim() ||
-                  statusFilter !== "all"
-                    ? "Aucun paiement correspondant aux filtres."
-                    : "Aucun paiement enregistré."}
+                  {search.trim() || statusFilter !== "all"
+                    ? "Aucun abonnement correspondant aux filtres."
+                    : "Aucun abonnement enregistré."}
                 </div>
               )}
             </div>
@@ -428,51 +227,29 @@ export default function AdminPayments() {
         </CardContent>
       </Card>
 
-      <div className="flex flex-col sm:flex-row items-center justify-between gap-3">
+      <div className="flex flex-col items-center justify-between gap-3 sm:flex-row">
         <p className="text-xs text-muted-foreground">
           {totalCount > 0
-            ? `Affichage de ${
-                (page - 1) * PAGE_SIZE + 1
-              } à ${Math.min(
-                page * PAGE_SIZE,
-                totalCount
-              )} sur ${totalCount}`
+            ? `Affichage de ${(page - 1) * PAGE_SIZE + 1} à ${Math.min(page * PAGE_SIZE, totalCount)} sur ${totalCount}`
             : "Aucun résultat"}
         </p>
-
         <div className="flex items-center gap-2">
           <Button
             variant="outline"
             size="sm"
             disabled={page <= 1 || loading}
-            onClick={() =>
-              setPage((current) =>
-                Math.max(1, current - 1)
-              )
-            }
+            onClick={() => setPage((current) => Math.max(1, current - 1))}
             className="gap-1"
           >
             <ChevronLeft className="h-4 w-4" />
             Précédent
           </Button>
-
-          <span className="min-w-[90px] text-center text-sm font-bold">
-            Page {page} / {totalPages}
-          </span>
-
+          <span className="min-w-[90px] text-center text-sm font-bold">Page {page} / {totalPages}</span>
           <Button
             variant="outline"
             size="sm"
-            disabled={
-              page >= totalPages ||
-              loading ||
-              totalCount === 0
-            }
-            onClick={() =>
-              setPage((current) =>
-                Math.min(totalPages, current + 1)
-              )
-            }
+            disabled={page >= totalPages || loading || totalCount === 0}
+            onClick={() => setPage((current) => Math.min(totalPages, current + 1))}
             className="gap-1"
           >
             Suivant

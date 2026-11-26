@@ -2,6 +2,8 @@ import { supabase } from "@/lib/supabase"
 
 export const TALENT_PROFILE_MEDIA_BUCKET = "talent-profile-media"
 
+const ALLOWED_TALENT_PROFILE_IMAGE_TYPES = new Set(["image/jpeg", "image/png", "image/webp"])
+
 export const TALENT_PROFILE_MEDIA_SCHEME = "storage://talent-profile-media/"
 
 function extractTalentMediaPath(value) {
@@ -130,9 +132,9 @@ export async function uploadTalentProfileMedia(
   for (const [field, file] of Object.entries(mediaFiles)) {
     if (!file) continue
 
-    if (!String(file.type || "").startsWith("image/")) {
+    if (!ALLOWED_TALENT_PROFILE_IMAGE_TYPES.has(file.type)) {
       throw new Error(
-        "La photo de profil et la photo de couverture doivent être des images."
+        "Format accepté : JPG, PNG ou WebP."
       )
     }
 

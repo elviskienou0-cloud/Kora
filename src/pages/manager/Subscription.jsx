@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react"
 import { useSearchParams } from "react-router-dom"
-import { CheckCircle2, Clock3, CreditCard, Crown, Loader2, ShieldCheck } from "lucide-react"
+import { CheckCircle2, Clock3, CreditCard, Crown, Loader2, ShieldCheck, Upload } from "lucide-react"
 import { toast } from "sonner"
 
 import { Button } from "@/components/ui/button"
@@ -69,6 +69,8 @@ export default function ManagerSubscription() {
   const [loadingPlan, setLoadingPlan] = useState(null)
   const [nowMs, setNowMs] = useState(Date.now())
   const [pendingPayment, setPendingPayment] = useState(readPendingPayment)
+  const [proofFiles, setProofFiles] = useState({})
+  const [uploadingProofId, setUploadingProofId] = useState(null)
 
   const load = async () => {
     if (!managerId) return
@@ -77,7 +79,7 @@ export default function ManagerSubscription() {
       const [{ data: planRows, error: plansError }, { data: subRows, error: subError }, { data: paymentRows, error: paymentsError }] = await Promise.all([
         supabase.from("plans").select("id, name, price, currency, duration_months, talent_limit, features, trial_days, annual_discount_pct, is_active").eq("is_active", true).order("price"),
         supabase.rpc("get_my_subscription"),
-        supabase.from("payments").select("id, reference, provider, amount, currency, billing_cycle, status, paid_at, created_at").eq("user_id", managerId).order("created_at", { ascending: false }).limit(20),
+        supabase.from("payments").select("id, reference, provider, amount, currency, billing_cycle, status, proof_url, paid_at, created_at").eq("user_id", managerId).order("created_at", { ascending: false }).limit(20),
       ])
       if (plansError) throw plansError
       if (subError) throw subError
@@ -207,12 +209,67 @@ export default function ManagerSubscription() {
     }
   }, [payments, pendingPayment?.paymentId])
 
-  const confirmPaymentSubmitted = () => {
-    if (!pendingPayment) return
-    const confirmed = { ...pendingPayment, confirmed: true, declaredAt: new Date().toISOString() }
-    sessionStorage.setItem(PENDING_PAYMENT_KEY, JSON.stringify(confirmed))
-    setPendingPayment(confirmed)
-    toast.success(t("manager.paymentAwaitingValidation"))
+  const uploadPaymentProof = async (payment) => {
+    const file = proofFiles[payment.id]
+    if (!managerId || !payment?.id || !file) {
+      toast.error(language === "en" ? "Choose a proof file first." : "Choisissez d'abord une capture.")
+      return
+    }
+
+    const allowedTypes = new Set(["image/jpeg", "image/png", "image/webp", "application/pdf"])
+    if (!allowedTypes.has(file.type)) {
+      toast.error(language === "en" ? "Use a JPG, PNG, WebP or PDF file." : "Utilisez un fichier JPG, PNG, WebP ou PDF.")
+      return
+    }
+    if (!Number.isFinite(file.size) || file.size <= 0 || file.size > 5 * 1024 * 1024) {
+      toast.error(language === "en" ? "The file must not exceed 5 MB." : "Le fichier ne doit pas dépasser 5 Mo.")
+      return
+    }
+
+    setUploadingProofId(payment.id)
+    let uploadedPath = ""
+    try {
+      const safeName = file.name.replace(/[^A-Za-z0-9._-]/g, "_").slice(-90) || "preuve.png"
+      const fileName = `${Date.now()}-${safeName}`.slice(0, 120)
+      uploadedPath = `${managerId}/${payment.id}/${fileName}`
+
+      const { error: uploadError } = await supabase.storage
+        .from("payment-proofs")
+        .upload(uploadedPath, file, { upsert: false, contentType: file.type })
+      if (uploadError) throw uploadError
+
+      const { error: attachError } = await supabase.rpc("attach_payment_proof", {
+        p_payment_id: payment.id,
+        p_path: uploadedPath,
+      })
+      if (attachError) {
+        await supabase.storage.from("payment-proofs").remove([uploadedPath])
+        uploadedPath = ""
+        throw attachError
+      }
+
+      setProofFiles((current) => {
+        const next = { ...current }
+        delete next[payment.id]
+        return next
+      })
+
+      if (pendingPayment?.paymentId === payment.id) {
+        const confirmed = { ...pendingPayment, confirmed: true, declaredAt: new Date().toISOString() }
+        sessionStorage.setItem(PENDING_PAYMENT_KEY, JSON.stringify(confirmed))
+        setPendingPayment(confirmed)
+      }
+
+      toast.success(language === "en"
+        ? "Proof sent. Your payment is awaiting manual administrator validation."
+        : "Preuve envoyée. Votre paiement attend la validation manuelle d'un administrateur.")
+      await load()
+    } catch (error) {
+      console.error("Erreur envoi preuve paiement :", error)
+      toast.error(error?.message || (language === "en" ? "Unable to send the proof." : "Impossible d'envoyer la preuve."))
+    } finally {
+      setUploadingProofId(null)
+    }
   }
 
   if (loading) {
@@ -243,7 +300,9 @@ export default function ManagerSubscription() {
                   {pendingPayment.confirmed ? t("manager.paymentAwaitingValidation") : t("manager.paymentReturnTitle")}
                 </p>
                 <p className="mt-1 text-sm text-muted-foreground">
-                  {pendingPayment.confirmed ? t("manager.paymentReturnConfirmed") : t("manager.paymentReturnInstructions")}
+                  {pendingPayment.confirmed
+                    ? (language === "en" ? "Proof received. An administrator will verify it manually." : "Preuve reçue. Un administrateur la vérifiera manuellement.")
+                    : (language === "en" ? "After payment, upload your screenshot from the payment history below. Your subscription will activate only after administrator validation." : "Après le paiement, envoyez votre capture depuis l'historique ci-dessous. Votre abonnement sera activé uniquement après validation par un administrateur.")}
                 </p>
                 {pendingPayment.reference && (
                   <p className="mt-2 text-xs font-semibold text-muted-foreground">
@@ -252,11 +311,6 @@ export default function ManagerSubscription() {
                 )}
               </div>
             </div>
-            {!pendingPayment.confirmed && (
-              <Button className="shrink-0" onClick={confirmPaymentSubmitted}>
-                {t("manager.paymentDoneButton")}
-              </Button>
-            )}
           </CardContent>
         </Card>
       )}
@@ -388,17 +442,47 @@ export default function ManagerSubscription() {
                 <th className="px-6 py-3 text-xs uppercase tracking-wider text-muted-foreground">{t("payments.provider")}</th>
                 <th className="px-6 py-3 text-xs uppercase tracking-wider text-muted-foreground">{t("payments.amount")}</th>
                 <th className="px-6 py-3 text-xs uppercase tracking-wider text-muted-foreground">{t("payments.status")}</th>
+                <th className="px-6 py-3 text-xs uppercase tracking-wider text-muted-foreground">{language === "en" ? "Proof" : "Preuve"}</th>
                 <th className="px-6 py-3 text-xs uppercase tracking-wider text-muted-foreground">{t("payments.date")}</th>
               </tr></thead>
               <tbody>
                 {payments.length === 0 ? (
-                  <tr><td colSpan={5} className="px-6 py-10 text-center text-muted-foreground">{t("common.noData")}</td></tr>
+                  <tr><td colSpan={6} className="px-6 py-10 text-center text-muted-foreground">{t("common.noData")}</td></tr>
                 ) : payments.map((payment) => (
                   <tr key={payment.id} className="border-b border-border/40">
                     <td className="px-6 py-3.5 font-medium">{payment.reference}</td>
                     <td className="px-6 py-3.5">{payment.provider}</td>
                     <td className="px-6 py-3.5 font-black">{formatMoney(payment.amount, payment.currency)}</td>
                     <td className="px-6 py-3.5"><Badge variant="outline">{payment.status}</Badge></td>
+                    <td className="px-6 py-3.5">
+                      {payment.proof_url ? (
+                        <Badge className="border-emerald-500/30 bg-emerald-500/10 text-emerald-700">{language === "en" ? "Sent" : "Envoyée"}</Badge>
+                      ) : payment.status === "pending" ? (
+                        <div className="min-w-[220px] space-y-2">
+                          <input
+                            key={proofFiles[payment.id]?.name || payment.id}
+                            type="file"
+                            accept="image/jpeg,image/png,image/webp,application/pdf"
+                            aria-label={language === "en" ? "Choose payment proof" : "Choisir la preuve de paiement"}
+                            onChange={(event) => setProofFiles((current) => ({ ...current, [payment.id]: event.target.files?.[0] || null }))}
+                            className="block w-full text-xs file:mr-2 file:rounded-md file:border-0 file:bg-muted file:px-2 file:py-1.5 file:text-xs"
+                          />
+                          <Button
+                            type="button"
+                            size="sm"
+                            onClick={() => uploadPaymentProof(payment)}
+                            disabled={!proofFiles[payment.id] || uploadingProofId === payment.id}
+                            className="gap-1.5"
+                          >
+                            {uploadingProofId === payment.id ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Upload className="h-3.5 w-3.5" />}
+                            {language === "en" ? "Send proof" : "Envoyer la preuve"}
+                          </Button>
+                          <p className="text-[10px] text-muted-foreground">{language === "en" ? "JPG, PNG, WebP or PDF · 5 MB max" : "JPG, PNG, WebP ou PDF · 5 Mo max"}</p>
+                        </div>
+                      ) : (
+                        <span className="text-xs text-muted-foreground">—</span>
+                      )}
+                    </td>
                     <td className="px-6 py-3.5 text-muted-foreground">{formatDate(payment.created_at, language)}</td>
                   </tr>
                 ))}

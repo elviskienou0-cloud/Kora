@@ -83,14 +83,6 @@ export default function LandingPricing() {
     [plans]
   )
 
-  const shared = useMemo(() => {
-    const lists = cards.map((plan) => (
-      Array.isArray(plan.features) ? plan.features.filter((feature) => typeof feature === "string") : []
-    ))
-    if (!lists.length) return []
-    return lists[0].filter((feature) => lists.every((list) => list.includes(feature)))
-  }, [cards])
-
   const limitText = (plan) => {
     if (plan.talent_limit === null || plan.talent_limit === undefined) return t("landing.planLimitUnlimited")
     if (Number(plan.talent_limit) === 1) return t("landing.planLimitOne")
@@ -176,7 +168,20 @@ export default function LandingPricing() {
                         </span>
                         <span className="text-sm font-extrabold">{limitText(plan)}</span>
                       </div>
-                      <p className="mt-3 text-sm font-semibold text-muted-foreground">{t("landing.planAllFeatures")}</p>
+                      {Array.isArray(plan.features) && plan.features.length > 0 ? (
+                        <ul className="mt-5 space-y-2.5">
+                          {plan.features.filter((feature) => typeof feature === "string").map((feature) => (
+                            <li key={feature} className="flex items-start gap-2 text-sm leading-relaxed">
+                              <CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0 text-emerald-600" aria-hidden="true" />
+                              <span>{language === "en" ? FEATURE_EN[feature] || feature : feature}</span>
+                            </li>
+                          ))}
+                        </ul>
+                      ) : (
+                        <p className="mt-5 text-sm text-muted-foreground">
+                          {language === "en" ? "Feature details are not available." : "Détails des fonctionnalités non renseignés."}
+                        </p>
+                      )}
                     </div>
 
                     <div className="mt-auto pt-7">
@@ -196,22 +201,6 @@ export default function LandingPricing() {
             })
           )}
         </div>
-
-        {shared.length > 0 && (
-          <Reveal className="mx-auto mt-8 max-w-6xl">
-            <div className="kora-lp-shared-features">
-              <h3 className="kora-lp-card-title text-center">{t("landing.planIncludedTitle")}</h3>
-              <ul className="mt-5 flex flex-wrap justify-center gap-2">
-                {shared.map((feature) => (
-                  <li key={feature} className="inline-flex items-center gap-2 rounded-full border border-border bg-background px-3 py-2 text-sm font-semibold">
-                    <CheckCircle2 className="h-4 w-4 shrink-0 text-emerald-600" aria-hidden="true" />
-                    {language === "en" ? FEATURE_EN[feature] || feature : feature}
-                  </li>
-                ))}
-              </ul>
-            </div>
-          </Reveal>
-        )}
 
         <Reveal className="mx-auto mt-7 max-w-3xl">
           <p className="flex items-start justify-center gap-2 text-center text-sm leading-relaxed text-muted-foreground">

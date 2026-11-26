@@ -59,6 +59,8 @@ export default function AdminPanel() {
 
   const [refreshing, setRefreshing] = useState(false)
   const [adminAccess, setAdminAccess] = useState(null)
+  const [adminAccessLoading, setAdminAccessLoading] = useState(true)
+  const [adminAccessError, setAdminAccessError] = useState("")
 
   const getViewFromUrl = useCallback(() => {
     const params = new URLSearchParams(location.search)
@@ -78,15 +80,32 @@ export default function AdminPanel() {
     [navigate]
   )
 
-  useEffect(() => {
-    if (!authUserId) return
+  const loadAdminAccess = useCallback(async () => {
+    if (!authUserId) {
+      setAdminAccess(null)
+      setAdminAccessError("Session administrateur indisponible.")
+      setAdminAccessLoading(false)
+      return
+    }
 
-    let mounted = true
-    supabase.rpc("get_my_admin_access").then(({ data, error }) => {
-      if (!mounted) return
-      // Before the hierarchy migration exists, preserve the current CEO/admin behavior.
-      if (!error && data?.access_level) setAdminAccess(data)
-    })
+    setAdminAccessLoading(true)
+    setAdminAccessError("")
+    try {
+      const { data, error } = await supabase.rpc("get_my_admin_access")
+      if (error) throw error
+      if (!data?.access_level) throw new Error("Aucun niveau d'accès administrateur n'a été retourné.")
+      setAdminAccess(data)
+    } catch (error) {
+      setAdminAccess(null)
+      setAdminAccessError(error?.message || "Impossible de vérifier les permissions administrateur.")
+    } finally {
+      setAdminAccessLoading(false)
+    }
+  }, [authUserId])
+
+  useEffect(() => {
+    loadAdminAccess()
+    if (!authUserId) return
 
     const tables = [
       "profiles",
@@ -116,14 +135,14 @@ export default function AdminPanel() {
     channel.subscribe()
 
     return () => {
-      mounted = false
       supabase.removeChannel(channel)
     }
-  }, [authUserId])
+  }, [authUserId, loadAdminAccess])
 
   const refresh = async () => {
     setRefreshing(true)
     try {
+      await loadAdminAccess()
       await queryClient.invalidateQueries({
         predicate: (q) => String(q.queryKey?.[0] || "").startsWith("admin"),
       })
@@ -159,7 +178,7 @@ export default function AdminPanel() {
       case "announcements":
         return <AdminAnnouncements />
       case "settings":
-        return <AdminSettings />
+        return <AdminSettings canEdit={adminAccess?.access_level === "super_admin"} />
       case "administrators":
         return <AdminAdministrators />
       case "dashboard":
@@ -182,6 +201,37 @@ export default function AdminPanel() {
     announcements: "announcements.write",
     logs: "logs.read",
     settings: "settings.read",
+  }
+
+  if (adminAccessLoading) {
+    return (
+      <Card>
+        <CardContent className="flex items-center justify-center gap-3 p-10 text-sm text-muted-foreground">
+          <Loader2 className="h-5 w-5 animate-spin" />
+          Vérification des autorisations administrateur…
+        </CardContent>
+      </Card>
+    )
+  }
+
+  if (adminAccessError || !adminAccess) {
+    return (
+      <Card role="alert" className="border-destructive/30">
+        <CardContent className="space-y-4 p-6">
+          <div className="flex items-center gap-2 font-semibold">
+            <AlertTriangle className="h-5 w-5 text-destructive" />
+            Accès administrateur non vérifié
+          </div>
+          <p className="text-sm text-muted-foreground">
+            Les permissions n'ont pas pu être vérifiées. Par sécurité, aucune vue administrative n'est affichée.
+          </p>
+          {adminAccessError ? <p className="text-xs text-muted-foreground">{adminAccessError}</p> : null}
+          <Button onClick={loadAdminAccess} disabled={adminAccessLoading}>
+            <RefreshCw className="mr-2 h-4 w-4" /> Réessayer
+          </Button>
+        </CardContent>
+      </Card>
+    )
   }
 
   if (adminAccess?.access_level === "associate") {

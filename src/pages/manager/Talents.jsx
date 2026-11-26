@@ -1124,6 +1124,7 @@ export default function ManagerTalents() {
       }
 
       const artistName = String(formData.displayName || "").trim()
+      const talentTitle = String(formData.title || "").trim() || null
 
       if (!artistName) {
         throw new Error("Indiquez le nom de l’artiste.")
@@ -1141,7 +1142,7 @@ export default function ManagerTalents() {
           .update({
             first_name: firstName,
             last_name: lastName,
-            title: null,
+            title: talentTitle,
             bio: formData.bio,
             category_id: category.id,
             country_id: country.id,
@@ -1159,7 +1160,7 @@ export default function ManagerTalents() {
           p_managed_by: managerId,
           p_first_name: firstName,
           p_last_name: lastName,
-          p_title: null,
+          p_title: talentTitle,
           p_bio: formData.bio,
           p_category_id: category.id,
           p_country_id: country.id,
@@ -1428,12 +1429,13 @@ export default function ManagerTalents() {
       new Date(subscription.current_period_end).getTime() <= Date.now()
     )
 
-  const talentLimit =
-    currentPlanId === "BUSINESS"
+  const talentLimit = !subscription
+    ? 0
+    : subscription.talent_limit === null
       ? null
-      : currentPlanId === "PRO"
-        ? 3
-        : 1
+      : Number.isFinite(Number(subscription.talent_limit))
+        ? Number(subscription.talent_limit)
+        : 0
 
   const talentLimitReached =
     talentLimit !== null && talents.length >= talentLimit

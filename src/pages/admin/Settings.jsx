@@ -44,12 +44,12 @@ const DESCRIPTION = {
 
 function parseValue(key, value) {
   if (value === undefined || value === null) return DEFAULTS[key]
-  if (["maintenance_mode", "registrations_enabled", "talent_auto_publish"].includes(key)) return Boolean(value)
+  if (["maintenance_mode", "registrations_enabled", "talent_auto_publish"].includes(key)) return value === true || value === "true"
   if (key === "default_theme") return ["light", "dark", "system"].includes(value) ? value : "system"
   return String(value)
 }
 
-export default function AdminSettings() {
+export default function AdminSettings({ canEdit = false }) {
   const [settings, setSettings] = useState(DEFAULTS)
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState("")
@@ -59,17 +59,18 @@ export default function AdminSettings() {
   const loadSettings = useCallback(async () => {
     setLoading(true)
     setError("")
-    const { data, error: rpcError } = await supabase.rpc("get_kora_settings")
-    if (rpcError) {
-      setError(rpcError.message || "Impossible de charger les paramètres.")
-      setLoading(false)
-      return
-    }
+    try {
+      const { data, error: rpcError } = await supabase.rpc("get_kora_settings")
+      if (rpcError) throw rpcError
 
-    const next = { ...DEFAULTS }
-    for (const row of data || []) next[row.key] = parseValue(row.key, row.value)
-    setSettings(next)
-    setLoading(false)
+      const next = { ...DEFAULTS }
+      for (const row of data || []) next[row.key] = parseValue(row.key, row.value)
+      setSettings(next)
+    } catch (loadError) {
+      setError(loadError?.message || "Impossible de charger les paramètres.")
+    } finally {
+      setLoading(false)
+    }
   }, [])
 
   useEffect(() => { loadSettings() }, [loadSettings])
@@ -114,6 +115,11 @@ export default function AdminSettings() {
               <CardDescription>
                 Les modifications sont enregistrées directement dans Supabase et utilisées par les workflows KORA concernés.
               </CardDescription>
+              {!canEdit && (
+                <p className="mt-2 text-xs text-muted-foreground">
+                  Mode lecture seule. Seul le Super Admin peut modifier ces paramètres.
+                </p>
+              )}
             </div>
             <Button variant="outline" className="gap-2" onClick={loadSettings} disabled={loading}>
               <RefreshCw className={loading ? "h-4 w-4 animate-spin" : "h-4 w-4"} />
@@ -148,7 +154,6 @@ export default function AdminSettings() {
                 {section.keys.map((key) => {
                   const value = settings[key]
                   const isBoolean = typeof DEFAULTS[key] === "boolean"
-                  const isNumber = false
 
                   return (
                     <div key={key} className="rounded-xl border border-border/60 p-4">
@@ -166,13 +171,17 @@ export default function AdminSettings() {
                               type="button"
                               onClick={() => updateLocal(key, !value)}
                               className={`relative h-8 w-14 rounded-full border transition-colors ${value ? "bg-primary" : "bg-muted"}`}
-                              aria-pressed={value}
+                              role="switch"
+                              aria-checked={Boolean(value)}
+                              aria-label={LABELS[key]}
+                              disabled={!canEdit}
                             >
                               <span className={`absolute top-1 h-6 w-6 rounded-full bg-background shadow transition-transform ${value ? "translate-x-7" : "translate-x-1"}`} />
                             </button>
                           ) : key === "default_theme" ? (
                             <select
                               value={value}
+                              disabled={!canEdit}
                               onChange={(event) => updateLocal(key, event.target.value)}
                               className="h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm sm:w-64"
                             >
@@ -184,15 +193,18 @@ export default function AdminSettings() {
                             <Input
                               type={key.includes("email") ? "email" : "text"}
                               value={value ?? ""}
+                              disabled={!canEdit}
                               onChange={(event) => updateLocal(key, event.target.value)}
                               className="w-full sm:w-64"
                             />
                           )}
 
-                          <Button type="button" size="sm" onClick={() => save(key)} disabled={saving === key} className="shrink-0 gap-2">
-                            {saving === key ? <Loader2 className="h-4 w-4 animate-spin" /> : saved === key ? <Check className="h-4 w-4" /> : <Save className="h-4 w-4" />}
-                            {saved === key ? "Enregistré" : "Enregistrer"}
-                          </Button>
+                          {canEdit && (
+                            <Button type="button" size="sm" onClick={() => save(key)} disabled={saving === key} className="shrink-0 gap-2">
+                              {saving === key ? <Loader2 className="h-4 w-4 animate-spin" /> : saved === key ? <Check className="h-4 w-4" /> : <Save className="h-4 w-4" />}
+                              {saved === key ? "Enregistré" : "Enregistrer"}
+                            </Button>
+                          )}
                         </div>
                       </div>
                     </div>

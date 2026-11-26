@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from "react"
-import { APP_PARAMS } from "@/lib/app-params"
+import { supabase } from "@/lib/supabase"
 import { useI18n } from "@/i18n/kora-i18n.jsx"
 
 const CATEGORY_KEYS = {
@@ -13,9 +13,34 @@ export default function LandingMarquee({ language = "fr" }) {
   const { t } = useI18n()
   const rootRef = useRef(null)
   const [visible, setVisible] = useState(false)
-  const items = useMemo(() => APP_PARAMS.categories.map((category) => CATEGORY_KEYS[category.id] ? t(CATEGORY_KEYS[category.id]) : category.name), [t, language])
+  const [categories, setCategories] = useState([])
+  const items = useMemo(() => categories.map((category) => (
+    CATEGORY_KEYS[category.slug] ? t(CATEGORY_KEYS[category.slug]) : category.name
+  )), [categories, t, language])
   const splitAt = Math.ceil(items.length / 2)
-  const rows = [items.slice(0, splitAt), items.slice(splitAt)]
+  const rows = items.length ? [items.slice(0, splitAt), items.slice(splitAt)].filter((row) => row.length) : []
+
+  useEffect(() => {
+    let mounted = true
+    const loadCategories = async () => {
+      try {
+        const { data, error } = await supabase
+          .from("categories")
+          .select("slug, name")
+          .eq("is_active", true)
+          .order("name", { ascending: true })
+        if (error) throw error
+        if (mounted) setCategories(data || [])
+      } catch (error) {
+        if (mounted) {
+          console.error("Erreur chargement catégories du bandeau :", error)
+          setCategories([])
+        }
+      }
+    }
+    loadCategories()
+    return () => { mounted = false }
+  }, [])
 
   useEffect(() => {
     const element = rootRef.current

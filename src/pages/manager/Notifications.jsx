@@ -6,6 +6,7 @@ import {
   ChevronRight,
   Loader2,
   RefreshCw,
+  Trash2,
 } from "lucide-react"
 import { toast } from "sonner"
 
@@ -167,6 +168,29 @@ export default function ManagerNotifications() {
     queryClient.invalidateQueries({ queryKey: ["notifications"] })
   }
 
+  const deleteNotification = async (notification) => {
+    if (!notification?.id || !userId) return
+
+    const { data, error: deleteError } = await supabase
+      .from("notifications")
+      .delete()
+      .eq("id", notification.id)
+      .eq("user_id", userId)
+      .select("id")
+
+    if (deleteError) {
+      toast.error(language === "en" ? "Unable to delete this notification." : "Impossible de supprimer cette notification.")
+      return
+    }
+    if (!data?.length) {
+      toast.error(language === "en" ? "Notification not found or access denied." : "Notification introuvable ou accès refusé.")
+      return
+    }
+
+    toast.success(language === "en" ? "Notification deleted." : "Notification supprimée.")
+    queryClient.invalidateQueries({ queryKey: ["notifications"] })
+  }
+
   const refresh = async () => {
     setRefreshing(true)
     try {
@@ -271,6 +295,16 @@ export default function ManagerNotifications() {
                             <Check className="mr-2 h-4 w-4" /> {t("manager.markAsRead")}
                           </Button>
                         )}
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          className="mt-3 text-destructive hover:text-destructive"
+                          onClick={() => deleteNotification(notification)}
+                          aria-label={language === "en" ? "Delete notification" : "Supprimer la notification"}
+                        >
+                          <Trash2 className="mr-2 h-4 w-4" />
+                          {language === "en" ? "Delete" : "Supprimer"}
+                        </Button>
                       </div>
                     </div>
                   </CardContent>

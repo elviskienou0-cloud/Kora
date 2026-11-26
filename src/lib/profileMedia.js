@@ -2,6 +2,8 @@ import { supabase } from "@/lib/supabase"
 
 export const PROFILE_MEDIA_BUCKET = "profile-media"
 
+const ALLOWED_PROFILE_IMAGE_TYPES = new Set(["image/jpeg", "image/png", "image/webp"])
+
 function safeName(name = "image") {
   return String(name || "image")
     .trim()
@@ -18,8 +20,8 @@ function uniqueId() {
 export async function uploadProfileImage(userId, file, kind) {
   if (!userId) throw new Error("Connexion requise.")
   if (!file) throw new Error("Image introuvable.")
-  if (!String(file.type || "").startsWith("image/")) {
-    throw new Error("Le fichier doit être une image.")
+  if (!ALLOWED_PROFILE_IMAGE_TYPES.has(file.type)) {
+    throw new Error("Format accepté : JPG, PNG ou WebP.")
   }
   if (file.size > 5 * 1024 * 1024) {
     throw new Error("Chaque image doit faire moins de 5 Mo.")
@@ -42,12 +44,18 @@ export async function uploadProfileImage(userId, file, kind) {
   if (uploadError) throw new Error(`Upload impossible : ${uploadError.message}`)
 
   const { data } = supabase.storage.from(PROFILE_MEDIA_BUCKET).getPublicUrl(path)
-  if (!data?.publicUrl) throw new Error("Impossible de récupérer l'URL de l'image.")
+  if (!data?.publicUrl) {
+    await supabase.storage.from(PROFILE_MEDIA_BUCKET).remove([path])
+    throw new Error("Impossible de récupérer l'URL de l'image.")
+  }
 
   const patch = kind === "avatar" ? { avatar: data.publicUrl } : { cover_url: data.publicUrl }
   const { error: profileError } = await supabase.from("profiles").update(patch).eq("id", userId)
 
-  if (profileError) throw new Error(`Image envoyée mais profil non mis à jour : ${profileError.message}`)
+  if (profileError) {
+    await supabase.storage.from(PROFILE_MEDIA_BUCKET).remove([path])
+    throw new Error(`Image envoyée mais profil non mis à jour : ${profileError.message}`)
+  }
 
   return data.publicUrl
 }

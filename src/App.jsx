@@ -22,7 +22,6 @@ const Register = lazy(() => import("@/pages/Register.jsx"))
 const AuthCallback = lazy(() => import("@/pages/AuthCallback.jsx"))
 const ForgotPassword = lazy(() => import("@/pages/ForgotPassword.jsx"))
 const ResetPassword = lazy(() => import("@/pages/ResetPassword.jsx"))
-const OAuthConsent = lazy(() => import("@/pages/OAuthConsent.jsx"))
 
 // =========================
 // PUBLIC INFORMATION / LEGAL
@@ -188,11 +187,6 @@ export default function App() {
           <Route
             path="/reset-password"
             element={<ResetPassword />}
-          />
-
-          <Route
-            path="/oauth/consent"
-            element={<OAuthConsent />}
           />
 
 

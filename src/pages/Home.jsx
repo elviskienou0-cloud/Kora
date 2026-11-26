@@ -6,7 +6,6 @@ import {
   Briefcase,
   Star,
   TrendingUp,
-  Search,
   ChevronRight,
   MessageCircle,
   Heart,
@@ -17,7 +16,6 @@ import {
 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
-import { Input } from "@/components/ui/input"
 import { Badge } from "@/components/ui/badge"
 import { Avatar, AvatarFallback } from "@/components/ui/avatar"
 import { Separator } from "@/components/ui/separator"
@@ -26,6 +24,7 @@ import { supabase } from "@/lib/supabase"
 import { APP_PARAMS } from "@/lib/app-params"
 import { cn, formatCurrency, truncate } from "@/lib/utils"
 import koraLogo from "@/assets/kora-logo.svg"
+import { toast } from "sonner"
 import { useKoraStats } from "@/lib/useKoraStats"
 import { useI18n } from "@/i18n/kora-i18n.jsx"
 
@@ -66,32 +65,35 @@ export default function Home() {
   const { t, language } = useI18n()
   const [recommended, setRecommended] = useState([])
   const [loadingRecommended, setLoadingRecommended] = useState(true)
+  const [favoriteIds, setFavoriteIds] = useState(() => new Set())
+  const [favoritePending, setFavoritePending] = useState(() => new Set())
 
   useEffect(() => {
     if (!isLoading && !isAuthenticated) navigate("/login", { replace: true })
   }, [isLoading, isAuthenticated, navigate])
 
   useEffect(() => {
+    let mounted = true
+
     async function loadRecommended() {
       setLoadingRecommended(true)
-      const { data, error } = await supabase
-        .from("talent_profiles")
-        .select(`
-          id, first_name, last_name, title, bio, daily_rate,
-          rating, reviews_count, completed_projects, verified,
-          categories ( slug, name ),
-          countries ( name ),
-          talent_profile_skills ( skills ( name ) )
-        `)
-        .eq("status", "published")
-        .eq("is_visible", true)
-        .order("rating", { ascending: false })
-        .limit(4)
+      try {
+        const { data, error } = await supabase
+          .from("talent_profiles")
+          .select(`
+            id, first_name, last_name, title, bio, daily_rate,
+            rating, reviews_count, completed_projects, verified,
+            categories ( slug, name ),
+            countries ( name ),
+            talent_profile_skills ( skills ( name ) )
+          `)
+          .eq("status", "published")
+          .eq("is_visible", true)
+          .order("rating", { ascending: false })
+          .limit(4)
 
-      if (error) {
-        console.error("Erreur chargement talents recommandés :", error.message)
-        setRecommended([])
-      } else {
+        if (error) throw error
+        if (!mounted) return
         setRecommended(
           (data || []).map((t) => ({
             id: t.id,
@@ -109,48 +111,124 @@ export default function Home() {
             category: t.categories?.slug || "",
           }))
         )
+
+        if (user?.role === "client" && user.authId) {
+          const { data: favoriteRows, error: favoriteError } = await supabase
+            .from("favorites")
+            .select("talent_id")
+            .eq("client_id", user.authId)
+          if (!mounted) return
+          if (favoriteError) {
+            console.error("Erreur chargement favoris :", favoriteError.message)
+            setFavoriteIds(new Set())
+          } else {
+            setFavoriteIds(new Set((favoriteRows || []).map((row) => row.talent_id)))
+          }
+        } else {
+          setFavoriteIds(new Set())
+        }
+      } catch (error) {
+        if (!mounted) return
+        console.error("Erreur chargement accueil :", error)
+        setRecommended([])
+        setFavoriteIds(new Set())
+      } finally {
+        if (mounted) setLoadingRecommended(false)
       }
-      setLoadingRecommended(false)
     }
 
     if (isAuthenticated) loadRecommended()
-  }, [isAuthenticated])
+    return () => { mounted = false }
+  }, [isAuthenticated, user?.authId, user?.role])
 
   const [unreadMessages, setUnreadMessages] = useState(0)
+  const toggleFavorite = async (talentId, event) => {
+    event?.stopPropagation()
+    if (user?.role !== "client" || !user.authId || favoritePending.has(talentId)) return
+
+    const wasFavorite = favoriteIds.has(talentId)
+    setFavoritePending((current) => new Set(current).add(talentId))
+    try {
+      const result = wasFavorite
+        ? await supabase.from("favorites").delete().eq("client_id", user.authId).eq("talent_id", talentId)
+        : await supabase.from("favorites").insert({ client_id: user.authId, talent_id: talentId })
+
+      if (result.error) throw result.error
+      setFavoriteIds((current) => {
+        const next = new Set(current)
+        if (wasFavorite) next.delete(talentId)
+        else next.add(talentId)
+        return next
+      })
+      toast.success(
+        wasFavorite
+          ? (language === "en" ? "Removed from favorites." : "Retiré des favoris.")
+          : (language === "en" ? "Added to favorites." : "Ajouté aux favoris.")
+      )
+    } catch (error) {
+      toast.error(error?.message || (language === "en" ? "Unable to update favorites." : "Impossible de mettre à jour les favoris."))
+    } finally {
+      setFavoritePending((current) => {
+        const next = new Set(current)
+        next.delete(talentId)
+        return next
+      })
+    }
+  }
+
 
   useEffect(() => {
+    let mounted = true
+
     async function loadUnreadMessages() {
-      if (!user?.authId) return
-
-      const { data: participantRows } = await supabase
-        .from("conversation_participants")
-        .select("conversation_id")
-        .eq("user_id", user.authId)
-
-      const conversationIds = (participantRows || []).map((r) => r.conversation_id)
-      if (conversationIds.length === 0) {
+      if (!user?.authId) {
         setUnreadMessages(0)
         return
       }
 
-      const { count } = await supabase
-        .from("messages")
-        .select("id", { count: "exact", head: true })
-        .in("conversation_id", conversationIds)
-        .neq("sender_id", user.authId)
-        .is("read_at", null)
+      try {
+        const { data: participantRows, error: participantsError } = await supabase
+          .from("conversation_participants")
+          .select("conversation_id")
+          .eq("user_id", user.authId)
+        if (participantsError) throw participantsError
 
-      setUnreadMessages(count ?? 0)
+        const conversationIds = (participantRows || []).map((row) => row.conversation_id)
+        if (conversationIds.length === 0) {
+          if (mounted) setUnreadMessages(0)
+          return
+        }
+
+        const { count, error: messagesError } = await supabase
+          .from("messages")
+          .select("id", { count: "exact", head: true })
+          .in("conversation_id", conversationIds)
+          .neq("sender_id", user.authId)
+          .is("read_at", null)
+        if (messagesError) throw messagesError
+        if (mounted) setUnreadMessages(count ?? 0)
+      } catch (error) {
+        if (!mounted) return
+        console.error("Erreur chargement messages non lus :", error)
+        setUnreadMessages(0)
+      }
     }
 
     if (isAuthenticated) loadUnreadMessages()
+    else setUnreadMessages(0)
+    return () => { mounted = false }
   }, [isAuthenticated, user?.authId])
 
-  const { stats: globalStats } = useKoraStats({ enabled: isAuthenticated })
-
-  const stats = globalStats.slice(0, 3).map((stat, index) => ({
+  const { stats: globalStats } = useKoraStats({ enabled: isAuthenticated, emptyOnError: true })
+  const statLabelKeys = ["landing.statsTalents", "landing.statsProjects", "landing.statsCountries", "landing.statsSatisfaction"]
+  const translatedGlobalStats = globalStats.map((stat, index) => ({
     ...stat,
-    label: index === 0 ? "Talents inscrits" : stat.label,
+    label: t(statLabelKeys[index] || "landing.statsTalents"),
+  }))
+
+  const stats = translatedGlobalStats.slice(0, 3).map((stat, index) => ({
+    ...stat,
+    label: index === 0 ? t("landing.statsTalents") : stat.label,
     color: [
       "from-blue-400/20 text-blue-600",
       "from-emerald-400/20 text-emerald-600",
@@ -162,26 +240,33 @@ export default function Home() {
   const [activity, setActivity] = useState([])
 
   useEffect(() => {
+    let mounted = true
+
     async function loadActivity() {
-      if (!user?.authId) return
-
-      const { data, error } = await supabase
-        .from("activity_logs")
-        .select("id, action, entity_type, metadata, created_at")
-        .eq("user_id", user.authId)
-        .order("created_at", { ascending: false })
-        .limit(5)
-
-      if (error) {
-        console.error("Erreur chargement activité :", error.message)
+      if (!user?.authId) {
         setActivity([])
         return
       }
 
-      setActivity(data || [])
+      try {
+        const { data, error } = await supabase
+          .from("activity_logs")
+          .select("id, action, entity_type, metadata, created_at")
+          .eq("user_id", user.authId)
+          .order("created_at", { ascending: false })
+          .limit(5)
+        if (error) throw error
+        if (mounted) setActivity(data || [])
+      } catch (error) {
+        if (!mounted) return
+        console.error("Erreur chargement activité :", error)
+        setActivity([])
+      }
     }
 
     if (isAuthenticated) loadActivity()
+    else setActivity([])
+    return () => { mounted = false }
   }, [isAuthenticated, user?.authId])
 
   if (isLoading || !user) return null
@@ -200,12 +285,7 @@ export default function Home() {
             </div>
             <span className="text-xl font-black gold-text-gradient">{APP_PARAMS.name}</span>
           </Link>
-          <div className="hidden md:flex items-center gap-4">
-            <div className="relative">
-              <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-              <Input placeholder={t("home.searchPlaceholder")} className="pl-10 w-[380px] h-10" />
-            </div>
-          </div>
+
           <div className="flex items-center gap-3">
             <Button variant="ghost" size="icon" onClick={() => navigate("/messages")} className="relative">
               <MessageCircle className="h-5 w-5" />
@@ -253,12 +333,12 @@ export default function Home() {
                 </div>
                 <div className="flex w-full shrink-0 sm:w-auto">
                   <Button size="lg" className={cn("w-full gap-2 font-black sm:w-auto", user.role === "client" ? "bg-[#e8b72d] text-[#29251d] hover:bg-[#d9a91f]" : "bg-background text-foreground hover:bg-background/90")} onClick={() => navigate("/categories")}>
-                    Explorer <ArrowRight className="h-5 w-5" />
+                    {language === "en" ? "Explore" : "Explorer"} <ArrowRight className="h-5 w-5" />
                   </Button>
                 </div>
               </div>
               <div className="mt-6 grid grid-cols-2 gap-2.5 sm:mt-8 sm:grid-cols-4 sm:gap-3">
-                {globalStats.slice(0, 4).map((s, index) => {
+                {translatedGlobalStats.slice(0, 4).map((s, index) => {
                   const Icon = [Users, Briefcase, Star, TrendingUp][index] || Star
                   return (
                     <div key={s.label} className={cn("min-w-0 rounded-2xl border p-3 sm:p-4", user.role === "client" ? "border-amber-200/80 bg-white/85 shadow-[0_2px_10px_rgba(92,68,20,0.04)]" : "border-white/25 bg-white/15 backdrop-blur-sm")}>
@@ -312,7 +392,7 @@ export default function Home() {
               <p className="text-muted-foreground font-medium">{t("home.recommendedDescription")}</p>
             </div>
             <Button variant="outline" className="gap-1.5" onClick={() => navigate("/categories")}>
-              Voir tout <ChevronRight className="h-4 w-4" />
+              {language === "en" ? "View all" : "Voir tout"} <ChevronRight className="h-4 w-4" />
             </Button>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-5">
@@ -324,7 +404,7 @@ export default function Home() {
               recommended.map((talent, i) => {
               return (
                 <motion.div key={talent.id} variants={fadeInUp} custom={i} whileHover={{ y: -5 }} transition={{ type: "spring", stiffness: 300 }}>
-                  <Card className="h-full cursor-pointer group" onClick={() => navigate(`/talent/${talent.id}`)}>
+                  <Card className="h-full cursor-pointer group" role="link" tabIndex={0} aria-label={language === "en" ? `Open ${talent.name} profile` : `Ouvrir le profil de ${talent.name}`} onClick={() => navigate(`/talent/${talent.id}`)} onKeyDown={(event) => { if (event.target === event.currentTarget && (event.key === "Enter" || event.key === " ")) { event.preventDefault(); navigate(`/talent/${talent.id}`) } }}>
                     <CardContent className="p-5 space-y-4">
                       <div className="flex items-start gap-3">
                         <Avatar className="h-14 w-14 ring-2 ring-gold/30">
@@ -342,9 +422,19 @@ export default function Home() {
                             <span className="text-[10px] text-muted-foreground">({talent.reviews} {t("reviews.reviews")})</span>
                           </div>
                         </div>
-                        <Button variant="ghost" size="icon" className="h-8 w-8 shrink-0 rounded-xl">
-                          <Heart className="h-4 w-4" />
-                        </Button>
+                        {user.role === "client" ? (
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            className={cn("h-8 w-8 shrink-0 rounded-xl", favoriteIds.has(talent.id) && "text-rose-600")}
+                            disabled={favoritePending.has(talent.id)}
+                            aria-label={favoriteIds.has(talent.id) ? t("browse.favoriteRemove") : t("browse.favoriteAdd")}
+                            title={favoriteIds.has(talent.id) ? t("browse.favoriteRemove") : t("browse.favoriteAdd")}
+                            onClick={(event) => toggleFavorite(talent.id, event)}
+                          >
+                            <Heart className={cn("h-4 w-4", favoriteIds.has(talent.id) && "fill-current")} />
+                          </Button>
+                        ) : null}
                       </div>
                       <div>
                         <p className="font-bold text-sm mb-1.5 line-clamp-1">{talent.role}</p>

@@ -1,0 +1,135 @@
+# Décisions métier à valider
+
+Les points ci-dessous sont volontairement laissés ouverts. Aucune logique tarifaire, de paiement ou de stack n'est modifiée sans arbitrage.
+
+## D-001 | Tarifs contradictoires entre versions
+
+**Constat vérifié:** le `README.md` du snapshot `main` décrit Gratuit à 0 XOF avec 1 talent, Pro à 2 500 XOF/mois avec 3 talents et Business à 5 000 XOF/mois sans limite. D'autres versions historiques de la définition produit mentionnent Standard à 5 000 XOF pour 5 talents et Agent à 20 000 XOF sans limite, tandis que le présent cahier d'audit mentionne Standard limité à 1 talent.
+
+**Options**
+1. Confirmer les offres du README comme vérité métier actuelle.
+2. Remplacer par une grille Standard/Pro/Business explicitement approuvée.
+3. Définir les tarifs et limites uniquement dans la configuration admin et traiter les valeurs du README comme documentation historique à mettre à jour.
+
+**Recommandation:** option 3, après validation écrite des noms, prix, durées, limites et droits de chaque offre. Ne pas modifier les valeurs existantes avant confirmation.
+
+## D-002 | Stack Next.js + Prisma vs Supabase
+
+**Constat vérifié:** `package.json`, `vite.config.js` et `capacitor.config.ts` confirment actuellement React + Vite + Capacitor. Supabase JS est installé. Aucun Next.js, Prisma ou Expo n'a été constaté dans les manifests racine lus.
+
+**Options**
+1. Conserver React/Vite + Supabase + Capacitor (aligné sur le dépôt existant).
+2. Migrer vers Next.js + Prisma (changement d'architecture important).
+3. Introduire Expo/React Native en complément de l'application web Capacitor.
+
+**Recommandation:** option 1 pour cet audit, sans migration de stack. Toute évolution mobile native doit faire l'objet d'une décision distincte et d'un plan de compatibilité.
+
+## D-003 | Périmètre des plans
+
+**Constat vérifié dans Supabase au 24/11/2026:** trois plans actifs existent:
+- `FREE`: 0 XOF, `trial_days=30`, `talent_limit=1`.
+- `PRO`: 2 500 XOF, `trial_days=0`, `talent_limit=3`.
+- `BUSINESS`: 5 000 XOF, `trial_days=0`, `talent_limit=null` (illimité).
+
+Les trois plans possèdent actuellement exactement les mêmes 10 fonctionnalités: gestion des talents, profil talent, portfolio et médias, gestion du cachet, demandes, messagerie, notifications, projets, profil manager et organisation du portefeuille. Les différences réelles sont donc le prix, la durée d'essai et le quota de talents.
+
+**Écart à clarifier:** l'invariant fourni mentionne un plan « Standard » limité à 1 talent, mais aucun plan `STANDARD` n'existe dans la table active; le quota d'un talent est actuellement celui du plan `FREE`.
+
+**Options**
+1. Confirmer que `FREE` correspond au plan Standard et conserver les trois formules actuelles.
+2. Renommer `FREE` en `STANDARD` et adapter les parcours/migrations.
+3. Définir une matrice différenciée des fonctionnalités, quotas et restrictions pour chaque plan.
+
+**Recommandation:** option 3, en confirmant d'abord le nom commercial attendu du plan à 1 talent. Ne modifier aucun contrôle de plan, tarif ou quota avant validation de cette matrice.
+
+## D-004 | Paramètres techniques des paiements directs Orange Money / Moov Money
+
+**Décision métier déjà fixée par l'invariant:** KORA doit utiliser les paiements directs Orange Money et Moov Money. SasPay, CinetPay, PayDunya et tout autre agrégateur tiers sont exclus.
+
+**Informations techniques nécessaires avant implémentation**
+- Contrat/compte marchand Orange Money Burkina Faso et documentation API officielle.
+- Contrat/compte marchand Moov Money Burkina Faso et documentation API officielle.
+- Accès sandbox et production, identifiants marchand, clés de signature et règles de callback/webhook.
+- Règles de rapprochement et références de transaction.
+- Confirmation du parcours opérateur pour les deux moyens, sans activation automatique de l'abonnement.
+
+**Recommandation:** implémenter chaque intégration dans une Edge Function, conserver les secrets côté serveur, créer les paiements en attente et maintenir la validation manuelle par un administrateur après réception de la capture de paiement. Ne pas utiliser de variable `VITE_*` pour les secrets opérateur.
+
+## D-005 | Périmètre de l'essai gratuit
+
+**À confirmer:** essai gratuit de 30 jours attribué à tous les nouveaux managers, date de début (création du compte ou première configuration), nombre de talents et droits autorisés pendant l'essai, comportement à expiration.
+
+**Recommandation:** essai de 30 jours à partir de la création du compte manager, avec droits explicitement définis et blocage contrôlé à expiration, si cette règle est confirmée.
+
+## D-006 | Blocage à expiration
+
+**À confirmer:** « blocage complet » peut signifier interdiction de toute action métier tout en conservant la possibilité de connexion, de consulter l'état du compte, de télécharger ses données ou de soumettre une preuve de paiement. Ces exceptions ne doivent pas être déduites.
+
+**Recommandation:** définir une matrice des actions autorisées après expiration avant de modifier les guards ou policies.
+
+## D-007 | Visibilité du numéro du manager sur les fiches talents
+
+**Constat:** le numéro est stocké dans `profiles.phone`, mais la fonction publique `get_talent_manager_profile` ne renvoie pas ce champ. La fiche talent ouvre actuellement une conversation KORA.
+
+**Options**
+1. Numéro visible publiquement à tous les visiteurs.
+2. Numéro visible uniquement aux clients connectés.
+3. Numéro révélé après action volontaire du client, avec consentement explicite du manager pour chaque talent.
+4. Conserver la messagerie KORA comme canal principal et proposer le téléphone uniquement sur activation volontaire.
+
+**Recommandation:** option 3 ou 4. Le numéro doit rester privé par défaut; prévoir un consentement explicite du manager avant toute exposition, avec possibilité de retrait.
+
+## D-008 | Réseaux sociaux et calendrier de disponibilité
+
+**Constat:** le modèle actuel permet des liens génériques de portfolio et un booléen `available`; il ne comporte pas de champs sociaux structurés ni de calendrier de créneaux.
+
+**Options**
+1. Garder uniquement les liens génériques du portfolio et le statut Disponible/Indisponible.
+2. Ajouter des profils sociaux structurés (Instagram, TikTok, YouTube, Facebook, LinkedIn, site web) sans calendrier de réservation.
+3. Ajouter profils sociaux structurés et calendrier de disponibilités par dates/créneaux, avec fuseau horaire.
+
+**Recommandation:** option 3 si le calendrier doit servir à des demandes de booking réelles; sinon option 2 et conserver le statut de disponibilité simple. Ne pas créer de calendrier simulé ou non connecté à une source de données.
+
+
+## D-009 | Pièces jointes de la messagerie
+
+**Constat:** la messagerie actuelle stocke uniquement le texte. Aucun champ ou bucket de pièce jointe n'existe.
+
+**Options**
+1. Images uniquement, limite de 5 Mo.
+2. Images et PDF, limite de 10 Mo.
+3. Images, PDF et documents bureautiques, limite de 10 Mo.
+4. Ajouter également des vidéos, avec une limite distincte.
+
+**Recommandation:** option 2 pour une première version. Utiliser un bucket privé, des chemins liés à `conversation_id` et `message_id`, des policies vérifiant la participation à la conversation, et des URL signées temporaires. La taille et les MIME doivent être contrôlés côté client et côté Storage. Ne pas rendre les pièces jointes publiques.
+
+
+### Complément D-002 | Stack mobile réellement présente
+
+- Le dépôt utilise React + Vite pour le web, Supabase pour Auth/DB/Storage/Edge Functions, et Capacitor pour l'application Android.
+- Aucun Next.js, Prisma, React Native ou Expo n'a été trouvé dans le manifeste et l'arborescence inspectés.
+- Le projet contient un dossier Android; aucun dossier iOS n'a été trouvé dans l'arborescence actuelle.
+- **Recommandation:** conserver Capacitor pour éviter une réécriture tant que les besoins natifs ne l'exigent pas; valider explicitement le support iOS et les parcours mobiles sur appareils réels avant lancement.
+
+## D-010 | Attribution du rôle administrateur
+
+**Constat:** l'inscription publique ne propose que Client et Manager. En parallèle, un parcours d'invitation réservé au Super Admin permet à un utilisateur invité d'accepter un accès Admin associé.
+
+**Options**
+1. Exiger exclusivement une modification manuelle en base; supprimer le parcours d'invitation.
+2. Autoriser les invitations créées par le Super Admin, sans jamais proposer Admin dans l'inscription publique.
+3. Autoriser les invitations pour les administrateurs associés, mais réserver le rôle Super Admin à une attribution manuelle en base.
+
+**Recommandation:** option 3. Elle conserve un contrôle centralisé tout en évitant l'auto-attribution publique. À confirmer au regard de la règle « admin attribué manuellement en base ».
+
+
+## D-011 | Permissions RLS des administrateurs associés
+
+**Constat:** 51 policies sur 21 tables publiques et 5 policies Storage accordent des accès via `is_admin()`, qui reconnaît tout compte `admin` ou `superadmin` sans consulter ses permissions. L'interface, elle, filtre les vues avec des permissions par rubrique.
+
+**Options**
+1. Conserver un modèle où tout administrateur associé possède les mêmes droits de données que le Super Admin.
+2. Faire respecter dans RLS les permissions de lecture existantes (`users.read`, `managers.read`, `clients.read`, `talents.read`, `requests.read`, `projects.read`, `messages.read`, `moderation.read`, `payments.read`, `subscriptions.read`, `logs.read`, `announcements.write)); réserver les écritures sans permission dédiée au Super Admin.
+3. Définir des permissions lecture/écriture distinctes pour chaque domaine, puis aligner frontend, RPC et RLS.
+
+**Recommandation:** option 3 à terme; option 2 comme correction minimale immédiate. Avant déploiement, créer un compte admin associé de test avec un sous-ensemble de permissions et vérifier que les accès REST directs sont refusés hors périmètre.
