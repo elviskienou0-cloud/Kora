@@ -106,10 +106,10 @@ const fr = {
     "whyManifesto": "KORA facilite la découverte des talents et les collaborations professionnelles en reliant les clients aux managers qui les accompagnent.",
     "whyWorkspaceTitle": "Un espace pour chaque rôle",
     "whyWorkspaceText": "Un espace client et un espace manager, chacun avec son tableau de bord, sa messagerie et ses notifications.",
-    "pricingDescription": "Choisissez votre formule selon le nombre de talents que vous accompagnez.",
-    "planFreeTagline": "Pour démarrer avec votre premier talent",
-    "planProTagline": "Pour accompagner plusieurs talents",
-    "planBusinessTagline": "Pour gérer un portefeuille sans limite",
+    "pricingDescription": "Choisissez votre formule selon le nombre de talents que vous accompagnez. Les formules supérieures conservent les avantages des niveaux précédents."
+    "planFreeTagline": "Pour lancer votre activité avec un premier talent."
+    "planProTagline": "Pour structurer et développer votre portefeuille."
+    "planBusinessTagline": "Pour les managers qui pilotent une activité à grande échelle."
     "planLimitOne": "1 talent maximum",
     "planLimitMany": "Jusqu’à {count} talents",
     "planLimitUnlimited": "Talents illimités",
@@ -1605,10 +1605,10 @@ const en = {
     "whyManifesto": "KORA makes it easier to discover talent and build professional collaborations by connecting clients with the managers who represent talents.",
     "whyWorkspaceTitle": "A space for every role",
     "whyWorkspaceText": "A client space and a manager space, each with its own dashboard, messaging and notifications.",
-    "pricingDescription": "Choose a plan based on the number of talents you manage.",
-    "planFreeTagline": "To get started with your first talent",
-    "planProTagline": "To represent several talents",
-    "planBusinessTagline": "To manage an unlimited portfolio",
+    "pricingDescription": "Choose a plan based on the number of talents you manage. Higher plans retain the benefits of previous tiers."
+    "planFreeTagline": "To launch your activity with your first talent."
+    "planProTagline": "To structure and grow your portfolio."
+    "planBusinessTagline": "For managers running an activity at scale."
     "planLimitOne": "1 talent maximum",
     "planLimitMany": "Up to {count} talents",
     "planLimitUnlimited": "Unlimited talents",
