@@ -168,7 +168,7 @@ export default function LandingPricing() {
                         </span>
                         <span className="text-sm font-extrabold">{limitText(plan)}</span>
                       </div>
-                      {Array.isArray(plan.features) && plan.features.length > 0 ? (
+                      {Array.isArray(plan.features) && plan.features.some((feature) => typeof feature === "string") ? (
                         <ul className="mt-5 space-y-2.5">
                           {plan.features.filter((feature) => typeof feature === "string").map((feature) => (
                             <li key={feature} className="flex items-start gap-2 text-sm leading-relaxed">
