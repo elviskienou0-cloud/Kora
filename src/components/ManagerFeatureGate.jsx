@@ -11,6 +11,7 @@ import { useI18n } from "@/i18n/kora-i18n.jsx"
 const ACCESS_FIELDS = {
   requests: "can_manage_requests",
   notifications: "can_view_notifications",
+  projects: "can_manage_projects",
 }
 
 export default function ManagerFeatureGate({ feature, children }) {
