@@ -60,3 +60,90 @@
 @media (max-width: 767px) {
   .kora-superadmin-glass main { padding: 1rem; }
 }
+
+
+/* Shared KORA navigation language across public and authenticated spaces. */
+.kora-workspace-sidebar {
+  position: sticky;
+  top: 12px;
+  height: calc(100vh - 24px);
+  margin: 12px 0 12px 12px;
+  overflow: hidden;
+  border: 1px solid hsl(var(--border) / .82);
+  border-radius: 24px;
+  background: hsl(var(--card) / .88);
+  box-shadow: 0 12px 42px rgb(20 18 12 / .07);
+  backdrop-filter: blur(22px) saturate(150%);
+  -webkit-backdrop-filter: blur(22px) saturate(150%);
+}
+.kora-workspace-sidebar-content > div:first-child {
+  padding: 18px 18px 16px;
+  border-color: hsl(var(--border) / .72);
+}
+.kora-workspace-sidebar-content > nav {
+  padding: 14px 12px;
+}
+.kora-workspace-sidebar-content nav a {
+  min-height: 42px;
+  border-radius: 999px !important;
+  transition: background .22s ease, color .22s ease, transform .22s ease;
+}
+.kora-workspace-sidebar-content nav a[aria-current="page"] {
+  color: hsl(var(--foreground)) !important;
+  background: hsl(var(--primary) / .13) !important;
+  border: 1px solid hsl(var(--primary) / .28);
+  box-shadow: none !important;
+}
+.kora-workspace-sidebar-content nav a:hover {
+  background: hsl(var(--muted) / .8);
+}
+.kora-workspace-topbar {
+  top: 12px;
+  margin: 12px 16px 0;
+  overflow: visible;
+  border: 1px solid hsl(var(--border) / .82) !important;
+  border-radius: 999px;
+  background: hsl(var(--card) / .86) !important;
+  box-shadow: 0 12px 42px rgb(20 18 12 / .08);
+  backdrop-filter: blur(22px) saturate(150%);
+  -webkit-backdrop-filter: blur(22px) saturate(150%);
+}
+.kora-workspace-topbar-inner {
+  min-height: 64px;
+  height: auto !important;
+  padding-inline: 18px;
+}
+.kora-workspace-topbar button,
+.kora-workspace-topbar a {
+  border-radius: 999px;
+}
+.kora-workspace-topbar input {
+  border-radius: 999px;
+}
+.kora-workspace-mobile-drawer {
+  border: 1px solid hsl(var(--border) / .82);
+  border-radius: 0 24px 24px 0;
+  background: hsl(var(--card) / .96) !important;
+  box-shadow: 18px 0 55px rgb(0 0 0 / .14);
+  backdrop-filter: blur(22px);
+  -webkit-backdrop-filter: blur(22px);
+}
+@media (max-width: 767px) {
+  .kora-workspace-sidebar { display: none; }
+  .kora-workspace-topbar {
+    top: 8px;
+    margin: 8px 10px 0;
+    border-radius: 20px;
+  }
+  .kora-workspace-topbar-inner {
+    min-height: 58px;
+    padding-inline: 10px;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .kora-workspace-sidebar-content nav a,
+  .kora-workspace-topbar a,
+  .kora-workspace-topbar button {
+    transition: none !important;
+  }
+}
