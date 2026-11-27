@@ -178,7 +178,7 @@ export default function ManagerProjects() {
                 </div>
                 {!terminal && (
                   <div className="flex flex-wrap gap-2 border-t border-border/70 pt-4">
-                    <Button size="sm" onClick={() => void updateStatus(project.id, "completed")} disabled={busyId === project.id || status !== "active"}>
+                    <Button size="sm" onClick={() => void updateStatus(project.id, "completed")} disabled={busyId === project.id || !["active", "in_progress"].includes(status)}>
                       {busyId === project.id ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <CheckCircle2 className="mr-2 h-4 w-4" />}
                       {copy.complete}
                     </Button>
