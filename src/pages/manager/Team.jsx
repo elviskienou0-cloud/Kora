@@ -54,7 +54,7 @@ export default function ManagerTeam() {
     noMembers: "No team members yet.",
     noPending: "No pending invitations.",
     noWorkspaces: "No shared workspaces.",
-    inviteHint: "The invited person must already have an active KORA Manager account. The invitation appears in their KORA workspace; no external email is sent.",
+    inviteHint: "The invited person must already have an active KORA account (Client or Manager). The invitation appears in their KORA workspace; no external email is sent.",
     loadError: "Unable to load team information. The team database setup may not have been applied yet.",
   } : {
     title: "Gestion de l'équipe",
@@ -77,7 +77,7 @@ export default function ManagerTeam() {
     noMembers: "Aucun membre dans votre équipe.",
     noPending: "Aucune invitation en attente.",
     noWorkspaces: "Aucun espace partagé.",
-    inviteHint: "Le collaborateur doit déjà posséder un compte Manager KORA actif. L'invitation apparaîtra dans son espace KORA. Aucun e-mail externe n'est envoyé.",
+    inviteHint: "Le collaborateur doit déjà posséder un compte KORA actif (Client ou Manager). L'invitation apparaîtra dans son espace KORA. Aucun e-mail externe n'est envoyé.",
     loadError: "Impossible de charger les informations de l'équipe. La configuration de la base de données n'a peut-être pas encore été appliquée.",
   }
 
@@ -292,12 +292,14 @@ export default function ManagerTeam() {
         </>
       ) : (
         <>
-          <Card>
-            <CardContent className="p-6">
-              <p className="font-semibold">{copy.upgrade}</p>
-              <Button className="mt-4" onClick={() => window.location.assign("/manager/subscription")}>{language === "en" ? "View plans" : "Voir les abonnements"}</Button>
-            </CardContent>
-          </Card>
+          {context.workspaces.length === 0 && (
+            <Card>
+              <CardContent className="p-6">
+                <p className="font-semibold">{copy.upgrade}</p>
+                <Button className="mt-4" onClick={() => window.location.assign("/manager/subscription")}>{language === "en" ? "View plans" : "Voir les abonnements"}</Button>
+              </CardContent>
+            </Card>
+          )}
           {(context.members.length > 0 || context.outgoing_invitations.length > 0) && (
             <Card>
               <CardHeader><CardTitle>{copy.members}</CardTitle></CardHeader>
