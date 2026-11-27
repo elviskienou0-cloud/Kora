@@ -340,8 +340,10 @@ $$;
 revoke all on function public.update_request_status(uuid, text) from public, anon;
 grant execute on function public.update_request_status(uuid, text) to authenticated;
 
--- Le RPC projet est BUSINESS uniquement, y compris lorsqu'il est appelé directement.
-create or replace function public.manager_update_project_status_v2(
+-- Les deux RPC projet préservent le workflow historique (demande acceptée,
+-- transitions terminales et notification client), mais les managers doivent
+-- avoir BUSINESS. Les administrateurs conservent leur voie d'administration.
+create or replace function public.manager_update_project_status(
   p_project_id uuid,
   p_status text
 )
@@ -351,50 +353,68 @@ security definer
 set search_path = public, pg_temp
 as $$
 declare
-  v_user uuid := auth.uid();
-  v_access jsonb;
+  v_manager_id uuid := auth.uid();
   v_project public.projects%rowtype;
+  v_request public.requests%rowtype;
 begin
-  if v_user is null then
-    raise exception 'Connexion requise' using errcode = '42501';
+  if v_manager_id is null then
+    raise exception 'Utilisateur non authentifié' using errcode = '42501';
   end if;
-  if public.get_my_role() is distinct from 'manager' then
-    raise exception 'Compte manager requis' using errcode = '42501';
+
+  if public.get_my_role() <> 'manager' and not public.is_admin() then
+    raise exception 'Accès manager requis' using errcode = '42501';
   end if;
+
+  if public.get_my_role() = 'manager' and not public.manager_has_feature('projects') then
+    raise exception 'La gestion des projets est réservée au plan BUSINESS.' using errcode = '42501';
+  end if;
+
   if p_project_id is null then
     raise exception 'Projet manquant';
   end if;
+
   if p_status not in ('active', 'completed', 'cancelled') then
     raise exception 'Statut de projet invalide';
   end if;
 
-  v_access := public.get_my_manager_plan_access();
-  if coalesce((v_access ->> 'can_manage_projects')::boolean, false) = false then
-    raise exception 'La gestion des projets est réservée au plan BUSINESS.' using errcode = '42501';
-  end if;
-
   select * into v_project
   from public.projects
-  where id = p_project_id and manager_id = v_user
+  where id = p_project_id and manager_id = v_manager_id
   for update;
 
   if v_project.id is null then
-    raise exception 'Projet introuvable ou inaccessible';
+    raise exception 'Projet introuvable ou non assigné à ce manager';
   end if;
+
+  select * into v_request
+  from public.requests
+  where project_id = p_project_id
+    and manager_id = v_manager_id
+    and status = 'accepted'
+  order by created_at desc
+  limit 1;
+
+  if v_request.id is null then
+    raise exception 'Le projet doit provenir d''une demande acceptée';
+  end if;
+
   if v_project.status = 'completed' and p_status <> 'completed' then
     raise exception 'Un projet terminé ne peut pas être réactivé ou annulé';
   end if;
+
   if v_project.status = 'cancelled' and p_status <> 'cancelled' then
     raise exception 'Un projet annulé ne peut pas être réactivé';
   end if;
 
   update public.projects
   set status = p_status, updated_at = now()
-  where id = p_project_id and manager_id = v_user
+  where id = p_project_id
   returning * into v_project;
 
   if p_status = 'completed' then
-    insert into public.notifications(user_id, type, title, message, data, is_read, created_at)
+    insert into public.notifications (
+      user_id, type, title, message, data, is_read, created_at
+    )
     values (
       v_project.client_id,
       'request',
@@ -410,24 +430,28 @@ begin
 end;
 $$;
 
-revoke all on function public.manager_update_project_status_v2(uuid, text) from public, anon;
-grant execute on function public.manager_update_project_status_v2(uuid, text) to authenticated;
+revoke all on function public.manager_update_project_status(uuid, text) from public, anon;
+grant execute on function public.manager_update_project_status(uuid, text) to authenticated;
 
--- L'ancien RPC est conservé pour compatibilité, mais délègue au contrôle BUSINESS.
-create or replace function public.manager_update_project_status(
+create or replace function public.manager_update_project_status_v2(
   p_project_id uuid,
   p_status text
 )
 returns public.projects
-language sql
+language plpgsql
 security definer
 set search_path = public, pg_temp
 as $$
-  select public.manager_update_project_status_v2(p_project_id, p_status);
+begin
+  if auth.uid() is null then
+    raise exception 'Connexion requise' using errcode = '42501';
+  end if;
+  return public.manager_update_project_status(p_project_id, p_status);
+end;
 $$;
 
-revoke all on function public.manager_update_project_status(uuid, text) from public, anon;
-grant execute on function public.manager_update_project_status(uuid, text) to authenticated;
+revoke all on function public.manager_update_project_status_v2(uuid, text) from public, anon;
+grant execute on function public.manager_update_project_status_v2(uuid, text) to authenticated;
 
 -- 3) Collaboration BUSINESS, avec invitations à des comptes Manager KORA existants.
 create table if not exists public.manager_team_members (
