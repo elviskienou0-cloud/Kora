@@ -19,6 +19,18 @@ const FEATURE_EN = {
   "Messagerie": "Messaging",
   "Notifications": "Notifications",
   "Gestion des projets": "Project management",
+  "Tableau de bord simplifié": "Basic dashboard",
+  "Tableau de bord analytique avancé": "Advanced analytics dashboard",
+  "Statistiques détaillées": "Detailed statistics",
+  "Analyse des performances des talents": "Talent performance analysis",
+  "Gestion collaborative": "Collaborative management",
+  "Invitation de collaborateurs": "Invite collaborators",
+  "Gestion des membres de l\'équipe": "Team member management",
+  "Permissions personnalisées": "Custom permissions",
+  "Modification et révocation des accès": "Edit and revoke access",
+  "Génération de rapports d\'activité": "Activity reports",
+  "Export des données en PDF": "PDF data export",
+  "Export des données en Excel": "Excel data export",
   "Profil manager": "Manager profile",
   "Organisation du portefeuille de talents": "Talent portfolio organisation",
 }
@@ -168,7 +180,7 @@ export default function LandingPricing() {
                         </span>
                         <span className="text-sm font-extrabold">{limitText(plan)}</span>
                       </div>
-                      {Array.isArray(plan.features) && plan.features.length > 0 ? (
+                      {Array.isArray(plan.features) && plan.features.some((feature) => typeof feature === "string") ? (
                         <ul className="mt-5 space-y-2.5">
                           {plan.features.filter((feature) => typeof feature === "string").map((feature) => (
                             <li key={feature} className="flex items-start gap-2 text-sm leading-relaxed">

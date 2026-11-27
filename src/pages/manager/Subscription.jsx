@@ -31,19 +31,36 @@ function formatMoney(value, currency = "XOF") {
   }).format(Number(value || 0))
 }
 
-function getPlanDetails(plan, t) {
-  const id = String(plan?.id || "").toUpperCase()
-  if (id === "FREE") return [
-    t("manager.planFree1"), t("manager.planProfilePortfolio"), t("manager.planFee"), t("manager.planRequests"),
-    t("manager.planMessaging"), t("manager.planBasicTalent"), t("manager.planTrial"),
-  ]
-  if (id === "PRO") return [
-    t("manager.planPro1"), t("manager.planFreeFeatures"), t("manager.planOperations"), t("manager.planRequests"), t("manager.planManagerProfile"),
-  ]
-  if (id === "BUSINESS") return [
-    t("manager.planBusiness1"), t("manager.planProFeatures"), t("manager.planBusinessBadge"), t("manager.planUnlimited"),
-  ]
-  return Array.isArray(plan?.features) ? plan.features : []
+const FEATURE_EN = {
+  "Gestion des talents": "Talent management",
+  "Profil talent": "Talent profile",
+  "Portfolio et médias": "Portfolio and media",
+  "Gestion du cachet": "Fee management",
+  "Gestion des demandes": "Request management",
+  "Messagerie": "Messaging",
+  "Notifications": "Notifications",
+  "Gestion des projets": "Project management",
+  "Tableau de bord simplifié": "Basic dashboard",
+  "Tableau de bord analytique avancé": "Advanced analytics dashboard",
+  "Statistiques détaillées": "Detailed statistics",
+  "Analyse des performances des talents": "Talent performance analysis",
+  "Gestion collaborative": "Collaborative management",
+  "Invitation de collaborateurs": "Invite collaborators",
+  "Gestion des membres de l\'équipe": "Team member management",
+  "Permissions personnalisées": "Custom permissions",
+  "Modification et révocation des accès": "Edit and revoke access",
+  "Génération de rapports d\'activité": "Activity reports",
+  "Export des données en PDF": "PDF data export",
+  "Export des données en Excel": "Excel data export",
+  "Profil manager": "Manager profile",
+  "Organisation du portefeuille de talents": "Talent portfolio organisation",
+}
+
+function getPlanDetails(plan, language) {
+  const features = Array.isArray(plan?.features) ? plan.features : []
+  return features
+    .filter((feature) => typeof feature === "string")
+    .map((feature) => language === "en" ? FEATURE_EN[feature] || feature : feature)
 }
 
 function formatDate(value, language = "fr") {
@@ -407,7 +424,7 @@ export default function ManagerSubscription() {
                 <Separator />
 
                 <div className="space-y-2.5">
-                  {getPlanDetails(plan, t).map((feature) => (
+                  {getPlanDetails(plan, language).map((feature) => (
                     <div key={feature} className="flex items-start gap-2 text-sm text-muted-foreground">
                       <CheckCircle2 className="h-4 w-4 text-emerald-600 shrink-0 mt-0.5" />
                       <span>{feature}</span>
