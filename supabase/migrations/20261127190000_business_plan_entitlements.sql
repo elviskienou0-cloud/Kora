@@ -53,11 +53,6 @@ begin
         case when v_sub.status = 'trialing' then v_sub.trial_end end,
         v_sub.current_period_end,
         v_sub.ends_at
-      ) is null
-      or coalesce(
-        case when v_sub.status = 'trialing' then v_sub.trial_end end,
-        v_sub.current_period_end,
-        v_sub.ends_at
       ) > now()
     );
 
@@ -142,7 +137,8 @@ begin
 
   if v_plan_id is null
      or v_status not in ('trialing', 'active')
-     or (v_expiry is not null and v_expiry <= now())
+     or v_expiry is null
+     or v_expiry <= now()
      or not exists (select 1 from public.plans p where p.id = v_plan_id and p.is_active = true) then
     return false;
   end if;
@@ -848,8 +844,7 @@ begin
           and not coalesce(owner_profile.is_suspended, false)
           and upper(coalesce(s.plan_id, s.plan, '')) = 'BUSINESS'
           and s.status in ('active', 'trialing')
-          and (coalesce(s.current_period_end, s.ends_at) is null
-               or coalesce(s.current_period_end, s.ends_at) > now())
+          and coalesce(s.current_period_end, s.ends_at) > now()
       )
   );
 
@@ -928,8 +923,7 @@ begin
             and not coalesce(owner_profile.is_suspended, false)
             and upper(coalesce(s.plan_id, s.plan, '')) = 'BUSINESS'
             and s.status in ('active', 'trialing')
-            and (coalesce(s.current_period_end, s.ends_at) is null
-                 or coalesce(s.current_period_end, s.ends_at) > now())
+            and coalesce(s.current_period_end, s.ends_at) > now()
         )
     );
 
