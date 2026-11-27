@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from "react"
 import { useNavigate } from "react-router-dom"
-import { CheckCircle2, Crown, Info, Users, XCircle } from "lucide-react"
+import { CheckCircle2, Crown, Info, Users } from "lucide-react"
 import { toast } from "sonner"
 import { KButton } from "@/components/ui/KButton"
 import { supabase } from "@/lib/supabase"
@@ -10,41 +10,55 @@ import { Reveal, SectionHeader } from "./landingKit.jsx"
 
 const PLAN_ORDER = ["FREE", "PRO", "BUSINESS"]
 
-const FEATURE_EN = {
-  "Création et consultation du profil talent": "Create and view talent profiles",
-  "Galerie et portfolio du talent": "Talent gallery and portfolio",
-  "Gestion du cachet": "Fee management",
-  "Profil manager": "Manager profile",
-  "Messagerie": "Messaging",
-  "Gestion de plusieurs talents": "Manage multiple talents",
-  "Gestion des demandes": "Request management",
-  "Notifications": "Notifications",
-  "Tableau de bord simplifié": "Basic dashboard",
-  "Gestion des projets": "Project management",
-  "Organisation du portefeuille de talents": "Talent portfolio organisation",
-  "Tableau de bord analytique avancé": "Advanced analytics dashboard",
-  "Statistiques détaillées": "Detailed statistics",
-  "Analyse des performances des talents": "Talent performance analysis",
-  "Collaboration sur les analyses et rapports": "Collaboration on analytics and reports",
-  "Invitation de collaborateurs dans KORA": "Invite collaborators inside KORA",
-  "Gestion des membres de l'équipe": "Team member management",
-  "Permissions d'accès aux analyses et rapports": "Permissions for analytics and reports",
-  "Modification et révocation des accès": "Edit and revoke access",
-  "Génération de rapports d'activité": "Activity reports",
-  "Export des données en PDF": "PDF data export",
-  "Export des données en Excel (.xlsx)": "Excel workbook export (.xlsx)",
-}
-
-const PLAN_RESTRICTIONS = {
+const PLAN_HIGHLIGHTS = {
   FREE: {
-    fr: ["Pas de gestion des demandes", "Pas de gestion des projets", "Pas de statistiques avancées", "Pas de gestion d'équipe"],
-    en: ["No request management", "No project management", "No advanced statistics", "No team management"],
+    fr: [
+      "Création et présentation du profil talent",
+      "Galerie et portfolio",
+      "Gestion du cachet",
+      "Profil manager",
+      "Messagerie intégrée",
+    ],
+    en: [
+      "Create and present talent profiles",
+      "Gallery and portfolio",
+      "Fee management",
+      "Manager profile",
+      "Integrated messaging",
+    ],
   },
   PRO: {
-    fr: ["Trois talents maximum", "Pas de gestion collaborative", "Pas de permissions d'équipe", "Pas de tableau de bord analytique avancé", "Pas de statistiques détaillées", "Pas de rapports ni d'exports"],
-    en: ["Three talents maximum", "No team collaboration", "No team permissions", "No advanced analytics dashboard", "No detailed statistics", "No reports or exports"],
+    fr: [
+      "Gestion de plusieurs talents",
+      "Gestion des demandes",
+      "Notifications",
+      "Tableau de bord simplifié",
+      "Messagerie intégrée",
+    ],
+    en: [
+      "Manage multiple talents",
+      "Request management",
+      "Notifications",
+      "Basic dashboard",
+      "Integrated messaging",
+    ],
   },
-  BUSINESS: { fr: [], en: [] },
+  BUSINESS: {
+    fr: [
+      "Gestion de projets",
+      "Analyses et performances détaillées",
+      "Collaboration avec permissions d'équipe",
+      "Gestion des collaborateurs",
+      "Rapports d'activité et exports PDF / Excel",
+    ],
+    en: [
+      "Project management",
+      "Detailed analytics and performance",
+      "Collaboration with team permissions",
+      "Team member management",
+      "Activity reports and PDF / Excel exports",
+    ],
+  },
 };
 
 export default function LandingPricing() {
@@ -188,36 +202,14 @@ export default function LandingPricing() {
                         </span>
                         <span className="text-sm font-extrabold">{limitText(plan)}</span>
                       </div>
-                      {Array.isArray(plan.features) && plan.features.some((feature) => typeof feature === "string") ? (
-                        <ul className="mt-5 space-y-2.5">
-                          {plan.features.filter((feature) => typeof feature === "string").map((feature) => (
-                            <li key={feature} className="flex items-start gap-2 text-sm leading-relaxed">
-                              <CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0 text-emerald-600" aria-hidden="true" />
-                              <span>{language === "en" ? FEATURE_EN[feature] || feature : feature}</span>
-                            </li>
-                          ))}
-                        </ul>
-                      ) : (
-                        <p className="mt-5 text-sm text-muted-foreground">
-                          {language === "en" ? "Feature details are not available." : "Détails des fonctionnalités non renseignés."}
-                        </p>
-                      )}
-
-                      {PLAN_RESTRICTIONS[id]?.[language === "en" ? "en" : "fr"]?.length > 0 && (
-                        <div className="mt-5 border-t border-border/70 pt-4">
-                          <p className="mb-2 text-xs font-bold uppercase tracking-wide text-muted-foreground">
-                            {language === "en" ? "Restrictions" : "Restrictions"}
-                          </p>
-                          <ul className="space-y-2">
-                            {PLAN_RESTRICTIONS[id][language === "en" ? "en" : "fr"].map((item) => (
-                              <li key={item} className="flex items-start gap-2 text-xs leading-relaxed text-muted-foreground">
-                                <XCircle className="mt-0.5 h-3.5 w-3.5 shrink-0 text-muted-foreground/70" aria-hidden="true" />
-                                <span>{item}</span>
-                              </li>
-                            ))}
-                          </ul>
-                        </div>
-                      )}
+                      <ul className="mt-5 space-y-2.5">
+                        {(PLAN_HIGHLIGHTS[id]?.[language === "en" ? "en" : "fr"] || []).map((feature) => (
+                          <li key={feature} className="flex items-start gap-2 text-sm leading-relaxed">
+                            <CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0 text-emerald-600" aria-hidden="true" />
+                            <span>{feature}</span>
+                          </li>
+                        ))}
+                      </ul>
                     </div>
 
                     <div className="mt-auto pt-7">
