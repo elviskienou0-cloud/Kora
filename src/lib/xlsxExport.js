@@ -138,7 +138,13 @@ function zipStore(files) {
 
 function normalizeSheetName(value, index, used) {
   const base = String(value || `Sheet ${index + 1}`)
-    .replace(/[\\[\\]*\\/?\\:]/g, " ")
+    .replaceAll("[", " ")
+    .replaceAll("]", " ")
+    .replaceAll("*", " ")
+    .replaceAll("/", " ")
+    .replaceAll("\\", " ")
+    .replaceAll("?", " ")
+    .replaceAll(":", " ")
     .trim()
     .slice(0, 31) || `Sheet ${index + 1}`
   let name = base
