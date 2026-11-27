@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useState } from "react"
 import { Link } from "react-router-dom"
-import { Loader2, MailPlus, ShieldCheck, Users, X, BarChart3 } from "lucide-react"
+import { Loader2, MailPlus, ShieldCheck, Users, X, BarChart3, RefreshCw } from "lucide-react"
 import { toast } from "sonner"
 
 import { Button } from "@/components/ui/button"
@@ -29,6 +29,7 @@ export default function ManagerTeam() {
     "reports.export": false,
   })
   const [loading, setLoading] = useState(true)
+  const [loadError, setLoadError] = useState("")
   const [sending, setSending] = useState(false)
   const [busyId, setBusyId] = useState("")
 
@@ -83,10 +84,11 @@ export default function ManagerTeam() {
   const load = useCallback(async () => {
     if (!user?.authId) return
     setLoading(true)
+    setLoadError("")
     const { data, error } = await supabase.rpc("get_my_manager_team_context")
     if (error) {
       console.error("KORA team context:", error)
-      toast.error(copy.loadError)
+      setLoadError(copy.loadError)
       setContext(EMPTY_CONTEXT)
     } else {
       setContext({ ...EMPTY_CONTEXT, ...(data || {}) })
@@ -188,6 +190,14 @@ export default function ManagerTeam() {
 
   return (
     <div className="mx-auto max-w-5xl space-y-6">
+      {loadError && (
+        <Card className="border-destructive/30">
+          <CardContent className="flex flex-col gap-3 p-5 sm:flex-row sm:items-center sm:justify-between">
+            <p className="text-sm text-destructive">{loadError}</p>
+            <Button variant="outline" size="sm" onClick={() => void load()}><RefreshCw className="mr-2 h-4 w-4" />{language === "en" ? "Retry" : "Réessayer"}</Button>
+          </CardContent>
+        </Card>
+      )}
       <div>
         <p className="text-xs font-bold uppercase tracking-[0.18em] text-gold">KORA BUSINESS</p>
         <h1 className="mt-1 text-3xl font-black tracking-tight">{copy.title}</h1>
