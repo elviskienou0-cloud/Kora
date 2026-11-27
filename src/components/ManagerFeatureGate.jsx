@@ -48,6 +48,18 @@ export default function ManagerFeatureGate({ feature, children }) {
         return
       }
 
+      if (!data || typeof data[field] !== "boolean") {
+        setState({
+          loading: false,
+          allowed: false,
+          error: language === "en"
+            ? "The plan permissions have not been configured in the database yet."
+            : "Les droits des abonnements ne sont pas encore configurés dans la base de données.",
+          planId: data?.plan_id || null,
+        })
+        return
+      }
+
       setState({
         loading: false,
         allowed: Boolean(data?.active && data?.[field]),
