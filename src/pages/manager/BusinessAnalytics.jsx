@@ -10,34 +10,42 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { useAuth } from "@/lib/AuthContext"
 import { useI18n } from "@/i18n/kora-i18n.jsx"
 import { supabase } from "@/lib/supabase"
+import { createXlsxBytes } from "@/lib/xlsxExport.js"
 
-function saveCsv(data) {
-  const rows = [
-    ["Indicateur", "Valeur"],
-    ["Talents gérés", data.total_talents ?? 0],
-    ["Demandes reçues", data.total_requests ?? 0],
-    ["Demandes en attente", data.pending_requests ?? 0],
-    ["Demandes acceptées", data.accepted_requests ?? 0],
-    ["Demandes refusées", data.rejected_requests ?? 0],
-    ["Projets", data.total_projects ?? 0],
-    ["Projets actifs", data.active_projects ?? 0],
-    ["Projets terminés", data.completed_projects ?? 0],
-    [],
-    ["Talent", "Catégorie", "Note", "Avis", "Projets terminés"],
+function saveExcel(data, language) {
+  const english = language === "en"
+  const summaryRows = [
+    [english ? "Metric" : "Indicateur", english ? "Value" : "Valeur"],
+    [english ? "Managed talents" : "Talents gérés", data.total_talents ?? 0],
+    [english ? "Requests received" : "Demandes reçues", data.total_requests ?? 0],
+    [english ? "Pending requests" : "Demandes en attente", data.pending_requests ?? 0],
+    [english ? "Accepted requests" : "Demandes acceptées", data.accepted_requests ?? 0],
+    [english ? "Rejected requests" : "Demandes refusées", data.rejected_requests ?? 0],
+    [english ? "Projects" : "Projets", data.total_projects ?? 0],
+    [english ? "Active projects" : "Projets actifs", data.active_projects ?? 0],
+    [english ? "Completed projects" : "Projets terminés", data.completed_projects ?? 0],
+  ]
+  const performanceRows = [
+    [english ? "Talent" : "Talent", english ? "Category" : "Catégorie", english ? "Rating" : "Note", english ? "Reviews" : "Avis", english ? "Completed projects" : "Projets terminés"],
     ...(data.talent_performance || []).map((talent) => [
       talent.name || "",
       talent.category || "",
-      talent.rating ?? 0,
-      talent.reviews_count ?? 0,
-      talent.completed_projects ?? 0,
+      Number(talent.rating ?? 0),
+      Number(talent.reviews_count ?? 0),
+      Number(talent.completed_projects ?? 0),
     ]),
   ]
-  const escapeCell = (value) => `"${String(value ?? "").replaceAll('"', '""')}"`
-  const csv = "\uFEFF" + rows.map((row) => row.map(escapeCell).join(";")).join("\r\n")
-  const url = URL.createObjectURL(new Blob([csv], { type: "text/csv;charset=utf-8" }))
+  const bytes = createXlsxBytes([
+    { name: english ? "Summary" : "Synthèse", rows: summaryRows },
+    { name: english ? "Talent performance" : "Performances talents", rows: performanceRows },
+  ])
+  const blob = new Blob([bytes], {
+    type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+  })
+  const url = URL.createObjectURL(blob)
   const link = document.createElement("a")
   link.href = url
-  link.download = "rapport-activite-kora.csv"
+  link.download = `rapport-activite-kora-${new Date().toISOString().slice(0, 10)}.xlsx`
   document.body.appendChild(link)
   link.click()
   link.remove()
@@ -116,7 +124,7 @@ export default function ManagerBusinessAnalytics() {
     plans: "View plans",
     refresh: "Refresh",
     pdf: "Export PDF",
-    csv: "Export for Excel (CSV)",
+    excel: "Export Excel (.xlsx)",
     generated: "Report generated.",
   } : {
     title: "Analyses avancées",
@@ -141,7 +149,7 @@ export default function ManagerBusinessAnalytics() {
     plans: "Voir les abonnements",
     refresh: "Actualiser",
     pdf: "Exporter en PDF",
-    csv: "Exporter pour Excel (CSV)",
+    excel: "Exporter en Excel (.xlsx)",
     generated: "Rapport généré.",
   }, [language])
 
@@ -175,7 +183,7 @@ export default function ManagerBusinessAnalytics() {
       if (reportError) throw reportError
       if (!report) throw new Error(copy.denied)
       if (format === "pdf") savePdf(report, language)
-      else saveCsv(report)
+      else saveExcel(report, language)
       toast.success(copy.generated)
     } catch (exportError) {
       toast.error(exportError?.message || copy.denied)
@@ -229,7 +237,7 @@ export default function ManagerBusinessAnalytics() {
           {data.can_export_reports && (
             <>
               <Button variant="outline" onClick={() => void exportReport("pdf")} disabled={Boolean(exporting)}><FileText className="mr-2 h-4 w-4" />{exporting === "pdf" ? <Loader2 className="h-4 w-4 animate-spin" /> : copy.pdf}</Button>
-              <Button onClick={() => void exportReport("csv")} disabled={Boolean(exporting)}><FileSpreadsheet className="mr-2 h-4 w-4" />{exporting === "csv" ? <Loader2 className="h-4 w-4 animate-spin" /> : copy.csv}</Button>
+              <Button onClick={() => void exportReport("xlsx")} disabled={Boolean(exporting)}><FileSpreadsheet className="mr-2 h-4 w-4" />{exporting === "xlsx" ? <Loader2 className="h-4 w-4 animate-spin" /> : copy.excel}</Button>
             </>
           )}
         </div>
