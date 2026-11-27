@@ -572,6 +572,18 @@ begin
     raise exception 'Ce compte fait déjà partie de votre équipe.';
   end if;
 
+  select id into v_invitation
+  from public.manager_team_invitations
+  where manager_id = v_user and invited_user_id = v_invited_user and status = 'pending'
+  limit 1;
+
+  if v_invitation is not null then
+    update public.manager_team_invitations
+    set invited_email = v_email, permissions = v_permissions, created_at = now()
+    where id = v_invitation;
+    return v_invitation;
+  end if;
+
   insert into public.manager_team_invitations (
     manager_id, invited_user_id, invited_email, permissions, status
   )
@@ -737,6 +749,7 @@ declare
   v_user uuid := auth.uid();
   v_allowed boolean := false;
   v_owner_business boolean := false;
+  v_can_export boolean := false;
 begin
   if v_user is null or p_manager_id is null then
     raise exception 'Connexion requise.' using errcode = '42501';
@@ -764,7 +777,17 @@ begin
     raise exception 'Accès aux analyses BUSINESS non autorisé.' using errcode = '42501';
   end if;
 
+  v_can_export := (p_manager_id = v_user and public.manager_has_feature('reports'))
+    or exists (
+      select 1 from public.manager_team_members m
+      where m.manager_id = p_manager_id
+        and m.member_id = v_user
+        and m.status = 'active'
+        and coalesce((m.permissions ->> 'reports.export')::boolean, false)
+    );
+
   return jsonb_build_object(
+    'can_export_reports', v_can_export,
     'total_talents', (select count(*) from public.talent_profiles where managed_by = p_manager_id),
     'total_requests', (select count(*) from public.requests where manager_id = p_manager_id),
     'pending_requests', (select count(*) from public.requests where manager_id = p_manager_id and lower(status) in ('pending', 'open', 'en_attente')),
