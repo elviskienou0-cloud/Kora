@@ -6,6 +6,22 @@
 
 begin;
 
+-- Les cartes affichent les avantages cumulés de chaque formule.
+update public.plans
+set features = '["Profil talent", "Portfolio et médias", "Gestion du cachet", "Profil manager", "Messagerie"]'::jsonb,
+    updated_at = now()
+where id = 'FREE';
+
+update public.plans
+set features = '["Profil talent", "Portfolio et médias", "Gestion du cachet", "Profil manager", "Messagerie", "Gestion des talents", "Gestion des demandes", "Notifications", "Tableau de bord simplifié"]'::jsonb,
+    updated_at = now()
+where id = 'PRO';
+
+update public.plans
+set features = '["Profil talent", "Portfolio et médias", "Gestion du cachet", "Profil manager", "Messagerie", "Gestion des talents", "Gestion des demandes", "Notifications", "Tableau de bord simplifié", "Gestion des projets", "Organisation du portefeuille de talents", "Tableau de bord analytique avancé", "Statistiques détaillées", "Analyse des performances des talents", "Gestion collaborative", "Invitation de collaborateurs", "Gestion des membres de l'équipe", "Permissions personnalisées", "Modification et révocation des accès", "Génération de rapports d'activité", "Export des données en PDF", "Export des données en Excel"]'::jsonb,
+    updated_at = now()
+where id = 'BUSINESS';
+
 -- 1) Source serveur de vérité des droits d'abonnement.
 create or replace function public.get_my_manager_plan_access()
 returns jsonb
@@ -188,6 +204,187 @@ using (
   )
   or public.is_admin()
 );
+
+-- Le statut des demandes est une action PRO/BUSINESS, même en appel RPC direct.
+create or replace function public.update_request_status(
+  p_request_id uuid,
+  p_status text
+)
+returns public.requests
+language plpgsql
+security definer
+set search_path = public, pg_temp
+as $
+declare
+  v_manager_id uuid := auth.uid();
+  v_request public.requests%rowtype;
+  v_project_title text;
+begin
+  if v_manager_id is null then
+    raise exception 'Utilisateur non authentifié' using errcode = '42501';
+  end if;
+  if public.get_my_role() is distinct from 'manager' then
+    raise exception 'Compte manager requis' using errcode = '42501';
+  end if;
+  if not public.manager_has_feature('requests') then
+    raise exception 'La gestion des demandes est réservée aux plans PRO et BUSINESS.' using errcode = '42501';
+  end if;
+  if p_status not in ('accepted', 'rejected') then
+    raise exception 'Statut invalide. Utilisez accepted ou rejected';
+  end if;
+
+  select * into v_request
+  from public.requests
+  where id = p_request_id and manager_id = v_manager_id
+  for update;
+
+  if v_request.id is null then
+    raise exception 'Demande introuvable ou inaccessible';
+  end if;
+  if lower(coalesce(v_request.status, 'pending')) not in ('pending', 'open') then
+    raise exception 'Cette demande a déjà été traitée';
+  end if;
+
+  update public.requests
+  set status = p_status, updated_at = now()
+  where id = p_request_id
+  returning * into v_request;
+
+  select title into v_project_title
+  from public.projects
+  where id = v_request.project_id;
+
+  if p_status = 'accepted' then
+    perform set_config('kora.workflow_context', 'accept_request', true);
+    update public.projects
+    set manager_id = v_manager_id,
+        status = case when status in ('open', 'pending') then 'active' else status end,
+        updated_at = now()
+    where id = v_request.project_id;
+
+    if not exists (
+      select 1 from public.projects
+      where id = v_request.project_id and manager_id = v_manager_id
+    ) then
+      raise exception 'La demande a été acceptée mais le projet n''a pas pu être assigné au manager';
+    end if;
+    perform set_config('kora.workflow_context', '', true);
+  end if;
+
+  insert into public.notifications (
+    user_id, type, title, message, link, is_read, created_at, data
+  )
+  values (
+    v_request.client_id,
+    case when p_status = 'accepted' then 'request_accepted' else 'request_rejected' end,
+    case when p_status = 'accepted' then 'Demande acceptée' else 'Demande refusée' end,
+    case
+      when p_status = 'accepted' then
+        'Votre demande' || case when v_project_title is not null then ' « ' || v_project_title || ' »' else '' end || ' a été acceptée.'
+      else
+        'Votre demande' || case when v_project_title is not null then ' « ' || v_project_title || ' »' else '' end || ' a été refusée.'
+    end,
+    '/client/requests/' || v_request.id,
+    false,
+    now(),
+    jsonb_build_object('request_id', v_request.id, 'project_id', v_request.project_id, 'status', p_status, 'manager_id', v_manager_id)
+  );
+
+  return v_request;
+end;
+$;
+
+revoke all on function public.update_request_status(uuid, text) from public, anon;
+grant execute on function public.update_request_status(uuid, text) to authenticated;
+
+-- Le RPC projet est BUSINESS uniquement, y compris lorsqu'il est appelé directement.
+create or replace function public.manager_update_project_status_v2(
+  p_project_id uuid,
+  p_status text
+)
+returns public.projects
+language plpgsql
+security definer
+set search_path = public, pg_temp
+as $
+declare
+  v_user uuid := auth.uid();
+  v_access jsonb;
+  v_project public.projects%rowtype;
+begin
+  if v_user is null then
+    raise exception 'Connexion requise' using errcode = '42501';
+  end if;
+  if public.get_my_role() is distinct from 'manager' then
+    raise exception 'Compte manager requis' using errcode = '42501';
+  end if;
+  if p_project_id is null then
+    raise exception 'Projet manquant';
+  end if;
+  if p_status not in ('active', 'completed', 'cancelled') then
+    raise exception 'Statut de projet invalide';
+  end if;
+
+  v_access := public.get_my_manager_plan_access();
+  if coalesce((v_access ->> 'can_manage_projects')::boolean, false) = false then
+    raise exception 'La gestion des projets est réservée au plan BUSINESS.' using errcode = '42501';
+  end if;
+
+  select * into v_project
+  from public.projects
+  where id = p_project_id and manager_id = v_user
+  for update;
+
+  if v_project.id is null then
+    raise exception 'Projet introuvable ou inaccessible';
+  end if;
+  if v_project.status = 'completed' and p_status <> 'completed' then
+    raise exception 'Un projet terminé ne peut pas être réactivé ou annulé';
+  end if;
+  if v_project.status = 'cancelled' and p_status <> 'cancelled' then
+    raise exception 'Un projet annulé ne peut pas être réactivé';
+  end if;
+
+  update public.projects
+  set status = p_status, updated_at = now()
+  where id = p_project_id and manager_id = v_user
+  returning * into v_project;
+
+  if p_status = 'completed' then
+    insert into public.notifications(user_id, type, title, message, data, is_read, created_at)
+    values (
+      v_project.client_id,
+      'request',
+      'Projet terminé',
+      concat('Le projet « ', v_project.title, ' » a été marqué comme terminé.'),
+      jsonb_build_object('project_id', v_project.id),
+      false,
+      now()
+    );
+  end if;
+
+  return v_project;
+end;
+$;
+
+revoke all on function public.manager_update_project_status_v2(uuid, text) from public, anon;
+grant execute on function public.manager_update_project_status_v2(uuid, text) to authenticated;
+
+-- L'ancien RPC est conservé pour compatibilité, mais délègue au contrôle BUSINESS.
+create or replace function public.manager_update_project_status(
+  p_project_id uuid,
+  p_status text
+)
+returns public.projects
+language sql
+security definer
+set search_path = public, pg_temp
+as $
+  select public.manager_update_project_status_v2(p_project_id, p_status);
+$;
+
+revoke all on function public.manager_update_project_status(uuid, text) from public, anon;
+grant execute on function public.manager_update_project_status(uuid, text) to authenticated;
 
 -- 3) Collaboration BUSINESS, avec invitations à des comptes Manager KORA existants.
 create table if not exists public.manager_team_members (
