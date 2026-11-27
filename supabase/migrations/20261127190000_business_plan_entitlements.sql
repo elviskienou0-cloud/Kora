@@ -47,14 +47,15 @@ begin
 
   v_sub := public.ensure_my_manager_subscription();
   v_plan_id := upper(coalesce(v_sub.plan_id, v_sub.plan, 'FREE'));
-  v_active := v_sub.status in ('trialing', 'active')
-    and (
-      coalesce(
-        case when v_sub.status = 'trialing' then v_sub.trial_end end,
-        v_sub.current_period_end,
-        v_sub.ends_at
-      ) > now()
-    );
+  v_active := coalesce(
+    v_sub.status in ('trialing', 'active')
+    and coalesce(
+      case when v_sub.status = 'trialing' then v_sub.trial_end end,
+      v_sub.current_period_end,
+      v_sub.ends_at
+    ) > now(),
+    false
+  );
 
   select * into v_plan
   from public.plans
@@ -689,11 +690,11 @@ begin
     select 1 from public.subscriptions s
     join public.profiles owner_profile on owner_profile.id = s.user_id
     where s.user_id = v_invite.manager_id
+      and owner_profile.role = 'manager'
       and not coalesce(owner_profile.is_suspended, false)
       and upper(coalesce(s.plan_id, s.plan, '')) = 'BUSINESS'
       and s.status in ('active', 'trialing')
-      and (coalesce(s.current_period_end, s.ends_at) is null
-           or coalesce(s.current_period_end, s.ends_at) > now())
+      and coalesce(s.current_period_end, s.ends_at) > now()
   ) then
     raise exception 'L’abonnement BUSINESS du manager n’est plus actif.';
   end if;
