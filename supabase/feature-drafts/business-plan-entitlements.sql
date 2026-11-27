@@ -201,7 +201,7 @@ using (
   or client_id = (select auth.uid())
   or (
     manager_id = (select auth.uid())
-    and public.manager_has_feature('projects')
+    and (select public.manager_has_feature('projects'))
   )
 )
 with check (
@@ -209,7 +209,7 @@ with check (
   or client_id = (select auth.uid())
   or (
     manager_id = (select auth.uid())
-    and public.manager_has_feature('projects')
+    and (select public.manager_has_feature('projects'))
   )
 );
 
@@ -468,7 +468,7 @@ begin
 
   return jsonb_build_object(
     'can_manage_team', v_can_manage,
-    'members', case when v_can_manage then coalesce((
+    'members', coalesce((
       select jsonb_agg(jsonb_build_object(
         'id', m.id,
         'member_id', m.member_id,
@@ -480,8 +480,8 @@ begin
       from public.manager_team_members m
       join public.profiles p on p.id = m.member_id
       where m.manager_id = v_user
-    ), '[]'::jsonb) else '[]'::jsonb end,
-    'outgoing_invitations', case when v_can_manage then coalesce((
+    ), '[]'::jsonb),
+    'outgoing_invitations', coalesce((
       select jsonb_agg(jsonb_build_object(
         'id', i.id,
         'email', i.invited_email,
@@ -490,7 +490,7 @@ begin
       ) order by i.created_at desc)
       from public.manager_team_invitations i
       where i.manager_id = v_user and i.status = 'pending'
-    ), '[]'::jsonb) else '[]'::jsonb end,
+    ), '[]'::jsonb),
     'incoming_invitations', coalesce((
       select jsonb_agg(jsonb_build_object(
         'id', i.id,
@@ -695,16 +695,37 @@ returns boolean
 language plpgsql
 security definer
 set search_path = public, pg_temp
-as $$
+as $
 begin
-  if auth.uid() is null or not public.manager_has_feature('team') then
-    raise exception 'La gestion d’équipe est réservée à BUSINESS.' using errcode = '42501';
+  if auth.uid() is null or public.get_my_role() is distinct from 'manager' then
+    raise exception 'Compte manager requis.' using errcode = '42501';
   end if;
+  -- Le propriétaire garde toujours le droit de révoquer un accès déjà accordé,
+  -- même après une rétrogradation ou l'expiration de son abonnement.
   delete from public.manager_team_members
   where id = p_member_id and manager_id = auth.uid();
   return found;
 end;
-$$;
+$;
+
+create or replace function public.manager_revoke_team_invitation(p_invitation_id uuid)
+returns boolean
+language plpgsql
+security definer
+set search_path = public, pg_temp
+as $
+begin
+  if auth.uid() is null or public.get_my_role() is distinct from 'manager' then
+    raise exception 'Compte manager requis.' using errcode = '42501';
+  end if;
+  update public.manager_team_invitations
+  set status = 'revoked', responded_at = now()
+  where id = p_invitation_id
+    and manager_id = auth.uid()
+    and status = 'pending';
+  return found;
+end;
+$;
 
 create or replace function public.get_manager_analytics(p_manager_id uuid)
 returns jsonb
@@ -815,6 +836,7 @@ revoke all on function public.manager_accept_team_invitation(uuid) from public, 
 revoke all on function public.manager_decline_team_invitation(uuid) from public, anon;
 revoke all on function public.manager_update_team_member_permissions(uuid, jsonb) from public, anon;
 revoke all on function public.manager_remove_team_member(uuid) from public, anon;
+revoke all on function public.manager_revoke_team_invitation(uuid) from public, anon;
 revoke all on function public.get_manager_analytics(uuid) from public, anon;
 revoke all on function public.get_manager_report_data(uuid) from public, anon;
 
@@ -824,6 +846,7 @@ grant execute on function public.manager_accept_team_invitation(uuid) to authent
 grant execute on function public.manager_decline_team_invitation(uuid) to authenticated;
 grant execute on function public.manager_update_team_member_permissions(uuid, jsonb) to authenticated;
 grant execute on function public.manager_remove_team_member(uuid) to authenticated;
+grant execute on function public.manager_revoke_team_invitation(uuid) to authenticated;
 grant execute on function public.get_manager_analytics(uuid) to authenticated;
 grant execute on function public.get_manager_report_data(uuid) to authenticated;
 
