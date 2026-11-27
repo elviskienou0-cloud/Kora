@@ -215,3 +215,228 @@ html:not(.dark) .kora-lp .kora-public-footer .border-t { border-color:rgba(48,39
 .kora-lp .kora-theme-toggle { color:#fff; background:rgba(255,255,255,.07); border-color:rgba(255,255,255,.16); }
 html:not(.dark) .kora-lp .kora-theme-toggle { color:#3B3323!important; background:rgba(255,255,255,.82)!important; border-color:rgba(48,39,20,.14)!important; }
 .kora-glass-header .kora-theme-toggle { width:38px; height:38px; }
+
+
+/* KORA floating workspace navigation */
+.kora-workspace-topbar {
+  position:sticky;
+  top:10px;
+  z-index:45;
+  margin:10px 14px 0;
+  overflow:visible;
+  border:1px solid hsl(var(--border) / .9)!important;
+  border-radius:24px;
+  background:hsl(var(--card) / .94)!important;
+  box-shadow:0 14px 38px rgb(24 20 10 / .075);
+  backdrop-filter:blur(22px) saturate(1.35);
+  -webkit-backdrop-filter:blur(22px) saturate(1.35);
+}
+.kora-workspace-nav-inner {
+  display:flex;
+  align-items:center;
+  gap:clamp(10px,1.6vw,24px);
+  min-height:70px;
+  width:100%;
+  padding:9px 14px;
+  color:hsl(var(--foreground));
+}
+.kora-workspace-brand {
+  display:inline-flex;
+  align-items:center;
+  gap:9px;
+  flex:none;
+  padding:5px 8px 5px 3px;
+  border-radius:14px;
+  color:hsl(var(--foreground))!important;
+  font-size:17px;
+  font-weight:900;
+  letter-spacing:-.045em;
+}
+.kora-workspace-brand img { width:32px;height:32px;object-fit:contain;border-radius:9px; }
+.kora-workspace-primary-nav {
+  display:flex;
+  align-items:center;
+  gap:4px;
+  min-width:0;
+  flex:1;
+  overflow-x:auto;
+  scrollbar-width:none;
+}
+.kora-workspace-primary-nav::-webkit-scrollbar { display:none; }
+.kora-workspace-nav-link,.kora-workspace-nav-group-trigger {
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  gap:8px;
+  flex:none;
+  min-height:43px;
+  padding:0 13px;
+  border:1px solid transparent;
+  border-radius:999px;
+  background:transparent;
+  color:hsl(var(--muted-foreground))!important;
+  font-size:12px;
+  font-weight:750;
+  white-space:nowrap;
+  transition:background .18s ease,color .18s ease,border-color .18s ease;
+}
+.kora-workspace-nav-link:hover,.kora-workspace-nav-group-trigger:hover {
+  color:hsl(var(--foreground))!important;
+  background:hsl(var(--muted));
+}
+.kora-workspace-nav-link.is-active,.kora-workspace-nav-group-trigger.is-active {
+  color:hsl(var(--foreground))!important;
+  background:hsl(var(--primary) / .13);
+  border-color:hsl(var(--primary) / .32);
+}
+.kora-workspace-nav-group { position:relative;flex:none; }
+.kora-workspace-nav-popover,.kora-workspace-account-menu {
+  position:absolute;
+  z-index:62;
+  top:calc(100% + 12px);
+  right:0;
+  display:grid;
+  min-width:220px;
+  gap:4px;
+  padding:9px;
+  border:1px solid hsl(var(--border));
+  border-radius:17px;
+  background:hsl(var(--popover));
+  color:hsl(var(--popover-foreground));
+  box-shadow:0 20px 55px rgb(0 0 0 / .16);
+}
+.kora-workspace-nav-popover .kora-workspace-nav-link {
+  justify-content:flex-start;
+  width:100%;
+  border-radius:11px;
+}
+.kora-workspace-nav-dismiss {
+  position:fixed;
+  z-index:60;
+  inset:0;
+  width:100%;
+  height:100%;
+  border:0!important;
+  border-radius:0!important;
+  background:transparent!important;
+  cursor:default;
+}
+.kora-workspace-nav-actions {
+  display:flex;
+  align-items:center;
+  justify-content:flex-end;
+  gap:7px;
+  flex:none;
+}
+.kora-workspace-icon-action {
+  display:grid;
+  width:40px;
+  height:40px;
+  place-items:center;
+  border:1px solid hsl(var(--border));
+  border-radius:50%;
+  background:hsl(var(--card));
+  color:hsl(var(--muted-foreground))!important;
+}
+.kora-workspace-icon-action:hover,.kora-workspace-icon-action.is-active {
+  color:hsl(var(--foreground))!important;
+  border-color:hsl(var(--primary) / .4);
+  background:hsl(var(--accent));
+}
+.kora-workspace-account { position:relative; }
+.kora-workspace-account-trigger {
+  display:flex;
+  align-items:center;
+  gap:8px;
+  min-height:42px;
+  max-width:190px;
+  padding:4px 10px 4px 5px;
+  border:1px solid hsl(var(--border));
+  border-radius:999px;
+  background:hsl(var(--card));
+  color:hsl(var(--foreground))!important;
+}
+.kora-workspace-avatar {
+  display:grid;
+  width:31px;
+  height:31px;
+  flex:none;
+  place-items:center;
+  border-radius:50%;
+  background:hsl(var(--primary));
+  color:hsl(var(--primary-foreground));
+  font-size:12px;
+  font-weight:900;
+}
+.kora-workspace-account-name { overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:11px;font-weight:800; }
+.kora-workspace-account-menu { min-width:210px; }
+.kora-workspace-account-meta { display:grid;gap:3px;padding:9px 10px 11px;border-bottom:1px solid hsl(var(--border)); }
+.kora-workspace-account-meta strong { overflow:hidden;text-overflow:ellipsis;font-size:12px; }
+.kora-workspace-account-meta span { color:hsl(var(--muted-foreground));font-size:11px; }
+.kora-workspace-account-menu>button {
+  display:flex;
+  align-items:center;
+  gap:9px;
+  min-height:40px;
+  padding:0 10px;
+  border-radius:10px;
+  color:hsl(var(--foreground))!important;
+  font-size:12px;
+  text-align:left;
+}
+.kora-workspace-account-menu>button:hover { background:hsl(var(--muted)); }
+.kora-workspace-account-menu>button.is-danger { color:hsl(var(--destructive))!important; }
+.kora-workspace-account-menu>button.is-danger:hover { background:hsl(var(--destructive) / .09); }
+
+/* Contrast-safe KORA gold: gold is an accent, never low-contrast body copy. */
+.kora-workspace main [class~="text-gold"],
+.kora-workspace main [class~="text-gold-dark"],
+.kora-workspace main [class~="text-primary"],
+.kora-workspace main [class~="text-amber-500"],
+.kora-workspace main [class~="text-amber-600"],
+.kora-workspace main [class~="text-yellow-500"],
+.kora-workspace main [class~="text-yellow-600"] {
+  color:hsl(var(--gold-dark))!important;
+}
+.dark .kora-workspace main [class~="text-gold"],
+.dark .kora-workspace main [class~="text-gold-dark"],
+.dark .kora-workspace main [class~="text-primary"],
+.dark .kora-workspace main [class~="text-amber-500"],
+.dark .kora-workspace main [class~="text-amber-600"],
+.dark .kora-workspace main [class~="text-yellow-500"],
+.dark .kora-workspace main [class~="text-yellow-600"] {
+  color:hsl(var(--gold-light))!important;
+}
+.kora-workspace main [class~="text-muted-foreground"] { color:hsl(var(--muted-foreground))!important; }
+.kora-workspace main [class*="bg-primary"] { color:hsl(var(--primary-foreground)); }
+.kora-workspace main a:not([class*="bg-"]):not([class*="text-white"]) { text-underline-offset:3px; }
+@media(max-width:1100px) {
+  .kora-workspace-nav-inner { gap:8px;padding-inline:10px; }
+  .kora-workspace-nav-link,.kora-workspace-nav-group-trigger { gap:6px;padding-inline:10px;font-size:11px; }
+  .kora-workspace-account-name { max-width:75px; }
+}
+@media(max-width:767px) {
+  .kora-workspace-topbar { top:6px;margin:6px 7px 0;border-radius:19px; }
+  .kora-workspace-nav-inner { min-height:60px;gap:6px;padding:7px; }
+  .kora-workspace-brand { gap:0;padding:3px; }
+  .kora-workspace-brand img { width:29px;height:29px; }
+  .kora-workspace-brand span { display:none; }
+  .kora-workspace-primary-nav { gap:2px; }
+  .kora-workspace-nav-link,.kora-workspace-nav-group-trigger { min-height:40px;padding-inline:10px;font-size:10px; }
+  .kora-workspace-nav-link svg,.kora-workspace-nav-group-trigger svg:first-child { display:none; }
+  .kora-workspace-nav-actions { gap:4px; }
+  .kora-workspace-nav-actions .kora-theme-toggle { width:36px;height:36px; }
+  .kora-workspace-nav-actions .kora-language-switcher { min-width:34px; }
+  .kora-workspace-icon-action { width:36px;height:36px; }
+  .kora-workspace-account-trigger { width:38px;height:38px;min-height:38px;justify-content:center;padding:3px; }
+  .kora-workspace-account-name,.kora-workspace-account-trigger>svg { display:none; }
+}
+@media(max-width:430px) {
+  .kora-workspace-nav-inner { gap:3px; }
+  .kora-workspace-nav-link,.kora-workspace-nav-group-trigger { padding-inline:8px;font-size:9px; }
+  .kora-workspace-nav-actions { gap:3px; }
+  .kora-workspace-nav-actions .kora-theme-toggle { width:33px;height:33px; }
+}
+@media(prefers-reduced-motion:reduce) {
+  .kora-workspace-nav-link,.kora-workspace-nav-group-trigger,.kora-workspace-icon-action,.kora-workspace-account-trigger { transition:none!important; }
+}
