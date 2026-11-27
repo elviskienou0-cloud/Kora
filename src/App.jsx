@@ -414,7 +414,9 @@ export default function App() {
               path="/manager/notifications"
               element={
                 <RoleGuard allowedRoles={["manager"]}>
-                  <ManagerNotifications />
+                  <ManagerFeatureGate feature="notifications">
+                    <ManagerNotifications />
+                  </ManagerFeatureGate>
                 </RoleGuard>
               }
             />
