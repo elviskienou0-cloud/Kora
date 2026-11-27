@@ -590,7 +590,7 @@ begin
   limit 1;
 
   if v_invited_user is null then
-    raise exception 'Le collaborateur doit déjà posséder un compte Manager KORA actif.';
+    raise exception 'Le collaborateur doit déjà posséder un compte KORA actif (Client ou Manager).';
   end if;
   if v_invited_user = v_user then
     raise exception 'Vous ne pouvez pas vous inviter vous-même.';
