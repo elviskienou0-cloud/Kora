@@ -1,6 +1,6 @@
 import { useState } from "react"
 import { Link, NavLink, useLocation, useNavigate } from "react-router-dom"
-import { ChevronDown, LogOut, UserRound, Settings, LayoutDashboard, Users, BriefcaseBusiness, FileText, MessageCircle, Bell, CreditCard, ChartNoAxesCombined, FolderKanban } from "lucide-react"
+import { ChevronDown, LogOut, UserRound, Settings, LayoutDashboard, Users, BriefcaseBusiness, FileText, MessageCircle, Bell, CreditCard, BarChart3, FolderKanban, Search, Heart } from "lucide-react"
 import { LanguageSwitcher } from "@/i18n/kora-i18n.jsx"
 import ThemeToggle from "@/components/ThemeToggle.jsx"
 import { useI18n } from "@/i18n/kora-i18n.jsx"
@@ -8,8 +8,8 @@ import { cn } from "@/lib/utils.js"
 import koraLogo from "@/assets/kora-logo.svg"
 
 const CLIENT_LINKS = [
-  { href: "/client/browse", key: "navigation.discover", Icon: LayoutDashboard },
-  { href: "/client/favorites", key: "navigation.favorites", Icon: Users },
+  { href: "/client/browse", key: "navigation.discover", Icon: Search },
+  { href: "/client/favorites", key: "navigation.favorites", Icon: Heart },
   { href: "/client/projects", key: "navigation.projects", Icon: FolderKanban },
   { href: "/client/requests", key: "navigation.requests", Icon: FileText },
   { href: "/messages", key: "navigation.messages", Icon: MessageCircle },
@@ -29,7 +29,7 @@ const MANAGER_ICONS = {
   "/manager/subscription": CreditCard,
   "/messages": MessageCircle,
   "/manager/notifications": Bell,
-  "/manager/analytics": ChartNoAxesCombined,
+  "/manager/analytics": BarChart3,
   "/manager/team": Users,
 }
 
