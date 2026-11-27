@@ -75,6 +75,7 @@ const ManagerRequests = lazy(() => import("@/pages/manager/Requests.jsx"))
 const ManagerRequestDetail = lazy(() => import("@/pages/manager/RequestDetail.jsx"))
 const ManagerProjects = lazy(() => import("@/pages/manager/Projects.jsx"))
 const ManagerSubscription = lazy(() => import("@/pages/manager/Subscription.jsx"))
+const ManagerPaymentTracking = lazy(() => import("@/pages/manager/PaymentTracking.jsx"))
 const ManagerSettings = lazy(() => import("@/pages/manager/Settings.jsx"))
 const ManagerNotifications = lazy(() => import("@/pages/manager/Notifications.jsx"))
 const ManagerBusinessAnalytics = lazy(() => import("@/pages/manager/BusinessAnalytics.jsx"))
@@ -409,6 +410,15 @@ export default function App() {
               element={
                 <RoleGuard allowedRoles={["manager"]}>
                   <ManagerSubscription />
+                </RoleGuard>
+              }
+            />
+
+            <Route
+              path="/manager/payment-tracking"
+              element={
+                <RoleGuard allowedRoles={["manager"]}>
+                  <ManagerPaymentTracking />
                 </RoleGuard>
               }
             />
