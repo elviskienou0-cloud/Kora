@@ -717,7 +717,7 @@ returns boolean
 language plpgsql
 security definer
 set search_path = public, pg_temp
-as $
+as $$
 declare
   v_user uuid := auth.uid();
 begin
@@ -735,7 +735,7 @@ begin
     and status = 'pending';
   return found;
 end;
-$;
+$$;
 
 create or replace function public.manager_update_team_member_permissions(
   p_member_id uuid,
