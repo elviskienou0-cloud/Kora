@@ -90,34 +90,61 @@ grant execute on function public.get_my_manager_plan_access() to authenticated;
 create or replace function public.manager_has_feature(p_feature text)
 returns boolean
 language plpgsql
+stable
 security definer
 set search_path = public, pg_temp
-as $$
+as $
 declare
-  v_access jsonb;
+  v_role text;
+  v_plan_id text;
+  v_status text;
+  v_expiry timestamptz;
 begin
-  if auth.uid() is null or public.get_my_role() is distinct from 'manager' then
+  if auth.uid() is null or nullif(trim(coalesce(p_feature, '')), '') is null then
     return false;
   end if;
 
-  v_access := public.get_my_manager_plan_access();
+  select role into v_role
+  from public.profiles
+  where id = auth.uid();
 
-  return case lower(trim(coalesce(p_feature, '')))
-    when 'talents' then coalesce((v_access ->> 'can_manage_talents')::boolean, false)
-    when 'messaging' then coalesce((v_access ->> 'can_use_messaging')::boolean, false)
-    when 'requests' then coalesce((v_access ->> 'can_manage_requests')::boolean, false)
-    when 'notifications' then coalesce((v_access ->> 'can_view_notifications')::boolean, false)
-    when 'simple_dashboard' then coalesce((v_access ->> 'can_view_simple_dashboard')::boolean, false)
-    when 'projects' then coalesce((v_access ->> 'can_manage_projects')::boolean, false)
-    when 'analytics' then coalesce((v_access ->> 'can_view_advanced_analytics')::boolean, false)
-    when 'team' then coalesce((v_access ->> 'can_manage_team')::boolean, false)
-    when 'reports' then coalesce((v_access ->> 'can_export_reports')::boolean, false)
+  if v_role is distinct from 'manager' then
+    return false;
+  end if;
+
+  select
+    upper(coalesce(s.plan_id, s.plan, 'FREE')),
+    s.status,
+    case when s.status = 'trialing'
+      then coalesce(s.trial_end, s.current_period_end, s.ends_at)
+      else coalesce(s.current_period_end, s.ends_at)
+    end
+  into v_plan_id, v_status, v_expiry
+  from public.subscriptions s
+  where s.user_id = auth.uid()
+  order by s.created_at desc
+  limit 1;
+
+  if v_plan_id is null
+     or v_status not in ('trialing', 'active')
+     or (v_expiry is not null and v_expiry <= now()) then
+    return false;
+  end if;
+
+  return case lower(trim(p_feature))
+    when 'talents' then true
+    when 'messaging' then true
+    when 'requests' then v_plan_id in ('PRO', 'BUSINESS')
+    when 'notifications' then v_plan_id in ('PRO', 'BUSINESS')
+    when 'simple_dashboard' then v_plan_id in ('PRO', 'BUSINESS')
+    when 'projects' then v_plan_id = 'BUSINESS'
+    when 'analytics' then v_plan_id = 'BUSINESS'
+    when 'team' then v_plan_id = 'BUSINESS'
+    when 'reports' then v_plan_id = 'BUSINESS'
     else false
   end;
-exception when others then
-  return false;
 end;
-$$;
+$;
 
 revoke all on function public.manager_has_feature(text) from public, anon;
 grant execute on function public.manager_has_feature(text) to authenticated;
@@ -132,7 +159,7 @@ using (
   client_id = (select auth.uid())
   or (
     manager_id = (select auth.uid())
-    and public.manager_has_feature('requests')
+    and (select public.manager_has_feature('requests'))
   )
   or public.is_super_admin()
   or public.admin_has_permission('requests.read')
@@ -149,10 +176,10 @@ using (
   client_id = (select auth.uid())
   or (
     manager_id = (select auth.uid())
-    and public.manager_has_feature('projects')
+    and (select public.manager_has_feature('projects'))
   )
   or (
-    public.manager_has_feature('requests')
+    (select public.manager_has_feature('requests'))
     and exists (
       select 1
       from public.requests r
@@ -198,7 +225,7 @@ using (
     user_id = (select auth.uid())
     and (
       public.get_my_role() <> 'manager'
-      or public.manager_has_feature('notifications')
+      or (select public.manager_has_feature('notifications'))
       or type in ('payment', 'team_invitation', 'subscription')
     )
   )
