@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react"
-import { useSearchParams } from "react-router-dom"
+import { Link, useSearchParams } from "react-router-dom"
 import { CheckCircle2, Clock3, CreditCard, Crown, Loader2, ShieldCheck, Upload } from "lucide-react"
 import { toast } from "sonner"
 
@@ -350,6 +350,12 @@ export default function ManagerSubscription() {
                     {t("manager.paymentReference")}: {pendingPayment.reference}
                   </p>
                 )}
+                <Link
+                  to={"/manager/payment-tracking?payment=" + encodeURIComponent(pendingPayment.paymentId)}
+                  className="mt-3 inline-flex min-h-10 items-center rounded-full border border-primary/30 px-4 text-sm font-bold text-primary hover:bg-primary/5"
+                >
+                  {language === "en" ? "Track my subscription" : "Suivre ma souscription"}
+                </Link>
               </div>
             </div>
           </CardContent>
