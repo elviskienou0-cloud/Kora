@@ -681,6 +681,8 @@ const fr = {
   },
   "manager": {
     "dashboard": "Tableau de bord Manager",
+    "analyticsTitle": "Analyses avancées",
+    "teamTitle": "Équipe et permissions",
     "myTalents": "Mes talents",
     "myRequests": "Demandes",
     "subscription": "Abonnement",
@@ -2629,6 +2631,8 @@ const en = {
   },
   "manager": {
     "dashboard": "Manager Dashboard",
+    "analyticsTitle": "Advanced analytics",
+    "teamTitle": "Team and permissions",
     "myTalents": "My talents",
     "myRequests": "Requests",
     "subscription": "Subscription",
