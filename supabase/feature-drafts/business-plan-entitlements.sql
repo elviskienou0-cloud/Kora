@@ -104,7 +104,7 @@ language plpgsql
 stable
 security definer
 set search_path = public, pg_temp
-as $
+as $$
 declare
   v_role text;
   v_suspended boolean := false;
@@ -157,7 +157,7 @@ begin
     else false
   end;
 end;
-$;
+$$;
 
 revoke all on function public.manager_has_feature(text) from public, anon;
 grant execute on function public.manager_has_feature(text) to authenticated;
@@ -254,7 +254,7 @@ returns public.requests
 language plpgsql
 security definer
 set search_path = public, pg_temp
-as $
+as $$
 declare
   v_manager_id uuid := auth.uid();
   v_request public.requests%rowtype;
@@ -332,7 +332,7 @@ begin
 
   return v_request;
 end;
-$;
+$$;
 
 revoke all on function public.update_request_status(uuid, text) from public, anon;
 grant execute on function public.update_request_status(uuid, text) to authenticated;
@@ -346,7 +346,7 @@ returns public.projects
 language plpgsql
 security definer
 set search_path = public, pg_temp
-as $
+as $$
 declare
   v_user uuid := auth.uid();
   v_access jsonb;
@@ -405,7 +405,7 @@ begin
 
   return v_project;
 end;
-$;
+$$;
 
 revoke all on function public.manager_update_project_status_v2(uuid, text) from public, anon;
 grant execute on function public.manager_update_project_status_v2(uuid, text) to authenticated;
@@ -419,9 +419,9 @@ returns public.projects
 language sql
 security definer
 set search_path = public, pg_temp
-as $
+as $$
   select public.manager_update_project_status_v2(p_project_id, p_status);
-$;
+$$;
 
 revoke all on function public.manager_update_project_status(uuid, text) from public, anon;
 grant execute on function public.manager_update_project_status(uuid, text) to authenticated;
@@ -722,7 +722,7 @@ returns boolean
 language plpgsql
 security definer
 set search_path = public, pg_temp
-as $
+as $$
 begin
   if auth.uid() is null or public.get_my_role() is distinct from 'manager' then
     raise exception 'Compte manager requis.' using errcode = '42501';
@@ -733,14 +733,14 @@ begin
   where id = p_member_id and manager_id = auth.uid();
   return found;
 end;
-$;
+$$;
 
 create or replace function public.manager_revoke_team_invitation(p_invitation_id uuid)
 returns boolean
 language plpgsql
 security definer
 set search_path = public, pg_temp
-as $
+as $$
 begin
   if auth.uid() is null or public.get_my_role() is distinct from 'manager' then
     raise exception 'Compte manager requis.' using errcode = '42501';
@@ -752,7 +752,7 @@ begin
     and status = 'pending';
   return found;
 end;
-$;
+$$;
 
 create or replace function public.get_manager_analytics(p_manager_id uuid)
 returns jsonb
