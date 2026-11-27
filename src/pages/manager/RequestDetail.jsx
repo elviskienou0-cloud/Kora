@@ -184,7 +184,7 @@ export default function ManagerRequestDetail() {
   const handleProjectStatus = async (nextStatus) => {
     if (!project?.id) return
     if (!canManageProjects) {
-      toast.info("La gestion des projets est disponible à partir du plan Pro.")
+      toast.info("La gestion des projets est réservée au plan BUSINESS.")
       return
     }
     const labels = { active: "réactiver", completed: "terminer", cancelled: "annuler" }
@@ -327,7 +327,7 @@ export default function ManagerRequestDetail() {
                   )}
                   {isAccepted && !canManageProjects && (
                     <div className="rounded-xl border border-gold/20 bg-gold/5 px-4 py-3 text-sm text-muted-foreground">
-                      La gestion du statut des projets est réservée aux plans <strong className="text-foreground">{t("subscriptions.plan")}</strong> et <strong className="text-foreground">{t("subscriptions.plan")}</strong>.
+                      La gestion du statut des projets est réservée au plan <strong className="text-foreground">BUSINESS</strong>.
                       <Link to="/manager/subscription" className="ml-1 font-bold text-gold-dark hover:underline">{t("subscriptions.upgrade")}</Link>
                     </div>
                   )}
