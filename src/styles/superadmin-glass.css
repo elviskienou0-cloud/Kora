@@ -98,12 +98,12 @@
   background: hsl(var(--muted) / .8);
 }
 .kora-workspace-topbar {
-  top: 12px;
-  margin: 12px 16px 0;
+  top: 10px;
+  margin: 10px 14px 0;
   overflow: visible;
   border: 1px solid hsl(var(--border) / .82) !important;
-  border-radius: 999px;
-  background: hsl(var(--card) / .86) !important;
+  border-radius: 24px;
+  background: hsl(var(--card) / .94) !important;
   box-shadow: 0 12px 42px rgb(20 18 12 / .08);
   backdrop-filter: blur(22px) saturate(150%);
   -webkit-backdrop-filter: blur(22px) saturate(150%);
@@ -131,9 +131,9 @@
 @media (max-width: 767px) {
   .kora-workspace-sidebar { display: none; }
   .kora-workspace-topbar {
-    top: 8px;
-    margin: 8px 10px 0;
-    border-radius: 20px;
+    top: 6px;
+    margin: 6px 7px 0;
+    border-radius: 19px;
   }
   .kora-workspace-topbar-inner {
     min-height: 58px;
