@@ -99,3 +99,16 @@
  .kora-lp .kora-final-orientation-card{padding:22px 16px}
 }
 @media(prefers-reduced-motion:reduce){.kora-lp .kora-final-orientation-options button{transition:none}}
+
+/* Two-row category strip, horizontally browsable on narrow screens. */
+.kora-lp .kora-lp-category-grid-scroll{width:100%;overflow-x:auto;overscroll-behavior-inline:contain;padding:4px 2px 12px;scrollbar-width:thin;scrollbar-color:rgba(160,130,55,.45) transparent}
+.kora-lp .kora-lp-category-grid-two-rows{display:grid;grid-auto-flow:column;grid-template-rows:repeat(2,minmax(76px,auto));grid-auto-columns:minmax(165px,1fr);gap:12px;width:max-content;min-width:100%;align-items:stretch}
+.kora-lp .kora-lp-category-grid-two-rows .kora-lp-category-card{min-width:165px;min-height:76px;justify-content:flex-start;padding:15px 17px}
+.kora-lp #categories .kora-lp-category-icon{display:grid;width:36px;height:36px;flex:none;place-items:center;border-radius:11px;background:transparent!important;color:inherit!important}
+.kora-lp #categories .kora-lp-category-icon svg{width:21px;height:21px;color:inherit!important;stroke:currentColor!important;stroke-width:1.7}
+html:not(.dark) .kora-lp #categories .kora-lp-category-icon{color:#51452d!important}
+html.dark .kora-lp #categories .kora-lp-category-icon{color:#f1d783!important}
+html:not(.dark) .kora-lp #categories .kora-lp-category-card{color:#201d16!important}
+html.dark .kora-lp #categories .kora-lp-category-card{color:#f4f0e6!important;background:#171613!important;border-color:rgba(212,175,55,.22)!important}
+html.dark .kora-lp #categories .kora-lp-category-card span.font-bold{color:#f4f0e6!important}
+html.dark .kora-lp #categories .kora-lp-category-grid-scroll{scrollbar-color:rgba(229,198,92,.45) transparent}
