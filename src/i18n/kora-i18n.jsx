@@ -109,7 +109,7 @@ const fr = {
     "pricingDescription": "Chaque formule déverrouille ses propres fonctionnalités. Les formules supérieures incluent aussi les avantages des niveaux précédents.",
     "planFreeTagline": "Pour commencer avec un premier talent et les outils essentiels.",
     "planProTagline": "Pour gérer vos demandes et développer votre portefeuille.",
-    "planBusinessTagline": "Pour piloter une activité de management avec une équipe et des analyses avancées."
+    "planBusinessTagline": "Pour piloter une activité de management avec une équipe et des analyses avancées.",
     "planLimitOne": "1 talent maximum",
     "planLimitMany": "Jusqu’à {count} talents",
     "planLimitUnlimited": "Talents illimités",
@@ -1608,7 +1608,7 @@ const en = {
     "pricingDescription": "Each plan unlocks its own features. Higher plans also include the benefits of the previous tiers.",
     "planFreeTagline": "To get started with your first talent and essential tools.",
     "planProTagline": "To manage requests and grow your portfolio.",
-    "planBusinessTagline": "To run a talent management business with a team and advanced analytics."
+    "planBusinessTagline": "To run a talent management business with a team and advanced analytics.",
     "planLimitOne": "1 talent maximum",
     "planLimitMany": "Up to {count} talents",
     "planLimitUnlimited": "Unlimited talents",
