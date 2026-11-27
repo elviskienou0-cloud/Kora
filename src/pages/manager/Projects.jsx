@@ -182,7 +182,7 @@ export default function ManagerProjects() {
                       {busyId === project.id ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <CheckCircle2 className="mr-2 h-4 w-4" />}
                       {copy.complete}
                     </Button>
-                    <Button size="sm" variant="outline" onClick={() => void updateStatus(project.id, "cancelled")} disabled={busyId === project.id || status !== "active"}>
+                    <Button size="sm" variant="outline" onClick={() => void updateStatus(project.id, "cancelled")} disabled={busyId === project.id || !["active", "in_progress"].includes(status)}>
                       {busyId === project.id ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <XCircle className="mr-2 h-4 w-4" />}
                       {copy.cancel}
                     </Button>
