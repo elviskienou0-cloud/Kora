@@ -1,0 +1,606 @@
+-- KORA: brouillon SQL pour les droits FREE / PRO / BUSINESS.
+-- Ce fichier est volontairement hors de supabase/migrations:
+-- créer une vraie migration avec `supabase migration new business_plan_entitlements`,
+-- puis y déplacer ce contenu après revue locale.
+-- Ne pas exécuter directement sur la base de production sans revue et tests.
+
+begin;
+
+-- 1) Source serveur de vérité des droits d'abonnement.
+create or replace function public.get_my_manager_plan_access()
+returns jsonb
+language plpgsql
+security definer
+set search_path = public, pg_temp
+as $$
+declare
+  v_user uuid := auth.uid();
+  v_sub public.subscriptions%rowtype;
+  v_plan public.plans%rowtype;
+  v_plan_id text;
+  v_active boolean := false;
+begin
+  if v_user is null then
+    raise exception 'Connexion requise' using errcode = '42501';
+  end if;
+  if public.get_my_role() is distinct from 'manager' then
+    raise exception 'Compte manager actif requis' using errcode = '42501';
+  end if;
+
+  v_sub := public.ensure_my_manager_subscription();
+  v_plan_id := upper(coalesce(v_sub.plan_id, v_sub.plan, 'FREE'));
+  v_active := v_sub.status in ('trialing', 'active')
+    and (v_sub.current_period_end is null or v_sub.current_period_end > now());
+
+  select * into v_plan
+  from public.plans
+  where id = v_plan_id and is_active = true
+  limit 1;
+
+  if v_plan.id is null then
+    v_plan_id := 'FREE';
+    select * into v_plan
+    from public.plans
+    where id = 'FREE' and is_active = true
+    limit 1;
+  end if;
+
+  return jsonb_build_object(
+    'plan_id', v_plan_id,
+    'plan_name', coalesce(v_plan.name, 'Gratuit'),
+    'status', coalesce(v_sub.status, 'expired'),
+    'active', v_active,
+    'talent_limit', v_plan.talent_limit,
+    'features', coalesce(v_plan.features, '[]'::jsonb),
+    'can_manage_talents', v_active,
+    'can_use_messaging', v_active,
+    'can_manage_requests', v_active and v_plan_id in ('PRO', 'BUSINESS'),
+    'can_view_notifications', v_active and v_plan_id in ('PRO', 'BUSINESS'),
+    'can_view_simple_dashboard', v_active and v_plan_id in ('PRO', 'BUSINESS'),
+    'can_manage_projects', v_active and v_plan_id = 'BUSINESS',
+    'can_view_advanced_analytics', v_active and v_plan_id = 'BUSINESS',
+    'can_manage_team', v_active and v_plan_id = 'BUSINESS',
+    'can_export_reports', v_active and v_plan_id = 'BUSINESS',
+    'business_badge', v_active and v_plan_id = 'BUSINESS'
+  );
+end;
+$$;
+
+revoke all on function public.get_my_manager_plan_access() from public, anon;
+grant execute on function public.get_my_manager_plan_access() to authenticated;
+
+-- Ne pas lire plans.features comme un objet de booléens: il s'agit d'une liste JSON.
+-- Les droits sont déterminés par le plan actif et cette matrice explicite.
+create or replace function public.manager_has_feature(p_feature text)
+returns boolean
+language plpgsql
+security definer
+set search_path = public, pg_temp
+as $$
+declare
+  v_access jsonb;
+begin
+  if auth.uid() is null or public.get_my_role() is distinct from 'manager' then
+    return false;
+  end if;
+
+  v_access := public.get_my_manager_plan_access();
+
+  return case lower(trim(coalesce(p_feature, '')))
+    when 'talents' then coalesce((v_access ->> 'can_manage_talents')::boolean, false)
+    when 'messaging' then coalesce((v_access ->> 'can_use_messaging')::boolean, false)
+    when 'requests' then coalesce((v_access ->> 'can_manage_requests')::boolean, false)
+    when 'notifications' then coalesce((v_access ->> 'can_view_notifications')::boolean, false)
+    when 'simple_dashboard' then coalesce((v_access ->> 'can_view_simple_dashboard')::boolean, false)
+    when 'projects' then coalesce((v_access ->> 'can_manage_projects')::boolean, false)
+    when 'analytics' then coalesce((v_access ->> 'can_view_advanced_analytics')::boolean, false)
+    when 'team' then coalesce((v_access ->> 'can_manage_team')::boolean, false)
+    when 'reports' then coalesce((v_access ->> 'can_export_reports')::boolean, false)
+    else false
+  end;
+exception when others then
+  return false;
+end;
+$$;
+
+revoke all on function public.manager_has_feature(text) from public, anon;
+grant execute on function public.manager_has_feature(text) to authenticated;
+
+-- 2) RLS: les demandes manager sont PRO/BUSINESS uniquement.
+drop policy if exists requests_select on public.requests;
+create policy requests_select
+on public.requests
+for select
+to authenticated
+using (
+  client_id = (select auth.uid())
+  or (
+    manager_id = (select auth.uid())
+    and public.manager_has_feature('requests')
+  )
+  or public.is_super_admin()
+  or public.admin_has_permission('requests.read')
+);
+
+-- Un manager PRO peut lire les projets liés à ses demandes.
+-- La gestion directe des projets (lecture hors demande et modification) est BUSINESS.
+drop policy if exists projects_select on public.projects;
+create policy projects_select
+on public.projects
+for select
+to authenticated
+using (
+  client_id = (select auth.uid())
+  or (
+    manager_id = (select auth.uid())
+    and public.manager_has_feature('projects')
+  )
+  or (
+    public.manager_has_feature('requests')
+    and exists (
+      select 1
+      from public.requests r
+      where r.project_id = projects.id
+        and r.manager_id = (select auth.uid())
+    )
+  )
+  or public.is_super_admin()
+  or public.admin_has_permission('projects.read')
+);
+
+drop policy if exists projects_update on public.projects;
+create policy projects_update
+on public.projects
+for update
+to authenticated
+using (
+  public.is_admin()
+  or client_id = (select auth.uid())
+  or (
+    manager_id = (select auth.uid())
+    and public.manager_has_feature('projects')
+  )
+)
+with check (
+  public.is_admin()
+  or client_id = (select auth.uid())
+  or (
+    manager_id = (select auth.uid())
+    and public.manager_has_feature('projects')
+  )
+);
+
+-- Les notifications de paiement et d'invitation restent accessibles à FREE.
+-- Les notifications fonctionnelles sont réservées à PRO/BUSINESS.
+drop policy if exists notifications_select on public.notifications;
+create policy notifications_select
+on public.notifications
+for select
+to authenticated
+using (
+  (
+    user_id = (select auth.uid())
+    and (
+      public.get_my_role() <> 'manager'
+      or public.manager_has_feature('notifications')
+      or type in ('payment', 'team_invitation', 'subscription')
+    )
+  )
+  or public.is_admin()
+);
+
+-- 3) Collaboration BUSINESS, avec invitations à des comptes Manager KORA existants.
+create table if not exists public.manager_team_members (
+  id uuid primary key default gen_random_uuid(),
+  manager_id uuid not null references public.profiles(id) on delete cascade,
+  member_id uuid not null references public.profiles(id) on delete cascade,
+  permissions jsonb not null default '{"analytics.read": true, "reports.export": false}'::jsonb,
+  status text not null default 'active' check (status in ('active', 'disabled')),
+  created_at timestamptz not null default now(),
+  updated_at timestamptz not null default now(),
+  constraint manager_team_members_unique unique (manager_id, member_id),
+  constraint manager_team_members_not_self check (manager_id <> member_id)
+);
+
+create table if not exists public.manager_team_invitations (
+  id uuid primary key default gen_random_uuid(),
+  manager_id uuid not null references public.profiles(id) on delete cascade,
+  invited_user_id uuid not null references public.profiles(id) on delete cascade,
+  invited_email text not null,
+  permissions jsonb not null default '{"analytics.read": true, "reports.export": false}'::jsonb,
+  status text not null default 'pending' check (status in ('pending', 'accepted', 'declined', 'revoked')),
+  created_at timestamptz not null default now(),
+  responded_at timestamptz,
+  constraint manager_team_invitations_not_self check (manager_id <> invited_user_id)
+);
+
+create unique index if not exists manager_team_one_pending_invite
+on public.manager_team_invitations(manager_id, invited_user_id)
+where status = 'pending';
+
+create index if not exists manager_team_members_member_idx
+on public.manager_team_members(member_id, status);
+
+alter table public.manager_team_members enable row level security;
+alter table public.manager_team_invitations enable row level security;
+revoke all on public.manager_team_members from anon, authenticated;
+revoke all on public.manager_team_invitations from anon, authenticated;
+
+create or replace function public.get_my_manager_team_context()
+returns jsonb
+language plpgsql
+security definer
+set search_path = public, pg_temp
+as $$
+declare
+  v_user uuid := auth.uid();
+  v_can_manage boolean;
+begin
+  if v_user is null or public.get_my_role() is distinct from 'manager' then
+    raise exception 'Compte manager requis' using errcode = '42501';
+  end if;
+
+  v_can_manage := public.manager_has_feature('team');
+
+  return jsonb_build_object(
+    'can_manage_team', v_can_manage,
+    'members', case when v_can_manage then coalesce((
+      select jsonb_agg(jsonb_build_object(
+        'id', m.id,
+        'member_id', m.member_id,
+        'name', p.name,
+        'permissions', m.permissions,
+        'status', m.status,
+        'created_at', m.created_at
+      ) order by m.created_at desc)
+      from public.manager_team_members m
+      join public.profiles p on p.id = m.member_id
+      where m.manager_id = v_user
+    ), '[]'::jsonb) else '[]'::jsonb end,
+    'outgoing_invitations', case when v_can_manage then coalesce((
+      select jsonb_agg(jsonb_build_object(
+        'id', i.id,
+        'email', i.invited_email,
+        'permissions', i.permissions,
+        'created_at', i.created_at
+      ) order by i.created_at desc)
+      from public.manager_team_invitations i
+      where i.manager_id = v_user and i.status = 'pending'
+    ), '[]'::jsonb) else '[]'::jsonb end,
+    'incoming_invitations', coalesce((
+      select jsonb_agg(jsonb_build_object(
+        'id', i.id,
+        'manager_id', i.manager_id,
+        'manager_name', p.name,
+        'permissions', i.permissions,
+        'created_at', i.created_at
+      ) order by i.created_at desc)
+      from public.manager_team_invitations i
+      join public.profiles p on p.id = i.manager_id
+      where i.invited_user_id = v_user and i.status = 'pending'
+    ), '[]'::jsonb),
+    'workspaces', coalesce((
+      select jsonb_agg(jsonb_build_object(
+        'manager_id', m.manager_id,
+        'manager_name', p.name,
+        'permissions', m.permissions
+      ) order by m.created_at desc)
+      from public.manager_team_members m
+      join public.profiles p on p.id = m.manager_id
+      where m.member_id = v_user and m.status = 'active'
+    ), '[]'::jsonb)
+  );
+end;
+$$;
+
+create or replace function public.manager_invite_team_member(
+  p_email text,
+  p_permissions jsonb default '{"analytics.read": true, "reports.export": false}'::jsonb
+)
+returns uuid
+language plpgsql
+security definer
+set search_path = public, pg_temp
+as $$
+declare
+  v_user uuid := auth.uid();
+  v_invited_user uuid;
+  v_email text := lower(trim(coalesce(p_email, '')));
+  v_permissions jsonb;
+  v_invitation uuid;
+begin
+  if v_user is null or public.get_my_role() is distinct from 'manager'
+     or not public.manager_has_feature('team') then
+    raise exception 'La gestion d’équipe est réservée à BUSINESS.' using errcode = '42501';
+  end if;
+  if v_email = '' or length(v_email) > 254 or v_email !~* '^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$' then
+    raise exception 'Adresse e-mail invalide.';
+  end if;
+
+  select u.id into v_invited_user
+  from auth.users u
+  join public.profiles p on p.id = u.id
+  where lower(u.email) = v_email
+    and p.role = 'manager'
+    and coalesce(p.is_suspended, false) = false
+  limit 1;
+
+  if v_invited_user is null then
+    raise exception 'Le collaborateur doit déjà posséder un compte Manager KORA actif.';
+  end if;
+  if v_invited_user = v_user then
+    raise exception 'Vous ne pouvez pas vous inviter vous-même.';
+  end if;
+
+  v_permissions := jsonb_build_object(
+    'analytics.read', coalesce((p_permissions ->> 'analytics.read') = 'true', true),
+    'reports.export', coalesce((p_permissions ->> 'reports.export') = 'true', false)
+  );
+  if (v_permissions ->> 'reports.export') = 'true'
+     and (v_permissions ->> 'analytics.read') <> 'true' then
+    raise exception 'L’export nécessite aussi le droit de consulter les analyses.';
+  end if;
+
+  if exists (
+    select 1 from public.manager_team_members
+    where manager_id = v_user and member_id = v_invited_user and status = 'active'
+  ) then
+    raise exception 'Ce compte fait déjà partie de votre équipe.';
+  end if;
+
+  insert into public.manager_team_invitations (
+    manager_id, invited_user_id, invited_email, permissions, status
+  )
+  values (v_user, v_invited_user, v_email, v_permissions, 'pending')
+  returning id into v_invitation;
+
+  insert into public.notifications(user_id, type, title, message, link, data)
+  values (
+    v_invited_user,
+    'team_invitation',
+    'Invitation à rejoindre une équipe KORA',
+    'Un manager vous invite à collaborer sur ses analyses et rapports.',
+    '/manager/team',
+    jsonb_build_object('invitation_id', v_invitation, 'manager_id', v_user)
+  );
+
+  return v_invitation;
+end;
+$$;
+
+create or replace function public.manager_accept_team_invitation(p_invitation_id uuid)
+returns boolean
+language plpgsql
+security definer
+set search_path = public, pg_temp
+as $$
+declare
+  v_user uuid := auth.uid();
+  v_invite public.manager_team_invitations%rowtype;
+begin
+  if v_user is null or public.get_my_role() is distinct from 'manager' then
+    raise exception 'Un compte Manager KORA est nécessaire.' using errcode = '42501';
+  end if;
+
+  select * into v_invite
+  from public.manager_team_invitations
+  where id = p_invitation_id
+    and invited_user_id = v_user
+    and status = 'pending'
+  for update;
+
+  if v_invite.id is null then
+    raise exception 'Invitation introuvable ou déjà traitée.';
+  end if;
+
+  if not exists (
+    select 1 from public.subscriptions s
+    where s.user_id = v_invite.manager_id
+      and upper(coalesce(s.plan_id, s.plan, '')) = 'BUSINESS'
+      and s.status in ('active', 'trialing')
+      and (coalesce(s.current_period_end, s.ends_at) is null
+           or coalesce(s.current_period_end, s.ends_at) > now())
+  ) then
+    raise exception 'L’abonnement BUSINESS du manager n’est plus actif.';
+  end if;
+
+  insert into public.manager_team_members(manager_id, member_id, permissions, status)
+  values (v_invite.manager_id, v_user, v_invite.permissions, 'active')
+  on conflict (manager_id, member_id)
+  do update set permissions = excluded.permissions, status = 'active', updated_at = now();
+
+  update public.manager_team_invitations
+  set status = 'accepted', responded_at = now()
+  where id = v_invite.id;
+
+  return true;
+end;
+$$;
+
+create or replace function public.manager_decline_team_invitation(p_invitation_id uuid)
+returns boolean
+language plpgsql
+security definer
+set search_path = public, pg_temp
+as $$
+begin
+  update public.manager_team_invitations
+  set status = 'declined', responded_at = now()
+  where id = p_invitation_id
+    and invited_user_id = auth.uid()
+    and status = 'pending';
+  return found;
+end;
+$$;
+
+create or replace function public.manager_update_team_member_permissions(
+  p_member_id uuid,
+  p_permissions jsonb
+)
+returns boolean
+language plpgsql
+security definer
+set search_path = public, pg_temp
+as $$
+declare
+  v_user uuid := auth.uid();
+  v_permissions jsonb;
+begin
+  if v_user is null or not public.manager_has_feature('team') then
+    raise exception 'La gestion d’équipe est réservée à BUSINESS.' using errcode = '42501';
+  end if;
+
+  v_permissions := jsonb_build_object(
+    'analytics.read', coalesce((p_permissions ->> 'analytics.read') = 'true', false),
+    'reports.export', coalesce((p_permissions ->> 'reports.export') = 'true', false)
+  );
+  if (v_permissions ->> 'reports.export') = 'true'
+     and (v_permissions ->> 'analytics.read') <> 'true' then
+    raise exception 'L’export nécessite aussi le droit de consulter les analyses.';
+  end if;
+
+  update public.manager_team_members
+  set permissions = v_permissions, updated_at = now()
+  where id = p_member_id and manager_id = v_user;
+  return found;
+end;
+$$;
+
+create or replace function public.manager_remove_team_member(p_member_id uuid)
+returns boolean
+language plpgsql
+security definer
+set search_path = public, pg_temp
+as $$
+begin
+  if auth.uid() is null or not public.manager_has_feature('team') then
+    raise exception 'La gestion d’équipe est réservée à BUSINESS.' using errcode = '42501';
+  end if;
+  delete from public.manager_team_members
+  where id = p_member_id and manager_id = auth.uid();
+  return found;
+end;
+$$;
+
+create or replace function public.get_manager_analytics(p_manager_id uuid)
+returns jsonb
+language plpgsql
+security definer
+set search_path = public, pg_temp
+as $$
+declare
+  v_user uuid := auth.uid();
+  v_allowed boolean := false;
+  v_owner_business boolean := false;
+begin
+  if v_user is null or p_manager_id is null then
+    raise exception 'Connexion requise.' using errcode = '42501';
+  end if;
+
+  v_owner_business := p_manager_id = v_user and public.manager_has_feature('analytics');
+  v_allowed := v_owner_business or exists (
+    select 1
+    from public.manager_team_members m
+    where m.manager_id = p_manager_id
+      and m.member_id = v_user
+      and m.status = 'active'
+      and coalesce((m.permissions ->> 'analytics.read')::boolean, false)
+      and exists (
+        select 1 from public.subscriptions s
+        where s.user_id = p_manager_id
+          and upper(coalesce(s.plan_id, s.plan, '')) = 'BUSINESS'
+          and s.status in ('active', 'trialing')
+          and (coalesce(s.current_period_end, s.ends_at) is null
+               or coalesce(s.current_period_end, s.ends_at) > now())
+      )
+  );
+
+  if not v_allowed then
+    raise exception 'Accès aux analyses BUSINESS non autorisé.' using errcode = '42501';
+  end if;
+
+  return jsonb_build_object(
+    'total_talents', (select count(*) from public.talent_profiles where managed_by = p_manager_id),
+    'total_requests', (select count(*) from public.requests where manager_id = p_manager_id),
+    'pending_requests', (select count(*) from public.requests where manager_id = p_manager_id and lower(status) in ('pending', 'open', 'en_attente')),
+    'accepted_requests', (select count(*) from public.requests where manager_id = p_manager_id and lower(status) in ('accepted', 'acceptee')),
+    'rejected_requests', (select count(*) from public.requests where manager_id = p_manager_id and lower(status) in ('rejected', 'refused', 'refusee')),
+    'total_projects', (select count(*) from public.projects where manager_id = p_manager_id),
+    'active_projects', (select count(*) from public.projects where manager_id = p_manager_id and lower(status) in ('active', 'in_progress')),
+    'completed_projects', (select count(*) from public.projects where manager_id = p_manager_id and lower(status) = 'completed'),
+    'talent_performance', coalesce((
+      select jsonb_agg(jsonb_build_object(
+        'id', t.id,
+        'name', trim(concat_ws(' ', t.first_name, t.last_name)),
+        'category', c.name,
+        'rating', t.rating,
+        'reviews_count', t.reviews_count,
+        'completed_projects', t.completed_projects
+      ) order by t.completed_projects desc, t.reviews_count desc, t.rating desc)
+      from public.talent_profiles t
+      left join public.categories c on c.id = t.category_id
+      where t.managed_by = p_manager_id
+    ), '[]'::jsonb)
+  );
+end;
+$$;
+
+create or replace function public.get_manager_report_data(p_manager_id uuid)
+returns jsonb
+language plpgsql
+security definer
+set search_path = public, pg_temp
+as $$
+declare
+  v_user uuid := auth.uid();
+  v_allowed boolean := false;
+begin
+  if v_user is null or p_manager_id is null then
+    raise exception 'Connexion requise.' using errcode = '42501';
+  end if;
+
+  v_allowed := (p_manager_id = v_user and public.manager_has_feature('reports'))
+    or exists (
+      select 1
+      from public.manager_team_members m
+      where m.manager_id = p_manager_id
+        and m.member_id = v_user
+        and m.status = 'active'
+        and coalesce((m.permissions ->> 'reports.export')::boolean, false)
+        and exists (
+          select 1 from public.subscriptions s
+          where s.user_id = p_manager_id
+            and upper(coalesce(s.plan_id, s.plan, '')) = 'BUSINESS'
+            and s.status in ('active', 'trialing')
+            and (coalesce(s.current_period_end, s.ends_at) is null
+                 or coalesce(s.current_period_end, s.ends_at) > now())
+        )
+    );
+
+  if not v_allowed then
+    raise exception 'Export des rapports BUSINESS non autorisé.' using errcode = '42501';
+  end if;
+
+  return public.get_manager_analytics(p_manager_id);
+end;
+$$;
+
+revoke all on function public.get_my_manager_team_context() from public, anon;
+revoke all on function public.manager_invite_team_member(text, jsonb) from public, anon;
+revoke all on function public.manager_accept_team_invitation(uuid) from public, anon;
+revoke all on function public.manager_decline_team_invitation(uuid) from public, anon;
+revoke all on function public.manager_update_team_member_permissions(uuid, jsonb) from public, anon;
+revoke all on function public.manager_remove_team_member(uuid) from public, anon;
+revoke all on function public.get_manager_analytics(uuid) from public, anon;
+revoke all on function public.get_manager_report_data(uuid) from public, anon;
+
+grant execute on function public.get_my_manager_team_context() to authenticated;
+grant execute on function public.manager_invite_team_member(text, jsonb) to authenticated;
+grant execute on function public.manager_accept_team_invitation(uuid) to authenticated;
+grant execute on function public.manager_decline_team_invitation(uuid) to authenticated;
+grant execute on function public.manager_update_team_member_permissions(uuid, jsonb) to authenticated;
+grant execute on function public.manager_remove_team_member(uuid) to authenticated;
+grant execute on function public.get_manager_analytics(uuid) to authenticated;
+grant execute on function public.get_manager_report_data(uuid) to authenticated;
+
+commit;
