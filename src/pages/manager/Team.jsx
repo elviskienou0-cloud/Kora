@@ -166,6 +166,22 @@ export default function ManagerTeam() {
     }
   }
 
+  const revokeInvitation = async (invitationId) => {
+    setBusyId(invitationId)
+    try {
+      const { error } = await supabase.rpc("manager_revoke_team_invitation", {
+        p_invitation_id: invitationId,
+      })
+      if (error) throw error
+      toast.success(language === "en" ? "Invitation revoked." : "Invitation révoquée.")
+      await load()
+    } catch (error) {
+      toast.error(error?.message || copy.loadError)
+    } finally {
+      setBusyId("")
+    }
+  }
+
   if (loading) {
     return <div className="flex min-h-[45vh] items-center justify-center"><Loader2 className="h-7 w-7 animate-spin text-gold" /></div>
   }
@@ -255,19 +271,43 @@ export default function ManagerTeam() {
               {context.outgoing_invitations.length === 0 ? <p className="text-sm text-muted-foreground">{copy.noPending}</p> : context.outgoing_invitations.map((invitation) => (
                 <div key={invitation.id} className="flex items-center justify-between gap-3 rounded-lg border p-3">
                   <span className="truncate text-sm">{invitation.email}</span>
-                  <span className="shrink-0 text-xs text-muted-foreground">{language === "en" ? "Awaiting response" : "En attente de réponse"}</span>
+                  <div className="flex shrink-0 items-center gap-2">
+                    <span className="text-xs text-muted-foreground">{language === "en" ? "Awaiting response" : "En attente de réponse"}</span>
+                    <Button size="icon" variant="ghost" aria-label={copy.remove} disabled={busyId === invitation.id} onClick={() => void revokeInvitation(invitation.id)}><X className="h-4 w-4 text-destructive" /></Button>
+                  </div>
                 </div>
               ))}
             </CardContent>
           </Card>
         </>
       ) : (
-        <Card>
-          <CardContent className="p-6">
-            <p className="font-semibold">{copy.upgrade}</p>
-            <Button className="mt-4" onClick={() => window.location.assign("/manager/subscription")}>{language === "en" ? "View plans" : "Voir les abonnements"}</Button>
-          </CardContent>
-        </Card>
+        <>
+          <Card>
+            <CardContent className="p-6">
+              <p className="font-semibold">{copy.upgrade}</p>
+              <Button className="mt-4" onClick={() => window.location.assign("/manager/subscription")}>{language === "en" ? "View plans" : "Voir les abonnements"}</Button>
+            </CardContent>
+          </Card>
+          {(context.members.length > 0 || context.outgoing_invitations.length > 0) && (
+            <Card>
+              <CardHeader><CardTitle>{copy.members}</CardTitle></CardHeader>
+              <CardContent className="space-y-3">
+                {context.members.map((member) => (
+                  <div key={member.id} className="flex items-center justify-between gap-3 rounded-lg border p-3">
+                    <span className="truncate text-sm font-medium">{member.name || "Manager KORA"}</span>
+                    <Button size="sm" variant="ghost" className="text-destructive hover:text-destructive" disabled={busyId === member.id} onClick={() => void removeMember(member.id)}><X className="mr-1 h-4 w-4" />{copy.remove}</Button>
+                  </div>
+                ))}
+                {context.outgoing_invitations.map((invitation) => (
+                  <div key={invitation.id} className="flex items-center justify-between gap-3 rounded-lg border p-3">
+                    <span className="truncate text-sm">{invitation.email}</span>
+                    <Button size="sm" variant="ghost" className="text-destructive hover:text-destructive" disabled={busyId === invitation.id} onClick={() => void revokeInvitation(invitation.id)}><X className="mr-1 h-4 w-4" />{copy.remove}</Button>
+                  </div>
+                ))}
+              </CardContent>
+            </Card>
+          )}
+        </>
       )}
 
       <Card>
