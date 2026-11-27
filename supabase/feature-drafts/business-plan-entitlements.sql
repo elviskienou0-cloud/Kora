@@ -39,6 +39,9 @@ begin
   if v_user is null then
     raise exception 'Connexion requise' using errcode = '42501';
   end if;
+  if exists (select 1 from public.profiles p where p.id = v_user and coalesce(p.is_suspended, false)) then
+    raise exception 'Compte suspendu' using errcode = '42501';
+  end if;
   if public.get_my_role() is distinct from 'manager' then
     raise exception 'Compte manager actif requis' using errcode = '42501';
   end if;
