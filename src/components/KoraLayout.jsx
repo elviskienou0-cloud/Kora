@@ -82,6 +82,11 @@ function getMenuItems(t) {
         href: "/client/notifications",
         icon: Bell,
       },
+      {
+        label: t("manager.teamTitle"),
+        href: "/manager/team",
+        icon: Users,
+      },
     ],
 
     manager: [
@@ -98,6 +103,7 @@ function getMenuItems(t) {
       {
         label: t("navigation.requests"),
         href: "/manager/requests",
+        feature: "can_manage_requests",
         icon: FileText,
       },
       {
@@ -113,16 +119,19 @@ function getMenuItems(t) {
       {
         label: t("navigation.notifications"),
         href: "/manager/notifications",
+        feature: "can_view_notifications",
         icon: Bell,
       },
       {
         label: t("manager.analyticsTitle"),
         href: "/manager/analytics",
+        feature: "can_view_advanced_analytics",
         icon: LayoutDashboard,
       },
       {
         label: t("manager.teamTitle"),
         href: "/manager/team",
+        feature: "can_manage_team",
         icon: Users,
       },
       {
@@ -386,6 +395,7 @@ export default function KoraLayout() {
   const [sidebarOpen, setSidebarOpen] = useState(false)
   const [menuOpen, setMenuOpen] = useState(false)
   const [adminAccess, setAdminAccess] = useState(null)
+  const [managerPlanAccess, setManagerPlanAccess] = useState(null)
   const [expandedAdminGroups, setExpandedAdminGroups] = useState({})
 
   const role = user?.role
@@ -423,6 +433,28 @@ export default function KoraLayout() {
     }
   }, [role])
 
+  useEffect(() => {
+    let mounted = true
+
+    if (role !== "manager" || !user?.authId) {
+      setManagerPlanAccess(null)
+      return () => { mounted = false }
+    }
+
+    setManagerPlanAccess(null)
+    supabase.rpc("get_my_manager_plan_access").then(({ data, error }) => {
+      if (!mounted) return
+      if (error) {
+        console.error("[KORA] Erreur récupération des droits d'abonnement :", error)
+        setManagerPlanAccess(null)
+        return
+      }
+      setManagerPlanAccess(data || {})
+    })
+
+    return () => { mounted = false }
+  }, [role, user?.authId])
+
   // ==========================================================
   // PERMISSIONS ADMIN
   // ==========================================================
@@ -444,11 +476,14 @@ export default function KoraLayout() {
   }
 
   const rawMenu = menuItems[role] || menuItems.client
+  const roleMenu = role === "manager"
+    ? rawMenu.filter((item) => !item.feature || managerPlanAccess?.[item.feature] === true)
+    : rawMenu
 
   const menu =
     role === "admin" &&
     adminAccess?.access_level === "associate"
-      ? rawMenu.filter(
+      ? roleMenu.filter(
           (item) =>
             !item.superAdminOnly &&
             (
@@ -459,7 +494,7 @@ export default function KoraLayout() {
               )
             )
         )
-      : rawMenu.filter(
+      : roleMenu.filter(
           (item) =>
             !item.superAdminOnly ||
             adminAccess?.access_level !== "associate"
