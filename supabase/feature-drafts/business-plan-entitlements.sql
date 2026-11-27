@@ -460,11 +460,11 @@ declare
   v_user uuid := auth.uid();
   v_can_manage boolean;
 begin
-  if v_user is null or public.get_my_role() is distinct from 'manager' then
-    raise exception 'Compte manager requis' using errcode = '42501';
+  if v_user is null or public.get_my_role() not in ('manager', 'client') then
+    raise exception 'Compte KORA requis' using errcode = '42501';
   end if;
 
-  v_can_manage := public.manager_has_feature('team');
+  v_can_manage := public.get_my_role() = 'manager' and public.manager_has_feature('team');
 
   return jsonb_build_object(
     'can_manage_team', v_can_manage,
@@ -545,7 +545,7 @@ begin
   from auth.users u
   join public.profiles p on p.id = u.id
   where lower(u.email) = v_email
-    and p.role = 'manager'
+    and p.role in ('manager', 'client')
     and coalesce(p.is_suspended, false) = false
   limit 1;
 
@@ -614,8 +614,8 @@ declare
   v_user uuid := auth.uid();
   v_invite public.manager_team_invitations%rowtype;
 begin
-  if v_user is null or public.get_my_role() is distinct from 'manager' then
-    raise exception 'Un compte Manager KORA est nécessaire.' using errcode = '42501';
+  if v_user is null or public.get_my_role() not in ('manager', 'client') then
+    raise exception 'Un compte KORA est nécessaire.' using errcode = '42501';
   end if;
 
   select * into v_invite
