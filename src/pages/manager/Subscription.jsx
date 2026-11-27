@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react"
-import { useSearchParams } from "react-router-dom"
+import { Link, useSearchParams } from "react-router-dom"
 import { CheckCircle2, Clock3, CreditCard, Crown, Loader2, ShieldCheck, Upload } from "lucide-react"
 import { toast } from "sonner"
 
@@ -350,6 +350,12 @@ export default function ManagerSubscription() {
                     {t("manager.paymentReference")}: {pendingPayment.reference}
                   </p>
                 )}
+                <Link
+                  to={"/manager/payment-tracking?payment=" + encodeURIComponent(pendingPayment.paymentId)}
+                  className="mt-3 inline-flex min-h-10 items-center rounded-full border border-primary/30 px-4 text-sm font-bold text-primary hover:bg-primary/5"
+                >
+                  {language === "en" ? "Track my subscription" : "Suivre ma souscription"}
+                </Link>
               </div>
             </div>
           </CardContent>
@@ -495,7 +501,12 @@ export default function ManagerSubscription() {
                   <tr><td colSpan={6} className="px-6 py-10 text-center text-muted-foreground">{t("common.noData")}</td></tr>
                 ) : payments.map((payment) => (
                   <tr key={payment.id} className="border-b border-border/40">
-                    <td className="px-6 py-3.5 font-medium">{payment.reference}</td>
+                    <td className="px-6 py-3.5 font-medium">
+                      <p>{payment.reference}</p>
+                      <Link to={"/manager/payment-tracking?payment=" + encodeURIComponent(payment.id)} className="mt-1 inline-flex text-xs font-semibold text-primary hover:underline">
+                        {language === "en" ? "Track" : "Suivre"}
+                      </Link>
+                    </td>
                     <td className="px-6 py-3.5">{payment.provider}</td>
                     <td className="px-6 py-3.5 font-black">{formatMoney(payment.amount, payment.currency)}</td>
                     <td className="px-6 py-3.5"><Badge variant="outline">{payment.status}</Badge></td>

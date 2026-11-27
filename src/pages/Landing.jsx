@@ -1,35 +1,22 @@
-import { useEffect, useMemo } from "react"
-import { Globe, Star, Users } from "lucide-react"
+import { useEffect } from "react"
 import LandingHero from "@/components/landing/LandingHero"
-import LandingEvolution from "@/components/landing/LandingEvolution.jsx"
 import LandingFooter from "@/components/landing/LandingFooter"
-import LandingNav from "@/components/landing/LandingNav.jsx"
-import LandingAudience from "@/components/landing/LandingAudience.jsx"
-import LandingProcess from "@/components/landing/LandingProcess.jsx"
-import LandingCategories from "@/components/landing/LandingCategories.jsx"
-import LandingWhy from "@/components/landing/LandingWhy.jsx"
-import LandingPricing from "@/components/landing/LandingPricing.jsx"
-import LandingFaq from "@/components/landing/LandingFaq.jsx"
-import LandingFinalCta from "@/components/landing/LandingFinalCta.jsx"
-import { BackToTop, ScrollProgress } from "@/components/landing/LandingEffects.jsx"
-import LandingMarquee from "@/components/landing/LandingMarquee.jsx"
-import LandingManifesto from "@/components/landing/LandingManifesto.jsx"
-import { useKoraStats } from "@/lib/useKoraStats"
+import LandingNav from "@/components/landing/LandingNav"
+import LandingProcess from "@/components/landing/LandingProcess"
+import LandingManifesto from "@/components/landing/LandingManifesto"
+import LandingCategories from "@/components/landing/LandingCategories"
+import LandingWhy from "@/components/landing/LandingWhy"
+import LandingPricing from "@/components/landing/LandingPricing"
+import LandingOrientation from "@/components/landing/LandingOrientation"
 import { useI18n } from "@/i18n/kora-i18n.jsx"
 import "@/styles/landing-v2.css"
 import "@/styles/landing-motion.css"
 import "@/styles/landing-refresh.css"
 import "@/styles/landing-spotlight.css"
-
-const STAT_META = [
-  { key: "landing.statsTalents", icon: Users, index: 0 },
-  { key: "landing.statsCountries", icon: Globe, index: 2 },
-  { key: "landing.statsSatisfaction", icon: Star, index: 3 },
-]
+import "@/styles/landing-final.css"
 
 export default function Landing() {
   const { t, language, setLanguage } = useI18n()
-  const { stats: liveStats, loading: statsLoading } = useKoraStats({ realtime: false, initialLoading: true, emptyOnError: true })
 
   useEffect(() => {
     const root = document.documentElement
@@ -53,56 +40,24 @@ export default function Landing() {
     }[language]
     const previousTitle = document.title
     const descriptionTag = document.querySelector('meta[name="description"]')
-    const ogTitleTag = document.querySelector('meta[property="og:title"]')
-    const ogDescriptionTag = document.querySelector('meta[property="og:description"]')
-    const twitterTitleTag = document.querySelector('meta[name="twitter:title"]')
-    const twitterDescriptionTag = document.querySelector('meta[name="twitter:description"]')
     const previousDescription = descriptionTag?.content
-    const previousOgTitle = ogTitleTag?.content
-    const previousOgDescription = ogDescriptionTag?.content
-    const previousTwitterTitle = twitterTitleTag?.content
-    const previousTwitterDescription = twitterDescriptionTag?.content
-
     document.title = meta.title
     if (descriptionTag) descriptionTag.content = meta.description
-    if (ogTitleTag) ogTitleTag.content = meta.title
-    if (ogDescriptionTag) ogDescriptionTag.content = meta.description
-    if (twitterTitleTag) twitterTitleTag.content = meta.title
-    if (twitterDescriptionTag) twitterDescriptionTag.content = meta.description
-
     return () => {
       document.title = previousTitle
       if (descriptionTag && previousDescription) descriptionTag.content = previousDescription
-      if (ogTitleTag && previousOgTitle) ogTitleTag.content = previousOgTitle
-      if (ogDescriptionTag && previousOgDescription) ogDescriptionTag.content = previousOgDescription
-      if (twitterTitleTag && previousTwitterTitle) twitterTitleTag.content = previousTwitterTitle
-      if (twitterDescriptionTag && previousTwitterDescription) twitterDescriptionTag.content = previousTwitterDescription
     }
   }, [language])
 
-  const stats = useMemo(
-    () => STAT_META.map((meta) => ({
-      ...(liveStats[meta.index] || { value: "—" }),
-      label: t(meta.key),
-      icon: meta.icon,
-    })),
-    [liveStats, t, language]
-  )
-
   const navLinks = [
-    { id: "how-it-works", label: t("landing.navHow") },
     { id: "categories", label: t("landing.navCategories") },
-    { id: "community", label: t("landing.navCommunity") },
-    { id: "why-kora", label: t("landing.navWhy") },
     { id: "pricing", label: t("landing.navPricing") },
-    { id: "faq", label: t("landing.navFaq") },
   ]
-
   const navLabels = {
     aria: t("landing.navAria"),
     login: t("landing.navLogin"),
-    start: t("landing.discoverTalents"),
-    startShort: t("landing.getStarted"),
+    start: t("account.register"),
+    startShort: t("account.register"),
     manager: t("landing.audienceManagerCta"),
     openMenu: t("landing.openMenu"),
     closeMenu: t("landing.closeMenu"),
@@ -110,30 +65,22 @@ export default function Landing() {
 
   return (
     <div id="top" className="kora-public-shell kora-lp relative flex min-h-screen flex-col">
-        <ScrollProgress />
-        <LandingNav
-          links={navLinks}
-          labels={navLabels}
-          language={language}
-          onLanguageChange={() => setLanguage(language === "fr" ? "en" : "fr")}
-        />
-        <BackToTop label={t("landing.backToTop")} />
-
-        <main className="relative z-10">
-          <LandingHero />
-          <LandingMarquee language={language} />
-          <LandingManifesto />
-          <LandingAudience />
-          <LandingProcess />
-          <LandingCategories />
-          <LandingEvolution stats={stats} loading={statsLoading} />
-          <LandingWhy />
-          <LandingPricing />
-          <LandingFaq />
-          <LandingFinalCta />
-        </main>
-
-        <LandingFooter />
+      <LandingNav
+        links={navLinks}
+        labels={navLabels}
+        language={language}
+        onLanguageChange={() => setLanguage(language === "fr" ? "en" : "fr")}
+      />
+      <main className="relative z-10">
+        <LandingHero />
+        <LandingManifesto />
+        <LandingProcess />
+        <LandingCategories />
+        <LandingWhy />
+        <LandingPricing />
+        <LandingOrientation />
+      </main>
+      <LandingFooter />
     </div>
   )
 }
