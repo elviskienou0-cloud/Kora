@@ -29,7 +29,7 @@ export default function ManagerFeatureGate({ feature, children }) {
     const field = ACCESS_FIELDS[feature]
 
     async function checkAccess() {
-      if (!field || !user?.authId || user.role !== "manager") {
+      if (!field || !(user?.authId || user?.id) || user.role !== "manager") {
         if (active) setState({ loading: false, allowed: false, error: "", planId: null })
         return
       }
@@ -70,7 +70,7 @@ export default function ManagerFeatureGate({ feature, children }) {
 
     void checkAccess()
     return () => { active = false }
-  }, [feature, user?.authId, user?.role, language])
+  }, [feature, user?.authId, user?.id, user?.role, language])
 
   if (state.loading) {
     return (
