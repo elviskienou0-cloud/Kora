@@ -78,7 +78,6 @@ export default function LandingNav({ links, labels, language, onLanguageChange }
         <div id="kora-mobile-nav" hidden={!menuOpen} className="mt-2 rounded-2xl border border-border bg-background p-3 shadow-xl lg:hidden">
           <ul className="grid gap-1">
             {links.map((link) => <li key={link.id}><a href={"#" + link.id} onClick={(event) => followSection(event, link.id)} className="flex min-h-12 items-center rounded-xl px-4 text-sm font-semibold hover:bg-muted">{link.label}</a></li>)}
-            <li className="flex items-center justify-center gap-3 border-t border-border pt-2"><ThemeToggle className="min-h-12 min-w-12" /><button type="button" onClick={onLanguageChange} className="min-h-12 rounded-full border border-border px-4 text-sm font-bold">{language === "fr" ? "English" : "Français"}</button></li>
             <li className="grid grid-cols-2 gap-2">
               <Link to="/login" onClick={() => setMenuOpen(false)} className="flex min-h-12 items-center justify-center rounded-xl border border-border px-3 text-sm font-semibold">{labels.login}</Link>
               <Link to="/register" onClick={() => setMenuOpen(false)} className="flex min-h-12 items-center justify-center rounded-xl bg-primary px-3 text-sm font-bold text-primary-foreground">{labels.start}</Link>
