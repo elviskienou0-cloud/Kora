@@ -1,0 +1,101 @@
+/* Final KORA landing composition: restrained white, gold and deep black. */
+.kora-lp .kora-landing-hero.kora-final-hero{min-height:760px;padding:145px 24px 90px;background:#090909}
+.kora-lp .kora-final-hero-grid{display:grid;grid-template-columns:minmax(0,1.05fr) minmax(320px,.85fr);align-items:center;gap:clamp(42px,8vw,110px);width:min(1180px,100%);margin:0 auto}
+.kora-lp .kora-final-hero-copy{text-align:left}
+.kora-lp .kora-final-hero-copy h1{max-width:720px;margin:24px 0 20px;font-size:clamp(2.8rem,5.6vw,5.4rem);line-height:1.02;letter-spacing:-.065em;color:#fff}
+.kora-lp .kora-final-hero-copy .kora-hero-description{max-width:570px;margin:0;color:rgba(255,255,255,.68);font-size:clamp(16px,1.5vw,19px);line-height:1.75}
+.kora-lp .kora-final-hero-actions{justify-content:flex-start}
+.kora-lp .kora-phone-stage{position:relative;display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:500px}
+.kora-lp .kora-phone-glow{position:absolute;width:380px;height:380px;border-radius:50%;background:rgba(212,175,55,.12);filter:blur(75px)}
+.kora-lp .kora-phone-frame{position:relative;width:min(310px,78vw);padding:10px;border:2px solid #555;border-radius:43px;background:linear-gradient(145deg,#383838,#090909 40%,#242424);box-shadow:0 35px 90px rgba(0,0,0,.6),inset 0 0 0 1px rgba(255,255,255,.2);transform:rotate(2deg)}
+.kora-lp .kora-phone-camera{position:absolute;z-index:2;top:16px;left:50%;width:78px;height:18px;border-radius:99px;background:#090909;transform:translateX(-50%)}
+.kora-lp .kora-phone-screen{position:relative;overflow:hidden;min-height:530px;padding:18px 17px 14px;border-radius:34px;background:#faf9f6;color:#171717}
+.kora-lp .kora-phone-status{display:flex;justify-content:space-between;padding:1px 4px 17px;font-size:9px;font-weight:800}
+.kora-lp .kora-phone-brand{display:flex;align-items:center;gap:8px;padding:8px 0 18px}
+.kora-lp .kora-phone-mark{display:grid;width:28px;height:28px;place-items:center;border-radius:9px;background:#171717;color:#e5c65c;font-weight:900}
+.kora-lp .kora-phone-brand strong{font-size:13px;letter-spacing:.08em}
+.kora-lp .kora-phone-language{margin-left:auto;font-size:9px;font-weight:800;color:#777}
+.kora-lp .kora-phone-welcome small{color:#947321;font-size:8px;font-weight:900;letter-spacing:.13em}
+.kora-lp .kora-phone-welcome h2{margin:7px 0 5px;font-size:23px;line-height:1.08;font-weight:900;letter-spacing:-.05em}
+.kora-lp .kora-phone-welcome p{max-width:220px;color:#777;font-size:10px;line-height:1.5}
+.kora-lp .kora-phone-search{display:flex;align-items:center;gap:8px;margin:18px 0;padding:12px;border:1px solid #e7e3da;border-radius:12px;background:#fff;color:#888;font-size:10px}
+.kora-lp .kora-phone-section-title{display:flex;justify-content:space-between;align-items:center;margin:18px 0 11px;font-size:10px}
+.kora-lp .kora-phone-section-title span{color:#947321;font-size:9px;font-weight:800}
+.kora-lp .kora-phone-category-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px}
+.kora-lp .kora-phone-category-grid>div{display:flex;align-items:center;gap:9px;padding:10px 8px;border:1px solid #e9e5dc;border-radius:12px;background:#fff}
+.kora-lp .kora-phone-category-grid>div>span{display:grid;width:29px;height:29px;place-items:center;border-radius:9px;background:#f5f1e7;color:#6f5a24}
+.kora-lp .kora-phone-category-grid small{font-size:9px;font-weight:750}
+.kora-lp .kora-phone-bottom{display:flex;justify-content:space-around;margin:22px -17px -14px;padding:13px 8px;border-top:1px solid #ece8df;background:#fff}
+.kora-lp .kora-phone-bottom span{display:grid;justify-items:center;gap:4px;color:#888}
+.kora-lp .kora-phone-bottom span.is-active{color:#92701d}
+.kora-lp .kora-phone-bottom small{font-size:8px;font-weight:750}
+.kora-lp .kora-phone-caption{display:flex;align-items:center;gap:8px;margin-top:25px;color:rgba(255,255,255,.58);font-size:11px;font-weight:700;letter-spacing:.04em}
+.kora-lp .kora-phone-caption span{width:7px;height:7px;border-radius:50%;background:#d4af37}
+.kora-lp .kora-final-manifesto{background:#f7f5ef!important;color:#171717!important}
+.kora-lp .kora-final-manifesto-lead{max-width:940px!important;margin:0 auto 52px!important;color:#171717!important}
+.kora-lp .kora-final-manifesto-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:20px}
+.kora-lp .kora-final-manifesto-grid article{padding:25px 23px;border-top:2px solid #d4af37;background:rgba(255,255,255,.72)}
+.kora-lp .kora-final-manifesto-grid article span{color:#8c6c1d;font-size:10px;font-weight:900;letter-spacing:.14em}
+.kora-lp .kora-final-manifesto-grid article p{margin:12px 0 0;color:#45423b;font-size:15px;font-weight:500;line-height:1.75;text-align:left;letter-spacing:0}
+.kora-lp .kora-final-process{background:#0d0d0d}
+.kora-lp .kora-final-process-grid{display:grid;grid-template-columns:minmax(0,.9fr) minmax(0,1.1fr);align-items:start;gap:32px}
+.kora-lp .kora-final-flow{display:grid;gap:11px}
+.kora-lp .kora-final-flow-step{position:relative;display:flex;align-items:flex-start;gap:15px;padding:19px;border:1px solid rgba(255,255,255,.12);border-radius:18px;background:#151515;color:#fff}
+.kora-lp .kora-final-flow-icon{display:grid;width:43px;height:43px;flex:none;place-items:center;border-radius:13px;background:rgba(212,175,55,.13);color:#e5c65c}
+.kora-lp .kora-final-flow-step small{color:#d4af37;font-size:9px;font-weight:900;letter-spacing:.13em}
+.kora-lp .kora-final-flow-step h3{margin:3px 0 5px;color:#fff;font-size:16px;font-weight:850}
+.kora-lp .kora-final-flow-step p{max-width:340px;color:rgba(255,255,255,.58);font-size:12px;line-height:1.55}
+.kora-lp .kora-final-flow-arrow{position:absolute;bottom:-15px;left:39px;z-index:2;color:#d4af37}
+.kora-lp .kora-final-talent-panel{padding:22px;border:1px solid rgba(255,255,255,.14);border-radius:25px;background:#151515;color:#fff}
+.kora-lp .kora-final-talent-heading{display:flex;justify-content:space-between;align-items:center;gap:15px;margin-bottom:17px}
+.kora-lp .kora-final-talent-heading small{color:#d4af37;font-size:9px;font-weight:900;letter-spacing:.13em}
+.kora-lp .kora-final-talent-heading h3{margin-top:5px;color:#fff;font-size:20px;font-weight:850}
+.kora-lp .kora-final-talent-controls{display:flex;gap:7px}
+.kora-lp .kora-final-talent-controls button{display:grid;width:37px;height:37px;place-items:center;border:1px solid rgba(255,255,255,.17);border-radius:50%;background:#202020;color:#fff}
+.kora-lp .kora-final-talent-controls button:disabled{opacity:.35;cursor:not-allowed}
+.kora-lp .kora-final-talent-card{display:block;overflow:hidden;border:1px solid rgba(255,255,255,.12);border-radius:18px;background:#f8f7f3;color:#171717}
+.kora-lp .kora-final-talent-photo{position:relative;display:grid;min-height:250px;max-height:320px;place-items:center;overflow:hidden;background:#242424;color:#d4af37}
+.kora-lp .kora-final-talent-photo img{width:100%;height:290px;object-fit:cover}
+.kora-lp .kora-final-talent-photo>span{position:absolute;left:14px;bottom:14px;padding:7px 10px;border-radius:99px;background:rgba(15,15,15,.8);color:#fff;font-size:10px;font-weight:750}
+.kora-lp .kora-final-talent-details{display:grid;gap:14px;padding:18px}
+.kora-lp .kora-final-talent-details h4{font-size:19px;font-weight:900}
+.kora-lp .kora-final-talent-details p{margin-top:3px;color:#666;font-size:12px}
+.kora-lp .kora-final-talent-meta{display:flex;flex-wrap:wrap;gap:12px;color:#666;font-size:10px}
+.kora-lp .kora-final-talent-meta span{display:inline-flex;align-items:center;gap:5px}
+.kora-lp .kora-final-talent-empty{display:grid;min-height:310px;place-items:center;align-content:center;gap:13px;padding:30px;border:1px dashed rgba(255,255,255,.18);border-radius:18px;color:rgba(255,255,255,.65);text-align:center;font-size:13px}
+.kora-lp .kora-final-talent-note{margin-top:12px;color:rgba(255,255,255,.45);font-size:10px;line-height:1.5}
+.kora-lp #categories .kora-lp-category-icon{background:transparent!important;color:currentColor!important;border:0!important;box-shadow:none!important}
+.kora-lp #categories .kora-lp-category-icon svg{color:#fff!important;stroke:#fff!important}
+.kora-lp #categories .kora-lp-category-card{display:flex;align-items:center;gap:12px}
+.kora-lp .kora-final-orientation{padding-top:20px;background:#090909}
+.kora-lp .kora-final-orientation-card{display:grid;grid-template-columns:.85fr 1.15fr;align-items:center;gap:35px;padding:clamp(25px,4vw,48px);border:1px solid rgba(212,175,55,.35);border-radius:27px;background:linear-gradient(125deg,#1c1a14,#101010);color:#fff}
+.kora-lp .kora-final-orientation-heading>p{color:#d4af37;font-size:10px;font-weight:900;letter-spacing:.15em}
+.kora-lp .kora-final-orientation-heading h2{margin-top:12px;color:#fff;font-size:clamp(1.7rem,3.4vw,2.8rem);font-weight:900;line-height:1.08;letter-spacing:-.05em}
+.kora-lp .kora-final-orientation-options{display:grid;gap:10px}
+.kora-lp .kora-final-orientation-options button{display:flex;align-items:center;gap:14px;min-height:88px;padding:15px 17px;border:1px solid rgba(255,255,255,.14);border-radius:17px;background:rgba(255,255,255,.04);color:#fff;text-align:left;transition:background .2s,border-color .2s,transform .2s}
+.kora-lp .kora-final-orientation-options button:hover{transform:translateY(-2px);border-color:rgba(212,175,55,.65);background:rgba(212,175,55,.08)}
+.kora-lp .kora-final-orientation-icon{display:grid;width:46px;height:46px;flex:none;place-items:center;border-radius:14px;background:rgba(212,175,55,.14);color:#e5c65c}
+.kora-lp .kora-final-orientation-options button>span:nth-child(2){display:grid;gap:4px;flex:1}
+.kora-lp .kora-final-orientation-options strong{font-size:15px;font-weight:900}
+.kora-lp .kora-final-orientation-options small{color:rgba(255,255,255,.58);font-size:11px;line-height:1.45}
+.kora-lp .kora-final-orientation-options button>svg{color:#d4af37}
+@media(max-width:850px){
+ .kora-lp .kora-final-hero-grid,.kora-lp .kora-final-process-grid,.kora-lp .kora-final-orientation-card{grid-template-columns:1fr}
+ .kora-lp .kora-final-hero-copy{text-align:center}
+ .kora-lp .kora-final-hero-copy h1,.kora-lp .kora-final-hero-copy .kora-hero-description{margin-inline:auto}
+ .kora-lp .kora-final-hero-actions,.kora-lp .kora-final-hero-copy .kora-spotlight-proof{justify-content:center}
+ .kora-lp .kora-phone-stage{min-height:0;margin-top:10px}
+ .kora-lp .kora-phone-frame{transform:none}
+ .kora-lp .kora-final-manifesto-grid{grid-template-columns:1fr}
+ .kora-lp .kora-final-orientation-heading{text-align:center}
+}
+@media(max-width:600px){
+ .kora-lp .kora-landing-hero.kora-final-hero{padding:116px 18px 65px}
+ .kora-lp .kora-final-hero-copy h1{font-size:clamp(2.45rem,11vw,3.6rem)}
+ .kora-lp .kora-phone-screen{min-height:500px}
+ .kora-lp .kora-final-talent-panel{padding:14px}
+ .kora-lp .kora-final-talent-photo img{height:240px}
+ .kora-lp .kora-final-flow-step{padding:15px}
+ .kora-lp .kora-final-orientation-card{padding:22px 16px}
+}
+@media(prefers-reduced-motion:reduce){.kora-lp .kora-final-orientation-options button{transition:none}}
