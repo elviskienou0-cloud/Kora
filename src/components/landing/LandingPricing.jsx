@@ -32,7 +32,7 @@ const FEATURE_EN = {
   "Modification et révocation des accès": "Edit and revoke access",
   "Génération de rapports d'activité": "Activity reports",
   "Export des données en PDF": "PDF data export",
-  "Export CSV compatible Excel": "Excel-compatible CSV export",
+  "Export des données en Excel (.xlsx)": "Excel workbook export (.xlsx)",
 }
 
 const PLAN_RESTRICTIONS = {
