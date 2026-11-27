@@ -13,6 +13,7 @@ import "@/styles/landing-v2.css"
 import "@/styles/landing-motion.css"
 import "@/styles/landing-refresh.css"
 import "@/styles/landing-spotlight.css"
+import "@/styles/landing-final.css"
 
 export default function Landing() {
   const { t, language, setLanguage } = useI18n()
