@@ -152,7 +152,10 @@ export default function ManagerBusinessAnalytics() {
       p_manager_id: workspaceId,
     })
     if (requestError) {
-      setError(requestError.message || copy.denied)
+      const missingRpc = requestError.code === "PGRST202" || /function .*get_manager_analytics.*not found/i.test(requestError.message || "")
+      setError(missingRpc
+        ? (language === "en" ? "The Business database migration has not been applied yet." : "La migration de la base BUSINESS n'a pas encore été appliquée.")
+        : requestError.message || copy.denied)
       setData(null)
     } else {
       setData(result || null)
