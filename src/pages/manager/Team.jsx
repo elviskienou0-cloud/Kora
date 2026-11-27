@@ -22,6 +22,7 @@ const EMPTY_CONTEXT = {
 export default function ManagerTeam() {
   const { user } = useAuth()
   const { language } = useI18n()
+  const managerUserId = user?.authId || user?.id
   const [context, setContext] = useState(EMPTY_CONTEXT)
   const [email, setEmail] = useState("")
   const [permissions, setPermissions] = useState({
@@ -35,13 +36,13 @@ export default function ManagerTeam() {
 
   const copy = language === "en" ? {
     title: "Team management",
-    subtitle: "Invite KORA managers and choose which Business reports they can access.",
+    subtitle: "Invite existing KORA accounts and choose which Business analytics and reports they can access.",
     incoming: "Invitations for you",
     members: "Your team",
     pending: "Pending invitations",
     workspaces: "Shared workspaces",
     invite: "Invite a collaborator",
-    email: "KORA manager email",
+    email: "Email of an existing KORA account",
     inviteButton: "Send invitation",
     analytics: "View advanced analytics",
     export: "Export reports",
@@ -58,13 +59,13 @@ export default function ManagerTeam() {
     loadError: "Unable to load team information. The team database setup may not have been applied yet.",
   } : {
     title: "Gestion de l'équipe",
-    subtitle: "Invitez des managers KORA et choisissez les rapports BUSINESS auxquels ils peuvent accéder.",
+    subtitle: "Invitez des comptes KORA existants et choisissez les analyses et rapports BUSINESS auxquels ils peuvent accéder.",
     incoming: "Invitations reçues",
     members: "Votre équipe",
     pending: "Invitations en attente",
     workspaces: "Espaces partagés",
     invite: "Inviter un collaborateur",
-    email: "E-mail du compte Manager KORA",
+    email: "E-mail d’un compte KORA existant",
     inviteButton: "Envoyer l'invitation",
     analytics: "Consulter les analyses avancées",
     export: "Exporter les rapports",
@@ -82,7 +83,7 @@ export default function ManagerTeam() {
   }
 
   const load = useCallback(async () => {
-    if (!user?.authId) return
+    if (!managerUserId) { setLoading(false); return }
     setLoading(true)
     setLoadError("")
     const { data, error } = await supabase.rpc("get_my_manager_team_context")
@@ -94,7 +95,7 @@ export default function ManagerTeam() {
       setContext({ ...EMPTY_CONTEXT, ...(data || {}) })
     }
     setLoading(false)
-  }, [user?.authId, copy.loadError])
+  }, [managerUserId, copy.loadError])
 
   useEffect(() => { void load() }, [load])
 
