@@ -1,8 +1,8 @@
 import { useCallback, useEffect, useMemo, useState } from "react"
 import { useSearchParams, useNavigate } from "react-router-dom"
 import { Bar, BarChart, CartesianGrid, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts"
-import { Download, FileSpreadsheet, FileText, Loader2, RefreshCw, Users, ClipboardList, BriefcaseBusiness, Star } from "lucide-react"
-import jsPDF from "jspdf"
+import { LockKeyhole, FileSpreadsheet, FileText, Loader2, RefreshCw, Users, ClipboardList, BriefcaseBusiness, Star } from "lucide-react"
+import { jsPDF } from "jspdf"
 import { toast } from "sonner"
 
 import { Button } from "@/components/ui/button"
@@ -13,6 +13,16 @@ import { supabase } from "@/lib/supabase"
 
 function saveCsv(data) {
   const rows = [
+    ["Indicateur", "Valeur"],
+    ["Talents gérés", data.total_talents ?? 0],
+    ["Demandes reçues", data.total_requests ?? 0],
+    ["Demandes en attente", data.pending_requests ?? 0],
+    ["Demandes acceptées", data.accepted_requests ?? 0],
+    ["Demandes refusées", data.rejected_requests ?? 0],
+    ["Projets", data.total_projects ?? 0],
+    ["Projets actifs", data.active_projects ?? 0],
+    ["Projets terminés", data.completed_projects ?? 0],
+    [],
     ["Talent", "Catégorie", "Note", "Avis", "Projets terminés"],
     ...(data.talent_performance || []).map((talent) => [
       talent.name || "",
@@ -31,7 +41,7 @@ function saveCsv(data) {
   document.body.appendChild(link)
   link.click()
   link.remove()
-  URL.revokeObjectURL(url)
+  window.setTimeout(() => URL.revokeObjectURL(url), 1000)
 }
 
 function savePdf(data, language) {
@@ -62,7 +72,7 @@ function savePdf(data, language) {
       doc.addPage()
       y = 18
     }
-    doc.setFont(undefined, index === 0 || index === 11 ? "bold" : "normal")
+    doc.setFont("helvetica", index === 0 || index === 11 ? "bold" : "normal")
     doc.setFontSize(index === 0 ? 16 : 10)
     doc.text(wrapped, 15, y)
     y += wrapped.length * 7 + (line === "" ? 2 : 0)
@@ -281,5 +291,5 @@ export default function ManagerBusinessAnalytics() {
 }
 
 function LockKeyholeIcon() {
-  return <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-gold/10"><Download className="h-6 w-6 text-gold" /></div>
+  return <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-gold/10"><LockKeyhole className="h-6 w-6 text-gold" /></div>
 }
