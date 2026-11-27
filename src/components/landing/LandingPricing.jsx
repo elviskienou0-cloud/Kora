@@ -159,14 +159,10 @@ export default function LandingPricing() {
                       <p className="kora-lp-body mt-2 min-h-10">{copy.tagline}</p>
 
                       <div className="my-5 border-y border-border py-5">
-                        {price > 0 ? (
-                          <div className="flex flex-wrap items-baseline gap-x-2 gap-y-1">
-                            <span className="kora-lp-plan-price">{formatPrice(price)}</span>
-                            <span className="text-sm font-semibold text-muted-foreground">{currency} {t("landing.perMonth")}</span>
-                          </div>
-                        ) : (
-                          <span className="kora-lp-plan-price">{copy.name}</span>
-                        )}
+                        <div className="flex flex-wrap items-baseline gap-x-2 gap-y-1">
+                          <span className="kora-lp-plan-price">{formatPrice(price)}</span>
+                          <span className="text-sm font-semibold text-muted-foreground">{currency}{price > 0 ? ` ${t("landing.perMonth")}` : ""}</span>
+                        </div>
                         {Number(plan.trial_days) > 0 && (
                           <p className="mt-2 text-sm font-bold text-emerald-700 dark:text-emerald-300">
                             {plan.trial_days} {t("landing.trialDaysLabel")}

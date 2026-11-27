@@ -116,6 +116,16 @@ function getMenuItems(t) {
         icon: Bell,
       },
       {
+        label: t("manager.analyticsTitle"),
+        href: "/manager/analytics",
+        icon: LayoutDashboard,
+      },
+      {
+        label: t("manager.teamTitle"),
+        href: "/manager/team",
+        icon: Users,
+      },
+      {
         label: t("navigation.settings"),
         href: "/manager/settings",
         icon: Settings,

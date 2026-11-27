@@ -48,6 +48,7 @@ const Messages = lazy(() => import("@/pages/Messages.jsx"))
 import ProtectedRoute from "@/components/ProtectedRoute.jsx"
 import RoleGuard from "@/components/RoleGuard.jsx"
 import KoraLayout from "@/components/KoraLayout.jsx"
+import ManagerFeatureGate from "@/components/ManagerFeatureGate.jsx"
 
 // =========================
 // CLIENT
@@ -75,6 +76,8 @@ const ManagerRequestDetail = lazy(() => import("@/pages/manager/RequestDetail.js
 const ManagerSubscription = lazy(() => import("@/pages/manager/Subscription.jsx"))
 const ManagerSettings = lazy(() => import("@/pages/manager/Settings.jsx"))
 const ManagerNotifications = lazy(() => import("@/pages/manager/Notifications.jsx"))
+const ManagerBusinessAnalytics = lazy(() => import("@/pages/manager/BusinessAnalytics.jsx"))
+const ManagerTeam = lazy(() => import("@/pages/manager/Team.jsx"))
 const SubscriptionExpired = lazy(() => import("@/pages/manager/SubscriptionExpired.jsx"))
 
 // =========================
@@ -371,7 +374,9 @@ export default function App() {
               path="/manager/requests"
               element={
                 <RoleGuard allowedRoles={["manager"]}>
-                  <ManagerRequests />
+                  <ManagerFeatureGate feature="requests">
+                    <ManagerRequests />
+                  </ManagerFeatureGate>
                 </RoleGuard>
               }
             />
@@ -380,7 +385,9 @@ export default function App() {
               path="/manager/requests/:id"
               element={
                 <RoleGuard allowedRoles={["manager"]}>
-                  <ManagerRequestDetail />
+                  <ManagerFeatureGate feature="requests">
+                    <ManagerRequestDetail />
+                  </ManagerFeatureGate>
                 </RoleGuard>
               }
             />
@@ -407,7 +414,27 @@ export default function App() {
               path="/manager/notifications"
               element={
                 <RoleGuard allowedRoles={["manager"]}>
-                  <ManagerNotifications />
+                  <ManagerFeatureGate feature="notifications">
+                    <ManagerNotifications />
+                  </ManagerFeatureGate>
+                </RoleGuard>
+              }
+            />
+
+            <Route
+              path="/manager/analytics"
+              element={
+                <RoleGuard allowedRoles={["manager", "client"]}>
+                  <ManagerBusinessAnalytics />
+                </RoleGuard>
+              }
+            />
+
+            <Route
+              path="/manager/team"
+              element={
+                <RoleGuard allowedRoles={["manager", "client"]}>
+                  <ManagerTeam />
                 </RoleGuard>
               }
             />
