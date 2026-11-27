@@ -28,7 +28,7 @@ const FEATURE_EN = {
   "Collaboration sur les analyses et rapports": "Collaboration on analytics and reports",
   "Invitation de collaborateurs dans KORA": "Invite collaborators inside KORA",
   "Gestion des membres de l'équipe": "Team member management",
-  "Permissions d'accès personnalisées": "Custom access permissions",
+  "Permissions d'accès aux analyses et rapports": "Permissions for analytics and reports",
   "Modification et révocation des accès": "Edit and revoke access",
   "Génération de rapports d'activité": "Activity reports",
   "Export des données en PDF": "PDF data export",
