@@ -46,7 +46,18 @@ begin
   v_sub := public.ensure_my_manager_subscription();
   v_plan_id := upper(coalesce(v_sub.plan_id, v_sub.plan, 'FREE'));
   v_active := v_sub.status in ('trialing', 'active')
-    and (v_sub.current_period_end is null or v_sub.current_period_end > now());
+    and (
+      coalesce(
+        case when v_sub.status = 'trialing' then v_sub.trial_end end,
+        v_sub.current_period_end,
+        v_sub.ends_at
+      ) is null
+      or coalesce(
+        case when v_sub.status = 'trialing' then v_sub.trial_end end,
+        v_sub.current_period_end,
+        v_sub.ends_at
+      ) > now()
+    );
 
   select * into v_plan
   from public.plans
@@ -96,6 +107,7 @@ set search_path = public, pg_temp
 as $
 declare
   v_role text;
+  v_suspended boolean := false;
   v_plan_id text;
   v_status text;
   v_expiry timestamptz;
@@ -104,11 +116,12 @@ begin
     return false;
   end if;
 
-  select role into v_role
+  select role, coalesce(is_suspended, false)
+  into v_role, v_suspended
   from public.profiles
   where id = auth.uid();
 
-  if v_role is distinct from 'manager' then
+  if v_role is distinct from 'manager' or v_suspended then
     return false;
   end if;
 
@@ -631,7 +644,9 @@ begin
 
   if not exists (
     select 1 from public.subscriptions s
+    join public.profiles owner_profile on owner_profile.id = s.user_id
     where s.user_id = v_invite.manager_id
+      and not coalesce(owner_profile.is_suspended, false)
       and upper(coalesce(s.plan_id, s.plan, '')) = 'BUSINESS'
       and s.status in ('active', 'trialing')
       and (coalesce(s.current_period_end, s.ends_at) is null
@@ -751,8 +766,9 @@ declare
   v_owner_business boolean := false;
   v_can_export boolean := false;
 begin
-  if v_user is null or p_manager_id is null then
-    raise exception 'Connexion requise.' using errcode = '42501';
+  if v_user is null or p_manager_id is null
+     or exists (select 1 from public.profiles p where p.id = v_user and coalesce(p.is_suspended, false)) then
+    raise exception 'Connexion requise ou compte suspendu.' using errcode = '42501';
   end if;
 
   v_owner_business := p_manager_id = v_user and public.manager_has_feature('analytics');
@@ -765,7 +781,9 @@ begin
       and coalesce((m.permissions ->> 'analytics.read')::boolean, false)
       and exists (
         select 1 from public.subscriptions s
+        join public.profiles owner_profile on owner_profile.id = s.user_id
         where s.user_id = p_manager_id
+          and not coalesce(owner_profile.is_suspended, false)
           and upper(coalesce(s.plan_id, s.plan, '')) = 'BUSINESS'
           and s.status in ('active', 'trialing')
           and (coalesce(s.current_period_end, s.ends_at) is null
