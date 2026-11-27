@@ -57,7 +57,8 @@ export default function LandingCategories() {
         />
 
         <Reveal>
-          <div className="kora-lp-category-grid">
+          <div className="kora-lp-category-grid-scroll" role="region" aria-label={t("landing.categoriesTitle")} tabIndex={0}>
+            <div className="kora-lp-category-grid kora-lp-category-grid-two-rows" style={{ gridTemplateColumns: `repeat(${Math.max(1, Math.ceil(cats.length / 2))}, minmax(165px, 1fr))` }}>
             {cats.map((category) => {
               const Icon = getCategoryIcon(category.icon || APP_PARAMS.categories.find((item) => item.id === category.slug)?.icon)
               const label = labels[category.slug] || category.name
@@ -68,6 +69,7 @@ export default function LandingCategories() {
                 </Link>
               )
             })}
+            </div>
           </div>
         </Reveal>
 
