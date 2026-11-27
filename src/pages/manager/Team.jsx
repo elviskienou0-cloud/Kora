@@ -292,7 +292,7 @@ export default function ManagerTeam() {
         </>
       ) : (
         <>
-          {context.workspaces.length === 0 && (
+          {user?.role === "manager" && context.workspaces.length === 0 && context.incoming_invitations.length === 0 && (
             <Card>
               <CardContent className="p-6">
                 <p className="font-semibold">{copy.upgrade}</p>
