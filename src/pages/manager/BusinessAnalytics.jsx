@@ -225,8 +225,12 @@ export default function ManagerBusinessAnalytics() {
         </div>
         <div className="flex flex-wrap gap-2">
           <Button variant="outline" onClick={() => void load()}><RefreshCw className="mr-2 h-4 w-4" />{copy.refresh}</Button>
-          <Button variant="outline" onClick={() => void exportReport("pdf")} disabled={Boolean(exporting)}><FileText className="mr-2 h-4 w-4" />{exporting === "pdf" ? <Loader2 className="h-4 w-4 animate-spin" /> : copy.pdf}</Button>
-          <Button onClick={() => void exportReport("csv")} disabled={Boolean(exporting)}><FileSpreadsheet className="mr-2 h-4 w-4" />{exporting === "csv" ? <Loader2 className="h-4 w-4 animate-spin" /> : copy.csv}</Button>
+          {data.can_export_reports && (
+            <>
+              <Button variant="outline" onClick={() => void exportReport("pdf")} disabled={Boolean(exporting)}><FileText className="mr-2 h-4 w-4" />{exporting === "pdf" ? <Loader2 className="h-4 w-4 animate-spin" /> : copy.pdf}</Button>
+              <Button onClick={() => void exportReport("csv")} disabled={Boolean(exporting)}><FileSpreadsheet className="mr-2 h-4 w-4" />{exporting === "csv" ? <Loader2 className="h-4 w-4 animate-spin" /> : copy.csv}</Button>
+            </>
+          )}
         </div>
       </div>
 
