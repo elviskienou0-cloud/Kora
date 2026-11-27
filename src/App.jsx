@@ -73,6 +73,7 @@ const ManagerDashboard = lazy(() => import("@/pages/manager/Dashboard.jsx"))
 const ManagerTalents = lazy(() => import("@/pages/manager/Talents.jsx"))
 const ManagerRequests = lazy(() => import("@/pages/manager/Requests.jsx"))
 const ManagerRequestDetail = lazy(() => import("@/pages/manager/RequestDetail.jsx"))
+const ManagerProjects = lazy(() => import("@/pages/manager/Projects.jsx"))
 const ManagerSubscription = lazy(() => import("@/pages/manager/Subscription.jsx"))
 const ManagerSettings = lazy(() => import("@/pages/manager/Settings.jsx"))
 const ManagerNotifications = lazy(() => import("@/pages/manager/Notifications.jsx"))
@@ -366,6 +367,17 @@ export default function App() {
               element={
                 <RoleGuard allowedRoles={["manager"]}>
                   <ManagerTalents />
+                </RoleGuard>
+              }
+            />
+
+            <Route
+              path="/manager/projects"
+              element={
+                <RoleGuard allowedRoles={["manager"]}>
+                  <ManagerFeatureGate feature="projects">
+                    <ManagerProjects />
+                  </ManagerFeatureGate>
                 </RoleGuard>
               }
             />

@@ -1,24 +1,23 @@
--- KORA: brouillon SQL pour les droits FREE / PRO / BUSINESS.
--- Ce fichier est volontairement hors de supabase/migrations:
--- créer une vraie migration avec `supabase migration new business_plan_entitlements`,
--- puis y déplacer ce contenu après revue locale.
--- Ne pas exécuter directement sur la base de production sans revue et tests.
-
+-- KORA: activation des droits FREE / PRO / BUSINESS.
+-- Les tarifs, quotas et durées contractuelles restent inchangés.
 begin;
 
 -- Les cartes affichent les avantages cumulés de chaque formule.
 update public.plans
-set features = '["Profil talent", "Portfolio et médias", "Gestion du cachet", "Profil manager", "Messagerie"]'::jsonb,
+set name = 'FREE',
+    features = '["Création et consultation du profil talent","Galerie et portfolio du talent","Gestion du cachet","Profil manager","Messagerie"]'::jsonb,
     updated_at = now()
 where id = 'FREE';
 
 update public.plans
-set features = '["Profil talent", "Portfolio et médias", "Gestion du cachet", "Profil manager", "Messagerie", "Gestion des talents", "Gestion des demandes", "Notifications", "Tableau de bord simplifié"]'::jsonb,
+set name = 'PRO',
+    features = '["Création et consultation du profil talent","Galerie et portfolio du talent","Gestion du cachet","Profil manager","Messagerie","Gestion de plusieurs talents","Gestion des demandes","Notifications","Tableau de bord simplifié"]'::jsonb,
     updated_at = now()
 where id = 'PRO';
 
 update public.plans
-set features = '["Profil talent", "Portfolio et médias", "Gestion du cachet", "Profil manager", "Messagerie", "Gestion des talents", "Gestion des demandes", "Notifications", "Tableau de bord simplifié", "Gestion des projets", "Organisation du portefeuille de talents", "Tableau de bord analytique avancé", "Statistiques détaillées", "Analyse des performances des talents", "Gestion collaborative", "Invitation de collaborateurs", "Gestion des membres de l'équipe", "Permissions personnalisées", "Modification et révocation des accès", "Génération de rapports d'activité", "Export des données en PDF", "Export des données en Excel"]'::jsonb,
+set name = 'BUSINESS',
+    features = '["Création et consultation du profil talent","Galerie et portfolio du talent","Gestion du cachet","Profil manager","Messagerie","Gestion de plusieurs talents","Gestion des demandes","Notifications","Tableau de bord simplifié","Gestion des projets","Organisation du portefeuille de talents","Tableau de bord analytique avancé","Statistiques détaillées","Analyse des performances des talents","Collaboration sur les analyses et rapports","Invitation de collaborateurs dans KORA","Gestion des membres de l''équipe","Permissions d''accès personnalisées","Modification et révocation des accès","Génération de rapports d''activité","Export des données en PDF","Export CSV compatible Excel"]'::jsonb,
     updated_at = now()
 where id = 'BUSINESS';
 
@@ -48,19 +47,15 @@ begin
 
   v_sub := public.ensure_my_manager_subscription();
   v_plan_id := upper(coalesce(v_sub.plan_id, v_sub.plan, 'FREE'));
-  v_active := v_sub.status in ('trialing', 'active')
-    and (
-      coalesce(
-        case when v_sub.status = 'trialing' then v_sub.trial_end end,
-        v_sub.current_period_end,
-        v_sub.ends_at
-      ) is null
-      or coalesce(
-        case when v_sub.status = 'trialing' then v_sub.trial_end end,
-        v_sub.current_period_end,
-        v_sub.ends_at
-      ) > now()
-    );
+  v_active := coalesce(
+    v_sub.status in ('trialing', 'active')
+    and coalesce(
+      case when v_sub.status = 'trialing' then v_sub.trial_end end,
+      v_sub.current_period_end,
+      v_sub.ends_at
+    ) > now(),
+    false
+  );
 
   select * into v_plan
   from public.plans
@@ -143,7 +138,8 @@ begin
 
   if v_plan_id is null
      or v_status not in ('trialing', 'active')
-     or (v_expiry is not null and v_expiry <= now())
+     or v_expiry is null
+     or v_expiry <= now()
      or not exists (select 1 from public.plans p where p.id = v_plan_id and p.is_active = true) then
     return false;
   end if;
@@ -464,7 +460,12 @@ create table if not exists public.manager_team_members (
   created_at timestamptz not null default now(),
   updated_at timestamptz not null default now(),
   constraint manager_team_members_unique unique (manager_id, member_id),
-  constraint manager_team_members_not_self check (manager_id <> member_id)
+  constraint manager_team_members_not_self check (manager_id <> member_id),
+  constraint manager_team_members_permissions_object check (
+    jsonb_typeof(permissions) = 'object'
+    and coalesce(jsonb_typeof(permissions -> 'analytics.read'), '') = 'boolean'
+    and coalesce(jsonb_typeof(permissions -> 'reports.export'), '') = 'boolean'
+  )
 );
 
 create table if not exists public.manager_team_invitations (
@@ -476,7 +477,12 @@ create table if not exists public.manager_team_invitations (
   status text not null default 'pending' check (status in ('pending', 'accepted', 'declined', 'revoked')),
   created_at timestamptz not null default now(),
   responded_at timestamptz,
-  constraint manager_team_invitations_not_self check (manager_id <> invited_user_id)
+  constraint manager_team_invitations_not_self check (manager_id <> invited_user_id),
+  constraint manager_team_invitations_permissions_object check (
+    jsonb_typeof(permissions) = 'object'
+    and coalesce(jsonb_typeof(permissions -> 'analytics.read'), '') = 'boolean'
+    and coalesce(jsonb_typeof(permissions -> 'reports.export'), '') = 'boolean'
+  )
 );
 
 create unique index if not exists manager_team_one_pending_invite
@@ -501,11 +507,13 @@ declare
   v_user uuid := auth.uid();
   v_can_manage boolean;
 begin
-  if v_user is null or (
-    public.get_my_role() is distinct from 'manager'
-    and public.get_my_role() is distinct from 'client'
+  if v_user is null or not exists (
+    select 1 from public.profiles p
+    where p.id = v_user
+      and p.role in ('manager', 'client')
+      and not coalesce(p.is_suspended, false)
   ) then
-    raise exception 'Compte KORA requis' using errcode = '42501';
+    raise exception 'Compte KORA actif requis' using errcode = '42501';
   end if;
 
   v_can_manage := public.get_my_role() = 'manager' and public.manager_has_feature('team');
@@ -682,11 +690,11 @@ begin
     select 1 from public.subscriptions s
     join public.profiles owner_profile on owner_profile.id = s.user_id
     where s.user_id = v_invite.manager_id
+      and owner_profile.role = 'manager'
       and not coalesce(owner_profile.is_suspended, false)
       and upper(coalesce(s.plan_id, s.plan, '')) = 'BUSINESS'
       and s.status in ('active', 'trialing')
-      and (coalesce(s.current_period_end, s.ends_at) is null
-           or coalesce(s.current_period_end, s.ends_at) > now())
+      and coalesce(case when s.status = 'trialing' then s.trial_end end, s.current_period_end, s.ends_at) > now()
   ) then
     raise exception 'L’abonnement BUSINESS du manager n’est plus actif.';
   end if;
@@ -710,11 +718,20 @@ language plpgsql
 security definer
 set search_path = public, pg_temp
 as $$
+declare
+  v_user uuid := auth.uid();
 begin
+  if v_user is null or exists (
+    select 1 from public.profiles p
+    where p.id = v_user and coalesce(p.is_suspended, false)
+  ) then
+    raise exception 'Compte KORA actif requis.' using errcode = '42501';
+  end if;
+
   update public.manager_team_invitations
   set status = 'declined', responded_at = now()
   where id = p_invitation_id
-    and invited_user_id = auth.uid()
+    and invited_user_id = v_user
     and status = 'pending';
   return found;
 end;
@@ -824,11 +841,11 @@ begin
         select 1 from public.subscriptions s
         join public.profiles owner_profile on owner_profile.id = s.user_id
         where s.user_id = p_manager_id
+          and owner_profile.role = 'manager'
           and not coalesce(owner_profile.is_suspended, false)
           and upper(coalesce(s.plan_id, s.plan, '')) = 'BUSINESS'
           and s.status in ('active', 'trialing')
-          and (coalesce(s.current_period_end, s.ends_at) is null
-               or coalesce(s.current_period_end, s.ends_at) > now())
+          and coalesce(case when s.status = 'trialing' then s.trial_end end, s.current_period_end, s.ends_at) > now()
       )
   );
 
@@ -882,8 +899,13 @@ declare
   v_user uuid := auth.uid();
   v_allowed boolean := false;
 begin
-  if v_user is null or p_manager_id is null then
-    raise exception 'Connexion requise.' using errcode = '42501';
+  if v_user is null or p_manager_id is null or not exists (
+    select 1 from public.profiles p
+    where p.id = v_user
+      and p.role in ('manager', 'client')
+      and not coalesce(p.is_suspended, false)
+  ) then
+    raise exception 'Compte KORA actif requis.' using errcode = '42501';
   end if;
 
   v_allowed := (p_manager_id = v_user and public.manager_has_feature('reports'))
@@ -896,11 +918,13 @@ begin
         and coalesce((m.permissions ->> 'reports.export')::boolean, false)
         and exists (
           select 1 from public.subscriptions s
+          join public.profiles owner_profile on owner_profile.id = s.user_id
           where s.user_id = p_manager_id
+            and owner_profile.role = 'manager'
+            and not coalesce(owner_profile.is_suspended, false)
             and upper(coalesce(s.plan_id, s.plan, '')) = 'BUSINESS'
             and s.status in ('active', 'trialing')
-            and (coalesce(s.current_period_end, s.ends_at) is null
-                 or coalesce(s.current_period_end, s.ends_at) > now())
+            and coalesce(case when s.status = 'trialing' then s.trial_end end, s.current_period_end, s.ends_at) > now()
         )
     );
 

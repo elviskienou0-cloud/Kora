@@ -85,8 +85,9 @@ export default function ManagerBusinessAnalytics() {
   const { language } = useI18n()
   const [searchParams] = useSearchParams()
   const navigate = useNavigate()
-  const workspaceId = searchParams.get("workspace") || user?.authId
-  const isOwnWorkspace = workspaceId === user?.authId
+  const currentUserId = user?.authId || user?.id
+  const workspaceId = searchParams.get("workspace") || currentUserId
+  const isOwnWorkspace = workspaceId === currentUserId
   const [data, setData] = useState(null)
   const [loading, setLoading] = useState(true)
   const [exporting, setExporting] = useState("")
