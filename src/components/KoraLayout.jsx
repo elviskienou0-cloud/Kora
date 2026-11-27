@@ -107,6 +107,12 @@ function getMenuItems(t) {
         icon: FileText,
       },
       {
+        label: t("navigation.projects"),
+        href: "/manager/projects",
+        feature: "can_manage_projects",
+        icon: BriefcaseBusiness,
+      },
+      {
         label: t("navigation.subscription"),
         href: "/manager/subscription",
         icon: CreditCard,
