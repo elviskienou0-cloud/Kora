@@ -4,6 +4,7 @@ import { Menu, X } from "lucide-react"
 import koraLogo from "@/assets/kora-logo.svg"
 import { KButton } from "@/components/ui/KButton"
 import { cn } from "@/lib/utils"
+import ThemeToggle from "@/components/ThemeToggle.jsx"
 import { scrollToSection, useActiveSection } from "./landingKit.jsx"
 
 export default function LandingNav({ links, labels, language, onLanguageChange }) {
@@ -63,6 +64,7 @@ export default function LandingNav({ links, labels, language, onLanguageChange }
             {links.map((link) => <li key={link.id}><a href={"#" + link.id} onClick={(event) => followSection(event, link.id)} aria-current={active === link.id ? "location" : undefined} className={cn("block rounded-full px-3 py-2 text-sm font-semibold transition-colors", active === link.id ? "bg-muted text-foreground" : "text-foreground/65 hover:bg-muted hover:text-foreground")}>{link.label}</a></li>)}
           </ul>
           <div className="ml-auto flex shrink-0 items-center gap-1">
+            <ThemeToggle className="min-h-12 min-w-12" />
             <button type="button" onClick={onLanguageChange} aria-label={language === "fr" ? "Switch to English" : "Passer en français"} className="inline-flex min-h-12 min-w-12 items-center justify-center rounded-full px-3 text-xs font-extrabold tracking-wider text-foreground/75 hover:bg-muted">{language === "fr" ? "EN" : "FR"}</button>
             <Link to="/login" className="hidden min-h-12 items-center rounded-full px-3 text-sm font-semibold text-foreground/80 hover:bg-muted sm:inline-flex">{labels.login}</Link>
             <KButton variant="gold" size="md" onClick={() => navigate("/register")} className="min-h-12 px-4">
@@ -76,7 +78,7 @@ export default function LandingNav({ links, labels, language, onLanguageChange }
         <div id="kora-mobile-nav" hidden={!menuOpen} className="mt-2 rounded-2xl border border-border bg-background p-3 shadow-xl lg:hidden">
           <ul className="grid gap-1">
             {links.map((link) => <li key={link.id}><a href={"#" + link.id} onClick={(event) => followSection(event, link.id)} className="flex min-h-12 items-center rounded-xl px-4 text-sm font-semibold hover:bg-muted">{link.label}</a></li>)}
-            <li className="grid grid-cols-2 gap-2 border-t border-border pt-2">
+            <li className="grid grid-cols-2 gap-2">
               <Link to="/login" onClick={() => setMenuOpen(false)} className="flex min-h-12 items-center justify-center rounded-xl border border-border px-3 text-sm font-semibold">{labels.login}</Link>
               <Link to="/register" onClick={() => setMenuOpen(false)} className="flex min-h-12 items-center justify-center rounded-xl bg-primary px-3 text-sm font-bold text-primary-foreground">{labels.start}</Link>
             </li>

@@ -41,6 +41,7 @@ import useIsMobile from "@/hooks/use-mobile.jsx"
 import { cn } from "@/lib/utils.js"
 import AnnouncementTicker from "@/components/AnnouncementTicker.jsx"
 import ThemeToggle from "@/components/ThemeToggle.jsx"
+import KoraWorkspaceNav from "@/components/KoraWorkspaceNav.jsx"
 import koraLogo from "@/assets/kora-logo.svg"
 import "@/styles/superadmin-glass.css"
 
@@ -812,14 +813,14 @@ export default function KoraLayout() {
   return (
     <div className={cn("kora-workspace min-h-screen flex", role === "superadmin" ? "kora-superadmin-glass" : "bg-background")}
       data-kora-role={role || "client"}>
-      {!isMobile && (
+      {!isMobile && role !== "client" && role !== "manager" && (
         <div className="kora-workspace-sidebar w-64 shrink-0 h-screen sticky top-0 text-sidebar-foreground">
           {renderSidebarContent()}
         </div>
       )}
 
       <AnimatePresence>
-        {isMobile && sidebarOpen && (
+        {isMobile && role !== "client" && role !== "manager" && sidebarOpen && (
           <>
             <motion.div
               initial={{ opacity: 0 }}
@@ -856,7 +857,10 @@ export default function KoraLayout() {
 
       <div className="flex-1 flex flex-col min-w-0">
         <header className="kora-workspace-topbar sticky top-0 z-30 border-b border-border bg-background/80 backdrop-blur-xl">
-          <div className="kora-workspace-topbar-inner h-16 px-4 sm:px-6 flex items-center justify-between gap-4">
+          {(role === "client" || role === "manager") ? (
+            <KoraWorkspaceNav role={role} menu={menu} user={user} roleLabel={roleInfo.label} onLogout={handleLogout} />
+          ) : (
+            <div className="kora-workspace-topbar-inner h-16 px-4 sm:px-6 flex items-center justify-between gap-4">
             <div className="flex items-center gap-3">
               {isMobile && (
                 <button
@@ -948,7 +952,8 @@ export default function KoraLayout() {
                 </p>
               </div>
             </div>
-          </div>
+            </div>
+          )}
         </header>
 
         <main className="flex-1 p-4 sm:p-6 lg:p-8">
