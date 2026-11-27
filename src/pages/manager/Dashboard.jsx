@@ -84,11 +84,11 @@ const { t } = useI18n()
 const [talents, setTalents] = useState([])
 const [requests, setRequests] = useState([])
 const [notifications, setNotifications] = useState([])
-const [revenue, setRevenue] = useState(0)
 
 const [search, setSearch] = useState("")
 const [loading, setLoading] = useState(true)
 const [error, setError] = useState("")
+const [planAccess, setPlanAccess] = useState(null)
 
 useEffect(() => {
 if (authLoading) return
@@ -111,11 +111,18 @@ async function loadDashboard() {
   setError("")
 
   try {
+    const { data: accessData, error: accessError } = await supabase.rpc("get_my_manager_plan_access")
+    if (accessError) throw accessError
+    if (cancelled) return
+    setPlanAccess(accessData || {})
+
+    const canManageRequests = Boolean(accessData?.active && accessData?.can_manage_requests)
+    const canViewNotifications = Boolean(accessData?.active && accessData?.can_view_notifications)
+
     const [
       talentsResult,
       requestsResult,
       notificationsResult,
-      transactionsResult,
     ] = await Promise.all([
       supabase
         .from("talent_profiles")
@@ -125,27 +132,22 @@ async function loadDashboard() {
           ascending: false,
         }),
 
-      supabase
-        .from("requests")
-        .select("*")
-        .eq("manager_id", user.authId)
-        .order("created_at", {
-          ascending: false,
-        }),
+      canManageRequests
+        ? supabase
+            .from("requests")
+            .select("*")
+            .eq("manager_id", user.authId)
+            .order("created_at", { ascending: false })
+        : Promise.resolve({ data: [], error: null }),
 
-      supabase
-        .from("notifications")
-        .select("*")
-        .eq("user_id", user.authId)
-        .order("created_at", {
-          ascending: false,
-        })
-        .limit(5),
-
-      supabase
-        .from("kora_transactions")
-        .select("manager_amount, amount, status")
-        .eq("manager_id", user.authId),
+      canViewNotifications
+        ? supabase
+            .from("notifications")
+            .select("*")
+            .eq("user_id", user.authId)
+            .order("created_at", { ascending: false })
+            .limit(5)
+        : Promise.resolve({ data: [], error: null }),
     ])
 
     if (talentsResult.error) {
@@ -160,22 +162,12 @@ async function loadDashboard() {
       throw notificationsResult.error
     }
 
-    if (transactionsResult.error) {
-      throw transactionsResult.error
-    }
-
     if (cancelled) return
 
     setTalents(talentsResult.data || [])
     setRequests(requestsResult.data || [])
     setNotifications(notificationsResult.data || [])
 
-    const paidStatuses = new Set(["paid", "completed", "confirmed", "success", "succeeded"])
-    const totalRevenue = (transactionsResult.data || [])
-      .filter((transaction) => paidStatuses.has(String(transaction.status || "").toLowerCase()))
-      .reduce((sum, transaction) => sum + Number(transaction.manager_amount ?? transaction.amount ?? 0), 0)
-
-    setRevenue(totalRevenue)
   } catch (err) {
     console.error(
       "Erreur chargement dashboard manager :",
@@ -272,6 +264,12 @@ return ( <div className="min-h-full space-y-8 bg-background p-4 md:p-6"> <div> <
     <p className="mt-2 text-muted-foreground">
       {t("manager.manageTalents")}
     </p>
+    {planAccess?.can_view_advanced_analytics && (
+      <Button className="mt-4" onClick={() => navigate("/manager/analytics")}>
+        {t("manager.analyticsTitle")}
+        <ArrowRight className="ml-2 h-4 w-4" />
+      </Button>
+    )}
   </div>
 
   {error && (
@@ -311,59 +309,31 @@ return ( <div className="min-h-full space-y-8 bg-background p-4 md:p-6"> <div> <
       </CardContent>
     </Card>
 
-    <Card>
-      <CardContent className="flex items-center justify-between p-6">
-        <div>
-          <p className="text-sm text-muted-foreground">
-            {t("manager.activeRequests")}
-          </p>
-
-          <p className="mt-2 text-3xl font-bold">
-            {activeRequests}
-          </p>
-        </div>
-
-        <div className="rounded-xl bg-accent p-3">
-          <ClipboardList className="h-6 w-6 text-foreground" />
-        </div>
-      </CardContent>
-    </Card>
-
-    <Card>
-      <CardContent className="flex items-center justify-between p-6">
-        <div>
-          <p className="text-sm text-muted-foreground">
-            {t("manager.revenue")}
-          </p>
-
-          <p className="mt-2 text-2xl font-bold">
-            {new Intl.NumberFormat("fr-FR", {
-              style: "currency",
-              currency: "XOF",
-              maximumFractionDigits: 0,
-            }).format(revenue)}
-          </p>
-
-          <p className="mt-1 text-xs text-muted-foreground">
-            {t("manager.settledTransactions")}
-          </p>
-        </div>
-
-        <div className="rounded-xl bg-accent p-3">
-          <ClipboardList className="h-6 w-6 text-foreground" />
-        </div>
-      </CardContent>
-    </Card>
+    {planAccess?.can_manage_requests && (
+      <Card>
+        <CardContent className="flex items-center justify-between p-6">
+          <div>
+            <p className="text-sm text-muted-foreground">{t("manager.activeRequests")}</p>
+            <p className="mt-2 text-3xl font-bold">{activeRequests}</p>
+          </div>
+          <div className="rounded-xl bg-accent p-3">
+            <ClipboardList className="h-6 w-6 text-foreground" />
+          </div>
+        </CardContent>
+      </Card>
+    )}
   </div>
 
   <div className="grid gap-6 lg:grid-cols-3">
-    <div className="lg:col-span-2">
-      <WeeklyChart
-        data={weeklyRequests}
-        title={t("manager.requestActivity")}
-        subtitle={t("manager.requestsLast7Days")}
-      />
-    </div>
+    {planAccess?.can_view_simple_dashboard && (
+      <div className="lg:col-span-2">
+        <WeeklyChart
+          data={weeklyRequests}
+          title={t("manager.requestActivity")}
+          subtitle={t("manager.requestsLast7Days")}
+        />
+      </div>
+    )}
 
     <Card>
       <CardHeader>
@@ -501,6 +471,7 @@ return ( <div className="min-h-full space-y-8 bg-background p-4 md:p-6"> <div> <
       </CardContent>
     </Card>
 
+    {planAccess?.can_view_notifications && (
     <Card>
       <CardHeader>
         <div className="flex items-center justify-between">
@@ -545,8 +516,10 @@ return ( <div className="min-h-full space-y-8 bg-background p-4 md:p-6"> <div> <
         )}
       </CardContent>
     </Card>
+    )}
   </div>
 
+  {planAccess?.can_manage_requests && (
   <Card>
     <CardHeader>
       <div className="flex items-center justify-between">
@@ -612,6 +585,7 @@ return ( <div className="min-h-full space-y-8 bg-background p-4 md:p-6"> <div> <
       )}
     </CardContent>
   </Card>
+  )}
 </div>
 
 )
