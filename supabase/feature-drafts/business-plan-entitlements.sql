@@ -143,7 +143,8 @@ begin
 
   if v_plan_id is null
      or v_status not in ('trialing', 'active')
-     or (v_expiry is not null and v_expiry <= now()) then
+     or (v_expiry is not null and v_expiry <= now())
+     or not exists (select 1 from public.plans p where p.id = v_plan_id and p.is_active = true) then
     return false;
   end if;
 
@@ -272,7 +273,7 @@ begin
   if not public.manager_has_feature('requests') then
     raise exception 'La gestion des demandes est réservée aux plans PRO et BUSINESS.' using errcode = '42501';
   end if;
-  if p_status not in ('accepted', 'rejected') then
+  if p_status is null or p_status not in ('accepted', 'rejected') then
     raise exception 'Statut invalide. Utilisez accepted ou rejected';
   end if;
 
@@ -361,7 +362,7 @@ begin
     raise exception 'Utilisateur non authentifié' using errcode = '42501';
   end if;
 
-  if public.get_my_role() <> 'manager' and not public.is_admin() then
+  if public.get_my_role() is distinct from 'manager' and not public.is_admin() then
     raise exception 'Accès manager requis' using errcode = '42501';
   end if;
 
@@ -373,7 +374,7 @@ begin
     raise exception 'Projet manquant';
   end if;
 
-  if p_status not in ('active', 'completed', 'cancelled') then
+  if p_status is null or p_status not in ('active', 'completed', 'cancelled') then
     raise exception 'Statut de projet invalide';
   end if;
 
@@ -500,7 +501,10 @@ declare
   v_user uuid := auth.uid();
   v_can_manage boolean;
 begin
-  if v_user is null or public.get_my_role() not in ('manager', 'client') then
+  if v_user is null or (
+    public.get_my_role() is distinct from 'manager'
+    and public.get_my_role() is distinct from 'client'
+  ) then
     raise exception 'Compte KORA requis' using errcode = '42501';
   end if;
 
@@ -654,8 +658,13 @@ declare
   v_user uuid := auth.uid();
   v_invite public.manager_team_invitations%rowtype;
 begin
-  if v_user is null or public.get_my_role() not in ('manager', 'client') then
-    raise exception 'Un compte KORA est nécessaire.' using errcode = '42501';
+  if v_user is null or (
+    public.get_my_role() is distinct from 'manager'
+    and public.get_my_role() is distinct from 'client'
+  ) or exists (
+    select 1 from public.profiles p where p.id = v_user and coalesce(p.is_suspended, false)
+  ) then
+    raise exception 'Un compte KORA actif est nécessaire.' using errcode = '42501';
   end if;
 
   select * into v_invite
@@ -794,8 +803,13 @@ declare
   v_can_export boolean := false;
 begin
   if v_user is null or p_manager_id is null
-     or exists (select 1 from public.profiles p where p.id = v_user and coalesce(p.is_suspended, false)) then
-    raise exception 'Connexion requise ou compte suspendu.' using errcode = '42501';
+     or not exists (
+       select 1 from public.profiles p
+       where p.id = v_user
+         and p.role in ('manager', 'client')
+         and not coalesce(p.is_suspended, false)
+     ) then
+    raise exception 'Compte KORA actif requis.' using errcode = '42501';
   end if;
 
   v_owner_business := p_manager_id = v_user and public.manager_has_feature('analytics');
