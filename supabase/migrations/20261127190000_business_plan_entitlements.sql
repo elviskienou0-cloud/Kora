@@ -694,7 +694,7 @@ begin
       and not coalesce(owner_profile.is_suspended, false)
       and upper(coalesce(s.plan_id, s.plan, '')) = 'BUSINESS'
       and s.status in ('active', 'trialing')
-      and coalesce(s.current_period_end, s.ends_at) > now()
+      and coalesce(case when s.status = 'trialing' then s.trial_end end, s.current_period_end, s.ends_at) > now()
   ) then
     raise exception 'L’abonnement BUSINESS du manager n’est plus actif.';
   end if;
@@ -845,7 +845,7 @@ begin
           and not coalesce(owner_profile.is_suspended, false)
           and upper(coalesce(s.plan_id, s.plan, '')) = 'BUSINESS'
           and s.status in ('active', 'trialing')
-          and coalesce(s.current_period_end, s.ends_at) > now()
+          and coalesce(case when s.status = 'trialing' then s.trial_end end, s.current_period_end, s.ends_at) > now()
       )
   );
 
@@ -924,7 +924,7 @@ begin
             and not coalesce(owner_profile.is_suspended, false)
             and upper(coalesce(s.plan_id, s.plan, '')) = 'BUSINESS'
             and s.status in ('active', 'trialing')
-            and coalesce(s.current_period_end, s.ends_at) > now()
+            and coalesce(case when s.status = 'trialing' then s.trial_end end, s.current_period_end, s.ends_at) > now()
         )
     );
 
