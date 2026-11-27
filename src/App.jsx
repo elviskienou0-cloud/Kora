@@ -424,7 +424,7 @@ export default function App() {
             <Route
               path="/manager/analytics"
               element={
-                <RoleGuard allowedRoles={["manager"]}>
+                <RoleGuard allowedRoles={["manager", "client"]}>
                   <ManagerBusinessAnalytics />
                 </RoleGuard>
               }
@@ -433,7 +433,7 @@ export default function App() {
             <Route
               path="/manager/team"
               element={
-                <RoleGuard allowedRoles={["manager"]}>
+                <RoleGuard allowedRoles={["manager", "client"]}>
                   <ManagerTeam />
                 </RoleGuard>
               }
