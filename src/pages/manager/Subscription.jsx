@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react"
 import { useSearchParams } from "react-router-dom"
-import { CheckCircle2, Clock3, CreditCard, Crown, Loader2, ShieldCheck, Upload } from "lucide-react"
+import { CheckCircle2, Clock3, CreditCard, Crown, Loader2, ShieldCheck, Upload, XCircle } from "lucide-react"
 import { toast } from "sonner"
 
 import { Button } from "@/components/ui/button"
@@ -32,29 +32,41 @@ function formatMoney(value, currency = "XOF") {
 }
 
 const FEATURE_EN = {
-  "Gestion des talents": "Talent management",
-  "Profil talent": "Talent profile",
-  "Portfolio et médias": "Portfolio and media",
+  "Création et consultation du profil talent": "Create and view talent profiles",
+  "Galerie et portfolio du talent": "Talent gallery and portfolio",
   "Gestion du cachet": "Fee management",
-  "Gestion des demandes": "Request management",
+  "Profil manager": "Manager profile",
   "Messagerie": "Messaging",
+  "Gestion de plusieurs talents": "Manage multiple talents",
+  "Gestion des demandes": "Request management",
   "Notifications": "Notifications",
-  "Gestion des projets": "Project management",
   "Tableau de bord simplifié": "Basic dashboard",
+  "Gestion des projets": "Project management",
+  "Organisation du portefeuille de talents": "Talent portfolio organisation",
   "Tableau de bord analytique avancé": "Advanced analytics dashboard",
   "Statistiques détaillées": "Detailed statistics",
   "Analyse des performances des talents": "Talent performance analysis",
-  "Gestion collaborative": "Collaborative management",
-  "Invitation de collaborateurs": "Invite collaborators",
-  "Gestion des membres de l\'équipe": "Team member management",
-  "Permissions personnalisées": "Custom permissions",
+  "Collaboration sur les analyses et rapports": "Collaboration on analytics and reports",
+  "Invitation de collaborateurs dans KORA": "Invite collaborators inside KORA",
+  "Gestion des membres de l'équipe": "Team member management",
+  "Permissions d'accès personnalisées": "Custom access permissions",
   "Modification et révocation des accès": "Edit and revoke access",
-  "Génération de rapports d\'activité": "Activity reports",
+  "Génération de rapports d'activité": "Activity reports",
   "Export des données en PDF": "PDF data export",
-  "Export des données en Excel": "Excel data export",
-  "Profil manager": "Manager profile",
-  "Organisation du portefeuille de talents": "Talent portfolio organisation",
+  "Export CSV compatible Excel": "Excel-compatible CSV export",
 }
+
+const PLAN_RESTRICTIONS = {
+  FREE: {
+    fr: ["Pas de gestion des demandes", "Pas de gestion des projets", "Pas de statistiques avancées", "Pas de gestion d'équipe"],
+    en: ["No request management", "No project management", "No advanced statistics", "No team management"],
+  },
+  PRO: {
+    fr: ["Trois talents maximum", "Pas de gestion collaborative", "Pas de permissions d'équipe", "Pas de tableau de bord analytique avancé", "Pas de statistiques détaillées", "Pas de rapports ni d'exports"],
+    en: ["Three talents maximum", "No team collaboration", "No team permissions", "No advanced analytics dashboard", "No detailed statistics", "No reports or exports"],
+  },
+  BUSINESS: { fr: [], en: [] },
+};
 
 function getPlanDetails(plan, language) {
   const features = Array.isArray(plan?.features) ? plan.features : []
@@ -407,7 +419,11 @@ export default function ManagerSubscription() {
                 <div className="flex items-start justify-between gap-3">
                   <div>
                     <CardTitle className="font-black">{plan.name}</CardTitle>
-                    <CardDescription>{id === "FREE" ? t("manager.noPaidSubscription") : t("manager.monthlySubscription")}</CardDescription>
+                    <CardDescription>
+                      {id === "FREE"
+                        ? (language === "en" ? "30-day free trial" : "30 jours d'essai offerts")
+                        : (language === "en" ? "30 days" : "30 jours")}
+                    </CardDescription>
                   </div>
                   {isCurrent && <Badge className="bg-gold/10 text-gold-dark border-gold/30">{t("subscriptions.active")}</Badge>}
                 </div>
@@ -431,6 +447,20 @@ export default function ManagerSubscription() {
                     </div>
                   ))}
                 </div>
+
+                {PLAN_RESTRICTIONS[id]?.[language === "en" ? "en" : "fr"]?.length > 0 && (
+                  <div className="space-y-2 border-t border-border/70 pt-4">
+                    <p className="text-xs font-bold uppercase tracking-wide text-muted-foreground">
+                      {language === "en" ? "Restrictions" : "Restrictions"}
+                    </p>
+                    {PLAN_RESTRICTIONS[id][language === "en" ? "en" : "fr"].map((item) => (
+                      <div key={item} className="flex items-start gap-2 text-xs text-muted-foreground">
+                        <XCircle className="mt-0.5 h-3.5 w-3.5 shrink-0" />
+                        <span>{item}</span>
+                      </div>
+                    ))}
+                  </div>
+                )}
 
                 <Button
                   className="w-full gap-2"
