@@ -534,7 +534,7 @@ export default function KoraLayout() {
   // ==========================================================
 
   const renderSidebarContent = () => (
-    <aside className="flex flex-col h-full">
+    <aside className="kora-workspace-sidebar-content flex flex-col h-full">
       <div className="p-5 border-b border-sidebar-border">
         <Link
           to={homeHref}
@@ -813,7 +813,7 @@ export default function KoraLayout() {
     <div className={cn("kora-workspace min-h-screen flex", role === "superadmin" ? "kora-superadmin-glass" : "bg-background")}
       data-kora-role={role || "client"}>
       {!isMobile && (
-        <div className="w-64 shrink-0 h-screen sticky top-0 border-r border-sidebar-border bg-sidebar text-sidebar-foreground">
+        <div className="kora-workspace-sidebar w-64 shrink-0 h-screen sticky top-0 text-sidebar-foreground">
           {renderSidebarContent()}
         </div>
       )}
@@ -838,7 +838,7 @@ export default function KoraLayout() {
                 damping: 25,
                 stiffness: 200,
               }}
-              className="fixed inset-y-0 left-0 z-50 w-72 bg-sidebar border-r border-sidebar-border"
+              className="kora-workspace-mobile-drawer fixed inset-y-0 left-0 z-50 w-72 bg-sidebar border-r border-sidebar-border"
             >
               <button
                 onClick={() => setSidebarOpen(false)}
@@ -855,8 +855,8 @@ export default function KoraLayout() {
       </AnimatePresence>
 
       <div className="flex-1 flex flex-col min-w-0">
-        <header className="sticky top-0 z-30 border-b border-border bg-background/80 backdrop-blur-xl">
-          <div className="h-16 px-4 sm:px-6 flex items-center justify-between gap-4">
+        <header className="kora-workspace-topbar sticky top-0 z-30 border-b border-border bg-background/80 backdrop-blur-xl">
+          <div className="kora-workspace-topbar-inner h-16 px-4 sm:px-6 flex items-center justify-between gap-4">
             <div className="flex items-center gap-3">
               {isMobile && (
                 <button
